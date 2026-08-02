@@ -1,7 +1,3 @@
-これまでに構築したモノレポ構成の DevContainer ひな形について、そのアーキテクチャや各機能の仕様を詳しくまとめました。
-
----
-
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
