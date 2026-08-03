@@ -42,7 +42,7 @@ export function formatEnvForLog(envObj: Env): string {
 // ⚠️ トップレベルで validateEnv() を直接実行するのではなく、
 // ブラウザ環境（typeof window !== 'undefined'）では参照しない安全なガードを入れる
 export const env: Env = typeof window !== 'undefined'
-    ? ({} as Env) // ブラウザ側でこのオブジェクトが呼ばれた場合はダミーを返す
+    ? ({} as Env)
     : (process.env.NODE_ENV === 'test'
         ? (process.env as unknown as Env)
         : validateEnv());

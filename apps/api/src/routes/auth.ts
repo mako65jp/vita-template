@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { AuthRegistry } from '@app/core/auth/auth-registry.ts';
+import { AuthRegistry } from '@app/core/auth/auth-registry';
 
 const authRouter = new Hono();
 

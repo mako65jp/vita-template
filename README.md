@@ -3,223 +3,304 @@
 ## 1. システム概要 (Overview)
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
-バックエンドには軽量・高速な **Hono** を、フロントエンドには **React + Vite** を採用し、共通ロジックやプラグイン（認証・機能コンポーネント等）を `packages/` 配下に分離した拡張性の高いアーキテクチャを採用しています。
+バックエンドには軽量・高速な Web フレームワーク（**Hono**）を、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite**）を採用し、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を導入しています。
+共通ロジックや拡張機能（認証・業務コンポーネント等）を独立したパッケージへ分離することで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
 
 ## 2. 開発環境仕様 (Development Environment)
 
-開発チーム間での環境差異を失くし、データベース（PostgreSQL）を含めた開発環境を一括構築するため、**VS Code Dev Containers + Docker Compose** を標準の開発環境として導入しています。
+開発チーム全員が同一の動作環境を再現し、ローカル環境依存のエラーやデータベース構築の手間を排除するため、**コンテナ型開発環境 (VS Code Dev Containers + Docker Compose)** を標準の開発基盤として定めます。
 
 ### 2.1 開発環境要件
 
-* **VS Code 拡張機能:** `ms-vscode-remote.remote-containers` (Dev Containers)
-* **コンテナランタイム:** Docker Desktop / OrbStack / Rancher Desktop 等
-* **Node.js バージョン:** `v20.x` (DevContainer 上で固定)
-* **パッケージマネージャー:** `npm` (npm workspaces によるマルチパッケージ管理)
+* **VS Code 拡張機能:** Dev Containers (`ms-vscode-remote.remote-containers`)
+* **コンテナランタイム:** Docker 互換環境 (Docker Desktop / OrbStack / Rancher Desktop 等)
+* **Node.js 実行環境:** LTS バージョン (`v20.x` コンテナ内で固定)
+* **パッケージ管理:** `npm` ワークスペース（複数パッケージ間の相互依存関係を一括管理）
 
-### 2.2 DevContainer & Docker Compose サービス構成
+### 2.2 コンテナ & サービス構成
 
-`.devcontainer/docker-compose.yml` により、以下の 2 つのサービスが連携して起動します。
+開発環境は `.devcontainer/docker-compose.yml` により、アプリケーション実行環境とデータベース環境の 2 つのサービスで構成されます。
 
-| サービス名 | コンテナ / イメージ | ポートフォワード | 役割・説明 |
-| --- | --- | --- | --- |
-| **app** | .devcontainer/Dockerfile (`typescript-node:1-20-bookworm`) | `3000:3000`, `3001:3001` | 開発用アプリケーションコンテナ。VS Code がアタッチする対象。各パッケージの `node_modules` はホストとの干渉を防ぐため匿名ボリュームとして分離。 |
-| **db** | `postgres:15-alpine` | `5432:5432` | 開発用 PostgreSQL データベース。`postgres-data` ボリュームによりデータが永続化されます。 |
+| サービス名 | コンテナ / イメージ | 役割・設計の意図 |
+| --- | --- | --- |
+| **app** | Node.js 20 Linux 環境 (`.devcontainer/Dockerfile`) | 開発者のプライマリ実行環境。VS Code をアタッチして開発を行います。ホスト環境の `node_modules` との依存関係衝突を防ぐため、ライブラリ層は匿名ボリュームとして独立管理します。 |
+| **db** | PostgreSQL (`postgres:16-alpine`) | 開発専用のローカルデータベース。アプリケーションの終了やリスタートを行ってもデータが失われないよう、専用ボリュームで永続化します。 |
 
-* **コンテナ内データベース接続:**
-`app` コンテナからは `postgresql://postgres:postgres@db:5432/app_db?schema=public` で接続します。
+* **コンテナ間ネットワーク接続:**
+アプリケーションコンテナ（`app`）からデータベースコンテナ（`db`）へは、内部 DNS 解決された同一ネットワーク上の URI (`postgresql://postgres:postgres@db:5432/app_db`) を用いて接続します。
 
 ---
 
 ## 3. アーキテクチャ＆拡張パターン (Architecture & Extension Patterns)
 
-本プロジェクトはモノレポ構造を生かし、各領域の責務を明確に分離（疎結合化）しています。新しい機能やプラグインを追加する際は、以下の構成パターンに従って実装します。
+モノレポ構造の強みを活かし、システムの各領域（基盤・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
 
 ### 3.1 パッケージの層構造と役割 (Layer Architecture)
 
-* **`packages/core` (基盤レイヤー)**
-* アプリケーション全体で共有される**型定義・環境変数設定・共通ユーティリティ・エラー定義**を保持します。
-* `apps/*` や他の `packages/*` から普遍的に参照される「共通基盤」です。特定のビジネスロジックには依存させません。
+| パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
+| --- | --- | --- | --- | --- |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | ローカル認証、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
+| **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
+
+### 3.2 拡張ルールと依存方向 (Extension Rules)
+
+1. **機能追加の手順:**
+* 新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
 
 
-* **`packages/plugins/` (認証・外部連携プラグイン)**
-* 特定の認証方式（例: Local認証、Active Directory / OAuth 等）や外部連携サービスなどの切替可能なコンポーネントを独立パッケージ化します。
-* `apps/api` や `apps/web` は、設定や環境変数に応じて使用するプラグインを選択・注入（Dependency Injection）します。
-
-
-* **`packages/features/` (ドメイン機能モジュール)**
-* 特定の業務ドメインや機能群（例: サンプル機能 `sample`、ユーザー管理、決済等）をカプセル化したパッケージです。
-* フロントエンドコンポーネントとバックエンドロジック（または API ルート定義）をセットでパッケージ化することで、機能単位での追加・削除・テストを容易にします。
-
-
-
-### 3.2 機能拡張パターン (Extension Workflow)
-
-1. **新しい共有プラグイン・機能の追加（※実装構成例）:**
-* **例:** `packages/plugins/` または `packages/features/` 配下に新しいディレクトリ（例: `packages/features/todo`）を作成し、`package.json` を配置する構成などが考えられます。
-* ルートの `package.json`（および必要に応じて `docker-compose.yml` 等）の依存関係指定と合わせることで、npm ワークスペースとして自動認識させる運用方法が一例として挙げられます。
-
-
-2. **依存関係の参照ルール:**
-* 参照は常に **上位層（`apps/`） ➔ 下位層（`packages/`）** の一方向に限定します。
-* `packages/` 内のモジュールが `apps/` のコードに逆依存することは禁止します。
+2. **単方向依存の徹底:**
+* 依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
 
 
 
 ---
 
-## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
+## 4. データベース & ORM 仕様 (Database & ORM)
 
-`npm workspaces` を使用してプロジェクトをマルチパッケージ管理しています。
+### 4.1 ORM の設計と接続管理
+
+* **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM) を採用します。
+* **シングルトン接続:** データベースへのコネクション pool の無駄遣いを防ぐため、`packages/core/src/db/index.ts` にて環境変数の正常性を検証した上で、単一の接続インスタンス（`db`）を保持・供給します。
+
+### 4.2 スキーマ定義
+
+* データベースの構造（テーブル・リレーション等）は、`packages/core/src/db/schema.ts` を正（Single Source of Truth）として定義します。
+
+### 4.3 構成ファイルの分離設計
+
+* テスト実行時と通常開発時でデータベース設定が混同するのを防ぐため、設定ファイルを明確に分離します。
+* 特にテスト専用の設定ファイルは、テストフレームワーク（Vitest）の自動テスト検出機能が誤ってテストケースと誤認しないよう、**`drizzle-test.config.ts`** のように明示的な命名ルールを設けて構成します。
+
+---
+
+## 5. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
+
+### 5.1 機能の自動検出とルーティング登録
+
+* 各 Feature パッケージが持つ API ルート（Hono インスタンス）を個別に手動インポートする手間を省くため、指定ディレクトリ配下のモジュールを動的に探索・一括登録する自動ローダー機構（`hono-auto-loader.ts`）を導入します。
+
+### 5.2 クロスプラットフォーム＆モジュール互換性の保障
+
+* 動的インポート実行時における OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、以下の実装ガイドラインを厳守します。
+
+> **意図:** 単純な文字列連結によるパス指定（`file://...`）を避け、Node.js 標準の URI 変換処理を用いることで、ポータブルで安全な動的インポートを実現します。また、ビルドツールに対して不必要な静的解析警告を出さないよう抑制します。
+
+```typescript
+// 安全な動的インポート実装例 (packages/core/src/registry/hono-auto-loader.ts)
+const absolutePath = path.resolve(file);
+const moduleUrl = pathToFileURL(absolutePath).href; // URI形式へ安全に変換
+const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解析警告を抑止
+
+```
+
+---
+
+## 6. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
+
+モノレポ全体を見通し良く管理するための標準的なフォルダおよび全ファイル構成です。
 
 ```text
 .
-├── .devcontainer/                # DevContainer & Docker 構成フォルダ
-│   ├── devcontainer.json         # DevContainer 起動・拡張機能設定
-│   ├── docker-compose.yml        # DevContainer 連携サービス定義 (app, db)
-│   └── Dockerfile                # DevContainer 用ベースイメージ・環境定義
-├── .env                          # プロジェクト共通の環境変数設定ファイル
-├── .gitignore                    # Git 管理除外設定
-├── package.json                  # ルート package.json (全体スクリプト・ワークスペース管理)
-├── tsconfig.json                 # モノレポ全体のベース TypeScript 設定
+├── .devcontainer/                # コンテナ開発環境構成
+│   ├── devcontainer.json         # VS Code 開発環境統合設定
+│   ├── docker-compose.yml        # 開発用マルチコンテナ構成定義 (app, db)
+│   ├── Dockerfile                # アプリケーションコンテナのベース構築
+│   └── scripts/                  # 開発環境自動化・初期化スクリプト群
+│       └── setup-test-db.sh      # テスト用データベース作成・権限付与スクリプト
+├── .env                          # プロジェクト共通の環境変数定義ファイル
+├── .env.example                  # 環境変数のサンプル・テンプレート
+├── .gitignore                    # Git 管理対象外設定
+├── package.json                  # 全体スクリプトおよび Workspaces ルート定義
+├── tsconfig.json                 # モノレポ共通のベース TypeScript 設定
 │
-├── apps/                         # アプリケーションフォルダ
-│   ├── api/                      # バックエンド API サーバー (Hono / Node.js)
+├── apps/                         # アプリケーション層 (実行体)
+│   ├── api/                      # サーバーサイド API アプリケーション (Hono)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング, エラーハンドリング & サーバー起動制御)
-│   │   │   ├── index.test.ts     # API 統合テスト (エラーレスポンス・Zod検証・Vitest)
-│   │   │   └── routes/
-│   │   │       └── auth.ts       # 認証用ルーティング
-│   │   ├── package.json          # API サーバー用依存関係 (@hono/zod-validator, zod 追加済)
+│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・エラー処理・ライフサイクル制御)
+│   │   │   ├── index.test.ts     # API 統合テスト (RFC 7807 エラー検証・Zod バリデーション)
+│   │   │   └── routes/           # アプリケーション固有のルーティング
+│   │   │       └── auth.ts       # 認証APIエンドポイント
+│   │   ├── package.json          # API サーバー用依存関係・スクリプト
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
-│   └── web/                      # フロントエンド Web アプリ (React / Vite)
-│       ├── public/               # 静的アセットフォルダ
+│   └── web/                      # クライアントサイド Web アプリケーション (React / Vite)
+│       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
-│       │   ├── env.ts            # フロントエンド用型安全環境変数モジュール
-│       │   ├── App.tsx           # メインコンポーネント
-│       │   └── main.tsx          # React エントリーポイント
-│       ├── index.html            # HTML テンプレート
+│       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
+│       │   ├── App.tsx           # ルート UI コンポーネント
+│       │   ├── main.tsx          # React レンダリングエントリーポイント
+│       │   └── index.css         # グローバルスタイル定義
+│       ├── index.html            # HTML エントリーテンプレート
 │       ├── package.json          # Web アプリ用依存関係・スクリプト
 │       ├── tsconfig.json         # Web アプリ用 TypeScript 設定
-│       └── vite.config.ts        # Vite 設定 (DevProxy, loadEnv)
+│       ├── tsconfig.node.json    # Vite 設定用 TypeScript 補助設定
+│       └── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み)
 │
-└── packages/                     # 共有パッケージフォルダ
-    ├── core/                     # 共通ロジック・設定・型定義パッケージ
+└── packages/                     # 共有パッケージ層 (ライブラリ・モジュール)
+    ├── core/                     # システム共通基盤パッケージ
+    │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
+    │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル (ファイル名衝突回避)
     │   ├── src/
-    │   │   ├── config/
-    │   │   │   ├── env.ts        # 環境変数スキーマ & ロジック (Zod)
-    │   │   │   └── env.test.ts   # 環境変数の単体テスト (Vitest)
-    │   │   ├── errors/
-    │   │   │   └── index.ts      # 共通エラークラス (AppError, ValidationError) & RFC 7807 型定義 [NEW]
-    │   │   ├── auth/             # 認証レジストリ基盤
-    │   │   └── registry/         # モジュール動的ローダー (hono-auto-loader)
-    │   ├── package.json          # 共通パッケージ用依存関係・スクリプト
-    │   └── tsconfig.json         # 共通パッケージ用 TypeScript 設定
-    ├── plugins/                  # 認証プラグイン群
-    │   ├── auth-ad/              # Active Directory 認証プラグイン
-    │   └── auth-local/           # ローカル認証プラグイン
-    └── features/                 # 機能モジュール群
-        └── sample/               # サンプル機能パッケージ
+    │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
+    │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
+    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数
+    │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
+    │   │   ├── db/               # DB 接続インスタンスおよびスキーマ正定義
+    │   │   │   ├── index.ts      # シングルトン DB 接続管理
+    │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
+    │   │   │   └── db.test.ts    # データベース CRUD 操作統合テスト
+    │   │   ├── errors/           # システム標準エラー構造・RFC 7807 定義
+    │   │   │   ├── index.ts      # 共通エラークラス群 & インターフェース
+    │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
+    │   │   ├── auth/             # 認証レジストリ基盤・基本型定義
+    │   │   ├── registry/         # 動的モジュールローダー
+    │   │   │   └── hono-auto-loader.ts # Feature モジュール自動探索機能
+    │   │   └── test/             # テスト自動化ライフサイクル定義
+    │   │       ├── global-setup.ts# 全テスト実行前の DB スキーマ自動同期処理
+    │   │       └── setup.ts      # 各テストケース実行前のデータ自動全クリーンアップ
+    │   ├── package.json          # 共通基盤パッケージ用依存関係
+    │   └── tsconfig.json         # 共通基盤用 TypeScript 設定
+    ├── plugins/                  # 切り替え可能なプラグイン群
+    │   ├── auth-ad/              # Active Directory 認証連携モジュール
+    │   │   ├── src/index.ts
+    │   │   └── package.json
+    │   └── auth-local/           # ローカルデータベース認証モジュール
+    │       ├── src/index.ts
+    │       └── package.json
+    └── features/                 # 業務ドメイン機能モジュール群
+        └── sample/               # サンプル機能モジュール
+            ├── src/
+            │   ├── index.ts      # サンプル機能 API ルート定義
+            │   └── index.test.ts # サンプル機能単体テスト
+            └── package.json
 
 ```
 
 ---
 
-## 5. 環境変数 & セキュリティ仕様 (Environment Variables & Security)
+## 7. 環境変数 & セキュリティ仕様 (Environment Variables & Security)
 
-環境変数はバックエンド・フロントエンド双方で **Zod スキーマ** を用いて起動時に型検証・初期値補完を行います。
+環境変数の未設定や型間違いによるランタイムエラーを防ぎ、不必要な機密情報の漏洩を保護するため、**起動時自動検証とログの不透明化** を義務付けます。
 
-### 5.1 環境変数一覧
+### 7.1 定義されている環境変数
 
-| 変数名 | 対象 | 型 / 制約 | デフォルト値 | 説明 |
-| --- | --- | --- | --- | --- |
-| `NODE_ENV` | API | `'development'`, `'test'`, `'production'` | `'development'` | 動作モード |
-| `PORT` | API | `number` | `3001` | API サーバーの待受ポート |
-| `DATABASE_URL` | API | `string` (URL形式) | **(必須)** | PostgreSQL 接続文字列 |
-| `VITE_PORT` | Web | `string` | `'3000'` | 開発用 Web サーバーのポート |
-| `VITE_API_TARGET_URL` | Web | `string` (URL形式) | `'[http://127.0.0.1:3001](http://127.0.0.1:3001)'` | DevProxy 転送先 API URL |
-| `VITE_APP_TITLE` | Web | `string` | `'My App'` | アプリケーションタイトル |
+| 変数名 | 対象領域 | 型 / 制約 | 意図・役割 |
+| --- | --- | --- | --- |
+| `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
+| `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
+| `DATABASE_URL` | API | URL形式文字列 | データベースへの接続URI (認証情報含む) |
+| `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
+| `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
+| `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
 
-> ⚠️ **ブラウザ参照ルール:** クライアント側（Web）から参照可能な環境変数は、セキュリティ上 **`VITE_` プレフィックス** が必須となります。
+### 7.2 セキュリティ & バリデーション設計
 
-### 5.2 環境変数の検証・セキュリティアーキテクチャ
-
-1. **バックエンド (`apps/api`):**
-* **起動時チェック:** API 起動時、`validateEnv()` により `envSchema` の適合チェックを実施。不正時はエラーログを出力してプロセスを即座に停止します。
-* **ログ出力 & 秘密情報マスク:** 起動時に適用された設定内容を JSON ログ出力します。ログ出力時は `formatEnvForLog()` が `DATABASE_URL` のパスワード部分を自動的に `***` へ伏字化（マスク）します。
+1. **フェイルファスト（Fail-Fast）原則:**
+* アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
 
 
-2. **フロントエンド (`apps/web`):**
-* **安全なカプセル化 (`apps/web/src/env.ts`):** ブラウザ環境で `process.env` を参照して発生する `ReferenceError` を防ぐため、`import.meta.env` を `clientEnvSchema` で検証・型抽出した `env` オブジェクトを経由して利用します。
-* **Vite プロキシ連携:** `vite.config.ts` にて `loadEnv` を用い、ルート直下の `.env` から `VITE_API_TARGET_URL` を読み込んで API プロキシを設定します。
+2. **機密情報のログマスク（伏字化）:**
+* 動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
 
 
-
----
-
-## 6. APIエラーレスポンス & バリデーション仕様 (RFC 7807) [NEW]
-
-本プロジェクトでは、すべての API エラーレスポンスを **RFC 7807 (Problem Details for HTTP APIs)** 仕様に準拠させて統一しています。
-
-### 6.1 エラーレスポンス基本構造 (`ProblemDetails`)
-
-```typescript
-export interface InvalidParam {
-  name: string;   // エラーが発生したフィールド名（例: "email"）
-  reason: string; // エラー内容（例: "Invalid email address"）
-}
-
-export interface ProblemDetails {
-  type: string;           // エラーの分類を示す URI (例: "https://api.example.com/errors/not-found")
-  title: string;          // エラーの概要 (例: "Not Found", "Bad Request")
-  status: number;         // HTTP ステータスコード (例: 404, 400, 500)
-  detail: string;         // エラーの詳細メッセージ
-  instance: string;       // エラーが発生したリクエストパス (例: "/api/v1/users")
-  invalidParams?: InvalidParam[]; // バリデーションエラー時のフィールド別詳細リスト
-}
-
-```
-
-### 6.2 エラー処理の動作原則
-
-1. **404 Not Found 規格化:** 存在しないルートへのアクセスは `app.notFound` により常に 404 の RFC 7807 JSON が返却されます。
-2. **500 Internal Server Error 規格化:** アプリ内部で捕捉されなかった未定義例外は `app.onError` で全件キャッチし、機密情報を除外した上で 500 の RFC 7807 JSON を生成・返却します。
-3. **Zod 入力バリデーション (400 Bad Request):**
-* `@hono/zod-validator` を通じて送信された payload を検証します。
-* 検証エラー発生時は `ValidationError` がスローされ、`app.onError` 経由で `invalidParams` 配列（フィールドごとの違反理由）を含む 400 レスポンスとして返却されます。
+3. **フロントエンドの環境変数カプセル化:**
+* ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。
+* グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
 
 
 
 ---
 
-## 7. 実行スクリプト & テスト仕様 (Scripts & Testing)
+## 8. APIエラーレスポンス仕様 (RFC 7807 準拠)
 
-### 7.1 開発サーバー起動
+システムから返却されるエラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理・デバッグを容易にするため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
 
-ルートディレクトリ（または DevContainer 上）にて以下を実行します。
+### 8.1 統一エラーレスポンス構造
+
+エラー時は、単なるテキストではなく必ず以下の統一フォーマット（JSON）で返却します。
+
+| フィールド名 | キー名 | 役割・説明 | 設定例 |
+| --- | --- | --- | --- |
+| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"[https://api.example.com/errors/bad-request](https://api.example.com/errors/bad-request)"` |
+| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Not Found"` |
+| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `404`, `500` |
+| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Validation failed for parameter 'email'"` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/v1/users"` |
+| **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
+
+### 8.2 エラー制御方針
+
+1. **未定義エラーのキャッチ (500 Internal Server Error):**
+* 予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、規格化された 500 エラー構造へ変換して返却します。
+
+
+2. **入力検証エラーの自動標準化 (400 Bad Request):**
+* リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+
+
+
+---
+
+## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+
+テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
+
+### 9.1 テスト基盤
+
+* **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
+
+### 9.2 テスト自動化ライフサイクル
+
+1. **テスト開始前のデータベース構造の自動最新化 (Global Setup):**
+* 全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。
+* これにより、開発者がテスト実行前に手動でデータベースを初期化・マイグレーションする作業を不要にし、常に最新のコード仕様に基づいたテストを保証します。
+* *(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定で実行します)*
+
+
+2. **テストケース間の完全な状態隔離 (Setup Files):**
+* 個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ** します。
+* 1つのテスト結果が他のテストに影響を与える「テストの副作用（データ汚染）」を排除し、常に独立した決定論的なテスト実行環境を維持します。
+* *(内部補足: 全テーブルに対する `TRUNCATE CASCADE` を自動実行します)*
+
+
+3. **テスト実行環境の分離保護:**
+* テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制します。
+* ポートの競合エラーを防ぎつつ、高速なインメモリ HTTP リクエストによる API の振る舞い検証を可能にします。
+
+
+
+---
+
+## 10. 実行スクリプト リファレンス (Scripts)
+
+プロジェクト内で利用する標準的なコマンドです。
+
+### 10.1 開発サーバー起動
+
+すべてのアプリケーション（API・Web）を開発モードで並行起動します。
 
 ```bash
 npm run dev
 
 ```
 
-* `concurrently` により `dev:api` と `dev:web` を同時並行で立ち上げます。
-* **API 起動コマンド:** `tsx watch --env-file=../../.env src/index.ts`
+### 10.2 全テストの自動実行
 
-### 7.2 テスト自動化 & 非同期ソケット制御
-
-全テスト（TDD）の実行には以下を使用します。
+すべてのパッケージの単体テスト、DB 連携テスト、API レスポンス検証を一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
 
 ```bash
 npm test
 
 ```
 
-* **テスト環境保護 (`NODE_ENV === 'test'`):**
-`apps/api/src/index.ts` では `process.env.NODE_ENV !== 'test'` の条件分岐を設け、テスト実行時には `serve()` (HTTPリスナーのバインド) を自動スキップします。これにより、ポートの二重バインドや未捕獲のソケットエラーを防ぎ、Hono の `app.request()` によるインメモリテストをミリ秒単位で高速かつ正常に実行します。
-* **テストカバレッジ:**
-* 未定義パスアクセスの 404 検証
-* サーバー例外発生時の 500 検証
-* Zod スキーマ違反時の 400 & `invalidParams` レスポンス構造の検証
+### 10.3 テスト用 DB スキーマの手動同期
+
+テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
+
+```bash
+npm run db:push:test
+
+```

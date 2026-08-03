@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1785720373_9685' > "package.json"
+cat << 'EOF_1785746295_16348' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -29,7 +29,10 @@ cat << 'EOF_1785720373_9685' > "package.json"
     "dev:api": "npm --workspace=apps/api run dev",
     "dev:web": "npm --workspace=apps/web run dev",
     "build": "npm run build --workspaces",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:push": "npm run db:push --workspaces --if-present",
+    "db:push:test": "npm run db:push:test --workspaces --if-present",
+    "db:push:all": "npm run db:push:all --workspaces --if-present"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.5",
@@ -39,13 +42,14 @@ cat << 'EOF_1785720373_9685' > "package.json"
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@hono/node-server": "^2.0.5"
+    "@hono/node-server": "^2.0.5",
+    "drizzle-orm": "^0.45.2"
   }
 }
-EOF_1785720373_9685
+EOF_1785746295_16348
 
 echo "作成: .gitignore"
-cat << 'EOF_1785720373_12218' > ".gitignore"
+cat << 'EOF_1785746295_8620' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -152,10 +156,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1785720373_12218
+EOF_1785746295_8620
 
 echo "作成: plan.md"
-cat << 'EOF_1785720373_16886' > "plan.md"
+cat << 'EOF_1785746295_5061' > "plan.md"
 # 📋 共通ひな形機能 一覧表
 
 ### 凡例（記号の定義）
@@ -187,20 +191,31 @@ cat << 'EOF_1785720373_16886' > "plan.md"
    * 認証ロジックのテストを書くには、事前に入力バリデーション（Step 2）や DB へのユーザー保存（Step 3）のテスト環境が整っている必要があるためです。
 2. **「ログ・ヘルスチェック」はアプリ機能としては運用向け（🟡中）だが、TDD順序では【Step 5】**
    * API と DB の基礎テスト環境が完成した直後に組み込むことで、後続の複雑なドメイン開発時のデバッグが格段に楽になります。
-EOF_1785720373_16886
+EOF_1785746295_5061
+
+mkdir -p ".devcontainer/scripts"
+echo "作成: .devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1785746295_7441' > ".devcontainer/scripts/init-test-db.sh"
+#!/bin/bash
+set -e
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+    CREATE DATABASE $POSTGRES_DB_TEST;
+EOSQL
+EOF_1785746295_7441
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1785720373_28799' > ".devcontainer/Dockerfile"
+cat << 'EOF_1785746295_2240' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
 # RUN apt-get update && apt-get install -y <package_name>
-EOF_1785720373_28799
+EOF_1785746295_2240
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1785720373_10580' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1785746295_28939' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -224,12 +239,12 @@ cat << 'EOF_1785720373_10580' > ".devcontainer/devcontainer.json"
   "forwardPorts": [3000, 3001, 5432],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1785720373_10580
+EOF_1785746295_28939
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1785720373_29545' > ".devcontainer/docker-compose.yml"
-version: '3.8'
+cat << 'EOF_1785746296_29657' > ".devcontainer/docker-compose.yml"
+
 
 services:
   app:
@@ -250,33 +265,37 @@ services:
       - "3000:3000"
       - "3001:3001"
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/app_db?schema=public"
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/app_db"
+      DATABASE_URL_TEST: "postgresql://postgres:postgres@db:5432/app_db_test"
     depends_on:
       - db
 
   db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app_db
+      POSTGRES_DB_TEST: app_db_test
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+      # 起動時に app_db_test も自動作成するスクリプトをマウント
 
 volumes:
   postgres-data:
-EOF_1785720373_29545
+EOF_1785746296_29657
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1785720373_19415' > "tsconfig.json"
+cat << 'EOF_1785746296_8459' > "tsconfig.json"
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "lib": [
@@ -308,15 +327,13 @@ cat << 'EOF_1785720373_19415' > "tsconfig.json"
     "dist"
   ]
 }
-EOF_1785720373_19415
+EOF_1785746296_8459
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1785720373_20029' > "vitest.config.ts"
+cat << 'EOF_1785746296_18300' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
-// import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  // plugins: [tsconfigPaths()],
   resolve: {
     tsconfigPaths: true
   },
@@ -326,11 +343,11 @@ export default defineConfig({
     reporters: ['tree'],
   },
 });
-EOF_1785720373_20029
+EOF_1785746296_18300
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1785720373_191' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1785746296_19364' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -338,12 +355,12 @@ cat << 'EOF_1785720373_191' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785720373_191
+EOF_1785746296_19364
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1785720373_9197' > "packages/plugins/auth-ad/src/index.ts"
-import { AuthPlugin } from '@app/core/auth/auth-registry.ts';
+cat << 'EOF_1785746296_26084' > "packages/plugins/auth-ad/src/index.ts"
+import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
   name = 'ad';
@@ -356,11 +373,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1785720373_9197
+EOF_1785746296_26084
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1785720373_24232' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1785746296_15238' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
@@ -368,12 +385,12 @@ cat << 'EOF_1785720373_24232' > "packages/plugins/auth-local/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785720373_24232
+EOF_1785746296_15238
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1785720373_7856' > "packages/plugins/auth-local/src/index.ts"
-import { AuthPlugin } from '@app/core/auth/auth-registry.ts';
+cat << 'EOF_1785746296_28357' > "packages/plugins/auth-local/src/index.ts"
+import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class LocalAuthPlugin implements AuthPlugin {
   name = 'local';
@@ -386,41 +403,90 @@ export class LocalAuthPlugin implements AuthPlugin {
     throw new Error('Invalid local credentials');
   }
 }
-EOF_1785720373_7856
+EOF_1785746296_28357
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1785720373_18246' > "packages/core/package.json"
+cat << 'EOF_1785746296_5248' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
+    "db:push:all": "npm run db:push && npm run db:push:test"
+  },
   "main": "./src/index.ts",
   "dependencies": {
     "@prisma/client": "^5.9.1",
+    "drizzle-orm": "^0.45.2",
     "glob": "^13.0.6",
     "hono": "^4.0.0",
+    "postgres": "^3.4.9",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "prisma": "^5.9.1"
   }
 }
-EOF_1785720373_18246
+EOF_1785746296_5248
+
+mkdir -p "packages/core"
+echo "作成: packages/core/drizzle-test.config.ts"
+cat << 'EOF_1785746296_8279' > "packages/core/drizzle-test.config.ts"
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+    // スキーマファイルの場所
+    schema: './src/db/schema.ts',
+
+    // マイグレーションファイルの出力先（push の場合は参照のみ）
+    out: './drizzle',
+
+    // 使用する DB ドライバー
+    dialect: 'postgresql',
+
+    // 接続情報（.env から読み込み）
+    dbCredentials: {
+        url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
+    },
+});
+EOF_1785746296_8279
+
+mkdir -p "packages/core"
+echo "作成: packages/core/vitest.config.ts"
+cat << 'EOF_1785746296_13536' > "packages/core/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    test: {
+        globalSetup: ['./src/test/global-setup.ts'], // ① テスト前に自動で db:push:test
+        setupFiles: ['./src/test/setup.ts'],         // ② 各テスト実行前にテーブルデータを全消去
+    },
+});
+EOF_1785746296_13536
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1785720373_29033' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1785746296_7386' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
-import path from 'path';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export async function loadFeatureModules(app: Hono, pattern: string) {
   const files = await glob(pattern);
   for (const file of files) {
     const absolutePath = path.resolve(file);
-    const module = await import(`file://${absolutePath}`);
+
+    // 💡 pathToFileURL を使って安全な file:// URL を生成
+    const moduleUrl = pathToFileURL(absolutePath).href;
+    // const module = await import(/* @vite-ignore */ moduleUrl);
+    const module = await import(moduleUrl);
+
     if (module.default && typeof module.default === 'function') {
       const route = module.default();
       app.route('/', route);
@@ -428,24 +494,23 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
   }
 }
-EOF_1785720373_29033
+EOF_1785746296_7386
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1785720373_30871' > "packages/core/src/index.ts"
-export * from './auth/auth-registry.ts';
-export * from './registry/hono-auto-loader.ts';
-export * from './db/client.ts';
-export * from './config/env.ts';
-export * from './errors/index.ts';
-EOF_1785720373_30871
+cat << 'EOF_1785746296_6577' > "packages/core/src/index.ts"
+export * from './auth/auth-registry';
+export * from './registry/hono-auto-loader';
+export * from './db/client';
+export * from './config/env';
+export * from './errors/index';
+EOF_1785746296_6577
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1785720373_30341' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1785746296_9683' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { validateEnv } from './env.ts';
-import { formatEnvForLog } from './env.ts';
+import { validateEnv, formatEnvForLog } from './env';
 
 
 describe('Environment Variables Validation', () => {
@@ -511,11 +576,11 @@ describe('formatEnvForLog', () => {
         expect(formatted).toContain('***'); // マスクされていること
     });
 });
-EOF_1785720373_30341
+EOF_1785746296_9683
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1785720373_3467' > "packages/core/src/config/env.ts"
+cat << 'EOF_1785746296_20037' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -560,7 +625,7 @@ export function formatEnvForLog(envObj: Env): string {
 // ⚠️ トップレベルで validateEnv() を直接実行するのではなく、
 // ブラウザ環境（typeof window !== 'undefined'）では参照しない安全なガードを入れる
 export const env: Env = typeof window !== 'undefined'
-    ? ({} as Env) // ブラウザ側でこのオブジェクトが呼ばれた場合はダミーを返す
+    ? ({} as Env)
     : (process.env.NODE_ENV === 'test'
         ? (process.env as unknown as Env)
         : validateEnv());
@@ -576,19 +641,85 @@ export const clientEnvSchema = z.object({
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
-EOF_1785720373_3467
+EOF_1785746296_20037
+
+mkdir -p "packages/core/src/db"
+echo "作成: packages/core/src/db/index.ts"
+cat << 'EOF_1785746296_2597' > "packages/core/src/db/index.ts"
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
+import { validateEnv } from '../config/env';
+
+const env = validateEnv();
+
+// PostgreSQL 接続クライアントの作成
+const queryClient = postgres(env.DATABASE_URL);
+export const db = drizzle(queryClient, { schema });
+EOF_1785746296_2597
+
+mkdir -p "packages/core/src/db"
+echo "作成: packages/core/src/db/db.test.ts"
+cat << 'EOF_1785746296_4008' > "packages/core/src/db/db.test.ts"
+import { describe, it, expect } from 'vitest';
+import { db } from './index';
+import { users } from './schema';
+import { eq } from 'drizzle-orm';
+
+describe('DB Integration Test (Step 3)', () => {
+    it('ユーザーテーブルにデータを挿入し、取得できること', async () => {
+        const testEmail = `test-${Date.now()}@example.com`;
+
+        // 1. レコード挿入 (Create)
+        const [insertedUser] = await db
+            .insert(users)
+            .values({
+                name: 'Test User',
+                email: testEmail,
+            })
+            .returning();
+
+        expect(insertedUser).toBeDefined();
+        expect(insertedUser.name).toBe('Test User');
+        expect(insertedUser.email).toBe(testEmail);
+
+        // 2. レコード取得 (Read)
+        const [fetchedUser] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, insertedUser.id));
+
+        expect(fetchedUser).toBeDefined();
+        expect(fetchedUser.email).toBe(testEmail);
+    });
+});
+EOF_1785746296_4008
+
+mkdir -p "packages/core/src/db"
+echo "作成: packages/core/src/db/schema.ts"
+cat << 'EOF_1785746296_22784' > "packages/core/src/db/schema.ts"
+// 例: pgTable に新しいカラムを追加
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull().unique(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+EOF_1785746296_22784
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/client.ts"
-cat << 'EOF_1785720373_12537' > "packages/core/src/db/client.ts"
+cat << 'EOF_1785746296_14404' > "packages/core/src/db/client.ts"
 import { PrismaClient } from '@prisma/client';
 
 export const db = new PrismaClient();
-EOF_1785720373_12537
+EOF_1785746296_14404
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1785720373_14535' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1785746296_16712' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -610,11 +741,11 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1785720373_14535
+EOF_1785746296_16712
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/index.ts"
-cat << 'EOF_1785720373_3600' > "packages/core/src/errors/index.ts"
+cat << 'EOF_1785746296_15161' > "packages/core/src/errors/index.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -661,11 +792,84 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1785720373_3600
+EOF_1785746296_15161
+
+mkdir -p "packages/core/src/test"
+echo "作成: packages/core/src/test/setup.ts"
+cat << 'EOF_1785746296_18522' > "packages/core/src/test/setup.ts"
+import { beforeEach } from 'vitest';
+import { db } from '../db'; // テスト用DBに接続しているDrizzleインスタンス
+import { sql } from 'drizzle-orm';
+
+beforeEach(async () => {
+    // 全テーブルのデータをクリーンアップ（例: public スキーマ内の全テーブルを TRUNCATE）
+    await db.execute(sql`
+    DO $$ DECLARE
+        r RECORD;
+    BEGIN
+        FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+            EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE;';
+        END LOOP;
+    END $$;
+  `);
+});
+EOF_1785746296_18522
+
+mkdir -p "packages/core/src/test"
+echo "作成: packages/core/src/test/global-setup.ts"
+cat << 'EOF_1785746296_18768' > "packages/core/src/test/global-setup.ts"
+import { execSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// import.meta.url から安全にパスを抽出
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function setup() {
+    console.log('\n🔄 テスト用データベースに最新のスキーマを反映中...');
+
+    // packages/core のルートディレクトリパスを解決
+    const corePackageDir = path.resolve(__dirname, '../../');
+
+    try {
+        execSync('npx drizzle-kit push --config=drizzle-test.config.ts', {
+            cwd: corePackageDir,
+            stdio: 'inherit',
+        });
+        console.log('✅ テスト用データベースの準備完了!\n');
+    } catch (error) {
+        console.error('❌ テスト用データベースへのスキーマ反映に失敗しました:', error);
+        throw error;
+    }
+}
+EOF_1785746296_18768
+
+mkdir -p "packages/core"
+echo "作成: packages/core/drizzle.config.ts"
+cat << 'EOF_1785746296_448' > "packages/core/drizzle.config.ts"
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+    // スキーマファイルの場所
+    schema: './src/db/schema.ts',
+
+    // マイグレーションファイルの出力先（push の場合は参照のみ）
+    out: './drizzle',
+
+    // 使用する DB ドライバー
+    dialect: 'postgresql',
+
+    // 接続情報（.env から読み込み）
+    dbCredentials: {
+        url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
+    },
+});
+EOF_1785746296_448
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1785720373_19466' > "packages/features/sample/package.json"
+cat << 'EOF_1785746296_8023' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -673,11 +877,11 @@ cat << 'EOF_1785720373_19466' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785720373_19466
+EOF_1785746296_8023
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1785720373_13862' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1785746296_16250' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -689,28 +893,28 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1785720373_13862
+EOF_1785746296_16250
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1785720373_22743' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1785746296_18907' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
-import createSampleFeature from './index.ts';
+import createSampleFeature from './index';
 
 describe('Sample Feature API', () => {
   it('GET /sample should return 200 and json message', async () => {
     const app = createSampleFeature();
     const res = await app.request('/sample');
-    
+
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
   });
 });
-EOF_1785720373_22743
+EOF_1785746296_18907
 
 echo "作成: doc.md"
-cat << 'EOF_1785720373_3457' > "doc.md"
+cat << 'EOF_1785746296_22977' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -825,11 +1029,11 @@ cat << 'EOF_1785720373_3457' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1785720373_3457
+EOF_1785746296_22977
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1785720373_24525' > "apps/web/package.json"
+cat << 'EOF_1785746296_13290' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -850,11 +1054,11 @@ cat << 'EOF_1785720373_24525' > "apps/web/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785720373_24525
+EOF_1785746296_13290
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1785720373_12015' > "apps/web/index.html"
+cat << 'EOF_1785746296_28169' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -866,31 +1070,61 @@ cat << 'EOF_1785720373_12015' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1785720373_12015
+EOF_1785746296_28169
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1785720373_2718' > "apps/web/tsconfig.json"
+cat << 'EOF_1785746296_306' > "apps/web/tsconfig.json"
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "composite": true,
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "useDefineForClassFields": true,
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    /* モノレポ内の共通パッケージ・型定義へのエイリアス設定 */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@app/core/*": [
+        "../../packages/core/src/*"
+      ]
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
-EOF_1785720373_2718
+EOF_1785746296_306
+
+mkdir -p "apps/web"
+echo "作成: apps/web/tsconfig.node.json"
+cat << 'EOF_1785746296_22211' > "apps/web/tsconfig.node.json"
+{
+    "compilerOptions": {
+        "composite": true,
+        "skipLibCheck": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "vite.config.ts"
+    ]
+}
+EOF_1785746296_22211
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1785720373_26231' > "apps/web/src/main.tsx"
+cat << 'EOF_1785746296_31196' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -900,21 +1134,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1785720373_26231
+EOF_1785746296_31196
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1785720373_1264' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1785746296_20444' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 
 export const LoginForm: React.FC = () => {
   // ... (省略)
 };
-EOF_1785720373_1264
+EOF_1785746296_20444
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1785720373_32331' > "apps/web/src/App.tsx"
+cat << 'EOF_1785746296_28467' > "apps/web/src/App.tsx"
 import React from 'react';
 import { env } from './env';
 import { LoginForm } from './components/LoginForm.tsx';
@@ -927,12 +1161,12 @@ export default function App() {
     </div>
   );
 }
-EOF_1785720373_32331
+EOF_1785746296_28467
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.ts"
-cat << 'EOF_1785720373_1415' > "apps/web/src/env.ts"
-import { clientEnvSchema, type ClientEnv } from '@app/core/config/env.ts';
+cat << 'EOF_1785746296_20228' > "apps/web/src/env.ts"
+import { clientEnvSchema, type ClientEnv } from '@app/core/config/env';
 
 // Vite の import.meta.env を Zod で検証・補完
 export const env: ClientEnv = clientEnvSchema.parse({
@@ -940,50 +1174,48 @@ export const env: ClientEnv = clientEnvSchema.parse({
     VITE_API_TARGET_URL: import.meta.env.VITE_API_TARGET_URL,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 });
-EOF_1785720373_1415
+EOF_1785746296_20228
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1785720373_29109' > "apps/web/vite.config.ts"
+cat << 'EOF_1785746296_12956' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-// import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
-  // モノレポのルート直下（../../）にある .env ファイルをロード
-  const envDir = path.resolve(import.meta.dirname, '../../');
-  const env = loadEnv(mode, envDir, '');
+    // モノレポのルート直下（../../）にある .env ファイルをロード
+    const envDir = path.resolve(import.meta.dirname, '../../');
+    const env = loadEnv(mode, envDir, '');
 
-  // ポート番号やプロキシ先を環境変数から取得（フォールバック付き）
-  const webPort = parseInt(env.VITE_PORT || '3000', 10);
-  const apiTarget = env.VITE_API_TARGET_URL || 'http://127.0.0.1:3001';
+    // ポート番号やプロキシ先を環境変数から取得（フォールバック付き）
+    const webPort = parseInt(env.VITE_PORT || '3000', 10);
+    const apiTarget = env.VITE_API_TARGET_URL || 'http://127.0.0.1:3001';
 
-  return {
-    // Vite が .env ファイルを探すディレクトリを指定
-    envDir,
+    return {
+        // Vite が .env ファイルを探すディレクトリを指定
+        envDir,
 
-    // plugins: [react(), tsconfigPaths()],
-    plugins: [react()],
-    resolve: {
-      tsconfigPaths: true
-    },
+        plugins: [react()],
+        resolve: {
+            tsconfigPaths: true
+        },
 
-    server: {
-      host: '0.0.0.0',
-      port: webPort,
-      proxy: {
-        '/api': apiTarget,
-        '/sample': apiTarget,
-      },
-    },
-  };
+        server: {
+            host: '0.0.0.0',
+            port: webPort,
+            proxy: {
+                '/api': apiTarget,
+                '/sample': apiTarget,
+            },
+        },
+    };
 });
-EOF_1785720373_29109
+EOF_1785746296_12956
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1785720373_26846' > "apps/api/package.json"
+cat << 'EOF_1785746296_18870' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -1008,22 +1240,43 @@ cat << 'EOF_1785720373_26846' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785720373_26846
+EOF_1785746296_18870
+
+mkdir -p "apps/api"
+echo "作成: apps/api/tsconfig.json"
+cat << 'EOF_1785746296_16585' > "apps/api/tsconfig.json"
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2022",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "types": [
+            "node"
+        ]
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
+EOF_1785746296_16585
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1785720373_30408' > "apps/api/src/index.ts"
+cat << 'EOF_1785746296_2454' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { validateEnv, formatEnvForLog } from '@app/core/config/env.ts';
-import { AppError, ProblemDetails, ValidationError } from '@app/core/errors/index.ts';
-import { loadFeatureModules } from '@app/core/registry/hono-auto-loader.ts';
-import { AuthRegistry } from '@app/core/auth/auth-registry.ts';
-import { LocalAuthPlugin } from '@app/plugins/auth-local/src/index.ts';
-import { ActiveDirectoryAuthPlugin } from '@app/plugins/auth-ad/src/index.ts';
-import authRouter from './routes/auth.ts';
+import { validateEnv, formatEnvForLog } from '@app/core/config/env';
+import { AppError, ProblemDetails, ValidationError } from '@app/core/errors/index';
+import { loadFeatureModules } from '@app/core/registry/hono-auto-loader';
+import { AuthRegistry } from '@app/core/auth/auth-registry';
+import { LocalAuthPlugin } from '@app/plugins/auth-local/src/index';
+import { ActiveDirectoryAuthPlugin } from '@app/plugins/auth-ad/src/index';
+import authRouter from './routes/auth';
 
 // 1. 起動時に環境変数を検証・取得
 const env = validateEnv();
@@ -1150,20 +1403,30 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export default app;
-EOF_1785720373_30408
+EOF_1785746296_2454
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1785720373_5475' > "apps/api/src/index.test.ts"
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import app from './index.ts';
+cat << 'EOF_1785746296_25316' > "apps/api/src/index.test.ts"
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import app from './index';
+import { validateEnv } from './env';
 
 describe('API Server Integration Tests', () => {
+    it('正しい環境変数がセットされている場合、アプリが正常にルーティング応答すること', async () => {
+        // 静的にインポートした app をそのまま利用できます
+        const res = await app.request('/sample');
+        expect(res.status).toBe(200);
+
+        const body = await res.json();
+        expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
+    });
+});
+
+describe('Environment Variable Validation', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
-        // モジュールキャッシュをリセットして、再インポート時にトップレベルのコード（validateEnv）が再実行されるようにする
-        vi.resetModules();
         process.env = { ...originalEnv };
     });
 
@@ -1171,25 +1434,22 @@ describe('API Server Integration Tests', () => {
         process.env = originalEnv;
     });
 
-    it('正しい環境変数がセットされている場合、アプリが正常にルーティング応答すること', async () => {
-        process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
-        process.env.PORT = '3001';
-
-        const { default: app } = await import('./index.ts');
-
-        const res = await app.request('/sample');
-        expect(res.status).toBe(200);
-
-        const body = await res.json();
-        expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
-    });
-
-    it('DATABASE_URL が存在しない場合、エントリポイント実行時に例外をスローすること', async () => {
+    it('DATABASE_URL が存在しない場合、検証関数が例外をスローすること', () => {
         delete process.env.DATABASE_URL;
 
-        await expect(async () => {
-            await import('./index.ts');
-        }).rejects.toThrow('環境変数の検証に失敗しました');
+        // モジュールの再読み込みではなく、純粋な関数として例外発生を検証
+        expect(() => {
+            validateEnv(process.env);
+        }).toThrow('環境変数の検証に失敗しました');
+    });
+
+    it('必要な環境変数が揃っている場合、正常にオブジェクトが返ること', () => {
+        const mockEnv = {
+            DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/app_db',
+            PORT: '3001',
+        };
+
+        expect(() => validateEnv(mockEnv)).not.toThrow();
     });
 });
 
@@ -1258,13 +1518,13 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
-EOF_1785720373_5475
+EOF_1785746296_25316
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1785720373_16212' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1785746296_32498' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
-import { AuthRegistry } from '@app/core/auth/auth-registry.ts';
+import { AuthRegistry } from '@app/core/auth/auth-registry';
 
 const authRouter = new Hono();
 
@@ -1281,248 +1541,349 @@ authRouter.post('/login', async (c) => {
 });
 
 export default authRouter;
-EOF_1785720373_16212
+EOF_1785746296_32498
+
+mkdir -p "apps/api/src"
+echo "作成: apps/api/src/env.ts"
+cat << 'EOF_1785746296_8477' > "apps/api/src/env.ts"
+import { z } from 'zod';
+
+const envSchema = z.object({
+    DATABASE_URL: z.string().min(1, '環境変数の検証に失敗しました'),
+    PORT: z.string().optional(),
+});
+
+export function validateEnv(env: Record<string, string | undefined> = process.env) {
+    const result = envSchema.safeParse(env);
+    if (!result.success) {
+        throw new Error('環境変数の検証に失敗しました');
+    }
+    return result.data;
+}
+EOF_1785746296_8477
 
 echo "作成: README.md"
-cat << 'EOF_1785720373_12835' > "README.md"
+cat << 'EOF_1785746296_9807' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification)
 
 ## 1. システム概要 (Overview)
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
-バックエンドには軽量・高速な **Hono** を、フロントエンドには **React + Vite** を採用し、共通ロジックやプラグイン（認証・機能コンポーネント等）を `packages/` 配下に分離した拡張性の高いアーキテクチャを採用しています。
+バックエンドには軽量・高速な Web フレームワーク（**Hono**）を、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite**）を採用し、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を導入しています。
+共通ロジックや拡張機能（認証・業務コンポーネント等）を独立したパッケージへ分離することで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
 
 ## 2. 開発環境仕様 (Development Environment)
 
-開発チーム間での環境差異を失くし、データベース（PostgreSQL）を含めた開発環境を一括構築するため、**VS Code Dev Containers + Docker Compose** を標準の開発環境として導入しています。
+開発チーム全員が同一の動作環境を再現し、ローカル環境依存のエラーやデータベース構築の手間を排除するため、**コンテナ型開発環境 (VS Code Dev Containers + Docker Compose)** を標準の開発基盤として定めます。
 
 ### 2.1 開発環境要件
 
-* **VS Code 拡張機能:** `ms-vscode-remote.remote-containers` (Dev Containers)
-* **コンテナランタイム:** Docker Desktop / OrbStack / Rancher Desktop 等
-* **Node.js バージョン:** `v20.x` (DevContainer 上で固定)
-* **パッケージマネージャー:** `npm` (npm workspaces によるマルチパッケージ管理)
+* **VS Code 拡張機能:** Dev Containers (`ms-vscode-remote.remote-containers`)
+* **コンテナランタイム:** Docker 互換環境 (Docker Desktop / OrbStack / Rancher Desktop 等)
+* **Node.js 実行環境:** LTS バージョン (`v20.x` コンテナ内で固定)
+* **パッケージ管理:** `npm` ワークスペース（複数パッケージ間の相互依存関係を一括管理）
 
-### 2.2 DevContainer & Docker Compose サービス構成
+### 2.2 コンテナ & サービス構成
 
-`.devcontainer/docker-compose.yml` により、以下の 2 つのサービスが連携して起動します。
+開発環境は `.devcontainer/docker-compose.yml` により、アプリケーション実行環境とデータベース環境の 2 つのサービスで構成されます。
 
-| サービス名 | コンテナ / イメージ | ポートフォワード | 役割・説明 |
-| --- | --- | --- | --- |
-| **app** | .devcontainer/Dockerfile (`typescript-node:1-20-bookworm`) | `3000:3000`, `3001:3001` | 開発用アプリケーションコンテナ。VS Code がアタッチする対象。各パッケージの `node_modules` はホストとの干渉を防ぐため匿名ボリュームとして分離。 |
-| **db** | `postgres:15-alpine` | `5432:5432` | 開発用 PostgreSQL データベース。`postgres-data` ボリュームによりデータが永続化されます。 |
+| サービス名 | コンテナ / イメージ | 役割・設計の意図 |
+| --- | --- | --- |
+| **app** | Node.js 20 Linux 環境 (`.devcontainer/Dockerfile`) | 開発者のプライマリ実行環境。VS Code をアタッチして開発を行います。ホスト環境の `node_modules` との依存関係衝突を防ぐため、ライブラリ層は匿名ボリュームとして独立管理します。 |
+| **db** | PostgreSQL (`postgres:16-alpine`) | 開発専用のローカルデータベース。アプリケーションの終了やリスタートを行ってもデータが失われないよう、専用ボリュームで永続化します。 |
 
-* **コンテナ内データベース接続:**
-`app` コンテナからは `postgresql://postgres:postgres@db:5432/app_db?schema=public` で接続します。
+* **コンテナ間ネットワーク接続:**
+アプリケーションコンテナ（`app`）からデータベースコンテナ（`db`）へは、内部 DNS 解決された同一ネットワーク上の URI (`postgresql://postgres:postgres@db:5432/app_db`) を用いて接続します。
 
 ---
 
 ## 3. アーキテクチャ＆拡張パターン (Architecture & Extension Patterns)
 
-本プロジェクトはモノレポ構造を生かし、各領域の責務を明確に分離（疎結合化）しています。新しい機能やプラグインを追加する際は、以下の構成パターンに従って実装します。
+モノレポ構造の強みを活かし、システムの各領域（基盤・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
 
 ### 3.1 パッケージの層構造と役割 (Layer Architecture)
 
-* **`packages/core` (基盤レイヤー)**
-* アプリケーション全体で共有される**型定義・環境変数設定・共通ユーティリティ・エラー定義**を保持します。
-* `apps/*` や他の `packages/*` から普遍的に参照される「共通基盤」です。特定のビジネスロジックには依存させません。
+| パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
+| --- | --- | --- | --- | --- |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | ローカル認証、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
+| **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
+
+### 3.2 拡張ルールと依存方向 (Extension Rules)
+
+1. **機能追加の手順:**
+* 新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
 
 
-* **`packages/plugins/` (認証・外部連携プラグイン)**
-* 特定の認証方式（例: Local認証、Active Directory / OAuth 等）や外部連携サービスなどの切替可能なコンポーネントを独立パッケージ化します。
-* `apps/api` や `apps/web` は、設定や環境変数に応じて使用するプラグインを選択・注入（Dependency Injection）します。
-
-
-* **`packages/features/` (ドメイン機能モジュール)**
-* 特定の業務ドメインや機能群（例: サンプル機能 `sample`、ユーザー管理、決済等）をカプセル化したパッケージです。
-* フロントエンドコンポーネントとバックエンドロジック（または API ルート定義）をセットでパッケージ化することで、機能単位での追加・削除・テストを容易にします。
-
-
-
-### 3.2 機能拡張パターン (Extension Workflow)
-
-1. **新しい共有プラグイン・機能の追加（※実装構成例）:**
-* **例:** `packages/plugins/` または `packages/features/` 配下に新しいディレクトリ（例: `packages/features/todo`）を作成し、`package.json` を配置する構成などが考えられます。
-* ルートの `package.json`（および必要に応じて `docker-compose.yml` 等）の依存関係指定と合わせることで、npm ワークスペースとして自動認識させる運用方法が一例として挙げられます。
-
-
-2. **依存関係の参照ルール:**
-* 参照は常に **上位層（`apps/`） ➔ 下位層（`packages/`）** の一方向に限定します。
-* `packages/` 内のモジュールが `apps/` のコードに逆依存することは禁止します。
+2. **単方向依存の徹底:**
+* 依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
 
 
 
 ---
 
-## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
+## 4. データベース & ORM 仕様 (Database & ORM)
 
-`npm workspaces` を使用してプロジェクトをマルチパッケージ管理しています。
+### 4.1 ORM の設計と接続管理
+
+* **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM) を採用します。
+* **シングルトン接続:** データベースへのコネクション pool の無駄遣いを防ぐため、`packages/core/src/db/index.ts` にて環境変数の正常性を検証した上で、単一の接続インスタンス（`db`）を保持・供給します。
+
+### 4.2 スキーマ定義
+
+* データベースの構造（テーブル・リレーション等）は、`packages/core/src/db/schema.ts` を正（Single Source of Truth）として定義します。
+
+### 4.3 構成ファイルの分離設計
+
+* テスト実行時と通常開発時でデータベース設定が混同するのを防ぐため、設定ファイルを明確に分離します。
+* 特にテスト専用の設定ファイルは、テストフレームワーク（Vitest）の自動テスト検出機能が誤ってテストケースと誤認しないよう、**`drizzle-test.config.ts`** のように明示的な命名ルールを設けて構成します。
+
+---
+
+## 5. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
+
+### 5.1 機能の自動検出とルーティング登録
+
+* 各 Feature パッケージが持つ API ルート（Hono インスタンス）を個別に手動インポートする手間を省くため、指定ディレクトリ配下のモジュールを動的に探索・一括登録する自動ローダー機構（`hono-auto-loader.ts`）を導入します。
+
+### 5.2 クロスプラットフォーム＆モジュール互換性の保障
+
+* 動的インポート実行時における OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、以下の実装ガイドラインを厳守します。
+
+> **意図:** 単純な文字列連結によるパス指定（`file://...`）を避け、Node.js 標準の URI 変換処理を用いることで、ポータブルで安全な動的インポートを実現します。また、ビルドツールに対して不必要な静的解析警告を出さないよう抑制します。
+
+```typescript
+// 安全な動的インポート実装例 (packages/core/src/registry/hono-auto-loader.ts)
+const absolutePath = path.resolve(file);
+const moduleUrl = pathToFileURL(absolutePath).href; // URI形式へ安全に変換
+const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解析警告を抑止
+
+```
+
+---
+
+## 6. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
+
+モノレポ全体を見通し良く管理するための標準的なフォルダおよび全ファイル構成です。
 
 ```text
 .
-├── .devcontainer/                # DevContainer & Docker 構成フォルダ
-│   ├── devcontainer.json         # DevContainer 起動・拡張機能設定
-│   ├── docker-compose.yml        # DevContainer 連携サービス定義 (app, db)
-│   └── Dockerfile                # DevContainer 用ベースイメージ・環境定義
-├── .env                          # プロジェクト共通の環境変数設定ファイル
-├── .gitignore                    # Git 管理除外設定
-├── package.json                  # ルート package.json (全体スクリプト・ワークスペース管理)
-├── tsconfig.json                 # モノレポ全体のベース TypeScript 設定
+├── .devcontainer/                # コンテナ開発環境構成
+│   ├── devcontainer.json         # VS Code 開発環境統合設定
+│   ├── docker-compose.yml        # 開発用マルチコンテナ構成定義 (app, db)
+│   ├── Dockerfile                # アプリケーションコンテナのベース構築
+│   └── scripts/                  # 開発環境自動化・初期化スクリプト群
+│       └── setup-test-db.sh      # テスト用データベース作成・権限付与スクリプト
+├── .env                          # プロジェクト共通の環境変数定義ファイル
+├── .env.example                  # 環境変数のサンプル・テンプレート
+├── .gitignore                    # Git 管理対象外設定
+├── package.json                  # 全体スクリプトおよび Workspaces ルート定義
+├── tsconfig.json                 # モノレポ共通のベース TypeScript 設定
 │
-├── apps/                         # アプリケーションフォルダ
-│   ├── api/                      # バックエンド API サーバー (Hono / Node.js)
+├── apps/                         # アプリケーション層 (実行体)
+│   ├── api/                      # サーバーサイド API アプリケーション (Hono)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング, エラーハンドリング & サーバー起動制御)
-│   │   │   ├── index.test.ts     # API 統合テスト (エラーレスポンス・Zod検証・Vitest)
-│   │   │   └── routes/
-│   │   │       └── auth.ts       # 認証用ルーティング
-│   │   ├── package.json          # API サーバー用依存関係 (@hono/zod-validator, zod 追加済)
+│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・エラー処理・ライフサイクル制御)
+│   │   │   ├── index.test.ts     # API 統合テスト (RFC 7807 エラー検証・Zod バリデーション)
+│   │   │   └── routes/           # アプリケーション固有のルーティング
+│   │   │       └── auth.ts       # 認証APIエンドポイント
+│   │   ├── package.json          # API サーバー用依存関係・スクリプト
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
-│   └── web/                      # フロントエンド Web アプリ (React / Vite)
-│       ├── public/               # 静的アセットフォルダ
+│   └── web/                      # クライアントサイド Web アプリケーション (React / Vite)
+│       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
-│       │   ├── env.ts            # フロントエンド用型安全環境変数モジュール
-│       │   ├── App.tsx           # メインコンポーネント
-│       │   └── main.tsx          # React エントリーポイント
-│       ├── index.html            # HTML テンプレート
+│       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
+│       │   ├── App.tsx           # ルート UI コンポーネント
+│       │   ├── main.tsx          # React レンダリングエントリーポイント
+│       │   └── index.css         # グローバルスタイル定義
+│       ├── index.html            # HTML エントリーテンプレート
 │       ├── package.json          # Web アプリ用依存関係・スクリプト
 │       ├── tsconfig.json         # Web アプリ用 TypeScript 設定
-│       └── vite.config.ts        # Vite 設定 (DevProxy, loadEnv)
+│       ├── tsconfig.node.json    # Vite 設定用 TypeScript 補助設定
+│       └── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み)
 │
-└── packages/                     # 共有パッケージフォルダ
-    ├── core/                     # 共通ロジック・設定・型定義パッケージ
+└── packages/                     # 共有パッケージ層 (ライブラリ・モジュール)
+    ├── core/                     # システム共通基盤パッケージ
+    │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
+    │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル (ファイル名衝突回避)
     │   ├── src/
-    │   │   ├── config/
-    │   │   │   ├── env.ts        # 環境変数スキーマ & ロジック (Zod)
-    │   │   │   └── env.test.ts   # 環境変数の単体テスト (Vitest)
-    │   │   ├── errors/
-    │   │   │   └── index.ts      # 共通エラークラス (AppError, ValidationError) & RFC 7807 型定義 [NEW]
-    │   │   ├── auth/             # 認証レジストリ基盤
-    │   │   └── registry/         # モジュール動的ローダー (hono-auto-loader)
-    │   ├── package.json          # 共通パッケージ用依存関係・スクリプト
-    │   └── tsconfig.json         # 共通パッケージ用 TypeScript 設定
-    ├── plugins/                  # 認証プラグイン群
-    │   ├── auth-ad/              # Active Directory 認証プラグイン
-    │   └── auth-local/           # ローカル認証プラグイン
-    └── features/                 # 機能モジュール群
-        └── sample/               # サンプル機能パッケージ
+    │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
+    │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
+    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数
+    │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
+    │   │   ├── db/               # DB 接続インスタンスおよびスキーマ正定義
+    │   │   │   ├── index.ts      # シングルトン DB 接続管理
+    │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
+    │   │   │   └── db.test.ts    # データベース CRUD 操作統合テスト
+    │   │   ├── errors/           # システム標準エラー構造・RFC 7807 定義
+    │   │   │   ├── index.ts      # 共通エラークラス群 & インターフェース
+    │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
+    │   │   ├── auth/             # 認証レジストリ基盤・基本型定義
+    │   │   ├── registry/         # 動的モジュールローダー
+    │   │   │   └── hono-auto-loader.ts # Feature モジュール自動探索機能
+    │   │   └── test/             # テスト自動化ライフサイクル定義
+    │   │       ├── global-setup.ts# 全テスト実行前の DB スキーマ自動同期処理
+    │   │       └── setup.ts      # 各テストケース実行前のデータ自動全クリーンアップ
+    │   ├── package.json          # 共通基盤パッケージ用依存関係
+    │   └── tsconfig.json         # 共通基盤用 TypeScript 設定
+    ├── plugins/                  # 切り替え可能なプラグイン群
+    │   ├── auth-ad/              # Active Directory 認証連携モジュール
+    │   │   ├── src/index.ts
+    │   │   └── package.json
+    │   └── auth-local/           # ローカルデータベース認証モジュール
+    │       ├── src/index.ts
+    │       └── package.json
+    └── features/                 # 業務ドメイン機能モジュール群
+        └── sample/               # サンプル機能モジュール
+            ├── src/
+            │   ├── index.ts      # サンプル機能 API ルート定義
+            │   └── index.test.ts # サンプル機能単体テスト
+            └── package.json
 
 ```
 
 ---
 
-## 5. 環境変数 & セキュリティ仕様 (Environment Variables & Security)
+## 7. 環境変数 & セキュリティ仕様 (Environment Variables & Security)
 
-環境変数はバックエンド・フロントエンド双方で **Zod スキーマ** を用いて起動時に型検証・初期値補完を行います。
+環境変数の未設定や型間違いによるランタイムエラーを防ぎ、不必要な機密情報の漏洩を保護するため、**起動時自動検証とログの不透明化** を義務付けます。
 
-### 5.1 環境変数一覧
+### 7.1 定義されている環境変数
 
-| 変数名 | 対象 | 型 / 制約 | デフォルト値 | 説明 |
-| --- | --- | --- | --- | --- |
-| `NODE_ENV` | API | `'development'`, `'test'`, `'production'` | `'development'` | 動作モード |
-| `PORT` | API | `number` | `3001` | API サーバーの待受ポート |
-| `DATABASE_URL` | API | `string` (URL形式) | **(必須)** | PostgreSQL 接続文字列 |
-| `VITE_PORT` | Web | `string` | `'3000'` | 開発用 Web サーバーのポート |
-| `VITE_API_TARGET_URL` | Web | `string` (URL形式) | `'[http://127.0.0.1:3001](http://127.0.0.1:3001)'` | DevProxy 転送先 API URL |
-| `VITE_APP_TITLE` | Web | `string` | `'My App'` | アプリケーションタイトル |
+| 変数名 | 対象領域 | 型 / 制約 | 意図・役割 |
+| --- | --- | --- | --- |
+| `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
+| `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
+| `DATABASE_URL` | API | URL形式文字列 | データベースへの接続URI (認証情報含む) |
+| `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
+| `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
+| `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
 
-> ⚠️ **ブラウザ参照ルール:** クライアント側（Web）から参照可能な環境変数は、セキュリティ上 **`VITE_` プレフィックス** が必須となります。
+### 7.2 セキュリティ & バリデーション設計
 
-### 5.2 環境変数の検証・セキュリティアーキテクチャ
-
-1. **バックエンド (`apps/api`):**
-* **起動時チェック:** API 起動時、`validateEnv()` により `envSchema` の適合チェックを実施。不正時はエラーログを出力してプロセスを即座に停止します。
-* **ログ出力 & 秘密情報マスク:** 起動時に適用された設定内容を JSON ログ出力します。ログ出力時は `formatEnvForLog()` が `DATABASE_URL` のパスワード部分を自動的に `***` へ伏字化（マスク）します。
+1. **フェイルファスト（Fail-Fast）原則:**
+* アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
 
 
-2. **フロントエンド (`apps/web`):**
-* **安全なカプセル化 (`apps/web/src/env.ts`):** ブラウザ環境で `process.env` を参照して発生する `ReferenceError` を防ぐため、`import.meta.env` を `clientEnvSchema` で検証・型抽出した `env` オブジェクトを経由して利用します。
-* **Vite プロキシ連携:** `vite.config.ts` にて `loadEnv` を用い、ルート直下の `.env` から `VITE_API_TARGET_URL` を読み込んで API プロキシを設定します。
+2. **機密情報のログマスク（伏字化）:**
+* 動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
 
 
-
----
-
-## 6. APIエラーレスポンス & バリデーション仕様 (RFC 7807) [NEW]
-
-本プロジェクトでは、すべての API エラーレスポンスを **RFC 7807 (Problem Details for HTTP APIs)** 仕様に準拠させて統一しています。
-
-### 6.1 エラーレスポンス基本構造 (`ProblemDetails`)
-
-```typescript
-export interface InvalidParam {
-  name: string;   // エラーが発生したフィールド名（例: "email"）
-  reason: string; // エラー内容（例: "Invalid email address"）
-}
-
-export interface ProblemDetails {
-  type: string;           // エラーの分類を示す URI (例: "https://api.example.com/errors/not-found")
-  title: string;          // エラーの概要 (例: "Not Found", "Bad Request")
-  status: number;         // HTTP ステータスコード (例: 404, 400, 500)
-  detail: string;         // エラーの詳細メッセージ
-  instance: string;       // エラーが発生したリクエストパス (例: "/api/v1/users")
-  invalidParams?: InvalidParam[]; // バリデーションエラー時のフィールド別詳細リスト
-}
-
-```
-
-### 6.2 エラー処理の動作原則
-
-1. **404 Not Found 規格化:** 存在しないルートへのアクセスは `app.notFound` により常に 404 の RFC 7807 JSON が返却されます。
-2. **500 Internal Server Error 規格化:** アプリ内部で捕捉されなかった未定義例外は `app.onError` で全件キャッチし、機密情報を除外した上で 500 の RFC 7807 JSON を生成・返却します。
-3. **Zod 入力バリデーション (400 Bad Request):**
-* `@hono/zod-validator` を通じて送信された payload を検証します。
-* 検証エラー発生時は `ValidationError` がスローされ、`app.onError` 経由で `invalidParams` 配列（フィールドごとの違反理由）を含む 400 レスポンスとして返却されます。
+3. **フロントエンドの環境変数カプセル化:**
+* ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。
+* グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
 
 
 
 ---
 
-## 7. 実行スクリプト & テスト仕様 (Scripts & Testing)
+## 8. APIエラーレスポンス仕様 (RFC 7807 準拠)
 
-### 7.1 開発サーバー起動
+システムから返却されるエラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理・デバッグを容易にするため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
 
-ルートディレクトリ（または DevContainer 上）にて以下を実行します。
+### 8.1 統一エラーレスポンス構造
+
+エラー時は、単なるテキストではなく必ず以下の統一フォーマット（JSON）で返却します。
+
+| フィールド名 | キー名 | 役割・説明 | 設定例 |
+| --- | --- | --- | --- |
+| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"[https://api.example.com/errors/bad-request](https://api.example.com/errors/bad-request)"` |
+| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Not Found"` |
+| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `404`, `500` |
+| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Validation failed for parameter 'email'"` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/v1/users"` |
+| **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
+
+### 8.2 エラー制御方針
+
+1. **未定義エラーのキャッチ (500 Internal Server Error):**
+* 予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、規格化された 500 エラー構造へ変換して返却します。
+
+
+2. **入力検証エラーの自動標準化 (400 Bad Request):**
+* リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+
+
+
+---
+
+## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+
+テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
+
+### 9.1 テスト基盤
+
+* **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
+
+### 9.2 テスト自動化ライフサイクル
+
+1. **テスト開始前のデータベース構造の自動最新化 (Global Setup):**
+* 全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。
+* これにより、開発者がテスト実行前に手動でデータベースを初期化・マイグレーションする作業を不要にし、常に最新のコード仕様に基づいたテストを保証します。
+* *(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定で実行します)*
+
+
+2. **テストケース間の完全な状態隔離 (Setup Files):**
+* 個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ** します。
+* 1つのテスト結果が他のテストに影響を与える「テストの副作用（データ汚染）」を排除し、常に独立した決定論的なテスト実行環境を維持します。
+* *(内部補足: 全テーブルに対する `TRUNCATE CASCADE` を自動実行します)*
+
+
+3. **テスト実行環境の分離保護:**
+* テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制します。
+* ポートの競合エラーを防ぎつつ、高速なインメモリ HTTP リクエストによる API の振る舞い検証を可能にします。
+
+
+
+---
+
+## 10. 実行スクリプト リファレンス (Scripts)
+
+プロジェクト内で利用する標準的なコマンドです。
+
+### 10.1 開発サーバー起動
+
+すべてのアプリケーション（API・Web）を開発モードで並行起動します。
 
 ```bash
 npm run dev
 
 ```
 
-* `concurrently` により `dev:api` と `dev:web` を同時並行で立ち上げます。
-* **API 起動コマンド:** `tsx watch --env-file=../../.env src/index.ts`
+### 10.2 全テストの自動実行
 
-### 7.2 テスト自動化 & 非同期ソケット制御
-
-全テスト（TDD）の実行には以下を使用します。
+すべてのパッケージの単体テスト、DB 連携テスト、API レスポンス検証を一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
 
 ```bash
 npm test
 
 ```
 
-* **テスト環境保護 (`NODE_ENV === 'test'`):**
-`apps/api/src/index.ts` では `process.env.NODE_ENV !== 'test'` の条件分岐を設け、テスト実行時には `serve()` (HTTPリスナーのバインド) を自動スキップします。これにより、ポートの二重バインドや未捕獲のソケットエラーを防ぎ、Hono の `app.request()` によるインメモリテストをミリ秒単位で高速かつ正常に実行します。
-* **テストカバレッジ:**
-* 未定義パスアクセスの 404 検証
-* サーバー例外発生時の 500 検証
-* Zod スキーマ違反時の 400 & `invalidParams` レスポンス構造の検証
-EOF_1785720373_12835
+### 10.3 テスト用 DB スキーマの手動同期
+
+テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
+
+```bash
+npm run db:push:test
+
+```
+EOF_1785746296_9807
 
 echo "作成: .env"
-cat << 'EOF_1785720373_24007' > ".env"
+cat << 'EOF_1785746296_26948' > ".env"
 # バックエンド用
 PORT=3001
-DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db?schema=public
+DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
+TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db_test
 
 # フロントエンド用 (VITE_ プレフィックスを付ける)
 # /workspace/apps/web/src/env.ts と同期する
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1785720373_24007
+EOF_1785746296_26948
 
 echo -e "\n復元が完了しました！"

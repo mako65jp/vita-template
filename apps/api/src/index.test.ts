@@ -1,12 +1,22 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import app from './index.ts';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import app from './index';
+import { validateEnv } from './env';
 
 describe('API Server Integration Tests', () => {
+    it('正しい環境変数がセットされている場合、アプリが正常にルーティング応答すること', async () => {
+        // 静的にインポートした app をそのまま利用できます
+        const res = await app.request('/sample');
+        expect(res.status).toBe(200);
+
+        const body = await res.json();
+        expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
+    });
+});
+
+describe('Environment Variable Validation', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
-        // モジュールキャッシュをリセットして、再インポート時にトップレベルのコード（validateEnv）が再実行されるようにする
-        vi.resetModules();
         process.env = { ...originalEnv };
     });
 
@@ -14,25 +24,22 @@ describe('API Server Integration Tests', () => {
         process.env = originalEnv;
     });
 
-    it('正しい環境変数がセットされている場合、アプリが正常にルーティング応答すること', async () => {
-        process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
-        process.env.PORT = '3001';
-
-        const { default: app } = await import('./index.ts');
-
-        const res = await app.request('/sample');
-        expect(res.status).toBe(200);
-
-        const body = await res.json();
-        expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
-    });
-
-    it('DATABASE_URL が存在しない場合、エントリポイント実行時に例外をスローすること', async () => {
+    it('DATABASE_URL が存在しない場合、検証関数が例外をスローすること', () => {
         delete process.env.DATABASE_URL;
 
-        await expect(async () => {
-            await import('./index.ts');
-        }).rejects.toThrow('環境変数の検証に失敗しました');
+        // モジュールの再読み込みではなく、純粋な関数として例外発生を検証
+        expect(() => {
+            validateEnv(process.env);
+        }).toThrow('環境変数の検証に失敗しました');
+    });
+
+    it('必要な環境変数が揃っている場合、正常にオブジェクトが返ること', () => {
+        const mockEnv = {
+            DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/app_db',
+            PORT: '3001',
+        };
+
+        expect(() => validateEnv(mockEnv)).not.toThrow();
     });
 });
 

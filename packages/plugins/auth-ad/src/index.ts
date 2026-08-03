@@ -1,4 +1,4 @@
-import { AuthPlugin } from '@app/core/auth/auth-registry.ts';
+import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
   name = 'ad';

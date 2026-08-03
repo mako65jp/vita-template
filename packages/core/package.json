@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
+    "db:push:all": "npm run db:push && npm run db:push:test"
+  },
   "main": "./src/index.ts",
   "dependencies": {
     "@prisma/client": "^5.9.1",
+    "drizzle-orm": "^0.45.2",
     "glob": "^13.0.6",
     "hono": "^4.0.0",
+    "postgres": "^3.4.9",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "prisma": "^5.9.1"
   }
 }

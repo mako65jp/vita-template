@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { validateEnv } from './env.ts';
-import { formatEnvForLog } from './env.ts';
+import { validateEnv, formatEnvForLog } from './env';
 
 
 describe('Environment Variables Validation', () => {
