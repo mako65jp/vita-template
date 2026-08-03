@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1785659812_32375' > "package.json"
+cat << 'EOF_1785720373_9685' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -32,17 +32,20 @@ cat << 'EOF_1785659812_32375' > "package.json"
     "test": "vitest run"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
     "concurrently": "^8.2.2",
     "typescript": "^5.3.3",
-    "vite": "^5.2.11",
-    "vite-tsconfig-paths": "^4.3.1",
-    "vitest": "^1.6.0"
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.0.5"
   }
 }
-EOF_1785659812_32375
+EOF_1785720373_9685
 
 echo "作成: .gitignore"
-cat << 'EOF_1785659812_17134' > ".gitignore"
+cat << 'EOF_1785720373_12218' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -149,20 +152,55 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1785659812_17134
+EOF_1785720373_12218
+
+echo "作成: plan.md"
+cat << 'EOF_1785720373_16886' > "plan.md"
+# 📋 共通ひな形機能 一覧表
+
+### 凡例（記号の定義）
+* **機能優先順位 (Application Need):** 
+  * 🔴 **高 (必須):** ほぼ100%のアプリで開発最初期に必要なコア機能
+  * 🟡 **中 (標準):** 多くのWebアプリで運用や保守に必要な推奨機能
+  * 🟢 **低 (拡張):** 特定の要件（ファイル扱う、メール送る等）に応じて使う機能
+* **TDD優先順位 (Test-Driven Order):** 
+  * **【Step 1〜8】:** テストの書きやすさ・依存関係（土台から作る）に基づいた推奨実装順
+
+---
+
+| 機能名 | 機能概要 | 担当パッケージ | 機能優先順位 | TDD優先順位 | TDDでの進め方・テストのポイント |
+| :--- | :--- | :--- | :---: | :---: | :--- |
+| **統一エラーハンドリング** | Hono `app.onError` / RFC 7807 準拠のエラーレスポンス規格化 | `apps/api`<br>`packages/core` | 🔴 **高** | **Step 1** | 外部依存がなく最初に着手。意図的に例外を発生させ、期待通りの JSON 構造とステータスコードが返るかを単体テスト。 |
+| **Zod リクエスト検証** | `@hono/zod-validator` による型安全な入力チェック・エラー返却 | `apps/api`<br>`packages/core` | 🔴 **高** | **Step 2** | 不正なリクエスト payload を投げた際に、400 エラーと詳細な検証メッセージが返るかのテストを書いてからルーティングを実装。 |
+| **DB スキーマ & ORM** | Drizzle / Prisma 導入、マイグレーション、テスト用シード自動化 | `apps/api`<br>`packages/core` | 🔴 **高** | **Step 3** | テスト用 DB に対して、CRUD 操作やトランザクションが正しく動くかDB統合テストを記述。（後のAPIテストの土台になる） |
+| **認証・認可基盤 (Auth)** | JWT / Cookie ハンドリング、パスワードハッシュ化、RBAC（権限制御） | `packages/plugins/auth-*`<br>`apps/api` | 🔴 **高** | **Step 4** | 無効なトークンや権限不足で 401/403 が返るか、正しくコンテキストにユーザー情報が注入されるかをミドルウェア単位でテスト。 |
+| **構造化ロギング & ヘルス** | Pino 等による JSON ログ、機密情報マスク、`/healthz` エンドポイント | `apps/api` | 🟡 **中** | **Step 5** | 秘密情報がマスクされるか、DB接続切断時に `/healthz` が 503 を返すかをテスト。 |
+| **UI 基本コンポーネント** | Shadcn UI / Tailwind 導入、共通 Layout、Error Boundary、Toast | `apps/web`<br>`packages/ui` | 🟡 **中** | **Step 6** | Vitest + React Testing Library を使い、共通コンポーネントのレンダリングやエラー表示の操作発火テストを記述。 |
+| **ストレージ抽象化** | ローカル / S3 (MinIO) を環境変数で切り替え可能なファイル保存機能 | `packages/core`<br>`apps/api` | 🟢 **低** | **Step 7** | モック（S3クライアントの抽象化インターフェース）を用いて、ファイル保存・取得・バリデーション処理をテスト。 |
+| **メール・通知基盤** | Nodemailer / Resend 連携、HTML メールテンプレート生成機能 | `packages/core` | 🟢 **低** | **Step 8** | 実際にはメールを送信せず、生成される HTML 文言やプロバイダー呼び出しの引数が正しいかを単体テスト。 |
+
+---
+
+### 💡 2つの優先順位がずれる理由（ポイント）
+
+1. **「認証機能」はアプリ機能としては最優先（🔴高）だが、TDD順序では【Step 4】**
+   * 認証ロジックのテストを書くには、事前に入力バリデーション（Step 2）や DB へのユーザー保存（Step 3）のテスト環境が整っている必要があるためです。
+2. **「ログ・ヘルスチェック」はアプリ機能としては運用向け（🟡中）だが、TDD順序では【Step 5】**
+   * API と DB の基礎テスト環境が完成した直後に組み込むことで、後続の複雑なドメイン開発時のデバッグが格段に楽になります。
+EOF_1785720373_16886
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1785659812_11967' > ".devcontainer/Dockerfile"
+cat << 'EOF_1785720373_28799' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
 # RUN apt-get update && apt-get install -y <package_name>
-EOF_1785659812_11967
+EOF_1785720373_28799
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1785659812_28728' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1785720373_10580' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -186,11 +224,11 @@ cat << 'EOF_1785659812_28728' > ".devcontainer/devcontainer.json"
   "forwardPorts": [3000, 3001, 5432],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1785659812_28728
+EOF_1785720373_10580
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1785659812_16485' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1785720373_29545' > ".devcontainer/docker-compose.yml"
 version: '3.8'
 
 services:
@@ -230,10 +268,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1785659812_16485
+EOF_1785720373_29545
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1785659812_8581' > "tsconfig.json"
+cat << 'EOF_1785720373_19415' > "tsconfig.json"
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -241,7 +279,11 @@ cat << 'EOF_1785659812_8581' > "tsconfig.json"
     "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -250,32 +292,45 @@ cat << 'EOF_1785659812_8581' > "tsconfig.json"
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@app/core/*": ["packages/core/src/*"],
-      "@app/plugins/*": ["packages/plugins/*"],
-      "@app/features/*": ["packages/features/*"]
+      "@app/core/*": [
+        "packages/core/src/*"
+      ],
+      "@app/plugins/*": [
+        "packages/plugins/*"
+      ],
+      "@app/features/*": [
+        "packages/features/*"
+      ]
     }
   },
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
-EOF_1785659812_8581
+EOF_1785720373_19415
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1785659812_31580' > "vitest.config.ts"
+cat << 'EOF_1785720373_20029' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
+// import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  // plugins: [tsconfigPaths()],
+  resolve: {
+    tsconfigPaths: true
+  },
   test: {
     globals: true,
     environment: 'node',
+    reporters: ['tree'],
   },
 });
-EOF_1785659812_31580
+EOF_1785720373_20029
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1785659812_14224' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1785720373_191' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -283,11 +338,11 @@ cat << 'EOF_1785659812_14224' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785659812_14224
+EOF_1785720373_191
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1785659812_24993' > "packages/plugins/auth-ad/src/index.ts"
+cat << 'EOF_1785720373_9197' > "packages/plugins/auth-ad/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry.ts';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -301,11 +356,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1785659812_24993
+EOF_1785720373_9197
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1785659812_13653' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1785720373_24232' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
@@ -313,11 +368,11 @@ cat << 'EOF_1785659812_13653' > "packages/plugins/auth-local/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785659812_13653
+EOF_1785720373_24232
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1785659812_31945' > "packages/plugins/auth-local/src/index.ts"
+cat << 'EOF_1785720373_7856' > "packages/plugins/auth-local/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry.ts';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -331,11 +386,11 @@ export class LocalAuthPlugin implements AuthPlugin {
     throw new Error('Invalid local credentials');
   }
 }
-EOF_1785659812_31945
+EOF_1785720373_7856
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1785659812_21720' > "packages/core/package.json"
+cat << 'EOF_1785720373_18246' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
@@ -344,7 +399,7 @@ cat << 'EOF_1785659812_21720' > "packages/core/package.json"
   "main": "./src/index.ts",
   "dependencies": {
     "@prisma/client": "^5.9.1",
-    "glob": "^10.3.10",
+    "glob": "^13.0.6",
     "hono": "^4.0.0",
     "zod": "^3.22.4"
   },
@@ -352,11 +407,11 @@ cat << 'EOF_1785659812_21720' > "packages/core/package.json"
     "prisma": "^5.9.1"
   }
 }
-EOF_1785659812_21720
+EOF_1785720373_18246
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1785659812_11227' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1785720373_29033' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'path';
@@ -373,20 +428,21 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
   }
 }
-EOF_1785659812_11227
+EOF_1785720373_29033
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1785659812_30646' > "packages/core/src/index.ts"
+cat << 'EOF_1785720373_30871' > "packages/core/src/index.ts"
 export * from './auth/auth-registry.ts';
 export * from './registry/hono-auto-loader.ts';
 export * from './db/client.ts';
 export * from './config/env.ts';
-EOF_1785659812_30646
+export * from './errors/index.ts';
+EOF_1785720373_30871
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1785659812_8313' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1785720373_30341' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { validateEnv } from './env.ts';
 import { formatEnvForLog } from './env.ts';
@@ -455,11 +511,11 @@ describe('formatEnvForLog', () => {
         expect(formatted).toContain('***'); // マスクされていること
     });
 });
-EOF_1785659812_8313
+EOF_1785720373_30341
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1785659812_23239' > "packages/core/src/config/env.ts"
+cat << 'EOF_1785720373_3467' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -520,19 +576,19 @@ export const clientEnvSchema = z.object({
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
-EOF_1785659812_23239
+EOF_1785720373_3467
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/client.ts"
-cat << 'EOF_1785659812_23530' > "packages/core/src/db/client.ts"
+cat << 'EOF_1785720373_12537' > "packages/core/src/db/client.ts"
 import { PrismaClient } from '@prisma/client';
 
 export const db = new PrismaClient();
-EOF_1785659812_23530
+EOF_1785720373_12537
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1785659812_17261' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1785720373_14535' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -554,11 +610,62 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1785659812_17261
+EOF_1785720373_14535
+
+mkdir -p "packages/core/src/errors"
+echo "作成: packages/core/src/errors/index.ts"
+cat << 'EOF_1785720373_3600' > "packages/core/src/errors/index.ts"
+export interface InvalidParam {
+    name: string;
+    reason: string;
+}
+
+export interface ProblemDetails {
+    type: string;
+    title: string;
+    status: number;
+    detail: string;
+    instance: string;
+    invalidParams?: InvalidParam[];
+}
+
+export class AppError extends Error {
+    constructor(
+        public readonly status: number,
+        public readonly code: string,
+        public readonly title: string,
+        message: string
+    ) {
+        super(message);
+        this.name = 'AppError';
+    }
+}
+
+export class NotFoundError extends AppError {
+    constructor(message = 'The requested resource was not found') {
+        super(404, 'not-found', 'Not Found', message);
+    }
+}
+
+export class InternalServerError extends AppError {
+    constructor(message = 'An unexpected error occurred') {
+        super(500, 'internal-server-error', 'Internal Server Error', message);
+    }
+}
+
+export class ValidationError extends AppError {
+    constructor(
+        public readonly invalidParams: InvalidParam[],
+        message = 'Validation failed for the request payload'
+    ) {
+        super(400, 'validation-error', 'Bad Request', message);
+    }
+}
+EOF_1785720373_3600
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1785659812_26698' > "packages/features/sample/package.json"
+cat << 'EOF_1785720373_19466' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -566,11 +673,11 @@ cat << 'EOF_1785659812_26698' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785659812_26698
+EOF_1785720373_19466
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1785659812_25790' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1785720373_13862' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -582,11 +689,11 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1785659812_25790
+EOF_1785720373_13862
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1785659812_13844' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1785720373_22743' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import createSampleFeature from './index.ts';
 
@@ -600,10 +707,10 @@ describe('Sample Feature API', () => {
     expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
   });
 });
-EOF_1785659812_13844
+EOF_1785720373_22743
 
 echo "作成: doc.md"
-cat << 'EOF_1785659812_15169' > "doc.md"
+cat << 'EOF_1785720373_3457' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -718,11 +825,11 @@ cat << 'EOF_1785659812_15169' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1785659812_15169
+EOF_1785720373_3457
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1785659812_28770' > "apps/web/package.json"
+cat << 'EOF_1785720373_24525' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -739,15 +846,15 @@ cat << 'EOF_1785659812_28770' > "apps/web/package.json"
   "devDependencies": {
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^6.0.5",
     "typescript": "^5.3.3"
   }
 }
-EOF_1785659812_28770
+EOF_1785720373_24525
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1785659812_6168' > "apps/web/index.html"
+cat << 'EOF_1785720373_12015' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -759,11 +866,11 @@ cat << 'EOF_1785659812_6168' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1785659812_6168
+EOF_1785720373_12015
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1785659812_31730' > "apps/web/tsconfig.json"
+cat << 'EOF_1785720373_2718' > "apps/web/tsconfig.json"
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
@@ -779,11 +886,11 @@ cat << 'EOF_1785659812_31730' > "apps/web/tsconfig.json"
   },
   "include": ["src"]
 }
-EOF_1785659812_31730
+EOF_1785720373_2718
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1785659812_24843' > "apps/web/src/main.tsx"
+cat << 'EOF_1785720373_26231' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -793,21 +900,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1785659812_24843
+EOF_1785720373_26231
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1785659812_700' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1785720373_1264' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 
 export const LoginForm: React.FC = () => {
   // ... (省略)
 };
-EOF_1785659812_700
+EOF_1785720373_1264
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1785659812_11158' > "apps/web/src/App.tsx"
+cat << 'EOF_1785720373_32331' > "apps/web/src/App.tsx"
 import React from 'react';
 import { env } from './env';
 import { LoginForm } from './components/LoginForm.tsx';
@@ -820,11 +927,11 @@ export default function App() {
     </div>
   );
 }
-EOF_1785659812_11158
+EOF_1785720373_32331
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.ts"
-cat << 'EOF_1785659812_1837' > "apps/web/src/env.ts"
+cat << 'EOF_1785720373_1415' > "apps/web/src/env.ts"
 import { clientEnvSchema, type ClientEnv } from '@app/core/config/env.ts';
 
 // Vite の import.meta.env を Zod で検証・補完
@@ -833,19 +940,19 @@ export const env: ClientEnv = clientEnvSchema.parse({
     VITE_API_TARGET_URL: import.meta.env.VITE_API_TARGET_URL,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 });
-EOF_1785659812_1837
+EOF_1785720373_1415
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1785659812_7993' > "apps/web/vite.config.ts"
+cat << 'EOF_1785720373_29109' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
+// import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
   // モノレポのルート直下（../../）にある .env ファイルをロード
-  const envDir = path.resolve(__dirname, '../../');
+  const envDir = path.resolve(import.meta.dirname, '../../');
   const env = loadEnv(mode, envDir, '');
 
   // ポート番号やプロキシ先を環境変数から取得（フォールバック付き）
@@ -856,7 +963,11 @@ export default defineConfig(({ mode }) => {
     // Vite が .env ファイルを探すディレクトリを指定
     envDir,
 
-    plugins: [react(), tsconfigPaths()],
+    // plugins: [react(), tsconfigPaths()],
+    plugins: [react()],
+    resolve: {
+      tsconfigPaths: true
+    },
 
     server: {
       host: '0.0.0.0',
@@ -868,11 +979,11 @@ export default defineConfig(({ mode }) => {
     },
   };
 });
-EOF_1785659812_7993
+EOF_1785720373_29109
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1785659812_2213' > "apps/api/package.json"
+cat << 'EOF_1785720373_26846' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -886,8 +997,10 @@ cat << 'EOF_1785659812_2213' > "apps/api/package.json"
     "@app/core": "*",
     "@app/plugins-auth-ad": "*",
     "@app/plugins-auth-local": "*",
-    "@hono/node-server": "^1.8.2",
-    "hono": "^4.0.0"
+    "@hono/node-server": "^2.0.5",
+    "hono": "^4.0.0",
+    "@hono/zod-validator": "^0.9.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -895,54 +1008,155 @@ cat << 'EOF_1785659812_2213' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785659812_2213
+EOF_1785720373_26846
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1785659812_12517' > "apps/api/src/index.ts"
+cat << 'EOF_1785720373_30408' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
+import { validateEnv, formatEnvForLog } from '@app/core/config/env.ts';
+import { AppError, ProblemDetails, ValidationError } from '@app/core/errors/index.ts';
 import { loadFeatureModules } from '@app/core/registry/hono-auto-loader.ts';
 import { AuthRegistry } from '@app/core/auth/auth-registry.ts';
 import { LocalAuthPlugin } from '@app/plugins/auth-local/src/index.ts';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins/auth-ad/src/index.ts';
-import { validateEnv, formatEnvForLog } from '@app/core/config/env.ts';
 import authRouter from './routes/auth.ts';
 
 // 1. 起動時に環境変数を検証・取得
 const env = validateEnv();
 
-// 2. コンソールに読み込まれた環境変数を綺麗に出力 🚀
-console.log('⚙️ Loaded Environment Variables:\n' + formatEnvForLog(env));
+// 2. コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
+if (process.env.NODE_ENV !== 'test') {
+    console.log('⚙️ Loaded Environment Variables:\n' + formatEnvForLog(env));
+}
 
+// 3. プラグインの登録
 AuthRegistry.register(new LocalAuthPlugin());
 AuthRegistry.register(new ActiveDirectoryAuthPlugin());
 
 const app = new Hono();
 
+// -----------------------------------------------------------------------------
+// テスト専用ルート (NODE_ENV === 'test' の場合のみ有効化)
+// -----------------------------------------------------------------------------
+if (process.env.NODE_ENV === 'test') {
+    app.get('/test/error', () => {
+        throw new Error('Test internal error');
+    });
+}
+
+// -----------------------------------------------------------------------------
+// ルーティング・モジュール読み込み
+// -----------------------------------------------------------------------------
 app.route('/api/auth', authRouter);
 await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 
-const port = env.PORT; // 型安全な数値ポ—ト番号を使用
-console.log(`[API] Server running inside DevContainer on http://0.0.0.0:${port}`);
+// -----------------------------------------------------------------------------
+// テスト専用バリデーションルート (NODE_ENV === 'test' の場合のみ)
+// -----------------------------------------------------------------------------
+if (process.env.NODE_ENV === 'test') {
+    const sampleSchema = z.object({
+        name: z.string().min(2, 'Name must be at least 2 characters'),
+        email: z.string().email('Invalid email address'),
+    });
+
+    app.post(
+        '/test/validation',
+        zValidator('json', sampleSchema, (result, c) => {
+            if (!result.success) {
+                // Zod のエラー結果を統一した InvalidParam 形式に変換
+                const invalidParams = result.error.issues.map((issue) => ({
+                    name: issue.path.join('.'),
+                    reason: issue.message,
+                }));
+                // カスタムValidationErrorをスローして共通onErrorに流す
+                throw new ValidationError(invalidParams);
+            }
+        }),
+        (c) => {
+            return c.json({ success: true });
+        }
+    );
+}
+
+// -----------------------------------------------------------------------------
+// 404 Not Found ハンドラー (RFC 7807 形式)
+// -----------------------------------------------------------------------------
+app.notFound((c) => {
+    const problem: ProblemDetails = {
+        type: 'https://api.example.com/errors/not-found',
+        title: 'Not Found',
+        status: 404,
+        detail: 'The requested resource was not found',
+        instance: c.req.path,
+    };
+    return c.json(problem, 404);
+});
+
+// -----------------------------------------------------------------------------
+// 共通エラーハンドラー (app.onError - RFC 7807 形式)
+// -----------------------------------------------------------------------------
+app.onError((err, c) => {
+    if (process.env.NODE_ENV !== 'test') {
+        console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
+    }
+
+    let status = 500;
+    let type = 'https://api.example.com/errors/internal-server-error';
+    let title = 'Internal Server Error';
+    let detail = 'An unexpected error occurred';
+    let invalidParams: any = undefined;
+
+    if (err instanceof AppError) {
+        status = err.status;
+        type = `https://api.example.com/errors/${err.code}`;
+        title = err.title;
+        detail = err.message;
+
+        // ValidationError の場合は invalidParams を抽出
+        if (err instanceof ValidationError) {
+            invalidParams = err.invalidParams;
+        }
+    }
+
+    const problem: ProblemDetails = {
+        type,
+        title,
+        status,
+        detail,
+        instance: c.req.path,
+        ...(invalidParams && { invalidParams }),
+    };
+
+    return c.json(problem, status as any);
+});
+
+// -----------------------------------------------------------------------------
+// サーバーバインド & 起動処理
+// -----------------------------------------------------------------------------
+const port = env.PORT; // 型安全な数値ポート番号を使用
 
 // 💡 テスト環境（NODE_ENV === 'test'）以外の場合のみ、実際の HTTP サーバーを起動する
 if (process.env.NODE_ENV !== 'test') {
-  console.log(`[API] Server running inside DevContainer on http://0.0.0.0:${port}`);
-  serve({
-    fetch: app.fetch,
-    port,
-    hostname: '0.0.0.0',
-  });
+    console.log(`[API] Server running inside DevContainer on http://0.0.0.0:${port}`);
+    serve({
+        fetch: app.fetch,
+        port,
+        hostname: '0.0.0.0',
+    });
 }
 
 export default app;
-EOF_1785659812_12517
+EOF_1785720373_30408
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1785659812_13626' > "apps/api/src/index.test.ts"
+cat << 'EOF_1785720373_5475' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import app from './index.ts';
 
 describe('API Server Integration Tests', () => {
     const originalEnv = process.env;
@@ -978,11 +1192,77 @@ describe('API Server Integration Tests', () => {
         }).rejects.toThrow('環境変数の検証に失敗しました');
     });
 });
-EOF_1785659812_13626
+
+describe('API Error Handling (RFC 7807)', () => {
+    it('未定義のルートにアクセスした場合、404エラーがRFC7807形式で返ること', async () => {
+        const res = await app.request('/api/non-existent-route');
+        expect(res.status).toBe(404);
+
+        const body = await res.json();
+        expect(body).toEqual({
+            type: 'https://api.example.com/errors/not-found',
+            title: 'Not Found',
+            status: 404,
+            detail: 'The requested resource was not found',
+            instance: '/api/non-existent-route',
+        });
+    });
+
+    it('意図しないサーバー内部エラーが発生した場合、500エラーが共通形式で返ること', async () => {
+        const res = await app.request('/test/error');
+        expect(res.status).toBe(500);
+
+        const body = await res.json();
+        expect(body).toEqual({
+            type: 'https://api.example.com/errors/internal-server-error',
+            title: 'Internal Server Error',
+            status: 500,
+            detail: 'An unexpected error occurred',
+            instance: '/test/error',
+        });
+    });
+});
+
+describe('Zod Request Validation (Step 2)', () => {
+    it('リクエストBodyが不正な場合、400エラーと詳細なフィールドエラー情報がRFC7807形式で返ること', async () => {
+        // 必須項目（email）が欠落しており、name が短すぎる不正なリクエストデータ
+        const invalidPayload = {
+            name: 'a', // 最低2文字以上必要とする仕様
+        };
+
+        const res = await app.request('/test/validation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(invalidPayload),
+        });
+
+        expect(res.status).toBe(400);
+
+        const body = await res.json();
+        expect(body).toMatchObject({
+            type: 'https://api.example.com/errors/validation-error',
+            title: 'Bad Request',
+            status: 400,
+            detail: 'Validation failed for the request payload',
+            instance: '/test/validation',
+        });
+
+        // フィールドごとのエラー詳細が含まれているか検証
+        expect(body.invalidParams).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: 'name' }),
+                expect.objectContaining({ name: 'email' }),
+            ])
+        );
+    });
+});
+EOF_1785720373_5475
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1785659812_26365' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1785720373_16212' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { AuthRegistry } from '@app/core/auth/auth-registry.ts';
 
@@ -1001,10 +1281,10 @@ authRouter.post('/login', async (c) => {
 });
 
 export default authRouter;
-EOF_1785659812_26365
+EOF_1785720373_16212
 
 echo "作成: README.md"
-cat << 'EOF_1785659812_31940' > "README.md"
+cat << 'EOF_1785720373_12835' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification)
 
 ## 1. システム概要 (Overview)
@@ -1046,7 +1326,7 @@ cat << 'EOF_1785659812_31940' > "README.md"
 ### 3.1 パッケージの層構造と役割 (Layer Architecture)
 
 * **`packages/core` (基盤レイヤー)**
-* アプリケーション全体で共有される**型定義・環境変数設定・共通ユーティリティ**を保持します。
+* アプリケーション全体で共有される**型定義・環境変数設定・共通ユーティリティ・エラー定義**を保持します。
 * `apps/*` や他の `packages/*` から普遍的に参照される「共通基盤」です。特定のビジネスロジックには依存させません。
 
 
@@ -1063,9 +1343,9 @@ cat << 'EOF_1785659812_31940' > "README.md"
 
 ### 3.2 機能拡張パターン (Extension Workflow)
 
-1. **新しい共有プラグイン・機能の追加:**
-* `packages/plugins/` または `packages/features/` 配下に新しいディレクトリ（例: `packages/features/todo`）を作成し、`package.json` を配置します。
-* ルートの `package.json`（`docker-compose.yml` 等）の依存関係指定と合わせることで、自動的にワークスペースとして認識されます。
+1. **新しい共有プラグイン・機能の追加（※実装構成例）:**
+* **例:** `packages/plugins/` または `packages/features/` 配下に新しいディレクトリ（例: `packages/features/todo`）を作成し、`package.json` を配置する構成などが考えられます。
+* ルートの `package.json`（および必要に応じて `docker-compose.yml` 等）の依存関係指定と合わせることで、npm ワークスペースとして自動認識させる運用方法が一例として挙げられます。
 
 
 2. **依存関係の参照ルール:**
@@ -1078,7 +1358,7 @@ cat << 'EOF_1785659812_31940' > "README.md"
 
 ## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
-`npm workspaces` を使用してプロジェクトをマルチパッケージ管理しています。プロジェクト内の全ファイル・フォルダ構成は以下の通りです。
+`npm workspaces` を使用してプロジェクトをマルチパッケージ管理しています。
 
 ```text
 .
@@ -1094,9 +1374,11 @@ cat << 'EOF_1785659812_31940' > "README.md"
 ├── apps/                         # アプリケーションフォルダ
 │   ├── api/                      # バックエンド API サーバー (Hono / Node.js)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング & サーバー起動制御)
-│   │   │   └── index.test.ts     # API 統合テスト (Vitest)
-│   │   ├── package.json          # API サーバー用依存関係・スクリプト
+│   │   │   ├── index.ts          # API エントリーポイント (ルーティング, エラーハンドリング & サーバー起動制御)
+│   │   │   ├── index.test.ts     # API 統合テスト (エラーレスポンス・Zod検証・Vitest)
+│   │   │   └── routes/
+│   │   │       └── auth.ts       # 認証用ルーティング
+│   │   ├── package.json          # API サーバー用依存関係 (@hono/zod-validator, zod 追加済)
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
 │   └── web/                      # フロントエンド Web アプリ (React / Vite)
@@ -1113,9 +1395,13 @@ cat << 'EOF_1785659812_31940' > "README.md"
 └── packages/                     # 共有パッケージフォルダ
     ├── core/                     # 共通ロジック・設定・型定義パッケージ
     │   ├── src/
-    │   │   └── config/
-    │   │       ├── env.ts        # 環境変数スキーマ & ロジック (Zod)
-    │   │       └── env.test.ts   # 環境変数の単体テスト (Vitest)
+    │   │   ├── config/
+    │   │   │   ├── env.ts        # 環境変数スキーマ & ロジック (Zod)
+    │   │   │   └── env.test.ts   # 環境変数の単体テスト (Vitest)
+    │   │   ├── errors/
+    │   │   │   └── index.ts      # 共通エラークラス (AppError, ValidationError) & RFC 7807 型定義 [NEW]
+    │   │   ├── auth/             # 認証レジストリ基盤
+    │   │   └── registry/         # モジュール動的ローダー (hono-auto-loader)
     │   ├── package.json          # 共通パッケージ用依存関係・スクリプト
     │   └── tsconfig.json         # 共通パッケージ用 TypeScript 設定
     ├── plugins/                  # 認証プラグイン群
@@ -1147,21 +1433,57 @@ cat << 'EOF_1785659812_31940' > "README.md"
 
 ### 5.2 環境変数の検証・セキュリティアーキテクチャ
 
-#### 1. バックエンド (`apps/api`)
-
+1. **バックエンド (`apps/api`):**
 * **起動時チェック:** API 起動時、`validateEnv()` により `envSchema` の適合チェックを実施。不正時はエラーログを出力してプロセスを即座に停止します。
 * **ログ出力 & 秘密情報マスク:** 起動時に適用された設定内容を JSON ログ出力します。ログ出力時は `formatEnvForLog()` が `DATABASE_URL` のパスワード部分を自動的に `***` へ伏字化（マスク）します。
 
-#### 2. フロントエンド (`apps/web`)
 
-* **安全なカプセル化 (`apps/web/src/env.ts`):** ブラウザ環境で Node.js の `process.env` を参照して発生する `ReferenceError` を防ぐため、`import.meta.env` を `clientEnvSchema` で検証・型抽出した `env` オブジェクトを経由して安全にコンポーネント内から利用します。
+2. **フロントエンド (`apps/web`):**
+* **安全なカプセル化 (`apps/web/src/env.ts`):** ブラウザ環境で `process.env` を参照して発生する `ReferenceError` を防ぐため、`import.meta.env` を `clientEnvSchema` で検証・型抽出した `env` オブジェクトを経由して利用します。
 * **Vite プロキシ連携:** `vite.config.ts` にて `loadEnv` を用い、ルート直下の `.env` から `VITE_API_TARGET_URL` を読み込んで API プロキシを設定します。
+
+
 
 ---
 
-## 6. 実行スクリプト & テスト仕様 (Scripts & Testing)
+## 6. APIエラーレスポンス & バリデーション仕様 (RFC 7807) [NEW]
 
-### 6.1 開発サーバー起動
+本プロジェクトでは、すべての API エラーレスポンスを **RFC 7807 (Problem Details for HTTP APIs)** 仕様に準拠させて統一しています。
+
+### 6.1 エラーレスポンス基本構造 (`ProblemDetails`)
+
+```typescript
+export interface InvalidParam {
+  name: string;   // エラーが発生したフィールド名（例: "email"）
+  reason: string; // エラー内容（例: "Invalid email address"）
+}
+
+export interface ProblemDetails {
+  type: string;           // エラーの分類を示す URI (例: "https://api.example.com/errors/not-found")
+  title: string;          // エラーの概要 (例: "Not Found", "Bad Request")
+  status: number;         // HTTP ステータスコード (例: 404, 400, 500)
+  detail: string;         // エラーの詳細メッセージ
+  instance: string;       // エラーが発生したリクエストパス (例: "/api/v1/users")
+  invalidParams?: InvalidParam[]; // バリデーションエラー時のフィールド別詳細リスト
+}
+
+```
+
+### 6.2 エラー処理の動作原則
+
+1. **404 Not Found 規格化:** 存在しないルートへのアクセスは `app.notFound` により常に 404 の RFC 7807 JSON が返却されます。
+2. **500 Internal Server Error 規格化:** アプリ内部で捕捉されなかった未定義例外は `app.onError` で全件キャッチし、機密情報を除外した上で 500 の RFC 7807 JSON を生成・返却します。
+3. **Zod 入力バリデーション (400 Bad Request):**
+* `@hono/zod-validator` を通じて送信された payload を検証します。
+* 検証エラー発生時は `ValidationError` がスローされ、`app.onError` 経由で `invalidParams` 配列（フィールドごとの違反理由）を含む 400 レスポンスとして返却されます。
+
+
+
+---
+
+## 7. 実行スクリプト & テスト仕様 (Scripts & Testing)
+
+### 7.1 開発サーバー起動
 
 ルートディレクトリ（または DevContainer 上）にて以下を実行します。
 
@@ -1172,9 +1494,8 @@ npm run dev
 
 * `concurrently` により `dev:api` と `dev:web` を同時並行で立ち上げます。
 * **API 起動コマンド:** `tsx watch --env-file=../../.env src/index.ts`
-*(※ `--env-file` は `watch` サブコマンドの後に指定)*
 
-### 6.2 テスト自動化 & 非同期ソケット制御
+### 7.2 テスト自動化 & 非同期ソケット制御
 
 全テスト（TDD）の実行には以下を使用します。
 
@@ -1184,11 +1505,15 @@ npm test
 ```
 
 * **テスト環境保護 (`NODE_ENV === 'test'`):**
-`apps/api/src/index.ts` では `process.env.NODE_ENV !== 'test'` の条件分岐を設け、テスト実行時には `serve()` (HTTPリスナーのバインド) を自動スキップします。これにより、ポートの二重バインドや未捕獲のソケットエラーを防ぎ、Hono の `app.request()` によるインメモリテストを高速かつ正常に完結させます。
-EOF_1785659812_31940
+`apps/api/src/index.ts` では `process.env.NODE_ENV !== 'test'` の条件分岐を設け、テスト実行時には `serve()` (HTTPリスナーのバインド) を自動スキップします。これにより、ポートの二重バインドや未捕獲のソケットエラーを防ぎ、Hono の `app.request()` によるインメモリテストをミリ秒単位で高速かつ正常に実行します。
+* **テストカバレッジ:**
+* 未定義パスアクセスの 404 検証
+* サーバー例外発生時の 500 検証
+* Zod スキーマ違反時の 400 & `invalidParams` レスポンス構造の検証
+EOF_1785720373_12835
 
 echo "作成: .env"
-cat << 'EOF_1785659812_6074' > ".env"
+cat << 'EOF_1785720373_24007' > ".env"
 # バックエンド用
 PORT=3001
 DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db?schema=public
@@ -1198,6 +1523,6 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db?schema=public
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1785659812_6074
+EOF_1785720373_24007
 
 echo -e "\n復元が完了しました！"

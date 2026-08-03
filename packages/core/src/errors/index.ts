@@ -1,9 +1,15 @@
+export interface InvalidParam {
+    name: string;
+    reason: string;
+}
+
 export interface ProblemDetails {
     type: string;
     title: string;
     status: number;
     detail: string;
     instance: string;
+    invalidParams?: InvalidParam[];
 }
 
 export class AppError extends Error {
@@ -27,5 +33,14 @@ export class NotFoundError extends AppError {
 export class InternalServerError extends AppError {
     constructor(message = 'An unexpected error occurred') {
         super(500, 'internal-server-error', 'Internal Server Error', message);
+    }
+}
+
+export class ValidationError extends AppError {
+    constructor(
+        public readonly invalidParams: InvalidParam[],
+        message = 'Validation failed for the request payload'
+    ) {
+        super(400, 'validation-error', 'Bad Request', message);
     }
 }

@@ -39,7 +39,7 @@
 ### 3.1 パッケージの層構造と役割 (Layer Architecture)
 
 * **`packages/core` (基盤レイヤー)**
-* アプリケーション全体で共有される**型定義・環境変数設定・共通ユーティリティ**を保持します。
+* アプリケーション全体で共有される**型定義・環境変数設定・共通ユーティリティ・エラー定義**を保持します。
 * `apps/*` や他の `packages/*` から普遍的に参照される「共通基盤」です。特定のビジネスロジックには依存させません。
 
 
@@ -56,9 +56,9 @@
 
 ### 3.2 機能拡張パターン (Extension Workflow)
 
-1. **新しい共有プラグイン・機能の追加:**
-* `packages/plugins/` または `packages/features/` 配下に新しいディレクトリ（例: `packages/features/todo`）を作成し、`package.json` を配置します。
-* ルートの `package.json`（`docker-compose.yml` 等）の依存関係指定と合わせることで、自動的にワークスペースとして認識されます。
+1. **新しい共有プラグイン・機能の追加（※実装構成例）:**
+* **例:** `packages/plugins/` または `packages/features/` 配下に新しいディレクトリ（例: `packages/features/todo`）を作成し、`package.json` を配置する構成などが考えられます。
+* ルートの `package.json`（および必要に応じて `docker-compose.yml` 等）の依存関係指定と合わせることで、npm ワークスペースとして自動認識させる運用方法が一例として挙げられます。
 
 
 2. **依存関係の参照ルール:**
@@ -71,7 +71,7 @@
 
 ## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
-`npm workspaces` を使用してプロジェクトをマルチパッケージ管理しています。プロジェクト内の全ファイル・フォルダ構成は以下の通りです。
+`npm workspaces` を使用してプロジェクトをマルチパッケージ管理しています。
 
 ```text
 .
@@ -87,9 +87,11 @@
 ├── apps/                         # アプリケーションフォルダ
 │   ├── api/                      # バックエンド API サーバー (Hono / Node.js)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング & サーバー起動制御)
-│   │   │   └── index.test.ts     # API 統合テスト (Vitest)
-│   │   ├── package.json          # API サーバー用依存関係・スクリプト
+│   │   │   ├── index.ts          # API エントリーポイント (ルーティング, エラーハンドリング & サーバー起動制御)
+│   │   │   ├── index.test.ts     # API 統合テスト (エラーレスポンス・Zod検証・Vitest)
+│   │   │   └── routes/
+│   │   │       └── auth.ts       # 認証用ルーティング
+│   │   ├── package.json          # API サーバー用依存関係 (@hono/zod-validator, zod 追加済)
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
 │   └── web/                      # フロントエンド Web アプリ (React / Vite)
@@ -106,9 +108,13 @@
 └── packages/                     # 共有パッケージフォルダ
     ├── core/                     # 共通ロジック・設定・型定義パッケージ
     │   ├── src/
-    │   │   └── config/
-    │   │       ├── env.ts        # 環境変数スキーマ & ロジック (Zod)
-    │   │       └── env.test.ts   # 環境変数の単体テスト (Vitest)
+    │   │   ├── config/
+    │   │   │   ├── env.ts        # 環境変数スキーマ & ロジック (Zod)
+    │   │   │   └── env.test.ts   # 環境変数の単体テスト (Vitest)
+    │   │   ├── errors/
+    │   │   │   └── index.ts      # 共通エラークラス (AppError, ValidationError) & RFC 7807 型定義 [NEW]
+    │   │   ├── auth/             # 認証レジストリ基盤
+    │   │   └── registry/         # モジュール動的ローダー (hono-auto-loader)
     │   ├── package.json          # 共通パッケージ用依存関係・スクリプト
     │   └── tsconfig.json         # 共通パッケージ用 TypeScript 設定
     ├── plugins/                  # 認証プラグイン群
@@ -140,21 +146,57 @@
 
 ### 5.2 環境変数の検証・セキュリティアーキテクチャ
 
-#### 1. バックエンド (`apps/api`)
-
+1. **バックエンド (`apps/api`):**
 * **起動時チェック:** API 起動時、`validateEnv()` により `envSchema` の適合チェックを実施。不正時はエラーログを出力してプロセスを即座に停止します。
 * **ログ出力 & 秘密情報マスク:** 起動時に適用された設定内容を JSON ログ出力します。ログ出力時は `formatEnvForLog()` が `DATABASE_URL` のパスワード部分を自動的に `***` へ伏字化（マスク）します。
 
-#### 2. フロントエンド (`apps/web`)
 
-* **安全なカプセル化 (`apps/web/src/env.ts`):** ブラウザ環境で Node.js の `process.env` を参照して発生する `ReferenceError` を防ぐため、`import.meta.env` を `clientEnvSchema` で検証・型抽出した `env` オブジェクトを経由して安全にコンポーネント内から利用します。
+2. **フロントエンド (`apps/web`):**
+* **安全なカプセル化 (`apps/web/src/env.ts`):** ブラウザ環境で `process.env` を参照して発生する `ReferenceError` を防ぐため、`import.meta.env` を `clientEnvSchema` で検証・型抽出した `env` オブジェクトを経由して利用します。
 * **Vite プロキシ連携:** `vite.config.ts` にて `loadEnv` を用い、ルート直下の `.env` から `VITE_API_TARGET_URL` を読み込んで API プロキシを設定します。
+
+
 
 ---
 
-## 6. 実行スクリプト & テスト仕様 (Scripts & Testing)
+## 6. APIエラーレスポンス & バリデーション仕様 (RFC 7807) [NEW]
 
-### 6.1 開発サーバー起動
+本プロジェクトでは、すべての API エラーレスポンスを **RFC 7807 (Problem Details for HTTP APIs)** 仕様に準拠させて統一しています。
+
+### 6.1 エラーレスポンス基本構造 (`ProblemDetails`)
+
+```typescript
+export interface InvalidParam {
+  name: string;   // エラーが発生したフィールド名（例: "email"）
+  reason: string; // エラー内容（例: "Invalid email address"）
+}
+
+export interface ProblemDetails {
+  type: string;           // エラーの分類を示す URI (例: "https://api.example.com/errors/not-found")
+  title: string;          // エラーの概要 (例: "Not Found", "Bad Request")
+  status: number;         // HTTP ステータスコード (例: 404, 400, 500)
+  detail: string;         // エラーの詳細メッセージ
+  instance: string;       // エラーが発生したリクエストパス (例: "/api/v1/users")
+  invalidParams?: InvalidParam[]; // バリデーションエラー時のフィールド別詳細リスト
+}
+
+```
+
+### 6.2 エラー処理の動作原則
+
+1. **404 Not Found 規格化:** 存在しないルートへのアクセスは `app.notFound` により常に 404 の RFC 7807 JSON が返却されます。
+2. **500 Internal Server Error 規格化:** アプリ内部で捕捉されなかった未定義例外は `app.onError` で全件キャッチし、機密情報を除外した上で 500 の RFC 7807 JSON を生成・返却します。
+3. **Zod 入力バリデーション (400 Bad Request):**
+* `@hono/zod-validator` を通じて送信された payload を検証します。
+* 検証エラー発生時は `ValidationError` がスローされ、`app.onError` 経由で `invalidParams` 配列（フィールドごとの違反理由）を含む 400 レスポンスとして返却されます。
+
+
+
+---
+
+## 7. 実行スクリプト & テスト仕様 (Scripts & Testing)
+
+### 7.1 開発サーバー起動
 
 ルートディレクトリ（または DevContainer 上）にて以下を実行します。
 
@@ -165,9 +207,8 @@ npm run dev
 
 * `concurrently` により `dev:api` と `dev:web` を同時並行で立ち上げます。
 * **API 起動コマンド:** `tsx watch --env-file=../../.env src/index.ts`
-*(※ `--env-file` は `watch` サブコマンドの後に指定)*
 
-### 6.2 テスト自動化 & 非同期ソケット制御
+### 7.2 テスト自動化 & 非同期ソケット制御
 
 全テスト（TDD）の実行には以下を使用します。
 
@@ -177,4 +218,8 @@ npm test
 ```
 
 * **テスト環境保護 (`NODE_ENV === 'test'`):**
-`apps/api/src/index.ts` では `process.env.NODE_ENV !== 'test'` の条件分岐を設け、テスト実行時には `serve()` (HTTPリスナーのバインド) を自動スキップします。これにより、ポートの二重バインドや未捕獲のソケットエラーを防ぎ、Hono の `app.request()` によるインメモリテストを高速かつ正常に完結させます。
+`apps/api/src/index.ts` では `process.env.NODE_ENV !== 'test'` の条件分岐を設け、テスト実行時には `serve()` (HTTPリスナーのバインド) を自動スキップします。これにより、ポートの二重バインドや未捕獲のソケットエラーを防ぎ、Hono の `app.request()` によるインメモリテストをミリ秒単位で高速かつ正常に実行します。
+* **テストカバレッジ:**
+* 未定義パスアクセスの 404 検証
+* サーバー例外発生時の 500 検証
+* Zod スキーマ違反時の 400 & `invalidParams` レスポンス構造の検証

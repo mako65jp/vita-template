@@ -65,3 +65,39 @@ describe('API Error Handling (RFC 7807)', () => {
         });
     });
 });
+
+describe('Zod Request Validation (Step 2)', () => {
+    it('リクエストBodyが不正な場合、400エラーと詳細なフィールドエラー情報がRFC7807形式で返ること', async () => {
+        // 必須項目（email）が欠落しており、name が短すぎる不正なリクエストデータ
+        const invalidPayload = {
+            name: 'a', // 最低2文字以上必要とする仕様
+        };
+
+        const res = await app.request('/test/validation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(invalidPayload),
+        });
+
+        expect(res.status).toBe(400);
+
+        const body = await res.json();
+        expect(body).toMatchObject({
+            type: 'https://api.example.com/errors/validation-error',
+            title: 'Bad Request',
+            status: 400,
+            detail: 'Validation failed for the request payload',
+            instance: '/test/validation',
+        });
+
+        // フィールドごとのエラー詳細が含まれているか検証
+        expect(body.invalidParams).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: 'name' }),
+                expect.objectContaining({ name: 'email' }),
+            ])
+        );
+    });
+});

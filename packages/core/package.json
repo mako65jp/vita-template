@@ -6,7 +6,7 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@prisma/client": "^5.9.1",
-    "glob": "^10.3.10",
+    "glob": "^13.0.6",
     "hono": "^4.0.0",
     "zod": "^3.22.4"
   },
