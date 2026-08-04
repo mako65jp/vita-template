@@ -12,6 +12,6 @@ export default defineConfig({
 
     // 接続情報（.env から読み込み）
     dbCredentials: {
-        url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
+        url: process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
