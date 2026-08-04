@@ -1,4 +1,4 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification)
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - 全体統合版
 
 ## 1. システム概要 (Overview)
 
@@ -41,20 +41,16 @@
 
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
-| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | ローカル認証、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 7807)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (Bcrypt / JWT ユーティリティ)、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
 | **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
 
 ### 3.2 拡張ルールと依存方向 (Extension Rules)
 
 1. **機能追加の手順:**
-* 新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
-
-
+新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
 2. **単方向依存の徹底:**
-* 依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
-
-
+依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
 
 ---
 
@@ -65,9 +61,35 @@
 * **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM) を採用します。
 * **シングルトン接続:** データベースへのコネクション pool の無駄遣いを防ぐため、`packages/core/src/db/index.ts` にて環境変数の正常性を検証した上で、単一の接続インスタンス（`db`）を保持・供給します。
 
-### 4.2 スキーマ定義
+### 4.2 スキーマ定義 (Single Source of Truth)
 
-* データベースの構造（テーブル・リレーション等）は、`packages/core/src/db/schema.ts` を正（Single Source of Truth）として定義します。
+データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
+
+#### `users` テーブル
+
+ユーザー認証、権限、およびプロファイル情報を一元管理します。
+
+```typescript
+// packages/core/src/db/schema.ts
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  role: text('role').notNull().default('user'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+```
+
+| カラム名 | DB論理名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- | --- |
+| `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
+| `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
+| `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
+| `passwordHash` | `password_hash` | `text` | NOT NULL | Bcrypt でハッシュ化されたパスワード |
+| `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
+| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
 
 ### 4.3 構成ファイルの分離設計
 
@@ -121,8 +143,12 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 │   │   ├── src/
 │   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・エラー処理・ライフサイクル制御)
 │   │   │   ├── index.test.ts     # API 統合テスト (RFC 7807 エラー検証・Zod バリデーション)
+│   │   │   ├── middlewares/      # ミドルウェア層
+│   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
+│   │   │   │   └── auth-middleware.test.ts # ミドルウェア単体・統合テスト
 │   │   │   └── routes/           # アプリケーション固有のルーティング
-│   │   │       └── auth.ts       # 認証APIエンドポイント
+│   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
+│   │   │       └── auth.test.ts  # 認証 API 統合テスト
 │   │   ├── package.json          # API サーバー用依存関係・スクリプト
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
@@ -153,9 +179,8 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
     │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
     │   │   │   └── db.test.ts    # データベース CRUD 操作統合テスト
     │   │   ├── errors/           # システム標準エラー構造・RFC 7807 定義
-    │   │   │   ├── index.ts      # 共通エラークラス群 & インターフェース
+    │   │   │   ├── index.ts      # 共通エラークラス群 (`AppError`, `UnauthorizedError`等)
     │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
-    │   │   ├── auth/             # 認証レジストリ基盤・基本型定義
     │   │   ├── registry/         # 動的モジュールローダー
     │   │   │   └── hono-auto-loader.ts # Feature モジュール自動探索機能
     │   │   └── test/             # テスト自動化ライフサイクル定義
@@ -168,7 +193,11 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
     │   │   ├── src/index.ts
     │   │   └── package.json
     │   └── auth-local/           # ローカルデータベース認証モジュール
-    │       ├── src/index.ts
+    │       ├── src/
+    │       │   ├── index.ts      # パッケージエントリーポイント
+    │       │   ├── password.ts   # Bcrypt パスワードハッシュ化・照合関数
+    │       │   ├── jwt.ts        # Jose による JWT 署名・検証関数
+    │       │   └── auth.test.ts  # パスワード & JWT 処理単体テスト
     │       └── package.json
     └── features/                 # 業務ドメイン機能モジュール群
         └── sample/               # サンプル機能モジュール
@@ -192,6 +221,7 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 | `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
 | `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
 | `DATABASE_URL` | API | URL形式文字列 | データベースへの接続URI (認証情報含む) |
+| `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
 | `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
 | `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
 | `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
@@ -199,22 +229,19 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 ### 7.2 セキュリティ & バリデーション設計
 
 1. **フェイルファスト（Fail-Fast）原則:**
-* アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
-
-
+アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
 2. **機密情報のログマスク（伏字化）:**
-* 動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
-
-
-3. **フロントエンドの環境変数カプセル化:**
-* ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。
-* グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
-
-
+動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
+3. **パスワード保存とトークン生成:**
+平文パスワードの保持は厳禁とし、`bcryptjs` によりソルト付きでハッシュ化された値のみを保存します。JWT の生成・検証には `jose` ライブラリを使用し、ステートレスでスケーラブルな認証を実現します。
+4. **安全なエラー詳細返却:**
+ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、一律 `Invalid credentials.` (401) を返却し、ユーザー存在確認攻撃を防ぎます。
+5. **フロントエンドの環境変数カプセル化:**
+ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
 
 ---
 
-## 8. APIエラーレスポンス仕様 (RFC 7807 準拠)
+## 8. API エラーレスポンス仕様 (RFC 7807 準拠)
 
 システムから返却されるエラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理・デバッグを容易にするため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
 
@@ -224,61 +251,134 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
-| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"[https://api.example.com/errors/bad-request](https://api.example.com/errors/bad-request)"` |
-| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Not Found"` |
-| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `404`, `500` |
-| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Validation failed for parameter 'email'"` |
-| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/v1/users"` |
+| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"about:blank"` または `"[https://api.example.com/errors/unauthorized](https://api.example.com/errors/unauthorized)"` |
+| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Unauthorized"`, `"Not Found"` |
+| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `404`, `500` |
+| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Authentication token is missing or invalid format."` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/me"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 ### 8.2 エラー制御方針
 
-1. **未定義エラーのキャッチ (500 Internal Server Error):**
-* 予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、規格化された 500 エラー構造へ変換して返却します。
+1. **例外クラスの階層化 (`AppError`):**
+すべてのドメイン例外（`ValidationError`, `UnauthorizedError`, `NotFoundError` 等）は基態クラス `AppError` を継承して定義します。
+2. **未定義エラーのキャッチ (500 Internal Server Error):**
+予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換して返却します。
+3. **入力検証エラーの自動標準化 (400 Bad Request):**
+リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+
+---
+
+## 9. 認証・認可 API 仕様 (Authentication API Spec)
+
+ベース URL: `/api`
+
+### 9.1 ログイン & トークン発行 (`POST /api/auth/login`)
+
+* **認証:** 不要
+* **リクエスト (`application/json`):**
+```json
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+```
 
 
-2. **入力検証エラーの自動標準化 (400 Bad Request):**
-* リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+* **レスポンス (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "Test User",
+    "email": "test@example.com",
+    "role": "user"
+  }
+}
+
+```
+
+
+* **エラーレスポンス (401 Unauthorized - RFC 7807):**
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Invalid credentials.",
+  "instance": "/api/auth/login"
+}
+
+```
+
+
+
+### 9.2 認証ユーザー情報取得 (`GET /api/auth/me`)
+
+* **認証:** 必要 (`Authorization: Bearer <JWT_TOKEN>`)
+* **リクエストヘッダー:**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+```
+
+
+* **レスポンス (200 OK):**
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "test@example.com",
+    "role": "user"
+  }
+}
+
+```
+
+
+* **エラーレスポンス (401 Unauthorized - RFC 7807):**
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Token is invalid or expired.",
+  "instance": "/api/auth/me"
+}
+
+```
 
 
 
 ---
 
-## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+## 10. テストアーキテクチャ & ライフサイクル (Testing Architecture)
 
 テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
 
-### 9.1 テスト基盤
+### 10.1 テスト基盤
 
 * **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
 
-### 9.2 テスト自動化ライフサイクル
+### 10.2 テスト自動化ライフサイクル
 
 1. **テスト開始前のデータベース構造の自動最新化 (Global Setup):**
-* 全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。
-* これにより、開発者がテスト実行前に手動でデータベースを初期化・マイグレーションする作業を不要にし、常に最新のコード仕様に基づいたテストを保証します。
-* *(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定で実行します)*
-
-
+全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。開発者が手動でマイグレーションする作業を不要にし、最新コード仕様でのテストを保証します。
+*(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定 `drizzle-test.config.ts` で実行します)*
 2. **テストケース間の完全な状態隔離 (Setup Files):**
-* 個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ** します。
-* 1つのテスト結果が他のテストに影響を与える「テストの副作用（データ汚染）」を排除し、常に独立した決定論的なテスト実行環境を維持します。
-* *(内部補足: 全テーブルに対する `TRUNCATE CASCADE` を自動実行します)*
-
-
+個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ**（全テーブルに対する `TRUNCATE CASCADE` 実行）します。
 3. **テスト実行環境の分離保護:**
-* テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制します。
-* ポートの競合エラーを防ぎつつ、高速なインメモリ HTTP リクエストによる API の振る舞い検証を可能にします。
-
-
+テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制し、ポート競合を防ぎつつインメモリ HTTP リクエストで API 動作を高速検証します。
 
 ---
 
-## 10. 実行スクリプト リファレンス (Scripts)
+## 11. 実行スクリプト リファレンス (Scripts)
 
 プロジェクト内で利用する標準的なコマンドです。
 
-### 10.1 開発サーバー起動
+### 11.1 開発サーバー起動
 
 すべてのアプリケーション（API・Web）を開発モードで並行起動します。
 
@@ -287,16 +387,16 @@ npm run dev
 
 ```
 
-### 10.2 全テストの自動実行
+### 11.2 全テストの自動実行 (TDD)
 
-すべてのパッケージの単体テスト、DB 連携テスト、API レスポンス検証を一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
+すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テストを一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
 
 ```bash
 npm test
 
 ```
 
-### 10.3 テスト用 DB スキーマの手動同期
+### 11.3 テスト用 DB スキーマの手動同期
 
 テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
 
