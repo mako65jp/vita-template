@@ -3,11 +3,11 @@ import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { validateEnv, formatEnvForLog } from '@app/core/config/env';
-import { AppError, ProblemDetails, ValidationError } from '@app/core/errors/index';
+import { AppError, ProblemDetails, ValidationError } from '@app/core/errors';
 import { loadFeatureModules } from '@app/core/registry/hono-auto-loader';
 import { AuthRegistry } from '@app/core/auth/auth-registry';
-import { LocalAuthPlugin } from '@app/plugins/auth-local/src/index';
-import { ActiveDirectoryAuthPlugin } from '@app/plugins/auth-ad/src/index';
+import { LocalAuthPlugin } from '@app/plugins-auth-local';
+import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
 import authRouter from './routes/auth';
 
 // 1. 起動時に環境変数を検証・取得

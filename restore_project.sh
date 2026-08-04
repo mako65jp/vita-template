@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1785802053_12200' > "package.json"
+cat << 'EOF_1785817768_32123' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -46,10 +46,10 @@ cat << 'EOF_1785802053_12200' > "package.json"
     "drizzle-orm": "^0.45.2"
   }
 }
-EOF_1785802053_12200
+EOF_1785817768_32123
 
 echo "作成: .gitignore"
-cat << 'EOF_1785802053_6735' > ".gitignore"
+cat << 'EOF_1785817768_5577' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -156,10 +156,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1785802053_6735
+EOF_1785817768_5577
 
 echo "作成: plan.md"
-cat << 'EOF_1785802053_13186' > "plan.md"
+cat << 'EOF_1785817768_19595' > "plan.md"
 # 📋 共通ひな形機能 一覧表
 
 ### 凡例（記号の定義）
@@ -191,31 +191,31 @@ cat << 'EOF_1785802053_13186' > "plan.md"
    * 認証ロジックのテストを書くには、事前に入力バリデーション（Step 2）や DB へのユーザー保存（Step 3）のテスト環境が整っている必要があるためです。
 2. **「ログ・ヘルスチェック」はアプリ機能としては運用向け（🟡中）だが、TDD順序では【Step 5】**
    * API と DB の基礎テスト環境が完成した直後に組み込むことで、後続の複雑なドメイン開発時のデバッグが格段に楽になります。
-EOF_1785802053_13186
+EOF_1785817768_19595
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1785802053_26952' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1785817768_30411' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1785802053_26952
+EOF_1785817768_30411
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1785802053_17635' > ".devcontainer/Dockerfile"
+cat << 'EOF_1785817768_27924' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
 # RUN apt-get update && apt-get install -y <package_name>
-EOF_1785802053_17635
+EOF_1785817768_27924
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1785802053_20918' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1785817768_24462' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -239,11 +239,11 @@ cat << 'EOF_1785802053_20918' > ".devcontainer/devcontainer.json"
   "forwardPorts": [3000, 3001, 5432],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1785802053_20918
+EOF_1785817768_24462
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1785802053_30357' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1785817768_15622' > ".devcontainer/docker-compose.yml"
 
 
 services:
@@ -287,10 +287,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1785802053_30357
+EOF_1785817768_15622
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1785802053_6664' > "tsconfig.json"
+cat << 'EOF_1785817768_29211' > "tsconfig.json"
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -327,10 +327,10 @@ cat << 'EOF_1785802053_6664' > "tsconfig.json"
     "dist"
   ]
 }
-EOF_1785802053_6664
+EOF_1785817768_29211
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1785802053_13508' > "vitest.config.ts"
+cat << 'EOF_1785817768_27347' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -343,11 +343,11 @@ export default defineConfig({
     reporters: ['tree'],
   },
 });
-EOF_1785802053_13508
+EOF_1785817768_27347
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1785802053_8850' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1785817768_13409' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -355,11 +355,11 @@ cat << 'EOF_1785802053_8850' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785802053_8850
+EOF_1785817768_13409
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1785802053_2500' > "packages/plugins/auth-ad/src/index.ts"
+cat << 'EOF_1785817768_29671' > "packages/plugins/auth-ad/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -373,23 +373,30 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1785802053_2500
+EOF_1785817768_29671
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1785802053_15476' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1785817768_30505' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts"
+  "main": "./src/index.ts",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6"
+  }
 }
-EOF_1785802053_15476
+EOF_1785817768_30505
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1785802053_31177' > "packages/plugins/auth-local/src/index.ts"
+cat << 'EOF_1785817768_23530' > "packages/plugins/auth-local/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -403,11 +410,144 @@ export class LocalAuthPlugin implements AuthPlugin {
     throw new Error('Invalid local credentials');
   }
 }
-EOF_1785802053_31177
+
+export * from './auth-utils';
+EOF_1785817768_23530
+
+mkdir -p "packages/plugins/auth-local/src"
+echo "作成: packages/plugins/auth-local/src/auth-utils.ts"
+cat << 'EOF_1785817768_19190' > "packages/plugins/auth-local/src/auth-utils.ts"
+import bcrypt from 'bcryptjs';
+import { SignJWT, jwtVerify } from 'jose';
+
+// ----------------------------------------------------
+// 1. パスワードハッシュ化 & 照合処理
+// ----------------------------------------------------
+
+/**
+ * 平文パスワードをハッシュ化します
+ */
+export async function hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return await bcrypt.hash(password, saltRounds);
+}
+
+/**
+ * 平文パスワードとハッシュ値を照合します
+ */
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
+}
+
+// ----------------------------------------------------
+// 2. JWT 発行 & 検証処理
+// ----------------------------------------------------
+
+/**
+ * Payload を受け取り、署名済み JWT を生成します
+ */
+export async function signJwt(
+    payload: Record<string, unknown>,
+    secret: string,
+    expiresIn: string = '2h'
+): Promise<string> {
+    const secretKey = new TextEncoder().encode(secret);
+
+    return await new SignJWT(payload)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime(expiresIn)
+        .sign(secretKey);
+}
+
+/**
+ * JWT を検証し、デコードされた Payload を返します。
+ * 不正または改ざんされたトークンの場合は null を返します。
+ */
+export async function verifyJwt<T = Record<string, unknown>>(
+    token: string,
+    secret: string
+): Promise<T | null> {
+    try {
+        const secretKey = new TextEncoder().encode(secret);
+        const { payload } = await jwtVerify(token, secretKey);
+        return payload as T;
+    } catch {
+        // トークンが不正、改ざんされている、または有効期限切れの場合
+        return null;
+    }
+}
+EOF_1785817768_19190
+
+mkdir -p "packages/plugins/auth-local/src"
+echo "作成: packages/plugins/auth-local/src/auth-utils.test.ts"
+cat << 'EOF_1785817768_21636' > "packages/plugins/auth-local/src/auth-utils.test.ts"
+import { describe, it, expect } from 'vitest';
+import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
+
+describe('Auth Utilities (Step 4.1)', () => {
+    // ----------------------------------------------------
+    // 1. パスワードハッシュ化・照合テスト
+    // ----------------------------------------------------
+    describe('Password Hashing', () => {
+        it('平文パスワードを正しくハッシュ化し、検証できること', async () => {
+            const rawPassword = 'mySecurePassword123';
+            const hashedPassword = await hashPassword(rawPassword);
+
+            // 平文とハッシュ値が異なっていること
+            expect(hashedPassword).not.toBe(rawPassword);
+
+            // 正しいパスワードの照合
+            const isValid = await verifyPassword(rawPassword, hashedPassword);
+            expect(isValid).toBe(true);
+        });
+
+        it('誤ったパスワードの場合は検証に失敗すること', async () => {
+            const rawPassword = 'mySecurePassword123';
+            const wrongPassword = 'WrongPassword456';
+            const hashedPassword = await hashPassword(rawPassword);
+
+            const isValid = await verifyPassword(wrongPassword, hashedPassword);
+            expect(isValid).toBe(false);
+        });
+    });
+
+    // ----------------------------------------------------
+    // 2. JWT 発行・検証テスト
+    // ----------------------------------------------------
+    describe('JWT Operations', () => {
+        const mockPayload = { userId: 'user-123', role: 'admin' };
+        const secret = 'test-secret-key-at-least-32-chars-long';
+
+        it('Payload から JWT を発行し、正しくデコード・検証できること', async () => {
+            const token = await signJwt(mockPayload, secret);
+            expect(typeof token).toBe('string');
+            expect(token.length).toBeGreaterThan(0);
+
+            const decoded = await verifyJwt(token, secret);
+            expect(decoded).toMatchObject(mockPayload);
+        });
+
+        it('不正なシークレットキーや改ざんされたトークンは検証失敗（null または例外）になること', async () => {
+            const token = await signJwt(mockPayload, secret);
+            const wrongSecret = 'wrong-secret-key-32-chars-xxxxxx';
+
+            // 異なるシークレットキーでの検証失敗
+            const decodedWithWrongSecret = await verifyJwt(token, wrongSecret);
+            expect(decodedWithWrongSecret).toBeNull();
+
+            // 改ざんされたトークンでの検証失敗
+            const tamperedToken = token + 'invalid';
+            const decodedTampered = await verifyJwt(tamperedToken, secret);
+            expect(decodedTampered).toBeNull();
+        });
+    });
+});
+EOF_1785817768_21636
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1785802053_29981' > "packages/core/package.json"
+cat << 'EOF_1785817768_21621' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
@@ -430,11 +570,11 @@ cat << 'EOF_1785802053_29981' > "packages/core/package.json"
     "drizzle-kit": "^0.31.10"
   }
 }
-EOF_1785802053_29981
+EOF_1785817768_21621
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle-test.config.ts"
-cat << 'EOF_1785802053_6047' > "packages/core/drizzle-test.config.ts"
+cat << 'EOF_1785817768_26549' > "packages/core/drizzle-test.config.ts"
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -452,11 +592,11 @@ export default defineConfig({
         url: process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
-EOF_1785802053_6047
+EOF_1785817768_26549
 
 mkdir -p "packages/core"
 echo "作成: packages/core/vitest.config.ts"
-cat << 'EOF_1785802053_4240' > "packages/core/vitest.config.ts"
+cat << 'EOF_1785817768_16508' > "packages/core/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -465,11 +605,11 @@ export default defineConfig({
         setupFiles: ['./src/test/setup.ts'],         // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1785802053_4240
+EOF_1785817768_16508
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1785802053_32620' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1785817768_1393' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
@@ -492,21 +632,21 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
   }
 }
-EOF_1785802053_32620
+EOF_1785817768_1393
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1785802053_10937' > "packages/core/src/index.ts"
+cat << 'EOF_1785817768_19723' > "packages/core/src/index.ts"
 export * from './auth/auth-registry';
 export * from './registry/hono-auto-loader';
-export * from './db/client';
+export * from './db';
 export * from './config/env';
-export * from './errors/index';
-EOF_1785802053_10937
+export * from './errors';
+EOF_1785817768_19723
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1785802053_12254' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1785817768_7639' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { validateEnv, formatEnvForLog } from './env';
 
@@ -574,11 +714,11 @@ describe('formatEnvForLog', () => {
         expect(formatted).toContain('***'); // マスクされていること
     });
 });
-EOF_1785802053_12254
+EOF_1785817768_7639
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1785802053_10156' > "packages/core/src/config/env.ts"
+cat << 'EOF_1785817768_30504' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -639,11 +779,11 @@ export const clientEnvSchema = z.object({
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
-EOF_1785802053_10156
+EOF_1785817768_30504
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/index.ts"
-cat << 'EOF_1785802053_10893' > "packages/core/src/db/index.ts"
+cat << 'EOF_1785817768_1178' > "packages/core/src/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
@@ -654,11 +794,14 @@ const env = validateEnv();
 // PostgreSQL 接続クライアントの作成
 const queryClient = postgres(env.DATABASE_URL);
 export const db = drizzle(queryClient, { schema });
-EOF_1785802053_10893
+
+// 💡 スキーマも外部から参照できるように export します
+export { schema };
+EOF_1785817768_1178
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/db.test.ts"
-cat << 'EOF_1785802053_10155' > "packages/core/src/db/db.test.ts"
+cat << 'EOF_1785817768_3156' > "packages/core/src/db/db.test.ts"
 import { describe, it, expect } from 'vitest';
 import { db } from './index';
 import { users } from './schema';
@@ -691,25 +834,26 @@ describe('DB Integration Test (Step 3)', () => {
         expect(fetchedUser.email).toBe(testEmail);
     });
 });
-EOF_1785802053_10155
+EOF_1785817768_3156
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/schema.ts"
-cat << 'EOF_1785802053_30784' > "packages/core/src/db/schema.ts"
-// 例: pgTable に新しいカラムを追加
+cat << 'EOF_1785817768_23797' > "packages/core/src/db/schema.ts"
 import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
+    passwordHash: text('password_hash').notNull(),
+    role: text('role').notNull().default('user'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-EOF_1785802053_30784
+EOF_1785817768_23797
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1785802053_28725' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1785817768_4447' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -731,11 +875,11 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1785802053_28725
+EOF_1785817768_4447
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/index.ts"
-cat << 'EOF_1785802053_16160' > "packages/core/src/errors/index.ts"
+cat << 'EOF_1785817768_23195' > "packages/core/src/errors/index.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -782,11 +926,17 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1785802053_16160
+
+export class UnauthorizedError extends AppError {
+    constructor(message = 'Authentication token is missing or invalid') {
+        super(401, 'unauthorized', 'Unauthorized', message);
+    }
+}
+EOF_1785817768_23195
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/setup.ts"
-cat << 'EOF_1785802053_16951' > "packages/core/src/test/setup.ts"
+cat << 'EOF_1785817768_30349' > "packages/core/src/test/setup.ts"
 import { beforeEach } from 'vitest';
 import { db } from '../db'; // テスト用DBに接続しているDrizzleインスタンス
 import { sql } from 'drizzle-orm';
@@ -803,11 +953,11 @@ beforeEach(async () => {
     END $$;
   `);
 });
-EOF_1785802053_16951
+EOF_1785817768_30349
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/global-setup.ts"
-cat << 'EOF_1785802053_13290' > "packages/core/src/test/global-setup.ts"
+cat << 'EOF_1785817768_29667' > "packages/core/src/test/global-setup.ts"
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -833,11 +983,11 @@ export async function setup() {
         throw error;
     }
 }
-EOF_1785802053_13290
+EOF_1785817768_29667
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle.config.ts"
-cat << 'EOF_1785802053_25' > "packages/core/drizzle.config.ts"
+cat << 'EOF_1785817768_7426' > "packages/core/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -855,11 +1005,11 @@ export default defineConfig({
         url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
-EOF_1785802053_25
+EOF_1785817768_7426
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1785802053_27357' > "packages/features/sample/package.json"
+cat << 'EOF_1785817768_30114' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -867,11 +1017,11 @@ cat << 'EOF_1785802053_27357' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785802053_27357
+EOF_1785817768_30114
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1785802053_17817' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1785817768_17311' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -883,11 +1033,11 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1785802053_17817
+EOF_1785817768_17311
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1785802053_25221' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1785817768_32395' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import createSampleFeature from './index';
 
@@ -901,10 +1051,10 @@ describe('Sample Feature API', () => {
     expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
   });
 });
-EOF_1785802053_25221
+EOF_1785817768_32395
 
 echo "作成: doc.md"
-cat << 'EOF_1785802053_7783' > "doc.md"
+cat << 'EOF_1785817768_27900' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -1019,11 +1169,281 @@ cat << 'EOF_1785802053_7783' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1785802053_7783
+EOF_1785817768_27900
+
+echo "作成: SUMMRY.md"
+cat << 'EOF_1785817768_15138' > "SUMMRY.md"
+これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
+# 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
+
+---
+
+## 1. プロジェクト概要 & アーキテクチャ原則
+
+本プロジェクトは、堅牢かつ拡張性の高いモダンな Web アプリケーション基盤です。テスト駆動開発 (TDD) をベースとし、ドメイン分離・統一エラーハンドリング・安全な認証機構を備えています。
+
+### 1.1 主な技術スタック
+
+* **Frontend:** React (Vite / SPA)
+* **Backend:** Hono (TypeScript Web Framework)
+* **Database & ORM:** PostgreSQL + Drizzle ORM
+* **Authentication:** Local JWT (`jose`) + Bcrypt (`bcryptjs`)
+* **Testing:** Vitest
+
+### 1.2 アーキテクチャ方針
+
+* **モノレポ構成 (pnpm/npm Workspaces):**
+`apps/`（アプリケーション層）と `packages/`（共通ライブラリ層）を分離し、コードの再利用性と独立性を維持します。
+* **RFC 7807 準拠のエラー表現:**
+API のすべてのエラーレスポンスは `Problem Details for HTTP APIs (RFC 7807)` 形式で統一します。
+* **テスト駆動開発 (TDD):**
+ロジックおよび API エンドポイントの実装時は「Red (テスト作成) → Green (実装) → Refactor (リファクタリング)」のサイクルを徹底します。
+
+---
+
+## 2. ディレクトリ構造 & モジュール責務
+
+```
+.
+├── apps/
+│   ├── api/                     # Hono サーバーアプリケーション
+│   │   ├── src/
+│   │   │   ├── middlewares/     # 認証・共通ミドルウェア
+│   │   │   │   ├── auth-middleware.ts
+│   │   │   │   └── auth-middleware.test.ts
+│   │   │   ├── routes/          # API ルーター
+│   │   │   │   ├── auth.ts
+│   │   │   │   └── auth.test.ts
+│   │   │   └── index.ts
+│   └── web/                     # React フロントエンド (SPA)
+└── packages/
+    ├── core/                    # ドメイン共通ロジック & DB 接続
+    │   ├── src/
+    │   │   ├── errors/          # RFC 7807 エラー定義 (AppError等)
+    │   │   ├── db/              # Drizzle ORM スキーマ & クライアント
+    │   │   └── index.ts
+    └── auth-local/              # 認証関連の純粋ユーティリティ
+        ├── src/
+        │   ├── password.ts      # Bcrypt ハッシュ化・照合
+        │   └── jwt.ts           # JWT 署名・検証
+        └── index.ts
+
+```
+
+---
+
+## 3. データベース仕様 (Database Schema)
+
+### `users` テーブル
+
+ユーザー認証、権限、およびプロファイル情報を一元管理します。
+
+```typescript
+// packages/core/src/db/schema.ts
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  role: text('role').notNull().default('user'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+```
+
+| カラム名 | DB論理名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- | --- |
+| `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
+| `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
+| `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
+| `passwordHash` | `password_hash` | `text` | NOT NULL | Bcrypt でハッシュ化されたパスワード |
+| `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
+| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
+
+---
+
+## 4. エラーハンドリング仕様 (RFC 7807)
+
+システム内で発生する例外はすべて `@app/core` の `AppError` クラスを継承し、Hono の `app.onError` でキャッチして以下の JSON 形式に変換されます。
+
+### エラーレスポンス基本構造
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Authentication token is missing or invalid format.",
+  "instance": "/api/auth/me"
+}
+
+```
+
+### 定義済み例外クラス一覧
+
+* **`AppError`**: 基底例外クラス（`status`, `code`, `title` を保持）
+* **`ValidationError`** (400 Bad Request): 入力バリデーション失敗時
+* **`UnauthorizedError`** (401 Unauthorized): 認証失敗・トークン無効時
+* **`NotFoundError`** (404 Not Found): リソースが存在しない場合
+* **`InternalServerError`** (500 Internal Server Error): 予期せぬシステム例外
+
+---
+
+## 5. API エンドポイント詳細仕様 (API Specification)
+
+ベース URL: `/api`
+
+### 5.1. ログイン & トークン発行
+
+* **エンドポイント:** `POST /api/auth/login`
+* **認証:** 不要
+* **概要:** メールアドレスとパスワードを照合し、成功時に JWT を返却します。
+
+#### リクエストボディ (`application/json`)
+
+```json
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+```
+
+#### レスポンス (200 OK)
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "Test User",
+    "email": "test@example.com",
+    "role": "user"
+  }
+}
+
+```
+
+#### エラーレスポンス (401 Unauthorized)
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Invalid credentials.",
+  "instance": "/api/auth/login"
+}
+
+```
+
+---
+
+### 5.2. ログインユーザー情報取得
+
+* **エンドポイント:** `GET /api/auth/me`
+* **認証:** 必要 (`Authorization: Bearer <JWT>`)
+* **概要:** JWT トークンを検証し、現在ログイン中のユーザー情報を取得します。
+
+#### リクエストヘッダー
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+```
+
+#### レスポンス (200 OK)
+
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "test@example.com",
+    "role": "user"
+  }
+}
+
+```
+
+#### エラーレスポンス (401 Unauthorized)
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Token is invalid or expired.",
+  "instance": "/api/auth/me"
+}
+
+```
+
+---
+
+## 6. 認証・認可フロー & セキュリティ設計
+
+### 6.1. 認証フロー図
+
+```
+[Client (React)]                  [API Route (/login)]            [Auth Local / DB]
+       │                                  │                               │
+       │── 1. POST /login ───────────────>│                               │
+       │   (email, password)              │── 2. Select User by Email ───>│
+       │                                  │<── User Record & Hash ────────│
+       │                                  │                               │
+       │                                  │── 3. Verify Password ────────>│ (bcrypt.compare)
+       │                                  │── 4. Sign JWT Payload ───────>│ (jose)
+       │<── 5. Token & User Data ─────────│                               │
+       │                                  │                               │
+       │                                  │                               │
+[Client (React)]                  [Auth Middleware]              [Protected Route]
+       │                                  │                               │
+       │── 6. GET /me (Bearer Token) ────>│                               │
+       │                                  │── 7. Verify JWT ─────────────>│
+       │                                  │── 8. Set c.set('user', payload)│
+       │                                  │── 9. next() ─────────────────>│
+       │<── 10. User Profile ─────────────│───────────────────────────────│
+
+```
+
+### 6.2. セキュリティガイドライン
+
+1. **パスワードの平文保持禁止:**
+`bcryptjs` を用いて適切なコストパラメータ（ソルト）でハッシュ化された値のみを保存。
+2. **無状態 (Stateless) な認証:**
+署名された JWT トークンを使用し、サーバーセッションを持たずにスケーラブルに検証。
+3. **安全なエラーメッセージ:**
+ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、共通して `Invalid credentials.` と返却（ユーザー存在確認攻撃の防止）。
+
+---
+
+## 7. 実装済みテストケース一覧
+
+全モジュールでユニットテスト / 統合テストが整備されており、`npm test` で一括実行可能です。
+
+* **`packages/auth-local`**
+* パスワードの正常ハッシュ化および一致・不一致の判定テスト
+* JWT の生成・正確なペロード抽出・期限切れ/無効署名トークンの検証テスト
+
+
+* **`apps/api/src/middlewares/auth-middleware.test.ts`**
+* `Authorization` ヘッダー欠落時の 401 エラー（RFC 7807 形式）テスト
+* 不正トークン送信時の 401 エラーテスト
+* 正しい Bearer トークン受信時にコンテキストへ `user` 情報が正常設定されるテスト
+
+
+* **`apps/api/src/routes/auth.test.ts`**
+* `POST /login`: 正しい資格情報でのトークン返却テスト / 誤ったパスワードでの 401 テスト
+* `GET /me`: 発行された JWT を用いたプロファイル正常取得テスト
+
+
+
+---
+EOF_1785817768_15138
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1785802053_3245' > "apps/web/package.json"
+cat << 'EOF_1785817768_24614' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -1044,11 +1464,11 @@ cat << 'EOF_1785802053_3245' > "apps/web/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785802053_3245
+EOF_1785817768_24614
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1785802053_6407' > "apps/web/index.html"
+cat << 'EOF_1785817768_27588' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -1060,11 +1480,11 @@ cat << 'EOF_1785802053_6407' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1785802053_6407
+EOF_1785817768_27588
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1785802053_8301' > "apps/web/tsconfig.json"
+cat << 'EOF_1785817768_2957' > "apps/web/tsconfig.json"
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
@@ -1093,11 +1513,11 @@ cat << 'EOF_1785802053_8301' > "apps/web/tsconfig.json"
     }
   ]
 }
-EOF_1785802053_8301
+EOF_1785817768_2957
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.node.json"
-cat << 'EOF_1785802053_12768' > "apps/web/tsconfig.node.json"
+cat << 'EOF_1785817768_27187' > "apps/web/tsconfig.node.json"
 {
     "compilerOptions": {
         "composite": true,
@@ -1110,11 +1530,11 @@ cat << 'EOF_1785802053_12768' > "apps/web/tsconfig.node.json"
         "vite.config.ts"
     ]
 }
-EOF_1785802053_12768
+EOF_1785817768_27187
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1785802053_20025' > "apps/web/src/main.tsx"
+cat << 'EOF_1785817768_2321' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -1124,21 +1544,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1785802053_20025
+EOF_1785817768_2321
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1785802053_4683' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1785817768_27837' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 
 export const LoginForm: React.FC = () => {
   // ... (省略)
 };
-EOF_1785802053_4683
+EOF_1785817768_27837
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1785802053_19271' > "apps/web/src/App.tsx"
+cat << 'EOF_1785817768_4837' > "apps/web/src/App.tsx"
 import React from 'react';
 import { env } from './env';
 import { LoginForm } from './components/LoginForm.tsx';
@@ -1151,11 +1571,11 @@ export default function App() {
     </div>
   );
 }
-EOF_1785802053_19271
+EOF_1785817768_4837
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.ts"
-cat << 'EOF_1785802053_17712' > "apps/web/src/env.ts"
+cat << 'EOF_1785817768_20896' > "apps/web/src/env.ts"
 import { clientEnvSchema, type ClientEnv } from '@app/core/config/env';
 
 // Vite の import.meta.env を Zod で検証・補完
@@ -1164,11 +1584,11 @@ export const env: ClientEnv = clientEnvSchema.parse({
     VITE_API_TARGET_URL: import.meta.env.VITE_API_TARGET_URL,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 });
-EOF_1785802053_17712
+EOF_1785817768_20896
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1785802053_13104' > "apps/web/vite.config.ts"
+cat << 'EOF_1785817768_8127' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -1201,11 +1621,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1785802053_13104
+EOF_1785817768_8127
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1785802053_26756' > "apps/api/package.json"
+cat << 'EOF_1785817768_2569' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -1230,19 +1650,18 @@ cat << 'EOF_1785802053_26756' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785802053_26756
+EOF_1785817768_2569
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1785802053_28657' > "apps/api/tsconfig.json"
+cat << 'EOF_1785817768_19369' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
         "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "outDir": "./dist",
-        "rootDir": "./src",
         "types": [
             "node"
         ]
@@ -1251,21 +1670,21 @@ cat << 'EOF_1785802053_28657' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1785802053_28657
+EOF_1785817768_19369
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1785802053_6723' > "apps/api/src/index.ts"
+cat << 'EOF_1785817768_20881' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { validateEnv, formatEnvForLog } from '@app/core/config/env';
-import { AppError, ProblemDetails, ValidationError } from '@app/core/errors/index';
+import { AppError, ProblemDetails, ValidationError } from '@app/core/errors';
 import { loadFeatureModules } from '@app/core/registry/hono-auto-loader';
 import { AuthRegistry } from '@app/core/auth/auth-registry';
-import { LocalAuthPlugin } from '@app/plugins/auth-local/src/index';
-import { ActiveDirectoryAuthPlugin } from '@app/plugins/auth-ad/src/index';
+import { LocalAuthPlugin } from '@app/plugins-auth-local';
+import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
 import authRouter from './routes/auth';
 
 // 1. 起動時に環境変数を検証・取得
@@ -1393,11 +1812,11 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export default app;
-EOF_1785802053_6723
+EOF_1785817768_20881
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1785802053_1935' > "apps/api/src/index.test.ts"
+cat << 'EOF_1785817768_32488' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import app from './index';
 import { validateEnv } from './env';
@@ -1508,34 +1927,214 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
-EOF_1785802053_1935
+EOF_1785817768_32488
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1785802053_1659' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1785817768_29543' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
-import { AuthRegistry } from '@app/core/auth/auth-registry';
+import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import { db, schema, UnauthorizedError } from '@app/core';
+import { verifyPassword, signJwt } from '@app/plugins-auth-local';
+import { authMiddleware } from '../middlewares/auth-middleware';
 
-const authRouter = new Hono();
-
-authRouter.post('/login', async (c) => {
-  const body = await c.req.json();
-  const strategy = process.env.AUTH_STRATEGY || 'local';
-
-  try {
-    const user = await AuthRegistry.authenticate(strategy, body);
-    return c.json({ success: true, user });
-  } catch (error: any) {
-    return c.json({ success: false, message: error.message }, 401);
-  }
+// ログインリクエストのバリデーションスキーマ
+const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(1),
 });
 
-export default authRouter;
-EOF_1785802053_1659
+/**
+ * 認証関連の API ルーター
+ */
+export function authRouter(jwtSecret: string) {
+    const app = new Hono();
+
+    // ----------------------------------------------------
+    // 1. POST /login (ログイン & トークン発行)
+    // ----------------------------------------------------
+    app.post('/login', async (c) => {
+        const body = await c.req.json();
+        const result = loginSchema.safeParse(body);
+
+        if (!result.success) {
+            throw new UnauthorizedError('Invalid email or password format.');
+        }
+
+        const { email, password } = result.data;
+
+        // DB からユーザーを検索
+        const user = await db.query.users.findFirst({
+            where: eq(schema.users.email, email),
+        });
+
+        if (!user) {
+            // セキュリティ上「ユーザーが存在しない」メッセージは出さず 401 を返す
+            throw new UnauthorizedError('Invalid credentials.');
+        }
+
+        // パスワードの照合
+        const isPasswordValid = await verifyPassword(password, user.passwordHash);
+        if (!isPasswordValid) {
+            throw new UnauthorizedError('Invalid credentials.');
+        }
+
+        // JWT アクセストークンの発行
+        const token = await signJwt(
+            {
+                userId: user.id,
+                email: user.email,
+                role: user.role,
+            },
+            jwtSecret
+        );
+
+        return c.json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+            },
+        });
+    });
+
+    // ----------------------------------------------------
+    // 2. GET /me (ログインユーザー情報取得)
+    // ----------------------------------------------------
+    app.get('/me', authMiddleware(jwtSecret), async (c) => {
+        const currentUser = c.get('user');
+
+        return c.json({
+            user: {
+                id: currentUser.userId,
+                email: currentUser.email,
+                role: currentUser.role,
+            },
+        });
+    });
+
+    return app;
+}
+EOF_1785817768_29543
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/auth.test.ts"
+cat << 'EOF_1785817768_11462' > "apps/api/src/routes/auth.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Hono } from 'hono';
+import { authRouter } from './auth';
+import { AppError, db, schema } from '@app/core';
+import { hashPassword } from '@app/plugins-auth-local';
+
+describe('Auth Routes (Step 4.3)', () => {
+    const secret = 'test-secret-key-at-least-32-chars-long';
+
+    // テスト用アプリのセットアップ
+    const createTestApp = () => {
+        const app = new Hono();
+
+        // 統一エラーハンドラ
+        app.onError((err, c) => {
+            if (err instanceof AppError) {
+                return c.json(
+                    {
+                        type: 'about:blank',
+                        title: err.title,
+                        status: err.status,
+                        detail: err.message,
+                        instance: c.req.path,
+                    },
+                    err.status as any
+                );
+            }
+            return c.json({ title: 'Internal Server Error', status: 500 }, 500);
+        });
+
+        app.route('/api/auth', authRouter(secret));
+        return app;
+    };
+
+    // テスト用初期ユーザーのセットアップ
+    beforeEach(async () => {
+        // 既存データのクリーンアップ
+        await db.delete(schema.users);
+
+        // テストユーザーを挿入
+        const hashedPassword = await hashPassword('password123');
+        await db.insert(schema.users).values({
+            name: 'Test User',
+            email: 'test@example.com',
+            passwordHash: hashedPassword,
+            role: 'user',
+        });
+    });
+
+    describe('POST /api/auth/login', () => {
+        it('正しい資格情報でログインし、JWT トークンが返ること', async () => {
+            const app = createTestApp();
+            const res = await app.request('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'password123',
+                }),
+            });
+
+            expect(res.status).toBe(200);
+            const body = await res.json();
+            expect(body.token).toBeDefined();
+            expect(body.user.email).toBe('test@example.com');
+        });
+
+        it('誤ったパスワードの場合、401 エラーを返すこと', async () => {
+            const app = createTestApp();
+            const res = await app.request('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'wrongpassword',
+                }),
+            });
+
+            expect(res.status).toBe(401);
+        });
+    });
+
+    describe('GET /api/auth/me', () => {
+        it('有効な JWT トークンで自分のプロファイルを取得できること', async () => {
+            const app = createTestApp();
+
+            // 1. ログインしてトークン取得
+            const loginRes = await app.request('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'password123',
+                }),
+            });
+            const { token } = await loginRes.json();
+
+            // 2. /me にリクエスト
+            const meRes = await app.request('/api/auth/me', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            expect(meRes.status).toBe(200);
+            const meBody = await meRes.json();
+            expect(meBody.user.email).toBe('test@example.com');
+        });
+    });
+});
+EOF_1785817768_11462
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/env.ts"
-cat << 'EOF_1785802053_8391' > "apps/api/src/env.ts"
+cat << 'EOF_1785817768_16381' > "apps/api/src/env.ts"
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -1550,11 +2149,138 @@ export function validateEnv(env: Record<string, string | undefined> = process.en
     }
     return result.data;
 }
-EOF_1785802053_8391
+EOF_1785817768_16381
+
+mkdir -p "apps/api/src/middlewares"
+echo "作成: apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1785817768_16315' > "apps/api/src/middlewares/auth-middleware.ts"
+import type { MiddlewareHandler } from 'hono';
+import { verifyJwt } from '@app/plugins-auth-local';
+import { UnauthorizedError } from '@app/core';
+
+// Hono の ContextVariableMap を拡張
+declare module 'hono' {
+    interface ContextVariableMap {
+        user: Record<string, unknown>;
+    }
+}
+
+/**
+ * JWT Bearer トークンを検証する Hono ミドルウェア
+ */
+export function authMiddleware(secret: string): MiddlewareHandler {
+    return async (c, next) => {
+        const authHeader = c.req.header('Authorization');
+
+        // 1. Authorization ヘッダーの存在チェック
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            throw new UnauthorizedError('Authentication token is missing or invalid format.');
+        }
+
+        // 2. トークンの抽出と検証
+        const token = authHeader.substring(7);
+        const payload = await verifyJwt(token, secret);
+
+        if (!payload) {
+            throw new UnauthorizedError('Token is invalid or expired.');
+        }
+
+        // 3. コンテキストにユーザー情報をセットして次の処理へ
+        c.set('user', payload);
+        await next();
+    };
+}
+EOF_1785817768_16315
+
+mkdir -p "apps/api/src/middlewares"
+echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1785817769_5749' > "apps/api/src/middlewares/auth-middleware.test.ts"
+import { describe, it, expect } from 'vitest';
+import { Hono } from 'hono';
+import { authMiddleware } from './auth-middleware';
+import { AppError } from '@app/core';
+import { signJwt } from '@app/plugins-auth-local';
+
+describe('Auth Middleware (Step 4.2)', () => {
+    const secret = 'test-secret-key-at-least-32-chars-long';
+
+    // テスト用の Hono アプリセットアップ
+    const createTestApp = () => {
+        const app = new Hono();
+
+        // 💡 統一エラーハンドラを設定する
+        app.onError((err, c) => {
+            if (err instanceof AppError) {
+                return c.json(
+                    {
+                        type: 'about:blank',
+                        title: err.title,
+                        status: err.status,
+                        detail: err.message,
+                        instance: c.req.path,
+                    },
+                    err.status as any
+                );
+            }
+            return c.json({ title: 'Internal Server Error', status: 500 }, 500);
+        });
+
+        // 認証が必要な保護ルート
+        app.use('/protected/*', authMiddleware(secret));
+        app.get('/protected/profile', (c) => {
+            const user = c.get('user');
+            return c.json({ message: 'Success', user });
+        });
+
+        return app;
+    };
+
+    it('Authorization ヘッダーがない場合、RFC 7807 形式で 401 エラーを返すこと', async () => {
+        const app = createTestApp();
+        const res = await app.request('/protected/profile');
+
+        expect(res.status).toBe(401);
+        const body = await res.json();
+
+        // RFC 7807 の形式チェック
+        expect(body.status).toBe(401);
+        expect(body.title).toBe('Unauthorized');
+        expect(body.detail).toBeDefined();
+    });
+
+    it('不正なトークンの場合、401 エラーを返すこと', async () => {
+        const app = createTestApp();
+        const res = await app.request('/protected/profile', {
+            headers: {
+                Authorization: 'Bearer invalid-token-string',
+            },
+        });
+
+        expect(res.status).toBe(401);
+    });
+
+    it('正常な Bearer トークンの場合、リクエストが通過しコンテキストにユーザー情報がセットされること', async () => {
+        const app = createTestApp();
+        const payload = { userId: 'user-123', role: 'admin' };
+        const validToken = await signJwt(payload, secret);
+
+        const res = await app.request('/protected/profile', {
+            headers: {
+                Authorization: `Bearer ${validToken}`,
+            },
+        });
+
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        expect(body.message).toBe('Success');
+        expect(body.user).toMatchObject(payload);
+    });
+});
+EOF_1785817769_5749
 
 echo "作成: README.md"
-cat << 'EOF_1785802053_8244' > "README.md"
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification)
+cat << 'EOF_1785817769_11582' > "README.md"
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - 全体統合版
 
 ## 1. システム概要 (Overview)
 
@@ -1597,20 +2323,16 @@ cat << 'EOF_1785802053_8244' > "README.md"
 
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
-| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | ローカル認証、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 7807)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (Bcrypt / JWT ユーティリティ)、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
 | **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
 
 ### 3.2 拡張ルールと依存方向 (Extension Rules)
 
 1. **機能追加の手順:**
-* 新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
-
-
+新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
 2. **単方向依存の徹底:**
-* 依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
-
-
+依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
 
 ---
 
@@ -1621,9 +2343,35 @@ cat << 'EOF_1785802053_8244' > "README.md"
 * **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM) を採用します。
 * **シングルトン接続:** データベースへのコネクション pool の無駄遣いを防ぐため、`packages/core/src/db/index.ts` にて環境変数の正常性を検証した上で、単一の接続インスタンス（`db`）を保持・供給します。
 
-### 4.2 スキーマ定義
+### 4.2 スキーマ定義 (Single Source of Truth)
 
-* データベースの構造（テーブル・リレーション等）は、`packages/core/src/db/schema.ts` を正（Single Source of Truth）として定義します。
+データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
+
+#### `users` テーブル
+
+ユーザー認証、権限、およびプロファイル情報を一元管理します。
+
+```typescript
+// packages/core/src/db/schema.ts
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  role: text('role').notNull().default('user'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+```
+
+| カラム名 | DB論理名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- | --- |
+| `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
+| `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
+| `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
+| `passwordHash` | `password_hash` | `text` | NOT NULL | Bcrypt でハッシュ化されたパスワード |
+| `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
+| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
 
 ### 4.3 構成ファイルの分離設計
 
@@ -1677,8 +2425,12 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 │   │   ├── src/
 │   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・エラー処理・ライフサイクル制御)
 │   │   │   ├── index.test.ts     # API 統合テスト (RFC 7807 エラー検証・Zod バリデーション)
+│   │   │   ├── middlewares/      # ミドルウェア層
+│   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
+│   │   │   │   └── auth-middleware.test.ts # ミドルウェア単体・統合テスト
 │   │   │   └── routes/           # アプリケーション固有のルーティング
-│   │   │       └── auth.ts       # 認証APIエンドポイント
+│   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
+│   │   │       └── auth.test.ts  # 認証 API 統合テスト
 │   │   ├── package.json          # API サーバー用依存関係・スクリプト
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
@@ -1709,9 +2461,8 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
     │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
     │   │   │   └── db.test.ts    # データベース CRUD 操作統合テスト
     │   │   ├── errors/           # システム標準エラー構造・RFC 7807 定義
-    │   │   │   ├── index.ts      # 共通エラークラス群 & インターフェース
+    │   │   │   ├── index.ts      # 共通エラークラス群 (`AppError`, `UnauthorizedError`等)
     │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
-    │   │   ├── auth/             # 認証レジストリ基盤・基本型定義
     │   │   ├── registry/         # 動的モジュールローダー
     │   │   │   └── hono-auto-loader.ts # Feature モジュール自動探索機能
     │   │   └── test/             # テスト自動化ライフサイクル定義
@@ -1724,7 +2475,11 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
     │   │   ├── src/index.ts
     │   │   └── package.json
     │   └── auth-local/           # ローカルデータベース認証モジュール
-    │       ├── src/index.ts
+    │       ├── src/
+    │       │   ├── index.ts      # パッケージエントリーポイント
+    │       │   ├── password.ts   # Bcrypt パスワードハッシュ化・照合関数
+    │       │   ├── jwt.ts        # Jose による JWT 署名・検証関数
+    │       │   └── auth.test.ts  # パスワード & JWT 処理単体テスト
     │       └── package.json
     └── features/                 # 業務ドメイン機能モジュール群
         └── sample/               # サンプル機能モジュール
@@ -1748,6 +2503,7 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 | `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
 | `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
 | `DATABASE_URL` | API | URL形式文字列 | データベースへの接続URI (認証情報含む) |
+| `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
 | `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
 | `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
 | `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
@@ -1755,22 +2511,19 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 ### 7.2 セキュリティ & バリデーション設計
 
 1. **フェイルファスト（Fail-Fast）原則:**
-* アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
-
-
+アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
 2. **機密情報のログマスク（伏字化）:**
-* 動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
-
-
-3. **フロントエンドの環境変数カプセル化:**
-* ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。
-* グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
-
-
+動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
+3. **パスワード保存とトークン生成:**
+平文パスワードの保持は厳禁とし、`bcryptjs` によりソルト付きでハッシュ化された値のみを保存します。JWT の生成・検証には `jose` ライブラリを使用し、ステートレスでスケーラブルな認証を実現します。
+4. **安全なエラー詳細返却:**
+ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、一律 `Invalid credentials.` (401) を返却し、ユーザー存在確認攻撃を防ぎます。
+5. **フロントエンドの環境変数カプセル化:**
+ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
 
 ---
 
-## 8. APIエラーレスポンス仕様 (RFC 7807 準拠)
+## 8. API エラーレスポンス仕様 (RFC 7807 準拠)
 
 システムから返却されるエラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理・デバッグを容易にするため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
 
@@ -1780,61 +2533,134 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
-| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"[https://api.example.com/errors/bad-request](https://api.example.com/errors/bad-request)"` |
-| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Not Found"` |
-| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `404`, `500` |
-| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Validation failed for parameter 'email'"` |
-| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/v1/users"` |
+| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"about:blank"` または `"[https://api.example.com/errors/unauthorized](https://api.example.com/errors/unauthorized)"` |
+| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Unauthorized"`, `"Not Found"` |
+| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `404`, `500` |
+| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Authentication token is missing or invalid format."` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/me"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 ### 8.2 エラー制御方針
 
-1. **未定義エラーのキャッチ (500 Internal Server Error):**
-* 予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、規格化された 500 エラー構造へ変換して返却します。
+1. **例外クラスの階層化 (`AppError`):**
+すべてのドメイン例外（`ValidationError`, `UnauthorizedError`, `NotFoundError` 等）は基態クラス `AppError` を継承して定義します。
+2. **未定義エラーのキャッチ (500 Internal Server Error):**
+予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換して返却します。
+3. **入力検証エラーの自動標準化 (400 Bad Request):**
+リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+
+---
+
+## 9. 認証・認可 API 仕様 (Authentication API Spec)
+
+ベース URL: `/api`
+
+### 9.1 ログイン & トークン発行 (`POST /api/auth/login`)
+
+* **認証:** 不要
+* **リクエスト (`application/json`):**
+```json
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+```
 
 
-2. **入力検証エラーの自動標準化 (400 Bad Request):**
-* リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+* **レスポンス (200 OK):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "Test User",
+    "email": "test@example.com",
+    "role": "user"
+  }
+}
+
+```
+
+
+* **エラーレスポンス (401 Unauthorized - RFC 7807):**
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Invalid credentials.",
+  "instance": "/api/auth/login"
+}
+
+```
+
+
+
+### 9.2 認証ユーザー情報取得 (`GET /api/auth/me`)
+
+* **認証:** 必要 (`Authorization: Bearer <JWT_TOKEN>`)
+* **リクエストヘッダー:**
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+```
+
+
+* **レスポンス (200 OK):**
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "test@example.com",
+    "role": "user"
+  }
+}
+
+```
+
+
+* **エラーレスポンス (401 Unauthorized - RFC 7807):**
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Token is invalid or expired.",
+  "instance": "/api/auth/me"
+}
+
+```
 
 
 
 ---
 
-## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+## 10. テストアーキテクチャ & ライフサイクル (Testing Architecture)
 
 テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
 
-### 9.1 テスト基盤
+### 10.1 テスト基盤
 
 * **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
 
-### 9.2 テスト自動化ライフサイクル
+### 10.2 テスト自動化ライフサイクル
 
 1. **テスト開始前のデータベース構造の自動最新化 (Global Setup):**
-* 全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。
-* これにより、開発者がテスト実行前に手動でデータベースを初期化・マイグレーションする作業を不要にし、常に最新のコード仕様に基づいたテストを保証します。
-* *(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定で実行します)*
-
-
+全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。開発者が手動でマイグレーションする作業を不要にし、最新コード仕様でのテストを保証します。
+*(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定 `drizzle-test.config.ts` で実行します)*
 2. **テストケース間の完全な状態隔離 (Setup Files):**
-* 個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ** します。
-* 1つのテスト結果が他のテストに影響を与える「テストの副作用（データ汚染）」を排除し、常に独立した決定論的なテスト実行環境を維持します。
-* *(内部補足: 全テーブルに対する `TRUNCATE CASCADE` を自動実行します)*
-
-
+個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ**（全テーブルに対する `TRUNCATE CASCADE` 実行）します。
 3. **テスト実行環境の分離保護:**
-* テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制します。
-* ポートの競合エラーを防ぎつつ、高速なインメモリ HTTP リクエストによる API の振る舞い検証を可能にします。
-
-
+テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制し、ポート競合を防ぎつつインメモリ HTTP リクエストで API 動作を高速検証します。
 
 ---
 
-## 10. 実行スクリプト リファレンス (Scripts)
+## 11. 実行スクリプト リファレンス (Scripts)
 
 プロジェクト内で利用する標準的なコマンドです。
 
-### 10.1 開発サーバー起動
+### 11.1 開発サーバー起動
 
 すべてのアプリケーション（API・Web）を開発モードで並行起動します。
 
@@ -1843,16 +2669,16 @@ npm run dev
 
 ```
 
-### 10.2 全テストの自動実行
+### 11.2 全テストの自動実行 (TDD)
 
-すべてのパッケージの単体テスト、DB 連携テスト、API レスポンス検証を一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
+すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テストを一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
 
 ```bash
 npm test
 
 ```
 
-### 10.3 テスト用 DB スキーマの手動同期
+### 11.3 テスト用 DB スキーマの手動同期
 
 テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
 
@@ -1860,10 +2686,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1785802053_8244
+EOF_1785817769_11582
 
 echo "作成: .env"
-cat << 'EOF_1785802053_19089' > ".env"
+cat << 'EOF_1785817769_14400' > ".env"
 # バックエンド用
 PORT=3001
 DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
@@ -1874,6 +2700,6 @@ TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db_test
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1785802053_19089
+EOF_1785817769_14400
 
 echo -e "\n復元が完了しました！"

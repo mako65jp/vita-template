@@ -11,3 +11,5 @@ export class LocalAuthPlugin implements AuthPlugin {
     throw new Error('Invalid local credentials');
   }
 }
+
+export * from './auth-utils';
