@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1785746295_16348' > "package.json"
+cat << 'EOF_1785802053_12200' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -46,10 +46,10 @@ cat << 'EOF_1785746295_16348' > "package.json"
     "drizzle-orm": "^0.45.2"
   }
 }
-EOF_1785746295_16348
+EOF_1785802053_12200
 
 echo "作成: .gitignore"
-cat << 'EOF_1785746295_8620' > ".gitignore"
+cat << 'EOF_1785802053_6735' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -156,10 +156,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1785746295_8620
+EOF_1785802053_6735
 
 echo "作成: plan.md"
-cat << 'EOF_1785746295_5061' > "plan.md"
+cat << 'EOF_1785802053_13186' > "plan.md"
 # 📋 共通ひな形機能 一覧表
 
 ### 凡例（記号の定義）
@@ -191,31 +191,31 @@ cat << 'EOF_1785746295_5061' > "plan.md"
    * 認証ロジックのテストを書くには、事前に入力バリデーション（Step 2）や DB へのユーザー保存（Step 3）のテスト環境が整っている必要があるためです。
 2. **「ログ・ヘルスチェック」はアプリ機能としては運用向け（🟡中）だが、TDD順序では【Step 5】**
    * API と DB の基礎テスト環境が完成した直後に組み込むことで、後続の複雑なドメイン開発時のデバッグが格段に楽になります。
-EOF_1785746295_5061
+EOF_1785802053_13186
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1785746295_7441' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1785802053_26952' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1785746295_7441
+EOF_1785802053_26952
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1785746295_2240' > ".devcontainer/Dockerfile"
+cat << 'EOF_1785802053_17635' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
 # RUN apt-get update && apt-get install -y <package_name>
-EOF_1785746295_2240
+EOF_1785802053_17635
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1785746295_28939' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1785802053_20918' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -239,11 +239,11 @@ cat << 'EOF_1785746295_28939' > ".devcontainer/devcontainer.json"
   "forwardPorts": [3000, 3001, 5432],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1785746295_28939
+EOF_1785802053_20918
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1785746296_29657' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1785802053_30357' > ".devcontainer/docker-compose.yml"
 
 
 services:
@@ -287,10 +287,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1785746296_29657
+EOF_1785802053_30357
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1785746296_8459' > "tsconfig.json"
+cat << 'EOF_1785802053_6664' > "tsconfig.json"
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -327,10 +327,10 @@ cat << 'EOF_1785746296_8459' > "tsconfig.json"
     "dist"
   ]
 }
-EOF_1785746296_8459
+EOF_1785802053_6664
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1785746296_18300' > "vitest.config.ts"
+cat << 'EOF_1785802053_13508' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -343,11 +343,11 @@ export default defineConfig({
     reporters: ['tree'],
   },
 });
-EOF_1785746296_18300
+EOF_1785802053_13508
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1785746296_19364' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1785802053_8850' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -355,11 +355,11 @@ cat << 'EOF_1785746296_19364' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785746296_19364
+EOF_1785802053_8850
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1785746296_26084' > "packages/plugins/auth-ad/src/index.ts"
+cat << 'EOF_1785802053_2500' > "packages/plugins/auth-ad/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -373,11 +373,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1785746296_26084
+EOF_1785802053_2500
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1785746296_15238' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1785802053_15476' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
@@ -385,11 +385,11 @@ cat << 'EOF_1785746296_15238' > "packages/plugins/auth-local/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785746296_15238
+EOF_1785802053_15476
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1785746296_28357' > "packages/plugins/auth-local/src/index.ts"
+cat << 'EOF_1785802053_31177' > "packages/plugins/auth-local/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -403,11 +403,11 @@ export class LocalAuthPlugin implements AuthPlugin {
     throw new Error('Invalid local credentials');
   }
 }
-EOF_1785746296_28357
+EOF_1785802053_31177
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1785746296_5248' > "packages/core/package.json"
+cat << 'EOF_1785802053_29981' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
@@ -420,7 +420,6 @@ cat << 'EOF_1785746296_5248' > "packages/core/package.json"
   },
   "main": "./src/index.ts",
   "dependencies": {
-    "@prisma/client": "^5.9.1",
     "drizzle-orm": "^0.45.2",
     "glob": "^13.0.6",
     "hono": "^4.0.0",
@@ -428,15 +427,14 @@ cat << 'EOF_1785746296_5248' > "packages/core/package.json"
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.10",
-    "prisma": "^5.9.1"
+    "drizzle-kit": "^0.31.10"
   }
 }
-EOF_1785746296_5248
+EOF_1785802053_29981
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle-test.config.ts"
-cat << 'EOF_1785746296_8279' > "packages/core/drizzle-test.config.ts"
+cat << 'EOF_1785802053_6047' > "packages/core/drizzle-test.config.ts"
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -451,14 +449,14 @@ export default defineConfig({
 
     // 接続情報（.env から読み込み）
     dbCredentials: {
-        url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
+        url: process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
-EOF_1785746296_8279
+EOF_1785802053_6047
 
 mkdir -p "packages/core"
 echo "作成: packages/core/vitest.config.ts"
-cat << 'EOF_1785746296_13536' > "packages/core/vitest.config.ts"
+cat << 'EOF_1785802053_4240' > "packages/core/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -467,11 +465,11 @@ export default defineConfig({
         setupFiles: ['./src/test/setup.ts'],         // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1785746296_13536
+EOF_1785802053_4240
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1785746296_7386' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1785802053_32620' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
@@ -494,21 +492,21 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
   }
 }
-EOF_1785746296_7386
+EOF_1785802053_32620
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1785746296_6577' > "packages/core/src/index.ts"
+cat << 'EOF_1785802053_10937' > "packages/core/src/index.ts"
 export * from './auth/auth-registry';
 export * from './registry/hono-auto-loader';
 export * from './db/client';
 export * from './config/env';
 export * from './errors/index';
-EOF_1785746296_6577
+EOF_1785802053_10937
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1785746296_9683' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1785802053_12254' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { validateEnv, formatEnvForLog } from './env';
 
@@ -576,11 +574,11 @@ describe('formatEnvForLog', () => {
         expect(formatted).toContain('***'); // マスクされていること
     });
 });
-EOF_1785746296_9683
+EOF_1785802053_12254
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1785746296_20037' > "packages/core/src/config/env.ts"
+cat << 'EOF_1785802053_10156' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -641,11 +639,11 @@ export const clientEnvSchema = z.object({
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
-EOF_1785746296_20037
+EOF_1785802053_10156
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/index.ts"
-cat << 'EOF_1785746296_2597' > "packages/core/src/db/index.ts"
+cat << 'EOF_1785802053_10893' > "packages/core/src/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
@@ -656,11 +654,11 @@ const env = validateEnv();
 // PostgreSQL 接続クライアントの作成
 const queryClient = postgres(env.DATABASE_URL);
 export const db = drizzle(queryClient, { schema });
-EOF_1785746296_2597
+EOF_1785802053_10893
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/db.test.ts"
-cat << 'EOF_1785746296_4008' > "packages/core/src/db/db.test.ts"
+cat << 'EOF_1785802053_10155' > "packages/core/src/db/db.test.ts"
 import { describe, it, expect } from 'vitest';
 import { db } from './index';
 import { users } from './schema';
@@ -693,11 +691,11 @@ describe('DB Integration Test (Step 3)', () => {
         expect(fetchedUser.email).toBe(testEmail);
     });
 });
-EOF_1785746296_4008
+EOF_1785802053_10155
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/schema.ts"
-cat << 'EOF_1785746296_22784' > "packages/core/src/db/schema.ts"
+cat << 'EOF_1785802053_30784' > "packages/core/src/db/schema.ts"
 // 例: pgTable に新しいカラムを追加
 import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
@@ -707,19 +705,11 @@ export const users = pgTable('users', {
     email: text('email').notNull().unique(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-EOF_1785746296_22784
-
-mkdir -p "packages/core/src/db"
-echo "作成: packages/core/src/db/client.ts"
-cat << 'EOF_1785746296_14404' > "packages/core/src/db/client.ts"
-import { PrismaClient } from '@prisma/client';
-
-export const db = new PrismaClient();
-EOF_1785746296_14404
+EOF_1785802053_30784
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1785746296_16712' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1785802053_28725' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -741,11 +731,11 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1785746296_16712
+EOF_1785802053_28725
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/index.ts"
-cat << 'EOF_1785746296_15161' > "packages/core/src/errors/index.ts"
+cat << 'EOF_1785802053_16160' > "packages/core/src/errors/index.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -792,11 +782,11 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1785746296_15161
+EOF_1785802053_16160
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/setup.ts"
-cat << 'EOF_1785746296_18522' > "packages/core/src/test/setup.ts"
+cat << 'EOF_1785802053_16951' > "packages/core/src/test/setup.ts"
 import { beforeEach } from 'vitest';
 import { db } from '../db'; // テスト用DBに接続しているDrizzleインスタンス
 import { sql } from 'drizzle-orm';
@@ -813,11 +803,11 @@ beforeEach(async () => {
     END $$;
   `);
 });
-EOF_1785746296_18522
+EOF_1785802053_16951
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/global-setup.ts"
-cat << 'EOF_1785746296_18768' > "packages/core/src/test/global-setup.ts"
+cat << 'EOF_1785802053_13290' > "packages/core/src/test/global-setup.ts"
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -843,11 +833,11 @@ export async function setup() {
         throw error;
     }
 }
-EOF_1785746296_18768
+EOF_1785802053_13290
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle.config.ts"
-cat << 'EOF_1785746296_448' > "packages/core/drizzle.config.ts"
+cat << 'EOF_1785802053_25' > "packages/core/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -865,11 +855,11 @@ export default defineConfig({
         url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
-EOF_1785746296_448
+EOF_1785802053_25
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1785746296_8023' > "packages/features/sample/package.json"
+cat << 'EOF_1785802053_27357' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -877,11 +867,11 @@ cat << 'EOF_1785746296_8023' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785746296_8023
+EOF_1785802053_27357
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1785746296_16250' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1785802053_17817' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -893,11 +883,11 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1785746296_16250
+EOF_1785802053_17817
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1785746296_18907' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1785802053_25221' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import createSampleFeature from './index';
 
@@ -911,10 +901,10 @@ describe('Sample Feature API', () => {
     expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
   });
 });
-EOF_1785746296_18907
+EOF_1785802053_25221
 
 echo "作成: doc.md"
-cat << 'EOF_1785746296_22977' > "doc.md"
+cat << 'EOF_1785802053_7783' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -1029,11 +1019,11 @@ cat << 'EOF_1785746296_22977' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1785746296_22977
+EOF_1785802053_7783
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1785746296_13290' > "apps/web/package.json"
+cat << 'EOF_1785802053_3245' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -1054,11 +1044,11 @@ cat << 'EOF_1785746296_13290' > "apps/web/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785746296_13290
+EOF_1785802053_3245
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1785746296_28169' > "apps/web/index.html"
+cat << 'EOF_1785802053_6407' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -1070,11 +1060,11 @@ cat << 'EOF_1785746296_28169' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1785746296_28169
+EOF_1785802053_6407
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1785746296_306' > "apps/web/tsconfig.json"
+cat << 'EOF_1785802053_8301' > "apps/web/tsconfig.json"
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
@@ -1103,11 +1093,11 @@ cat << 'EOF_1785746296_306' > "apps/web/tsconfig.json"
     }
   ]
 }
-EOF_1785746296_306
+EOF_1785802053_8301
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.node.json"
-cat << 'EOF_1785746296_22211' > "apps/web/tsconfig.node.json"
+cat << 'EOF_1785802053_12768' > "apps/web/tsconfig.node.json"
 {
     "compilerOptions": {
         "composite": true,
@@ -1120,11 +1110,11 @@ cat << 'EOF_1785746296_22211' > "apps/web/tsconfig.node.json"
         "vite.config.ts"
     ]
 }
-EOF_1785746296_22211
+EOF_1785802053_12768
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1785746296_31196' > "apps/web/src/main.tsx"
+cat << 'EOF_1785802053_20025' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -1134,21 +1124,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1785746296_31196
+EOF_1785802053_20025
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1785746296_20444' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1785802053_4683' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 
 export const LoginForm: React.FC = () => {
   // ... (省略)
 };
-EOF_1785746296_20444
+EOF_1785802053_4683
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1785746296_28467' > "apps/web/src/App.tsx"
+cat << 'EOF_1785802053_19271' > "apps/web/src/App.tsx"
 import React from 'react';
 import { env } from './env';
 import { LoginForm } from './components/LoginForm.tsx';
@@ -1161,11 +1151,11 @@ export default function App() {
     </div>
   );
 }
-EOF_1785746296_28467
+EOF_1785802053_19271
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.ts"
-cat << 'EOF_1785746296_20228' > "apps/web/src/env.ts"
+cat << 'EOF_1785802053_17712' > "apps/web/src/env.ts"
 import { clientEnvSchema, type ClientEnv } from '@app/core/config/env';
 
 // Vite の import.meta.env を Zod で検証・補完
@@ -1174,11 +1164,11 @@ export const env: ClientEnv = clientEnvSchema.parse({
     VITE_API_TARGET_URL: import.meta.env.VITE_API_TARGET_URL,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 });
-EOF_1785746296_20228
+EOF_1785802053_17712
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1785746296_12956' > "apps/web/vite.config.ts"
+cat << 'EOF_1785802053_13104' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -1211,11 +1201,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1785746296_12956
+EOF_1785802053_13104
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1785746296_18870' > "apps/api/package.json"
+cat << 'EOF_1785802053_26756' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -1240,11 +1230,11 @@ cat << 'EOF_1785746296_18870' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785746296_18870
+EOF_1785802053_26756
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1785746296_16585' > "apps/api/tsconfig.json"
+cat << 'EOF_1785802053_28657' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -1261,11 +1251,11 @@ cat << 'EOF_1785746296_16585' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1785746296_16585
+EOF_1785802053_28657
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1785746296_2454' > "apps/api/src/index.ts"
+cat << 'EOF_1785802053_6723' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
@@ -1403,11 +1393,11 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export default app;
-EOF_1785746296_2454
+EOF_1785802053_6723
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1785746296_25316' > "apps/api/src/index.test.ts"
+cat << 'EOF_1785802053_1935' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import app from './index';
 import { validateEnv } from './env';
@@ -1518,11 +1508,11 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
-EOF_1785746296_25316
+EOF_1785802053_1935
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1785746296_32498' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1785802053_1659' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { AuthRegistry } from '@app/core/auth/auth-registry';
 
@@ -1541,11 +1531,11 @@ authRouter.post('/login', async (c) => {
 });
 
 export default authRouter;
-EOF_1785746296_32498
+EOF_1785802053_1659
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/env.ts"
-cat << 'EOF_1785746296_8477' > "apps/api/src/env.ts"
+cat << 'EOF_1785802053_8391' > "apps/api/src/env.ts"
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -1560,10 +1550,10 @@ export function validateEnv(env: Record<string, string | undefined> = process.en
     }
     return result.data;
 }
-EOF_1785746296_8477
+EOF_1785802053_8391
 
 echo "作成: README.md"
-cat << 'EOF_1785746296_9807' > "README.md"
+cat << 'EOF_1785802053_8244' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification)
 
 ## 1. システム概要 (Overview)
@@ -1870,10 +1860,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1785746296_9807
+EOF_1785802053_8244
 
 echo "作成: .env"
-cat << 'EOF_1785746296_26948' > ".env"
+cat << 'EOF_1785802053_19089' > ".env"
 # バックエンド用
 PORT=3001
 DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
@@ -1884,6 +1874,6 @@ TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db_test
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1785746296_26948
+EOF_1785802053_19089
 
 echo -e "\n復元が完了しました！"
