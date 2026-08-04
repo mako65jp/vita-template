@@ -6,7 +6,12 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'node',
     reporters: ['tree'],
+
+    projects: [
+      'packages/*',
+      'apps/api',
+      'apps/web/vitest.config.ts',
+    ],
   },
 });

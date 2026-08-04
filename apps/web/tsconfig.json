@@ -6,7 +6,6 @@
     "useDefineForClassFields": true,
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    /* モノレポ内の共通パッケージ・型定義へのエイリアス設定 */
     "baseUrl": ".",
     "paths": {
       "@/*": [

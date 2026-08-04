@@ -13,6 +13,7 @@ describe('DB Integration Test (Step 3)', () => {
             .values({
                 name: 'Test User',
                 email: testEmail,
+                passwordHash: 'hashed_password_sample_123',
             })
             .returning();
 

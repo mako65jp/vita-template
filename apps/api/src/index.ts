@@ -2,13 +2,13 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { validateEnv, formatEnvForLog } from '@app/core/config/env';
-import { AppError, ProblemDetails, ValidationError } from '@app/core/errors';
-import { loadFeatureModules } from '@app/core/registry/hono-auto-loader';
-import { AuthRegistry } from '@app/core/auth/auth-registry';
+import { validateEnv, formatEnvForLog } from '@app/core';
+import { AppError, ProblemDetails, ValidationError } from '@app/core';
+import { loadFeatureModules } from '@app/core';
+import { AuthRegistry } from '@app/core';
 import { LocalAuthPlugin } from '@app/plugins-auth-local';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
-import authRouter from './routes/auth';
+import { authRouter } from './routes/auth';
 
 // 1. 起動時に環境変数を検証・取得
 const env = validateEnv();
@@ -36,7 +36,9 @@ if (process.env.NODE_ENV === 'test') {
 // -----------------------------------------------------------------------------
 // ルーティング・モジュール読み込み
 // -----------------------------------------------------------------------------
-app.route('/api/auth', authRouter);
+// 💡 authRouter(env.JWT_SECRET) のように実行して Hono インスタンスを渡す
+app.route('/api/auth', authRouter(env.JWT_SECRET));
+
 await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 
 // -----------------------------------------------------------------------------

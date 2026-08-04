@@ -7,6 +7,10 @@ export const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().default(3001),
     DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' }),
+    JWT_SECRET: z
+        .string()
+        .min(32, 'JWT_SECRET must be at least 32 characters long')
+        .default('super-secret-jwt-key-for-testing-purposes-123456'),
 });
 
 export type Env = z.infer<typeof envSchema>;

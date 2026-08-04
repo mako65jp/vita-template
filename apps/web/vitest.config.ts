@@ -1,4 +1,5 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -27,6 +28,12 @@ export default defineConfig(({ mode }) => {
                 '/api': apiTarget,
                 '/sample': apiTarget,
             },
+        },
+
+        test: {
+            environment: 'jsdom', // 👈 ここを追加（すべてのテストで jsdom / DOM API を有効化）
+            globals: true,        // describe, it, expect などをグローバル化する場合
+            setupFiles: ['./src/test/setup.ts'],
         },
     };
 });
