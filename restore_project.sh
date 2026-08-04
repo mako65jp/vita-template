@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1785817768_32123' > "package.json"
+cat << 'EOF_1785833489_13876' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -46,10 +46,10 @@ cat << 'EOF_1785817768_32123' > "package.json"
     "drizzle-orm": "^0.45.2"
   }
 }
-EOF_1785817768_32123
+EOF_1785833489_13876
 
 echo "作成: .gitignore"
-cat << 'EOF_1785817768_5577' > ".gitignore"
+cat << 'EOF_1785833489_8831' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -156,10 +156,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1785817768_5577
+EOF_1785833489_8831
 
 echo "作成: plan.md"
-cat << 'EOF_1785817768_19595' > "plan.md"
+cat << 'EOF_1785833489_3353' > "plan.md"
 # 📋 共通ひな形機能 一覧表
 
 ### 凡例（記号の定義）
@@ -191,31 +191,31 @@ cat << 'EOF_1785817768_19595' > "plan.md"
    * 認証ロジックのテストを書くには、事前に入力バリデーション（Step 2）や DB へのユーザー保存（Step 3）のテスト環境が整っている必要があるためです。
 2. **「ログ・ヘルスチェック」はアプリ機能としては運用向け（🟡中）だが、TDD順序では【Step 5】**
    * API と DB の基礎テスト環境が完成した直後に組み込むことで、後続の複雑なドメイン開発時のデバッグが格段に楽になります。
-EOF_1785817768_19595
+EOF_1785833489_3353
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1785817768_30411' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1785833489_31886' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1785817768_30411
+EOF_1785833489_31886
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1785817768_27924' > ".devcontainer/Dockerfile"
+cat << 'EOF_1785833489_31594' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
 # RUN apt-get update && apt-get install -y <package_name>
-EOF_1785817768_27924
+EOF_1785833489_31594
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1785817768_24462' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1785833489_19463' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -239,11 +239,11 @@ cat << 'EOF_1785817768_24462' > ".devcontainer/devcontainer.json"
   "forwardPorts": [3000, 3001, 5432],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1785817768_24462
+EOF_1785833489_19463
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1785817768_15622' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1785833489_14448' > ".devcontainer/docker-compose.yml"
 
 
 services:
@@ -287,10 +287,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1785817768_15622
+EOF_1785833489_14448
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1785817768_29211' > "tsconfig.json"
+cat << 'EOF_1785833489_17403' > "tsconfig.json"
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -327,10 +327,10 @@ cat << 'EOF_1785817768_29211' > "tsconfig.json"
     "dist"
   ]
 }
-EOF_1785817768_29211
+EOF_1785833489_17403
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1785817768_27347' > "vitest.config.ts"
+cat << 'EOF_1785833489_5727' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -339,15 +339,20 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'node',
     reporters: ['tree'],
+
+    projects: [
+      'packages/*',
+      'apps/api',
+      'apps/web/vitest.config.ts',
+    ],
   },
 });
-EOF_1785817768_27347
+EOF_1785833489_5727
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1785817768_13409' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1785833489_26127' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -355,11 +360,11 @@ cat << 'EOF_1785817768_13409' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785817768_13409
+EOF_1785833489_26127
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1785817768_29671' > "packages/plugins/auth-ad/src/index.ts"
+cat << 'EOF_1785833489_18195' > "packages/plugins/auth-ad/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -373,11 +378,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1785817768_29671
+EOF_1785833489_18195
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1785817768_30505' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1785833489_25355' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
@@ -392,11 +397,11 @@ cat << 'EOF_1785817768_30505' > "packages/plugins/auth-local/package.json"
     "@types/bcryptjs": "^2.4.6"
   }
 }
-EOF_1785817768_30505
+EOF_1785833489_25355
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1785817768_23530' > "packages/plugins/auth-local/src/index.ts"
+cat << 'EOF_1785833489_14549' > "packages/plugins/auth-local/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -412,11 +417,11 @@ export class LocalAuthPlugin implements AuthPlugin {
 }
 
 export * from './auth-utils';
-EOF_1785817768_23530
+EOF_1785833489_14549
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/auth-utils.ts"
-cat << 'EOF_1785817768_19190' > "packages/plugins/auth-local/src/auth-utils.ts"
+cat << 'EOF_1785833489_18826' > "packages/plugins/auth-local/src/auth-utils.ts"
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -477,11 +482,11 @@ export async function verifyJwt<T = Record<string, unknown>>(
         return null;
     }
 }
-EOF_1785817768_19190
+EOF_1785833489_18826
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/auth-utils.test.ts"
-cat << 'EOF_1785817768_21636' > "packages/plugins/auth-local/src/auth-utils.test.ts"
+cat << 'EOF_1785833489_1985' > "packages/plugins/auth-local/src/auth-utils.test.ts"
 import { describe, it, expect } from 'vitest';
 import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
 
@@ -543,11 +548,11 @@ describe('Auth Utilities (Step 4.1)', () => {
         });
     });
 });
-EOF_1785817768_21636
+EOF_1785833489_1985
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1785817768_21621' > "packages/core/package.json"
+cat << 'EOF_1785833489_28169' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
@@ -570,11 +575,11 @@ cat << 'EOF_1785817768_21621' > "packages/core/package.json"
     "drizzle-kit": "^0.31.10"
   }
 }
-EOF_1785817768_21621
+EOF_1785833489_28169
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle-test.config.ts"
-cat << 'EOF_1785817768_26549' > "packages/core/drizzle-test.config.ts"
+cat << 'EOF_1785833489_21000' > "packages/core/drizzle-test.config.ts"
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -592,24 +597,25 @@ export default defineConfig({
         url: process.env.TEST_DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
-EOF_1785817768_26549
+EOF_1785833489_21000
 
 mkdir -p "packages/core"
 echo "作成: packages/core/vitest.config.ts"
-cat << 'EOF_1785817768_16508' > "packages/core/vitest.config.ts"
+cat << 'EOF_1785833489_30755' > "packages/core/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
     test: {
-        globalSetup: ['./src/test/global-setup.ts'], // ① テスト前に自動で db:push:test
-        setupFiles: ['./src/test/setup.ts'],         // ② 各テスト実行前にテーブルデータを全消去
+        globalSetup: ['./src/test/global-setup.ts'],    // ① テスト前に自動で db:push:test
+        setupFiles: ['./src/test/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
+        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1785817768_16508
+EOF_1785833489_30755
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1785817768_1393' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1785833489_21739' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
@@ -632,21 +638,21 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
   }
 }
-EOF_1785817768_1393
+EOF_1785833489_21739
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1785817768_19723' > "packages/core/src/index.ts"
+cat << 'EOF_1785833489_12163' > "packages/core/src/index.ts"
 export * from './auth/auth-registry';
 export * from './registry/hono-auto-loader';
 export * from './db';
 export * from './config/env';
 export * from './errors';
-EOF_1785817768_19723
+EOF_1785833489_12163
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1785817768_7639' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1785833489_30206' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { validateEnv, formatEnvForLog } from './env';
 
@@ -714,11 +720,11 @@ describe('formatEnvForLog', () => {
         expect(formatted).toContain('***'); // マスクされていること
     });
 });
-EOF_1785817768_7639
+EOF_1785833489_30206
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1785817768_30504' > "packages/core/src/config/env.ts"
+cat << 'EOF_1785833489_21859' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -728,6 +734,10 @@ export const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().default(3001),
     DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' }),
+    JWT_SECRET: z
+        .string()
+        .min(32, 'JWT_SECRET must be at least 32 characters long')
+        .default('super-secret-jwt-key-for-testing-purposes-123456'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -779,11 +789,11 @@ export const clientEnvSchema = z.object({
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
-EOF_1785817768_30504
+EOF_1785833489_21859
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/index.ts"
-cat << 'EOF_1785817768_1178' > "packages/core/src/db/index.ts"
+cat << 'EOF_1785833489_15530' > "packages/core/src/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
@@ -797,11 +807,11 @@ export const db = drizzle(queryClient, { schema });
 
 // 💡 スキーマも外部から参照できるように export します
 export { schema };
-EOF_1785817768_1178
+EOF_1785833489_15530
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/db.test.ts"
-cat << 'EOF_1785817768_3156' > "packages/core/src/db/db.test.ts"
+cat << 'EOF_1785833489_19318' > "packages/core/src/db/db.test.ts"
 import { describe, it, expect } from 'vitest';
 import { db } from './index';
 import { users } from './schema';
@@ -817,6 +827,7 @@ describe('DB Integration Test (Step 3)', () => {
             .values({
                 name: 'Test User',
                 email: testEmail,
+                passwordHash: 'hashed_password_sample_123',
             })
             .returning();
 
@@ -834,11 +845,11 @@ describe('DB Integration Test (Step 3)', () => {
         expect(fetchedUser.email).toBe(testEmail);
     });
 });
-EOF_1785817768_3156
+EOF_1785833489_19318
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/schema.ts"
-cat << 'EOF_1785817768_23797' > "packages/core/src/db/schema.ts"
+cat << 'EOF_1785833489_23950' > "packages/core/src/db/schema.ts"
 import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -849,11 +860,11 @@ export const users = pgTable('users', {
     role: text('role').notNull().default('user'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-EOF_1785817768_23797
+EOF_1785833489_23950
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1785817768_4447' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1785833489_10203' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -875,11 +886,11 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1785817768_4447
+EOF_1785833489_10203
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/index.ts"
-cat << 'EOF_1785817768_23195' > "packages/core/src/errors/index.ts"
+cat << 'EOF_1785833489_11201' > "packages/core/src/errors/index.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -932,11 +943,11 @@ export class UnauthorizedError extends AppError {
         super(401, 'unauthorized', 'Unauthorized', message);
     }
 }
-EOF_1785817768_23195
+EOF_1785833489_11201
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/setup.ts"
-cat << 'EOF_1785817768_30349' > "packages/core/src/test/setup.ts"
+cat << 'EOF_1785833489_5166' > "packages/core/src/test/setup.ts"
 import { beforeEach } from 'vitest';
 import { db } from '../db'; // テスト用DBに接続しているDrizzleインスタンス
 import { sql } from 'drizzle-orm';
@@ -953,11 +964,11 @@ beforeEach(async () => {
     END $$;
   `);
 });
-EOF_1785817768_30349
+EOF_1785833489_5166
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/global-setup.ts"
-cat << 'EOF_1785817768_29667' > "packages/core/src/test/global-setup.ts"
+cat << 'EOF_1785833489_27089' > "packages/core/src/test/global-setup.ts"
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -983,11 +994,42 @@ export async function setup() {
         throw error;
     }
 }
-EOF_1785817768_29667
+EOF_1785833489_27089
+
+mkdir -p "packages/core/src"
+echo "作成: packages/core/src/seed-dev-user.ts"
+cat << 'EOF_1785833489_23134' > "packages/core/src/seed-dev-user.ts"
+import { db } from './db'; // packages/core 内の db エクスポートのパス
+import { users } from './db/schema'; // users スキーマ
+import { hashPassword } from '@app/plugins-auth-local';
+// packages/core にハッシュ関数（または bcrypt/argon2）があればそれを使用
+
+async function main() {
+    const email = 'mako65jp@gmail.com';
+    const password = '1234'; // お好みのパスワード
+
+    // もし core 内にハッシュ関数があれば使い、無ければ使っているライブラリでハッシュ化
+    const hashedPassword = await hashPassword(password);
+
+    await db.insert(users).values({
+        email,
+        passwordHash: hashedPassword,
+        name: '開発ユーザー',
+    }).onConflictDoNothing();
+
+    console.log(`✅ User created: ${email}`);
+    process.exit(0);
+}
+
+main().catch((err) => {
+    console.error('❌ Failed:', err);
+    process.exit(1);
+});
+EOF_1785833489_23134
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle.config.ts"
-cat << 'EOF_1785817768_7426' > "packages/core/drizzle.config.ts"
+cat << 'EOF_1785833489_1496' > "packages/core/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
@@ -1005,11 +1047,11 @@ export default defineConfig({
         url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@db:5432/app_db_test',
     },
 });
-EOF_1785817768_7426
+EOF_1785833489_1496
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1785817768_30114' > "packages/features/sample/package.json"
+cat << 'EOF_1785833489_22527' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -1017,11 +1059,11 @@ cat << 'EOF_1785817768_30114' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785817768_30114
+EOF_1785833489_22527
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1785817768_17311' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1785833489_21511' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -1033,11 +1075,11 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1785817768_17311
+EOF_1785833489_21511
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1785817768_32395' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1785833489_30055' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import createSampleFeature from './index';
 
@@ -1051,10 +1093,10 @@ describe('Sample Feature API', () => {
     expect(body).toEqual({ message: 'Hello from Auto-Loaded Sample Feature in DevContainer!' });
   });
 });
-EOF_1785817768_32395
+EOF_1785833489_30055
 
 echo "作成: doc.md"
-cat << 'EOF_1785817768_27900' > "doc.md"
+cat << 'EOF_1785833489_16442' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -1169,10 +1211,10 @@ cat << 'EOF_1785817768_27900' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1785817768_27900
+EOF_1785833489_16442
 
 echo "作成: SUMMRY.md"
-cat << 'EOF_1785817768_15138' > "SUMMRY.md"
+cat << 'EOF_1785833489_4075' > "SUMMRY.md"
 これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
 # 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
 
@@ -1439,11 +1481,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 
 ---
-EOF_1785817768_15138
+EOF_1785833489_4075
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1785817768_24614' > "apps/web/package.json"
+cat << 'EOF_1785833489_31796' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -1458,17 +1500,20 @@ cat << 'EOF_1785817768_24614' > "apps/web/package.json"
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^6.0.5",
+    "jsdom": "^29.1.1",
     "typescript": "^5.3.3"
   }
 }
-EOF_1785817768_24614
+EOF_1785833489_31796
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1785817768_27588' > "apps/web/index.html"
+cat << 'EOF_1785833489_6527' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -1480,11 +1525,11 @@ cat << 'EOF_1785817768_27588' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1785817768_27588
+EOF_1785833489_6527
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1785817768_2957' > "apps/web/tsconfig.json"
+cat << 'EOF_1785833489_23502' > "apps/web/tsconfig.json"
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
@@ -1493,7 +1538,9 @@ cat << 'EOF_1785817768_2957' > "apps/web/tsconfig.json"
     "useDefineForClassFields": true,
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    /* モノレポ内の共通パッケージ・型定義へのエイリアス設定 */
+    "types": [
+      "vite/client"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -1513,11 +1560,34 @@ cat << 'EOF_1785817768_2957' > "apps/web/tsconfig.json"
     }
   ]
 }
-EOF_1785817768_2957
+EOF_1785833489_23502
+
+mkdir -p "apps/web"
+echo "作成: apps/web/vitest.config.ts"
+cat << 'EOF_1785833489_18764' > "apps/web/vitest.config.ts"
+import { defineConfig, mergeConfig } from 'vitest/config';
+import viteConfig from './vite.config.ts';
+
+export default defineConfig(async (configEnv) => {
+    // vite.config が関数の場合でも正しく評価してオブジェクトを取得
+    const baseConfig = typeof viteConfig === 'function' ? viteConfig(configEnv) : viteConfig;
+
+    return mergeConfig(
+        baseConfig,
+        defineConfig({
+            test: {
+                environment: 'jsdom', // 👈 ここを追加（すべてのテストで jsdom / DOM API を有効化）
+                globals: true,        // describe, it, expect などをグローバル化する場合
+                setupFiles: ['./src/test/setup.ts'],
+            },
+        })
+    );
+});
+EOF_1785833489_18764
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.node.json"
-cat << 'EOF_1785817768_27187' > "apps/web/tsconfig.node.json"
+cat << 'EOF_1785833489_18329' > "apps/web/tsconfig.node.json"
 {
     "compilerOptions": {
         "composite": true,
@@ -1530,11 +1600,17 @@ cat << 'EOF_1785817768_27187' > "apps/web/tsconfig.node.json"
         "vite.config.ts"
     ]
 }
-EOF_1785817768_27187
+EOF_1785833489_18329
+
+mkdir -p "apps/web/src/test"
+echo "作成: apps/web/src/test/setup.ts"
+cat << 'EOF_1785833489_21373' > "apps/web/src/test/setup.ts"
+import '@testing-library/jest-dom';
+EOF_1785833489_21373
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1785817768_2321' > "apps/web/src/main.tsx"
+cat << 'EOF_1785833489_13487' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -1544,39 +1620,444 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1785817768_2321
+EOF_1785833489_13487
+
+mkdir -p "apps/web/src/context"
+echo "作成: apps/web/src/context/AuthContext.test.tsx"
+cat << 'EOF_1785833489_14592' > "apps/web/src/context/AuthContext.test.tsx"
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { AuthProvider, useAuth } from './AuthContext';
+import React from 'react';
+
+// fetch のモック設定
+const globalFetch = vi.fn();
+global.fetch = globalFetch;
+
+describe('AuthContext / useAuth (Step 5.1)', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        vi.clearAllMocks();
+    });
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <AuthProvider>{children}</AuthProvider>
+    );
+
+    it('初期状態では未認証であり、localStorage にトークンがなければユーザーは null であること', async () => {
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.isLoading).toBe(false);
+        });
+
+        expect(result.current.isAuthenticated).toBe(false);
+        expect(result.current.user).toBeNull();
+    });
+
+    it('login 関数を実行すると API を呼び出し、トークンとユーザー情報を保存すること', async () => {
+        const mockUser = { id: 1, name: 'Test User', email: 'test@example.com', role: 'user' };
+        const mockToken = 'mock-jwt-token';
+
+        // ログイン API のレスポンスをモック
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            status: 200,
+            json: async () => ({ token: mockToken, user: mockUser }),
+        });
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await act(async () => {
+            await result.current.login('test@example.com', 'password123');
+        });
+
+        expect(globalFetch).toHaveBeenCalledWith(
+            '/api/auth/login',
+            expect.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
+            })
+        );
+
+        expect(localStorage.getItem('token')).toBe(mockToken);
+        expect(result.current.isAuthenticated).toBe(true);
+        expect(result.current.user).toEqual(mockUser);
+    });
+
+    it('logout 関数を実行するとトークンとユーザー情報が破棄されること', async () => {
+        localStorage.setItem('token', 'existing-token');
+
+        // /me API の初期化レスポンスをモック
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            status: 200,
+            json: async () => ({ user: { id: 1, email: 'test@example.com', role: 'user' } }),
+        });
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.isAuthenticated).toBe(true);
+        });
+
+        act(() => {
+            result.current.logout();
+        });
+
+        expect(localStorage.getItem('token')).toBeNull();
+        expect(result.current.isAuthenticated).toBe(false);
+        expect(result.current.user).toBeNull();
+    });
+});
+EOF_1785833489_14592
+
+mkdir -p "apps/web/src/context"
+echo "作成: apps/web/src/context/AuthContext.tsx"
+cat << 'EOF_1785833489_22091' > "apps/web/src/context/AuthContext.tsx"
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+// ユーザーオブジェクトの型定義
+export interface User {
+    id: number | string;
+    name?: string;
+    email: string;
+    role: string;
+}
+
+// AuthContext の型定義
+export interface AuthContextType {
+    user: User | null;
+    token: string | null;
+    isLoading: boolean;
+    isAuthenticated: boolean;
+    login: (email: string, password: string) => Promise<void>;
+    logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    // 初期化時：localStorage にトークンがあれば /api/auth/me でユーザー情報を復元
+    useEffect(() => {
+        const initAuth = async () => {
+            const storedToken = localStorage.getItem('token');
+            if (!storedToken) {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: {
+                        Authorization: `Bearer ${storedToken}`,
+                    },
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.user);
+                    setToken(storedToken);
+                } else {
+                    localStorage.removeItem('token');
+                    setToken(null);
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Failed to restore authentication session:', error);
+                localStorage.removeItem('token');
+                setToken(null);
+                setUser(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        initAuth();
+    }, []);
+
+    // ログイン処理
+    const login = async (email: string, password: string) => {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.detail || 'Login failed');
+        }
+
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
+        setUser(data.user);
+    };
+
+    // ログアウト処理
+    const logout = () => {
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+    };
+
+    return (
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                isLoading,
+                isAuthenticated: !!user,
+                login,
+                logout,
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuth = (): AuthContextType => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};
+EOF_1785833489_22091
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1785817768_27837' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1785833489_23836' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-export const LoginForm: React.FC = () => {
-  // ... (省略)
+interface LoginFormProps {
+    onSuccess?: () => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+    const { login } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+
+        try {
+            await login(email, password);
+            if (onSuccess) {
+                onSuccess();
+            }
+        } catch (err: any) {
+            setError(err.message || 'ログインに失敗しました。');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '300px' }}>
+            <h2>ログイン</h2>
+            {error && (
+                <div role="alert" style={{ color: 'red', fontSize: '0.875rem' }}>
+                    {error}
+                </div>
+            )}
+            <div>
+                <label htmlFor="email">メールアドレス</label>
+                <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    style={{ width: '100%', padding: '0.5rem' }}
+                />
+            </div>
+            <div>
+                <label htmlFor="password">パスワード</label>
+                <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    style={{ width: '100%', padding: '0.5rem' }}
+                />
+            </div>
+            <button type="submit" disabled={isSubmitting} style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>
+                {isSubmitting ? '送信中...' : 'ログイン'}
+            </button>
+        </form>
+    );
 };
-EOF_1785817768_27837
+EOF_1785833489_23836
+
+mkdir -p "apps/web/src/components"
+echo "作成: apps/web/src/components/LoginForm.test.tsx"
+cat << 'EOF_1785833489_735' > "apps/web/src/components/LoginForm.test.tsx"
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { LoginForm } from './LoginForm';
+import { AuthContext, AuthContextType } from '../context/AuthContext';
+
+describe('LoginForm Component (Step 5.2)', () => {
+    const mockLogin = vi.fn();
+    const mockLogout = vi.fn();
+
+    const mockAuthContextValue: AuthContextType = {
+        user: null,
+        token: null,
+        isLoading: false,
+        isAuthenticated: false,
+        login: mockLogin,
+        logout: mockLogout,
+    };
+
+    const renderLoginForm = (onSuccess = vi.fn()) => {
+        return render(
+            <AuthContext.Provider value={mockAuthContextValue}>
+                <LoginForm onSuccess={onSuccess} />
+            </AuthContext.Provider>
+        );
+    };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('フォームが正しくレンダリングされること', () => {
+        renderLoginForm();
+
+        expect(screen.getByRole('heading', { name: 'ログイン' })).toBeInTheDocument();
+        expect(screen.getByLabelText('メールアドレス')).toBeInTheDocument();
+        expect(screen.getByLabelText('パスワード')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'ログイン' })).toBeInTheDocument();
+    });
+
+    it('入力値を送信したとき、login 関数と onSuccess が正しく実行されること', async () => {
+        const handleSuccess = vi.fn();
+        mockLogin.mockResolvedValueOnce(undefined);
+
+        renderLoginForm(handleSuccess);
+
+        fireEvent.change(screen.getByLabelText('メールアドレス'), {
+            target: { value: 'test@example.com' },
+        });
+        fireEvent.change(screen.getByLabelText('パスワード'), {
+            target: { value: 'password123' },
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: 'ログイン' }));
+
+        await waitFor(() => {
+            expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+            expect(handleSuccess).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    it('ログイン失敗時、エラーメッセージが表示されること', async () => {
+        mockLogin.mockRejectedValueOnce(new Error('メールアドレスまたはパスワードが正しくありません。'));
+
+        renderLoginForm();
+
+        fireEvent.change(screen.getByLabelText('メールアドレス'), {
+            target: { value: 'wrong@example.com' },
+        });
+        fireEvent.change(screen.getByLabelText('パスワード'), {
+            target: { value: 'wrongpass' },
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: 'ログイン' }));
+
+        const errorMessage = await screen.findByRole('alert');
+        expect(errorMessage).toHaveTextContent('メールアドレスまたはパスワードが正しくありません。');
+    });
+});
+EOF_1785833489_735
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1785817768_4837' > "apps/web/src/App.tsx"
-import React from 'react';
-import { env } from './env';
-import { LoginForm } from './components/LoginForm.tsx';
+cat << 'EOF_1785833489_31984' > "apps/web/src/App.tsx"
+// import React from 'react';
+// import { env } from './env';
+// import { LoginForm } from './components/LoginForm.tsx';
 
-export default function App() {
+// export default function App() {
+//   return (
+//     <div>
+//       <h1>DevContainer + Docker Compose {env.VITE_APP_TITLE}</h1>
+//       <LoginForm />
+//     </div>
+//   );
+// }
+import React from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { LoginForm } from './components/LoginForm';
+
+const MainContent: React.FC = () => {
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>読み込み中...</div>;
+  }
+
   return (
-    <div>
-      <h1>DevContainer + Docker Compose {env.VITE_APP_TITLE}</h1>
-      <LoginForm />
-    </div>
+    <main style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>DevContainer + Docker Compose マイアプリケーション</h1>
+
+      {isAuthenticated && user ? (
+        <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
+          <h2>ようこそ、{user.name || user.email} さん！</h2>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>ID:</strong> {user.id}</p>
+          <button
+            onClick={logout}
+            style={{ padding: '0.5rem 1rem', marginTop: '1rem', cursor: 'pointer' }}
+          >
+            ログアウト
+          </button>
+        </div>
+      ) : (
+        <div style={{ marginTop: '1rem' }}>
+          <LoginForm />
+        </div>
+      )}
+    </main>
+  );
+};
+
+export function App() {
+  return (
+    <AuthProvider>
+      <MainContent />
+    </AuthProvider>
   );
 }
-EOF_1785817768_4837
+
+export default App;
+EOF_1785833489_31984
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.ts"
-cat << 'EOF_1785817768_20896' > "apps/web/src/env.ts"
-import { clientEnvSchema, type ClientEnv } from '@app/core/config/env';
+cat << 'EOF_1785833489_923' > "apps/web/src/env.ts"
+import { clientEnvSchema, type ClientEnv } from '@app/core';
 
 // Vite の import.meta.env を Zod で検証・補完
 export const env: ClientEnv = clientEnvSchema.parse({
@@ -1584,12 +2065,13 @@ export const env: ClientEnv = clientEnvSchema.parse({
     VITE_API_TARGET_URL: import.meta.env.VITE_API_TARGET_URL,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 });
-EOF_1785817768_20896
+EOF_1785833489_923
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1785817768_8127' > "apps/web/vite.config.ts"
-import { defineConfig, loadEnv } from 'vite';
+cat << 'EOF_1785833489_15691' > "apps/web/vite.config.ts"
+import { defineConfig } from 'vitest/config';
+import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -1621,11 +2103,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1785817768_8127
+EOF_1785833489_15691
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1785817768_2569' > "apps/api/package.json"
+cat << 'EOF_1785833489_23356' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -1650,11 +2132,11 @@ cat << 'EOF_1785817768_2569' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785817768_2569
+EOF_1785833489_23356
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1785817768_19369' > "apps/api/tsconfig.json"
+cat << 'EOF_1785833489_27835' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -1670,22 +2152,35 @@ cat << 'EOF_1785817768_19369' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1785817768_19369
+EOF_1785833489_27835
+
+mkdir -p "apps/api"
+echo "作成: apps/api/vitest.config.ts"
+cat << 'EOF_1785833489_30353' > "apps/api/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+  },
+});
+EOF_1785833489_30353
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1785817768_20881' > "apps/api/src/index.ts"
+cat << 'EOF_1785833489_4549' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { validateEnv, formatEnvForLog } from '@app/core/config/env';
-import { AppError, ProblemDetails, ValidationError } from '@app/core/errors';
-import { loadFeatureModules } from '@app/core/registry/hono-auto-loader';
-import { AuthRegistry } from '@app/core/auth/auth-registry';
+import { validateEnv, formatEnvForLog } from '@app/core';
+import { AppError, ProblemDetails, ValidationError } from '@app/core';
+import { loadFeatureModules } from '@app/core';
+import { AuthRegistry } from '@app/core';
 import { LocalAuthPlugin } from '@app/plugins-auth-local';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
-import authRouter from './routes/auth';
+import { authRouter } from './routes/auth';
 
 // 1. 起動時に環境変数を検証・取得
 const env = validateEnv();
@@ -1713,7 +2208,9 @@ if (process.env.NODE_ENV === 'test') {
 // -----------------------------------------------------------------------------
 // ルーティング・モジュール読み込み
 // -----------------------------------------------------------------------------
-app.route('/api/auth', authRouter);
+// 💡 authRouter(env.JWT_SECRET) のように実行して Hono インスタンスを渡す
+app.route('/api/auth', authRouter(env.JWT_SECRET));
+
 await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 
 // -----------------------------------------------------------------------------
@@ -1812,11 +2309,11 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export default app;
-EOF_1785817768_20881
+EOF_1785833489_4549
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1785817768_32488' > "apps/api/src/index.test.ts"
+cat << 'EOF_1785833489_4440' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import app from './index';
 import { validateEnv } from './env';
@@ -1927,11 +2424,11 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
-EOF_1785817768_32488
+EOF_1785833489_4440
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1785817768_29543' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1785833489_4329' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
@@ -2017,11 +2514,11 @@ export function authRouter(jwtSecret: string) {
 
     return app;
 }
-EOF_1785817768_29543
+EOF_1785833489_4329
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.test.ts"
-cat << 'EOF_1785817768_11462' > "apps/api/src/routes/auth.test.ts"
+cat << 'EOF_1785833489_9406' > "apps/api/src/routes/auth.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
@@ -2130,11 +2627,11 @@ describe('Auth Routes (Step 4.3)', () => {
         });
     });
 });
-EOF_1785817768_11462
+EOF_1785833489_9406
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/env.ts"
-cat << 'EOF_1785817768_16381' > "apps/api/src/env.ts"
+cat << 'EOF_1785833489_30862' > "apps/api/src/env.ts"
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -2149,11 +2646,11 @@ export function validateEnv(env: Record<string, string | undefined> = process.en
     }
     return result.data;
 }
-EOF_1785817768_16381
+EOF_1785833489_30862
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.ts"
-cat << 'EOF_1785817768_16315' > "apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1785833489_21830' > "apps/api/src/middlewares/auth-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { verifyJwt } from '@app/plugins-auth-local';
 import { UnauthorizedError } from '@app/core';
@@ -2190,11 +2687,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
         await next();
     };
 }
-EOF_1785817768_16315
+EOF_1785833489_21830
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
-cat << 'EOF_1785817769_5749' > "apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1785833489_4255' > "apps/api/src/middlewares/auth-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 import { authMiddleware } from './auth-middleware';
@@ -2276,10 +2773,10 @@ describe('Auth Middleware (Step 4.2)', () => {
         expect(body.user).toMatchObject(payload);
     });
 });
-EOF_1785817769_5749
+EOF_1785833489_4255
 
 echo "作成: README.md"
-cat << 'EOF_1785817769_11582' > "README.md"
+cat << 'EOF_1785833489_11188' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification) - 全体統合版
 
 ## 1. システム概要 (Overview)
@@ -2686,20 +3183,21 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1785817769_11582
+EOF_1785833489_11188
 
 echo "作成: .env"
-cat << 'EOF_1785817769_14400' > ".env"
+cat << 'EOF_1785833489_19818' > ".env"
 # バックエンド用
 PORT=3001
 DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
 TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db_test
+JWT_SECRET=your-super-secret-jwt-key-must-be-at-least-32-bytes-long
 
 # フロントエンド用 (VITE_ プレフィックスを付ける)
 # /workspace/apps/web/src/env.ts と同期する
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1785817769_14400
+EOF_1785833489_19818
 
 echo -e "\n復元が完了しました！"

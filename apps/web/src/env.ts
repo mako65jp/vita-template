@@ -1,4 +1,4 @@
-import { clientEnvSchema, type ClientEnv } from '@app/core/config/env';
+import { clientEnvSchema, type ClientEnv } from '@app/core';
 
 // Vite の import.meta.env を Zod で検証・補完
 export const env: ClientEnv = clientEnvSchema.parse({
