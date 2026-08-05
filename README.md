@@ -1,9 +1,9 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.0 最新版
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.1
 
 ## 1. システム概要 (Overview)
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
-バックエンドには軽量・高速な Web フレームワーク（**Hono**）を、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite**）を採用し、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を導入しています。
+バックエンドには軽量・高速な Web フレームワーク（**Hono**）、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite**）、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を採用しています。
 共通ロジックや拡張機能（認証・業務コンポーネント等）を独立したパッケージへ分離することで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
@@ -33,7 +33,7 @@
 
 ---
 
-## 3. アーキテクチャ＆拡張パターン (Architecture & Extension Patterns)
+## 3. システムアーキテクチャ (System Architecture)
 
 モノレポ構造の強みを活かし、システムの各領域（基盤・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
 
@@ -54,96 +54,7 @@
 
 ---
 
-## 4. データベース & ORM 仕様 (Database & ORM)
-
-### 4.1 ORM の設計と接続管理
-
-* **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM + `postgres` ライブラリ) を採用します。
-* **動的接続・マルチクライアント管理:**
-`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。また、テスト終了時にコネクションプールを正常終了できるよう `activeQueryClient` をエクスポートします。
-
-```typescript
-// packages/core/src/db/index.ts
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
-import { env } from '../config/env';
-
-const isTest = env.NODE_ENV === 'test';
-
-export const queryClient = postgres(env.DATABASE_URL);
-export const dev_db = drizzle(queryClient, { schema });
-
-export const queryTestClient = postgres(env.TEST_DATABASE_URL);
-export const test_db = drizzle(queryTestClient, { schema });
-
-export const db = isTest ? test_db : dev_db;
-export const activeQueryClient = isTest ? queryTestClient : queryClient;
-
-export { schema };
-
-```
-
-### 4.2 スキーマ定義 (Single Source of Truth)
-
-データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
-
-#### `users` テーブル
-
-ユーザー認証、権限、およびプロファイル情報を一元管理します。
-
-```typescript
-// packages/core/src/db/schema.ts
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
-  role: text('role').notNull().default('user'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-```
-
-| カラム名 | DB論理名 | 型 | 制約 | 説明 |
-| --- | --- | --- | --- | --- |
-| `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
-| `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
-| `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
-| `passwordHash` | `password_hash` | `text` | NOT NULL | `bcryptjs` でハッシュ化されたパスワード |
-| `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
-| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
-
-### 4.3 構成ファイルの分離設計
-
-* テスト実行時と通常開発時でデータベース設定が混同するのを防ぐため、設定ファイルを明確に分離します。
-* テスト専用の設定ファイルは、テスト検出機能との競合を避けるため **`drizzle-test.config.ts`** と命名して管理します。
-
----
-
-## 5. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
-
-### 5.1 機能の自動検出とルーティング登録
-
-* 各 Feature パッケージが持つ API ルート（Hono インスタンス）を個別に手動インポートする手間を省くため、指定ディレクトリ配下のモジュールを動的に探索・一括登録する自動ローダー機構（`hono-auto-loader.ts`）を導入します。
-
-### 5.2 クロスプラットフォーム＆モジュール互換性の保障
-
-* OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、`pathToFileURL` を用いて変換します。
-
-```typescript
-// packages/core/src/registry/hono-auto-loader.ts
-const absolutePath = path.resolve(file);
-const moduleUrl = pathToFileURL(absolutePath).href; // URI形式へ安全に変換
-const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解析警告を抑止
-
-```
-
----
-
-## 6. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
+## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
 プロジェクト全体のフォルダおよびファイル構造です。各モジュールごとのテスト配置と役割分担を整理しています。
 
@@ -232,43 +143,80 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ---
 
-## 7. 環境変数 & セキュリティ仕様 (Environment Variables & Security)
+## 5. データベース & ORM 仕様 (Database & ORM)
 
-環境変数の未設定や型間違いによるランタイムエラーを防ぎ、不必要な機密情報の漏洩を保護するため、**起動時自動検証とログの不透明化** を義務付けます。
+### 5.1 ORM の設計と接続管理
 
-### 7.1 定義されている環境変数
+* **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM + `postgres` ライブラリ) を採用します。
+* **動的接続・マルチクライアント管理:**
+`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。また、テスト終了時にコネクションプールを正常終了できるよう `activeQueryClient` をエクスポートします。
 
-| 変数名 | 対象領域 | 型 / 制約 | 意図・役割 |
-| --- | --- | --- | --- |
-| `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
-| `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
-| `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続URI |
-| `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続URI |
-| `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
-| `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
-| `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
-| `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
+```typescript
+// packages/core/src/db/index.ts
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
+import { env } from '../config/env';
 
-### 7.2 セキュリティ & バリデーション設計
+const isTest = env.NODE_ENV === 'test';
 
-1. **フェイルファスト（Fail-Fast）原則:**
-アプリケーション起動時に環境変数を検証（Zod スキーマ）し、不備があれば起動を即座に安全に中断します。
-2. **機密情報のログマスク（伏字化）:**
-設定内容をシステムログへ出力する際、接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）は自動的にマスク処理（`***` 化）を施します。
-3. **パスワード保存とトークン生成:**
-平文パスワードの保持は厳禁とし、`bcryptjs` によりソルト付きでハッシュ化された値のみを保存します。JWT の生成・検証には `jose` ライブラリを使用し、ステートレス認証を実現します。
-4. **安全なエラー詳細返却:**
-ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、一律 `Invalid credentials.` (401) を返却してユーザー存在確認攻撃を防ぎます。
-5. **フロントエンドの環境変数カプセル化:**
-ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定し、`apps/web/src/env.ts` 経由でのみ参照を許可します。
+export const queryClient = postgres(env.DATABASE_URL);
+export const dev_db = drizzle(queryClient, { schema });
+
+export const queryTestClient = postgres(env.TEST_DATABASE_URL);
+export const test_db = drizzle(queryTestClient, { schema });
+
+export const db = isTest ? test_db : dev_db;
+export const activeQueryClient = isTest ? queryTestClient : queryClient;
+
+export { schema };
+
+```
+
+### 5.2 スキーマ定義 (Single Source of Truth)
+
+データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
+
+#### `users` テーブル
+
+ユーザー認証、権限、およびプロファイル情報を一元管理します。
+
+```typescript
+// packages/core/src/db/schema.ts
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  role: text('role').notNull().default('user'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+```
+
+| カラム名 | DB論理名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- | --- |
+| `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
+| `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
+| `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
+| `passwordHash` | `password_hash` | `text` | NOT NULL | `bcryptjs` でハッシュ化されたパスワード |
+| `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
+| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
+
+### 5.3 マイグレーション & 構成ファイルの分離設計
+
+* **マイグレーション運用:** スキーマ変更時は `drizzle-kit generate` でマイグレーションファイルを生成し、`drizzle-kit push` または `migrate` コマンドで DB に反映します。
+* **構成ファイルの分離:** テスト実行時と通常開発時でデータベース設定が混同するのを防ぐため、テスト用構成は **`drizzle-test.config.ts`** と命名して管理します。
 
 ---
 
-## 8. API エラーレスポンス仕様 (RFC 7807 準拠)
+## 6. API & エラーレスポンス仕様 (API & Error Handling)
 
-システムから返却されるエラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理・デバッグを容易にするため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
+### 6.1 統一エラーレスポンス仕様 (RFC 7807 準拠)
 
-### 8.1 統一エラーレスポンス構造
+エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
 
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
@@ -279,22 +227,19 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 | **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
-### 8.2 エラー制御方針
+#### エラー制御方針
 
-1. **例外クラスの階層化 (`AppError`):**
-すべてのドメイン例外（`ValidationError`, `UnauthorizedError`, `NotFoundError` 等）は基底クラス `AppError` を継承して定義します。
-2. **未定義エラーのキャッチ (500 Internal Server Error):**
-予期せぬ例外が発生した場合でも、Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換して返却します。
-3. **入力検証エラーの自動標準化 (400 Bad Request):**
-リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
+1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError` 等）は基底クラス `AppError` を継承して定義。
+2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換。
+3. **入力検証エラーの標準化 (400):** Zod バリデーション失敗時は不備フィールドと理由を `invalidParams` へ自動マッピング。
 
 ---
 
-## 9. 認証・認可 API 仕様 (Authentication API Spec)
+### 6.2 認証 API 仕様 (Authentication API Spec)
 
 ベース URL: `/api/auth`
 
-### 9.1 ログイン & トークン発行 (`POST /api/auth/login`)
+#### ① ログイン & トークン発行 (`POST /api/auth/login`)
 
 * **認証:** 不要
 * **リクエスト (`application/json`):**
@@ -334,16 +279,9 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ```
 
-### 9.2 認証ユーザー情報取得 (`GET /api/auth/me`)
+#### ② 認証ユーザー情報取得 (`GET /api/auth/me`)
 
 * **認証:** 必要 (`Authorization: Bearer <JWT_TOKEN>`)
-* **リクエストヘッダー:**
-
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-```
-
 * **レスポンス (200 OK):**
 
 ```json
@@ -372,30 +310,82 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-## 10. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+### 6.3 ヘルスチェック & 構造化ログ仕様（予定）
 
-テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
-
-### 10.1 テスト基盤
-
-* **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
-
-### 10.2 テスト自動化ライフサイクル
-
-1. **テスト開始前のデータベース構造の自動最新化 (Global Setup):**
-全テストスイートが実行される直前に、`globalSetup` 内で `drizzle-test.config.ts` を用いてテスト用データベースのテーブル構造（スキーマ）を自動同期します。
-2. **テストケース間の完全な状態隔離 (Setup Files):**
-個々のテスト実行直前に、`packages/core/src/test/setup.ts` 等でデータベース内の既存データを全削除して環境を初期化します。
-3. **テスト終了後のコネクション安全開放:**
-DB統合テストの `afterAll` フックにて `activeQueryClient.end()` を呼び出し、PostgreSQL 接続のハンドリング漏れを防ぎます。
+* **ヘルスチェック (`GET /healthz`):** API サーバーの生存確認および PostgreSQL 導通テストを実行（正常時: `200 OK`, DB不通時: `503 Service Unavailable`）。
+* **構造化ロギング:** Pino 等を利用して全リクエストを JSON 形式でログ出力（`DATABASE_URL` や `JWT_SECRET` 等の機密パラメーターは伏字化）。
 
 ---
 
-## 11. 実行スクリプト リファレンス (Scripts)
+## 7. セキュリティ & 環境変数仕様 (Security & Environment Variables)
+
+### 7.1 定義されている環境変数
+
+| 変数名 | 対象領域 | 型 / 制約 | 意図・役割 |
+| --- | --- | --- | --- |
+| `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
+| `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
+| `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続URI |
+| `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続URI |
+| `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
+| `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
+| `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
+| `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
+
+### 7.2 セキュリティ設計
+
+1. **フェイルファスト（Fail-Fast）原則:** 起動時に Zod で環境変数を検証し、不備があれば即座に起動を停止。
+2. **ログマスク処理:** 接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）はシステムログ出力時に自動でマスク（`***` 化）。
+3. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
+4. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
+5. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
+
+---
+
+## 8. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
+
+### 8.1 機能の自動検出とルーティング登録
+
+* 各 Feature パッケージが持つ API ルート（Hono インスタンス）を個別に手動インポートする手間を省くため、指定ディレクトリ配下のモジュールを動的に探索・一括登録する自動ローダー機構（`hono-auto-loader.ts`）を導入します。
+
+### 8.2 クロスプラットフォーム＆モジュール互換性の保障
+
+* OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、`pathToFileURL` を用いて変換します。
+
+```typescript
+// packages/core/src/registry/hono-auto-loader.ts
+const absolutePath = path.resolve(file);
+const moduleUrl = pathToFileURL(absolutePath).href; // URI形式へ安全に変換
+const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解析警告を抑止
+
+```
+
+---
+
+## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+
+テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
+
+### 9.1 テスト基盤
+
+* **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
+
+### 9.2 テスト自動化ライフサイクル
+
+1. **テスト開始前の DB スキーマ自動同期 (Global Setup):**
+全テスト実行直前に `globalSetup` が `drizzle-test.config.ts` を用いてテスト用 DB（`TEST_DATABASE_URL`）のスキーマを自動同期。
+2. **テストケース間の完全な状態隔離 (Setup Files):**
+各テスト実行直前に `packages/core/src/test/setup.ts` 等でデータベース内のデータを自動一括消去。
+3. **テスト終了後のコネクション安全開放:**
+各 DB 統合テストの `afterAll` フックにて `activeQueryClient.end()` を呼び出し、PostgreSQL コネクションの切り忘れを防止。
+
+---
+
+## 10. 実行スクリプト リファレンス (Scripts)
 
 プロジェクト内で利用する標準的なコマンドです。
 
-### 11.1 開発サーバー起動
+### 10.1 開発サーバー起動
 
 すべてのアプリケーション（API・Web）を開発モードで並行起動します。
 
@@ -404,7 +394,7 @@ npm run dev
 
 ```
 
-### 11.2 全テストの自動実行 (TDD)
+### 10.2 全テストの自動実行 (TDD)
 
 すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テストを一括実行します。
 
@@ -413,7 +403,7 @@ npm test
 
 ```
 
-### 11.3 テスト用 DB スキーマの手動同期
+### 10.3 テスト用 DB スキーマの手動同期
 
 テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
 
