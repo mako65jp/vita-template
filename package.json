@@ -17,10 +17,14 @@
     "test": "vitest run",
     "db:push": "npm run db:push --workspaces --if-present",
     "db:push:test": "npm run db:push:test --workspaces --if-present",
-    "db:push:all": "npm run db:push:all --workspaces --if-present"
+    "db:push:all": "npm run db:push:all --workspaces --if-present",
+    "coverage": "vitest run --coverage",
+    "seed:user": "npx tsx --env-file=.env packages/core/src/seed-dev-user.ts",
+    "seed:all": "npm run seed:user"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.5",
+    "@vitest/coverage-v8": "^4.1.10",
     "concurrently": "^8.2.2",
     "typescript": "^5.3.3",
     "vite": "^8.2.0",
