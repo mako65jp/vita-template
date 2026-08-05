@@ -55,6 +55,8 @@ describe('formatEnvForLog', () => {
             NODE_ENV: 'development' as const,
             PORT: 3001,
             DATABASE_URL: 'postgresql://postgres:secret_pass@localhost:5432/app_db',
+            TEST_DATABASE_URL: 'postgresql://postgres:secret_pass@localhost:5432/app_db_test',
+            JWT_SECRET: 'JWT_SECRET must be at least 32 characters long',
         };
 
         const formatted = formatEnvForLog(mockEnv);

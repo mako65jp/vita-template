@@ -16,11 +16,10 @@ services:
       - /workspace/packages/features/sample/node_modules
     command: /bin/sh -c "while sleep 1000; do :; done"
     ports:
-      - "3000:3000"
-      - "3001:3001"
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/app_db"
-      DATABASE_URL_TEST: "postgresql://postgres:postgres@db:5432/app_db_test"
+      - "${VITE_PORT:-3000}:3000"
+      - "${PORT:-3001}:3001"
+    env_file:
+      - ../.env
     depends_on:
       - db
 

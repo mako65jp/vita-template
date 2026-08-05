@@ -7,6 +7,7 @@ export const envSchema = z.object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().default(3001),
     DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' }),
+    TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' }).default(''),
     JWT_SECRET: z
         .string()
         .min(32, 'JWT_SECRET must be at least 32 characters long')
@@ -34,10 +35,13 @@ export function formatEnvForLog(envObj: Env): string {
     const maskedEnv = { ...envObj };
 
     if (maskedEnv.DATABASE_URL) {
-        maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL.replace(
-            /:\/\/(.*):(.*)@/,
-            '://$1:***@'
-        );
+        maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL.replace(/:\/\/(.*):(.*)@/, '://$1:***@');
+    }
+    if (maskedEnv.TEST_DATABASE_URL) {
+        maskedEnv.TEST_DATABASE_URL = maskedEnv.TEST_DATABASE_URL.replace(/:\/\/(.*):(.*)@/, '://$1:***@');
+    }
+    if (maskedEnv.JWT_SECRET) {
+        maskedEnv.JWT_SECRET = '***';
     }
 
     return JSON.stringify(maskedEnv, null, 2);

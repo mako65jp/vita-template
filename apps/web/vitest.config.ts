@@ -1,5 +1,5 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
-import viteConfig from './vite.config.ts';
+import viteConfig from './vite.config';
 
 export default defineConfig(async (configEnv) => {
     // vite.config が関数の場合でも正しく評価してオブジェクトを取得
