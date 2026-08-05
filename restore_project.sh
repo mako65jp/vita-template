@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1785916429_877' > "package.json"
+cat << 'EOF_1785920389_18787' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -50,10 +50,10 @@ cat << 'EOF_1785916429_877' > "package.json"
     "drizzle-orm": "^0.45.2"
   }
 }
-EOF_1785916429_877
+EOF_1785920389_18787
 
 echo "作成: .gitignore"
-cat << 'EOF_1785916429_31390' > ".gitignore"
+cat << 'EOF_1785920389_3597' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -160,10 +160,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1785916429_31390
+EOF_1785920389_3597
 
 echo "作成: plan.md"
-cat << 'EOF_1785916429_24359' > "plan.md"
+cat << 'EOF_1785920389_31142' > "plan.md"
 # 📋 共通ひな形機能 一覧表
 
 ### 凡例（記号の定義）
@@ -195,22 +195,22 @@ cat << 'EOF_1785916429_24359' > "plan.md"
    * 認証ロジックのテストを書くには、事前に入力バリデーション（Step 2）や DB へのユーザー保存（Step 3）のテスト環境が整っている必要があるためです。
 2. **「ログ・ヘルスチェック」はアプリ機能としては運用向け（🟡中）だが、TDD順序では【Step 5】**
    * API と DB の基礎テスト環境が完成した直後に組み込むことで、後続の複雑なドメイン開発時のデバッグが格段に楽になります。
-EOF_1785916429_24359
+EOF_1785920389_31142
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1785916429_8060' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1785920389_14748' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1785916429_8060
+EOF_1785920389_14748
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1785916429_26913' > ".devcontainer/Dockerfile"
+cat << 'EOF_1785920389_15084' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -222,11 +222,11 @@ RUN apt-get update && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
     
-EOF_1785916429_26913
+EOF_1785920389_15084
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1785916429_22669' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1785920389_20105' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -250,11 +250,11 @@ cat << 'EOF_1785916429_22669' > ".devcontainer/devcontainer.json"
   "forwardPorts": [3000, 3001, 5432],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1785916429_22669
+EOF_1785920389_20105
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1785916429_18542' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1785920389_5792' > ".devcontainer/docker-compose.yml"
 
 
 services:
@@ -297,10 +297,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1785916429_18542
+EOF_1785920389_5792
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1785916429_25972' > "tsconfig.json"
+cat << 'EOF_1785920389_2300' > "tsconfig.json"
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -337,11 +337,11 @@ cat << 'EOF_1785916429_25972' > "tsconfig.json"
     "dist"
   ]
 }
-EOF_1785916429_25972
+EOF_1785920389_2300
 
 mkdir -p "coverage"
 echo "作成: coverage/coverage-final.json"
-cat << 'EOF_1785916429_4295' > "coverage/coverage-final.json"
+cat << 'EOF_1785920389_10601' > "coverage/coverage-final.json"
 {"/workspace/apps/api/src/env.ts": {"path":"/workspace/apps/api/src/env.ts","statementMap":{"0":{"start":{"line":3,"column":18},"end":{"line":6,"column":null}},"1":{"start":{"line":9,"column":19},"end":{"line":9,"column":null}},"2":{"start":{"line":10,"column":4},"end":{"line":12,"column":null}},"3":{"start":{"line":11,"column":8},"end":{"line":11,"column":null}},"4":{"start":{"line":13,"column":4},"end":{"line":13,"column":null}}},"fnMap":{"0":{"name":"validateEnv","decl":{"start":{"line":8,"column":16},"end":{"line":8,"column":28}},"loc":{"start":{"line":8,"column":83},"end":{"line":14,"column":null}},"line":8}},"branchMap":{"0":{"loc":{"start":{"line":8,"column":28},"end":{"line":8,"column":83}},"type":"default-arg","locations":[{"start":{"line":8,"column":70},"end":{"line":8,"column":83}}],"line":8},"1":{"loc":{"start":{"line":10,"column":4},"end":{"line":12,"column":null}},"type":"if","locations":[{"start":{"line":10,"column":4},"end":{"line":12,"column":null}},{"start":{},"end":{}}],"line":10}},"s":{"0":1,"1":2,"2":2,"3":1,"4":1},"f":{"0":2},"b":{"0":[2],"1":[1,1]},"meta":{"lastBranch":2,"lastFunction":1,"lastStatement":5,"seen":{"s:3:18:6:Infinity":0,"f:8:16:8:28":0,"b:8:70:8:83":0,"s:9:19:9:Infinity":1,"b:10:4:12:Infinity:undefined:undefined:undefined:undefined":1,"s:10:4:12:Infinity":2,"s:11:8:11:Infinity":3,"s:13:4:13:Infinity":4},"fnNames":{}}}
 ,"/workspace/apps/api/src/index.ts": {"path":"/workspace/apps/api/src/index.ts","statementMap":{"0":{"start":{"line":14,"column":12},"end":{"line":14,"column":24}},"1":{"start":{"line":17,"column":0},"end":{"line":19,"column":null}},"2":{"start":{"line":18,"column":4},"end":{"line":18,"column":null}},"3":{"start":{"line":22,"column":0},"end":{"line":22,"column":null}},"4":{"start":{"line":23,"column":0},"end":{"line":23,"column":null}},"5":{"start":{"line":25,"column":12},"end":{"line":25,"column":null}},"6":{"start":{"line":30,"column":0},"end":{"line":34,"column":null}},"7":{"start":{"line":31,"column":4},"end":{"line":33,"column":null}},"8":{"start":{"line":32,"column":8},"end":{"line":32,"column":null}},"9":{"start":{"line":40,"column":0},"end":{"line":40,"column":null}},"10":{"start":{"line":42,"column":0},"end":{"line":42,"column":null}},"11":{"start":{"line":47,"column":0},"end":{"line":70,"column":null}},"12":{"start":{"line":48,"column":25},"end":{"line":51,"column":null}},"13":{"start":{"line":53,"column":4},"end":{"line":69,"column":null}},"14":{"start":{"line":56,"column":12},"end":{"line":64,"column":null}},"15":{"start":{"line":58,"column":38},"end":{"line":61,"column":null}},"16":{"start":{"line":58,"column":74},"end":{"line":61,"column":18}},"17":{"start":{"line":63,"column":16},"end":{"line":63,"column":null}},"18":{"start":{"line":67,"column":12},"end":{"line":67,"column":null}},"19":{"start":{"line":75,"column":0},"end":{"line":84,"column":null}},"20":{"start":{"line":76,"column":36},"end":{"line":82,"column":null}},"21":{"start":{"line":83,"column":4},"end":{"line":83,"column":null}},"22":{"start":{"line":89,"column":0},"end":{"line":122,"column":null}},"23":{"start":{"line":90,"column":4},"end":{"line":92,"column":null}},"24":{"start":{"line":91,"column":8},"end":{"line":91,"column":null}},"25":{"start":{"line":94,"column":17},"end":{"line":94,"column":null}},"26":{"start":{"line":95,"column":15},"end":{"line":95,"column":null}},"27":{"start":{"line":96,"column":16},"end":{"line":96,"column":null}},"28":{"start":{"line":97,"column":17},"end":{"line":97,"column":null}},"29":{"start":{"line":98,"column":29},"end":{"line":98,"column":null}},"30":{"start":{"line":100,"column":4},"end":{"line":110,"column":null}},"31":{"start":{"line":101,"column":8},"end":{"line":101,"column":null}},"32":{"start":{"line":102,"column":8},"end":{"line":102,"column":null}},"33":{"start":{"line":103,"column":8},"end":{"line":103,"column":null}},"34":{"start":{"line":104,"column":8},"end":{"line":104,"column":null}},"35":{"start":{"line":107,"column":8},"end":{"line":109,"column":null}},"36":{"start":{"line":108,"column":12},"end":{"line":108,"column":null}},"37":{"start":{"line":112,"column":36},"end":{"line":119,"column":null}},"38":{"start":{"line":121,"column":4},"end":{"line":121,"column":null}},"39":{"start":{"line":127,"column":13},"end":{"line":127,"column":null}},"40":{"start":{"line":130,"column":0},"end":{"line":137,"column":null}},"41":{"start":{"line":131,"column":4},"end":{"line":131,"column":null}},"42":{"start":{"line":132,"column":4},"end":{"line":136,"column":null}}},"fnMap":{"0":{"name":"(anonymous_0)","decl":{"start":{"line":31,"column":12},"end":{"line":31,"column":33}},"loc":{"start":{"line":31,"column":33},"end":{"line":33,"column":5}},"line":31},"1":{"name":"(anonymous_1)","decl":{"start":{"line":55,"column":27},"end":{"line":55,"column":42}},"loc":{"start":{"line":55,"column":56},"end":{"line":65,"column":9}},"line":55},"2":{"name":"(anonymous_2)","decl":{"start":{"line":58,"column":58},"end":{"line":58,"column":63}},"loc":{"start":{"line":58,"column":74},"end":{"line":61,"column":18}},"line":58},"3":{"name":"(anonymous_3)","decl":{"start":{"line":65,"column":9},"end":{"line":65,"column":null}},"loc":{"start":{"line":66,"column":15},"end":{"line":68,"column":null}},"line":66},"4":{"name":"(anonymous_4)","decl":{"start":{"line":75,"column":4},"end":{"line":75,"column":14}},"loc":{"start":{"line":75,"column":20},"end":{"line":84,"column":1}},"line":75},"5":{"name":"(anonymous_5)","decl":{"start":{"line":89,"column":4},"end":{"line":89,"column":13}},"loc":{"start":{"line":89,"column":24},"end":{"line":122,"column":1}},"line":89}},"branchMap":{"0":{"loc":{"start":{"line":17,"column":0},"end":{"line":19,"column":null}},"type":"if","locations":[{"start":{"line":17,"column":0},"end":{"line":19,"column":null}},{"start":{},"end":{}}],"line":17},"1":{"loc":{"start":{"line":30,"column":0},"end":{"line":34,"column":null}},"type":"if","locations":[{"start":{"line":30,"column":0},"end":{"line":34,"column":null}},{"start":{},"end":{}}],"line":30},"2":{"loc":{"start":{"line":47,"column":0},"end":{"line":70,"column":null}},"type":"if","locations":[{"start":{"line":47,"column":0},"end":{"line":70,"column":null}},{"start":{},"end":{}}],"line":47},"3":{"loc":{"start":{"line":56,"column":12},"end":{"line":64,"column":null}},"type":"if","locations":[{"start":{"line":56,"column":12},"end":{"line":64,"column":null}},{"start":{},"end":{}}],"line":56},"4":{"loc":{"start":{"line":90,"column":4},"end":{"line":92,"column":null}},"type":"if","locations":[{"start":{"line":90,"column":4},"end":{"line":92,"column":null}},{"start":{},"end":{}}],"line":90},"5":{"loc":{"start":{"line":100,"column":4},"end":{"line":110,"column":null}},"type":"if","locations":[{"start":{"line":100,"column":4},"end":{"line":110,"column":null}},{"start":{},"end":{}}],"line":100},"6":{"loc":{"start":{"line":107,"column":8},"end":{"line":109,"column":null}},"type":"if","locations":[{"start":{"line":107,"column":8},"end":{"line":109,"column":null}},{"start":{},"end":{}}],"line":107},"7":{"loc":{"start":{"line":118,"column":12},"end":{"line":118,"column":null}},"type":"binary-expr","locations":[{"start":{"line":118,"column":12},"end":{"line":118,"column":29}},{"start":{"line":118,"column":29},"end":{"line":118,"column":null}}],"line":118},"8":{"loc":{"start":{"line":130,"column":0},"end":{"line":137,"column":null}},"type":"if","locations":[{"start":{"line":130,"column":0},"end":{"line":137,"column":null}},{"start":{},"end":{}}],"line":130}},"s":{"0":1,"1":1,"2":0,"3":1,"4":1,"5":1,"6":1,"7":1,"8":1,"9":1,"10":1,"11":1,"12":1,"13":1,"14":1,"15":1,"16":2,"17":1,"18":0,"19":1,"20":1,"21":1,"22":1,"23":2,"24":0,"25":2,"26":2,"27":2,"28":2,"29":2,"30":2,"31":1,"32":1,"33":1,"34":1,"35":1,"36":1,"37":2,"38":2,"39":1,"40":1,"41":0,"42":0},"f":{"0":1,"1":1,"2":2,"3":0,"4":1,"5":2},"b":{"0":[0,1],"1":[1,0],"2":[1,0],"3":[1,0],"4":[0,2],"5":[1,1],"6":[1,0],"7":[2,1],"8":[0,1]},"meta":{"lastBranch":9,"lastFunction":6,"lastStatement":43,"seen":{"s:14:12:14:24":0,"b:17:0:19:Infinity:undefined:undefined:undefined:undefined":0,"s:17:0:19:Infinity":1,"s:18:4:18:Infinity":2,"s:22:0:22:Infinity":3,"s:23:0:23:Infinity":4,"s:25:12:25:Infinity":5,"b:30:0:34:Infinity:undefined:undefined:undefined:undefined":1,"s:30:0:34:Infinity":6,"s:31:4:33:Infinity":7,"f:31:12:31:33":0,"s:32:8:32:Infinity":8,"s:40:0:40:Infinity":9,"s:42:0:42:Infinity":10,"b:47:0:70:Infinity:undefined:undefined:undefined:undefined":2,"s:47:0:70:Infinity":11,"s:48:25:51:Infinity":12,"s:53:4:69:Infinity":13,"f:55:27:55:42":1,"b:56:12:64:Infinity:undefined:undefined:undefined:undefined":3,"s:56:12:64:Infinity":14,"s:58:38:61:Infinity":15,"f:58:58:58:63":2,"s:58:74:61:18":16,"s:63:16:63:Infinity":17,"f:65:9:65:Infinity":3,"s:67:12:67:Infinity":18,"s:75:0:84:Infinity":19,"f:75:4:75:14":4,"s:76:36:82:Infinity":20,"s:83:4:83:Infinity":21,"s:89:0:122:Infinity":22,"f:89:4:89:13":5,"b:90:4:92:Infinity:undefined:undefined:undefined:undefined":4,"s:90:4:92:Infinity":23,"s:91:8:91:Infinity":24,"s:94:17:94:Infinity":25,"s:95:15:95:Infinity":26,"s:96:16:96:Infinity":27,"s:97:17:97:Infinity":28,"s:98:29:98:Infinity":29,"b:100:4:110:Infinity:undefined:undefined:undefined:undefined":5,"s:100:4:110:Infinity":30,"s:101:8:101:Infinity":31,"s:102:8:102:Infinity":32,"s:103:8:103:Infinity":33,"s:104:8:104:Infinity":34,"b:107:8:109:Infinity:undefined:undefined:undefined:undefined":6,"s:107:8:109:Infinity":35,"s:108:12:108:Infinity":36,"s:112:36:119:Infinity":37,"b:118:12:118:29:118:29:118:Infinity":7,"s:121:4:121:Infinity":38,"s:127:13:127:Infinity":39,"b:130:0:137:Infinity:undefined:undefined:undefined:undefined":8,"s:130:0:137:Infinity":40,"s:131:4:131:Infinity":41,"s:132:4:136:Infinity":42},"fnNames":{}}}
 ,"/workspace/apps/api/src/middlewares/auth-middleware.ts": {"path":"/workspace/apps/api/src/middlewares/auth-middleware.ts","statementMap":{"0":{"start":{"line":16,"column":4},"end":{"line":35,"column":null}},"1":{"start":{"line":17,"column":27},"end":{"line":17,"column":null}},"2":{"start":{"line":20,"column":8},"end":{"line":22,"column":null}},"3":{"start":{"line":21,"column":12},"end":{"line":21,"column":null}},"4":{"start":{"line":25,"column":22},"end":{"line":25,"column":null}},"5":{"start":{"line":26,"column":24},"end":{"line":26,"column":null}},"6":{"start":{"line":28,"column":8},"end":{"line":30,"column":null}},"7":{"start":{"line":29,"column":12},"end":{"line":29,"column":null}},"8":{"start":{"line":33,"column":8},"end":{"line":33,"column":null}},"9":{"start":{"line":34,"column":8},"end":{"line":34,"column":null}}},"fnMap":{"0":{"name":"authMiddleware","decl":{"start":{"line":15,"column":16},"end":{"line":15,"column":31}},"loc":{"start":{"line":15,"column":66},"end":{"line":36,"column":null}},"line":15},"1":{"name":"(anonymous_1)","decl":{"start":{"line":16,"column":11},"end":{"line":16,"column":18}},"loc":{"start":{"line":16,"column":30},"end":{"line":35,"column":null}},"line":16}},"branchMap":{"0":{"loc":{"start":{"line":20,"column":8},"end":{"line":22,"column":null}},"type":"if","locations":[{"start":{"line":20,"column":8},"end":{"line":22,"column":null}},{"start":{},"end":{}}],"line":20},"1":{"loc":{"start":{"line":20,"column":12},"end":{"line":20,"column":62}},"type":"binary-expr","locations":[{"start":{"line":20,"column":12},"end":{"line":20,"column":27}},{"start":{"line":20,"column":27},"end":{"line":20,"column":62}}],"line":20},"2":{"loc":{"start":{"line":28,"column":8},"end":{"line":30,"column":null}},"type":"if","locations":[{"start":{"line":28,"column":8},"end":{"line":30,"column":null}},{"start":{},"end":{}}],"line":28}},"s":{"0":7,"1":4,"2":4,"3":1,"4":3,"5":3,"6":3,"7":1,"8":2,"9":2},"f":{"0":7,"1":4},"b":{"0":[1,3],"1":[4,3],"2":[1,2]},"meta":{"lastBranch":3,"lastFunction":2,"lastStatement":10,"seen":{"f:15:16:15:31":0,"s:16:4:35:Infinity":0,"f:16:11:16:18":1,"s:17:27:17:Infinity":1,"b:20:8:22:Infinity:undefined:undefined:undefined:undefined":0,"s:20:8:22:Infinity":2,"b:20:12:20:27:20:27:20:62":1,"s:21:12:21:Infinity":3,"s:25:22:25:Infinity":4,"s:26:24:26:Infinity":5,"b:28:8:30:Infinity:undefined:undefined:undefined:undefined":2,"s:28:8:30:Infinity":6,"s:29:12:29:Infinity":7,"s:33:8:33:Infinity":8,"s:34:8:34:Infinity":9},"fnNames":{}}}
@@ -367,11 +367,11 @@ cat << 'EOF_1785916429_4295' > "coverage/coverage-final.json"
 ,"/workspace/packages/plugins/auth-local/src/auth-utils.ts": {"path":"/workspace/packages/plugins/auth-local/src/auth-utils.ts","statementMap":{"0":{"start":{"line":12,"column":23},"end":{"line":12,"column":null}},"1":{"start":{"line":13,"column":4},"end":{"line":13,"column":null}},"2":{"start":{"line":20,"column":4},"end":{"line":20,"column":null}},"3":{"start":{"line":35,"column":22},"end":{"line":35,"column":null}},"4":{"start":{"line":37,"column":4},"end":{"line":41,"column":null}},"5":{"start":{"line":52,"column":4},"end":{"line":59,"column":null}},"6":{"start":{"line":53,"column":26},"end":{"line":53,"column":null}},"7":{"start":{"line":54,"column":28},"end":{"line":54,"column":null}},"8":{"start":{"line":55,"column":8},"end":{"line":55,"column":null}},"9":{"start":{"line":58,"column":8},"end":{"line":58,"column":null}}},"fnMap":{"0":{"name":"hashPassword","decl":{"start":{"line":11,"column":22},"end":{"line":11,"column":35}},"loc":{"start":{"line":11,"column":70},"end":{"line":14,"column":null}},"line":11},"1":{"name":"verifyPassword","decl":{"start":{"line":19,"column":22},"end":{"line":19,"column":37}},"loc":{"start":{"line":19,"column":87},"end":{"line":21,"column":null}},"line":19},"2":{"name":"signJwt","decl":{"start":{"line":30,"column":22},"end":{"line":30,"column":null}},"loc":{"start":{"line":34,"column":19},"end":{"line":42,"column":null}},"line":34},"3":{"name":"verifyJwt","decl":{"start":{"line":48,"column":22},"end":{"line":48,"column":null}},"loc":{"start":{"line":51,"column":21},"end":{"line":60,"column":null}},"line":51}},"branchMap":{"0":{"loc":{"start":{"line":33,"column":4},"end":{"line":33,"column":null}},"type":"default-arg","locations":[{"start":{"line":33,"column":24},"end":{"line":33,"column":null}}],"line":33}},"s":{"0":5,"1":5,"2":5,"3":5,"4":5,"5":6,"6":6,"7":6,"8":3,"9":3},"f":{"0":5,"1":5,"2":5,"3":6},"b":{"0":[5]},"meta":{"lastBranch":1,"lastFunction":4,"lastStatement":10,"seen":{"f:11:22:11:35":0,"s:12:23:12:Infinity":0,"s:13:4:13:Infinity":1,"f:19:22:19:37":1,"s:20:4:20:Infinity":2,"f:30:22:30:Infinity":2,"b:33:24:33:Infinity":0,"s:35:22:35:Infinity":3,"s:37:4:41:Infinity":4,"f:48:22:48:Infinity":3,"s:52:4:59:Infinity":5,"s:53:26:53:Infinity":6,"s:54:28:54:Infinity":7,"s:55:8:55:Infinity":8,"s:58:8:58:Infinity":9},"fnNames":{}}}
 ,"/workspace/packages/plugins/auth-local/src/index.ts": {"path":"/workspace/packages/plugins/auth-local/src/index.ts","statementMap":{"0":{"start":{"line":4,"column":9},"end":{"line":4,"column":null}},"1":{"start":{"line":7,"column":35},"end":{"line":7,"column":null}},"2":{"start":{"line":8,"column":4},"end":{"line":10,"column":null}},"3":{"start":{"line":9,"column":6},"end":{"line":9,"column":null}},"4":{"start":{"line":11,"column":4},"end":{"line":11,"column":null}}},"fnMap":{"0":{"name":"authenticate","decl":{"start":{"line":6,"column":8},"end":{"line":6,"column":21}},"loc":{"start":{"line":6,"column":39},"end":{"line":12,"column":null}},"line":6}},"branchMap":{"0":{"loc":{"start":{"line":8,"column":4},"end":{"line":10,"column":null}},"type":"if","locations":[{"start":{"line":8,"column":4},"end":{"line":10,"column":null}},{"start":{},"end":{}}],"line":8},"1":{"loc":{"start":{"line":8,"column":8},"end":{"line":8,"column":57}},"type":"binary-expr","locations":[{"start":{"line":8,"column":8},"end":{"line":8,"column":32}},{"start":{"line":8,"column":32},"end":{"line":8,"column":57}}],"line":8}},"s":{"0":1,"1":0,"2":0,"3":0,"4":0},"f":{"0":0},"b":{"0":[0,0],"1":[0,0]},"meta":{"lastBranch":2,"lastFunction":1,"lastStatement":5,"seen":{"s:4:9:4:Infinity":0,"f:6:8:6:21":0,"s:7:35:7:Infinity":1,"b:8:4:10:Infinity:undefined:undefined:undefined:undefined":0,"s:8:4:10:Infinity":2,"b:8:8:8:32:8:32:8:57":1,"s:9:6:9:Infinity":3,"s:11:4:11:Infinity":4},"fnNames":{}}}
 }
-EOF_1785916429_4295
+EOF_1785920389_10601
 
 mkdir -p "coverage"
 echo "作成: coverage/index.html"
-cat << 'EOF_1785916429_8075' > "coverage/index.html"
+cat << 'EOF_1785920389_24376' > "coverage/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -728,11 +728,11 @@ cat << 'EOF_1785916429_8075' > "coverage/index.html"
     </body>
 </html>
     
-EOF_1785916429_8075
+EOF_1785920389_24376
 
 mkdir -p "coverage"
 echo "作成: coverage/block-navigation.js"
-cat << 'EOF_1785916429_13036' > "coverage/block-navigation.js"
+cat << 'EOF_1785920389_2921' > "coverage/block-navigation.js"
 /* eslint-disable */
 var jumpToCode = (function init() {
     // Classes of code we would like to highlight in the file view
@@ -820,11 +820,11 @@ var jumpToCode = (function init() {
     };
 })();
 window.addEventListener('keydown', jumpToCode);
-EOF_1785916429_13036
+EOF_1785920389_2921
 
 mkdir -p "coverage"
 echo "作成: coverage/sorter.js"
-cat << 'EOF_1785916429_8363' > "coverage/sorter.js"
+cat << 'EOF_1785920389_5365' > "coverage/sorter.js"
 /* eslint-disable */
 var addSorting = (function() {
     'use strict';
@@ -1035,18 +1035,18 @@ var addSorting = (function() {
 })();
 
 window.addEventListener('load', addSorting);
-EOF_1785916429_8363
+EOF_1785920389_5365
 
 mkdir -p "coverage"
 echo "作成: coverage/prettify.js"
-cat << 'EOF_1785916429_6963' > "coverage/prettify.js"
+cat << 'EOF_1785920389_104' > "coverage/prettify.js"
 /* eslint-disable */
 window.PR_SHOULD_USE_CONTINUATION=true;(function(){var h=["break,continue,do,else,for,if,return,while"];var u=[h,"auto,case,char,const,default,double,enum,extern,float,goto,int,long,register,short,signed,sizeof,static,struct,switch,typedef,union,unsigned,void,volatile"];var p=[u,"catch,class,delete,false,import,new,operator,private,protected,public,this,throw,true,try,typeof"];var l=[p,"alignof,align_union,asm,axiom,bool,concept,concept_map,const_cast,constexpr,decltype,dynamic_cast,explicit,export,friend,inline,late_check,mutable,namespace,nullptr,reinterpret_cast,static_assert,static_cast,template,typeid,typename,using,virtual,where"];var x=[p,"abstract,boolean,byte,extends,final,finally,implements,import,instanceof,null,native,package,strictfp,super,synchronized,throws,transient"];var R=[x,"as,base,by,checked,decimal,delegate,descending,dynamic,event,fixed,foreach,from,group,implicit,in,interface,internal,into,is,lock,object,out,override,orderby,params,partial,readonly,ref,sbyte,sealed,stackalloc,string,select,uint,ulong,unchecked,unsafe,ushort,var"];var r="all,and,by,catch,class,else,extends,false,finally,for,if,in,is,isnt,loop,new,no,not,null,of,off,on,or,return,super,then,true,try,unless,until,when,while,yes";var w=[p,"debugger,eval,export,function,get,null,set,undefined,var,with,Infinity,NaN"];var s="caller,delete,die,do,dump,elsif,eval,exit,foreach,for,goto,if,import,last,local,my,next,no,our,print,package,redo,require,sub,undef,unless,until,use,wantarray,while,BEGIN,END";var I=[h,"and,as,assert,class,def,del,elif,except,exec,finally,from,global,import,in,is,lambda,nonlocal,not,or,pass,print,raise,try,with,yield,False,True,None"];var f=[h,"alias,and,begin,case,class,def,defined,elsif,end,ensure,false,in,module,next,nil,not,or,redo,rescue,retry,self,super,then,true,undef,unless,until,when,yield,BEGIN,END"];var H=[h,"case,done,elif,esac,eval,fi,function,in,local,set,then,until"];var A=[l,R,w,s+I,f,H];var e=/^(DIR|FILE|vector|(de|priority_)?queue|list|stack|(const_)?iterator|(multi)?(set|map)|bitset|u?(int|float)\d*)/;var C="str";var z="kwd";var j="com";var O="typ";var G="lit";var L="pun";var F="pln";var m="tag";var E="dec";var J="src";var P="atn";var n="atv";var N="nocode";var M="(?:^^\\.?|[+-]|\\!|\\!=|\\!==|\\#|\\%|\\%=|&|&&|&&=|&=|\\(|\\*|\\*=|\\+=|\\,|\\-=|\\->|\\/|\\/=|:|::|\\;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\@|\\[|\\^|\\^=|\\^\\^|\\^\\^=|\\{|\\||\\|=|\\|\\||\\|\\|=|\\~|break|case|continue|delete|do|else|finally|instanceof|return|throw|try|typeof)\\s*";function k(Z){var ad=0;var S=false;var ac=false;for(var V=0,U=Z.length;V<U;++V){var ae=Z[V];if(ae.ignoreCase){ac=true}else{if(/[a-z]/i.test(ae.source.replace(/\\u[0-9a-f]{4}|\\x[0-9a-f]{2}|\\[^ux]/gi,""))){S=true;ac=false;break}}}var Y={b:8,t:9,n:10,v:11,f:12,r:13};function ab(ah){var ag=ah.charCodeAt(0);if(ag!==92){return ag}var af=ah.charAt(1);ag=Y[af];if(ag){return ag}else{if("0"<=af&&af<="7"){return parseInt(ah.substring(1),8)}else{if(af==="u"||af==="x"){return parseInt(ah.substring(2),16)}else{return ah.charCodeAt(1)}}}}function T(af){if(af<32){return(af<16?"\\x0":"\\x")+af.toString(16)}var ag=String.fromCharCode(af);if(ag==="\\"||ag==="-"||ag==="["||ag==="]"){ag="\\"+ag}return ag}function X(am){var aq=am.substring(1,am.length-1).match(new RegExp("\\\\u[0-9A-Fa-f]{4}|\\\\x[0-9A-Fa-f]{2}|\\\\[0-3][0-7]{0,2}|\\\\[0-7]{1,2}|\\\\[\\s\\S]|-|[^-\\\\]","g"));var ak=[];var af=[];var ao=aq[0]==="^";for(var ar=ao?1:0,aj=aq.length;ar<aj;++ar){var ah=aq[ar];if(/\\[bdsw]/i.test(ah)){ak.push(ah)}else{var ag=ab(ah);var al;if(ar+2<aj&&"-"===aq[ar+1]){al=ab(aq[ar+2]);ar+=2}else{al=ag}af.push([ag,al]);if(!(al<65||ag>122)){if(!(al<65||ag>90)){af.push([Math.max(65,ag)|32,Math.min(al,90)|32])}if(!(al<97||ag>122)){af.push([Math.max(97,ag)&~32,Math.min(al,122)&~32])}}}}af.sort(function(av,au){return(av[0]-au[0])||(au[1]-av[1])});var ai=[];var ap=[NaN,NaN];for(var ar=0;ar<af.length;++ar){var at=af[ar];if(at[0]<=ap[1]+1){ap[1]=Math.max(ap[1],at[1])}else{ai.push(ap=at)}}var an=["["];if(ao){an.push("^")}an.push.apply(an,ak);for(var ar=0;ar<ai.length;++ar){var at=ai[ar];an.push(T(at[0]));if(at[1]>at[0]){if(at[1]+1>at[0]){an.push("-")}an.push(T(at[1]))}}an.push("]");return an.join("")}function W(al){var aj=al.source.match(new RegExp("(?:\\[(?:[^\\x5C\\x5D]|\\\\[\\s\\S])*\\]|\\\\u[A-Fa-f0-9]{4}|\\\\x[A-Fa-f0-9]{2}|\\\\[0-9]+|\\\\[^ux0-9]|\\(\\?[:!=]|[\\(\\)\\^]|[^\\x5B\\x5C\\(\\)\\^]+)","g"));var ah=aj.length;var an=[];for(var ak=0,am=0;ak<ah;++ak){var ag=aj[ak];if(ag==="("){++am}else{if("\\"===ag.charAt(0)){var af=+ag.substring(1);if(af&&af<=am){an[af]=-1}}}}for(var ak=1;ak<an.length;++ak){if(-1===an[ak]){an[ak]=++ad}}for(var ak=0,am=0;ak<ah;++ak){var ag=aj[ak];if(ag==="("){++am;if(an[am]===undefined){aj[ak]="(?:"}}else{if("\\"===ag.charAt(0)){var af=+ag.substring(1);if(af&&af<=am){aj[ak]="\\"+an[am]}}}}for(var ak=0,am=0;ak<ah;++ak){if("^"===aj[ak]&&"^"!==aj[ak+1]){aj[ak]=""}}if(al.ignoreCase&&S){for(var ak=0;ak<ah;++ak){var ag=aj[ak];var ai=ag.charAt(0);if(ag.length>=2&&ai==="["){aj[ak]=X(ag)}else{if(ai!=="\\"){aj[ak]=ag.replace(/[a-zA-Z]/g,function(ao){var ap=ao.charCodeAt(0);return"["+String.fromCharCode(ap&~32,ap|32)+"]"})}}}}return aj.join("")}var aa=[];for(var V=0,U=Z.length;V<U;++V){var ae=Z[V];if(ae.global||ae.multiline){throw new Error(""+ae)}aa.push("(?:"+W(ae)+")")}return new RegExp(aa.join("|"),ac?"gi":"g")}function a(V){var U=/(?:^|\s)nocode(?:\s|$)/;var X=[];var T=0;var Z=[];var W=0;var S;if(V.currentStyle){S=V.currentStyle.whiteSpace}else{if(window.getComputedStyle){S=document.defaultView.getComputedStyle(V,null).getPropertyValue("white-space")}}var Y=S&&"pre"===S.substring(0,3);function aa(ab){switch(ab.nodeType){case 1:if(U.test(ab.className)){return}for(var ae=ab.firstChild;ae;ae=ae.nextSibling){aa(ae)}var ad=ab.nodeName;if("BR"===ad||"LI"===ad){X[W]="\n";Z[W<<1]=T++;Z[(W++<<1)|1]=ab}break;case 3:case 4:var ac=ab.nodeValue;if(ac.length){if(!Y){ac=ac.replace(/[ \t\r\n]+/g," ")}else{ac=ac.replace(/\r\n?/g,"\n")}X[W]=ac;Z[W<<1]=T;T+=ac.length;Z[(W++<<1)|1]=ab}break}}aa(V);return{sourceCode:X.join("").replace(/\n$/,""),spans:Z}}function B(S,U,W,T){if(!U){return}var V={sourceCode:U,basePos:S};W(V);T.push.apply(T,V.decorations)}var v=/\S/;function o(S){var V=undefined;for(var U=S.firstChild;U;U=U.nextSibling){var T=U.nodeType;V=(T===1)?(V?S:U):(T===3)?(v.test(U.nodeValue)?S:V):V}return V===S?undefined:V}function g(U,T){var S={};var V;(function(){var ad=U.concat(T);var ah=[];var ag={};for(var ab=0,Z=ad.length;ab<Z;++ab){var Y=ad[ab];var ac=Y[3];if(ac){for(var ae=ac.length;--ae>=0;){S[ac.charAt(ae)]=Y}}var af=Y[1];var aa=""+af;if(!ag.hasOwnProperty(aa)){ah.push(af);ag[aa]=null}}ah.push(/[\0-\uffff]/);V=k(ah)})();var X=T.length;var W=function(ah){var Z=ah.sourceCode,Y=ah.basePos;var ad=[Y,F];var af=0;var an=Z.match(V)||[];var aj={};for(var ae=0,aq=an.length;ae<aq;++ae){var ag=an[ae];var ap=aj[ag];var ai=void 0;var am;if(typeof ap==="string"){am=false}else{var aa=S[ag.charAt(0)];if(aa){ai=ag.match(aa[1]);ap=aa[0]}else{for(var ao=0;ao<X;++ao){aa=T[ao];ai=ag.match(aa[1]);if(ai){ap=aa[0];break}}if(!ai){ap=F}}am=ap.length>=5&&"lang-"===ap.substring(0,5);if(am&&!(ai&&typeof ai[1]==="string")){am=false;ap=J}if(!am){aj[ag]=ap}}var ab=af;af+=ag.length;if(!am){ad.push(Y+ab,ap)}else{var al=ai[1];var ak=ag.indexOf(al);var ac=ak+al.length;if(ai[2]){ac=ag.length-ai[2].length;ak=ac-al.length}var ar=ap.substring(5);B(Y+ab,ag.substring(0,ak),W,ad);B(Y+ab+ak,al,q(ar,al),ad);B(Y+ab+ac,ag.substring(ac),W,ad)}}ah.decorations=ad};return W}function i(T){var W=[],S=[];if(T.tripleQuotedStrings){W.push([C,/^(?:\'\'\'(?:[^\'\\]|\\[\s\S]|\'{1,2}(?=[^\']))*(?:\'\'\'|$)|\"\"\"(?:[^\"\\]|\\[\s\S]|\"{1,2}(?=[^\"]))*(?:\"\"\"|$)|\'(?:[^\\\']|\\[\s\S])*(?:\'|$)|\"(?:[^\\\"]|\\[\s\S])*(?:\"|$))/,null,"'\""])}else{if(T.multiLineStrings){W.push([C,/^(?:\'(?:[^\\\']|\\[\s\S])*(?:\'|$)|\"(?:[^\\\"]|\\[\s\S])*(?:\"|$)|\`(?:[^\\\`]|\\[\s\S])*(?:\`|$))/,null,"'\"`"])}else{W.push([C,/^(?:\'(?:[^\\\'\r\n]|\\.)*(?:\'|$)|\"(?:[^\\\"\r\n]|\\.)*(?:\"|$))/,null,"\"'"])}}if(T.verbatimStrings){S.push([C,/^@\"(?:[^\"]|\"\")*(?:\"|$)/,null])}var Y=T.hashComments;if(Y){if(T.cStyleComments){if(Y>1){W.push([j,/^#(?:##(?:[^#]|#(?!##))*(?:###|$)|.*)/,null,"#"])}else{W.push([j,/^#(?:(?:define|elif|else|endif|error|ifdef|include|ifndef|line|pragma|undef|warning)\b|[^\r\n]*)/,null,"#"])}S.push([C,/^<(?:(?:(?:\.\.\/)*|\/?)(?:[\w-]+(?:\/[\w-]+)+)?[\w-]+\.h|[a-z]\w*)>/,null])}else{W.push([j,/^#[^\r\n]*/,null,"#"])}}if(T.cStyleComments){S.push([j,/^\/\/[^\r\n]*/,null]);S.push([j,/^\/\*[\s\S]*?(?:\*\/|$)/,null])}if(T.regexLiterals){var X=("/(?=[^/*])(?:[^/\\x5B\\x5C]|\\x5C[\\s\\S]|\\x5B(?:[^\\x5C\\x5D]|\\x5C[\\s\\S])*(?:\\x5D|$))+/");S.push(["lang-regex",new RegExp("^"+M+"("+X+")")])}var V=T.types;if(V){S.push([O,V])}var U=(""+T.keywords).replace(/^ | $/g,"");if(U.length){S.push([z,new RegExp("^(?:"+U.replace(/[\s,]+/g,"|")+")\\b"),null])}W.push([F,/^\s+/,null," \r\n\t\xA0"]);S.push([G,/^@[a-z_$][a-z_$@0-9]*/i,null],[O,/^(?:[@_]?[A-Z]+[a-z][A-Za-z_$@0-9]*|\w+_t\b)/,null],[F,/^[a-z_$][a-z_$@0-9]*/i,null],[G,new RegExp("^(?:0x[a-f0-9]+|(?:\\d(?:_\\d+)*\\d*(?:\\.\\d*)?|\\.\\d\\+)(?:e[+\\-]?\\d+)?)[a-z]*","i"),null,"0123456789"],[F,/^\\[\s\S]?/,null],[L,/^.[^\s\w\.$@\'\"\`\/\#\\]*/,null]);return g(W,S)}var K=i({keywords:A,hashComments:true,cStyleComments:true,multiLineStrings:true,regexLiterals:true});function Q(V,ag){var U=/(?:^|\s)nocode(?:\s|$)/;var ab=/\r\n?|\n/;var ac=V.ownerDocument;var S;if(V.currentStyle){S=V.currentStyle.whiteSpace}else{if(window.getComputedStyle){S=ac.defaultView.getComputedStyle(V,null).getPropertyValue("white-space")}}var Z=S&&"pre"===S.substring(0,3);var af=ac.createElement("LI");while(V.firstChild){af.appendChild(V.firstChild)}var W=[af];function ae(al){switch(al.nodeType){case 1:if(U.test(al.className)){break}if("BR"===al.nodeName){ad(al);if(al.parentNode){al.parentNode.removeChild(al)}}else{for(var an=al.firstChild;an;an=an.nextSibling){ae(an)}}break;case 3:case 4:if(Z){var am=al.nodeValue;var aj=am.match(ab);if(aj){var ai=am.substring(0,aj.index);al.nodeValue=ai;var ah=am.substring(aj.index+aj[0].length);if(ah){var ak=al.parentNode;ak.insertBefore(ac.createTextNode(ah),al.nextSibling)}ad(al);if(!ai){al.parentNode.removeChild(al)}}}break}}function ad(ak){while(!ak.nextSibling){ak=ak.parentNode;if(!ak){return}}function ai(al,ar){var aq=ar?al.cloneNode(false):al;var ao=al.parentNode;if(ao){var ap=ai(ao,1);var an=al.nextSibling;ap.appendChild(aq);for(var am=an;am;am=an){an=am.nextSibling;ap.appendChild(am)}}return aq}var ah=ai(ak.nextSibling,0);for(var aj;(aj=ah.parentNode)&&aj.nodeType===1;){ah=aj}W.push(ah)}for(var Y=0;Y<W.length;++Y){ae(W[Y])}if(ag===(ag|0)){W[0].setAttribute("value",ag)}var aa=ac.createElement("OL");aa.className="linenums";var X=Math.max(0,((ag-1))|0)||0;for(var Y=0,T=W.length;Y<T;++Y){af=W[Y];af.className="L"+((Y+X)%10);if(!af.firstChild){af.appendChild(ac.createTextNode("\xA0"))}aa.appendChild(af)}V.appendChild(aa)}function D(ac){var aj=/\bMSIE\b/.test(navigator.userAgent);var am=/\n/g;var al=ac.sourceCode;var an=al.length;var V=0;var aa=ac.spans;var T=aa.length;var ah=0;var X=ac.decorations;var Y=X.length;var Z=0;X[Y]=an;var ar,aq;for(aq=ar=0;aq<Y;){if(X[aq]!==X[aq+2]){X[ar++]=X[aq++];X[ar++]=X[aq++]}else{aq+=2}}Y=ar;for(aq=ar=0;aq<Y;){var at=X[aq];var ab=X[aq+1];var W=aq+2;while(W+2<=Y&&X[W+1]===ab){W+=2}X[ar++]=at;X[ar++]=ab;aq=W}Y=X.length=ar;var ae=null;while(ah<T){var af=aa[ah];var S=aa[ah+2]||an;var ag=X[Z];var ap=X[Z+2]||an;var W=Math.min(S,ap);var ak=aa[ah+1];var U;if(ak.nodeType!==1&&(U=al.substring(V,W))){if(aj){U=U.replace(am,"\r")}ak.nodeValue=U;var ai=ak.ownerDocument;var ao=ai.createElement("SPAN");ao.className=X[Z+1];var ad=ak.parentNode;ad.replaceChild(ao,ak);ao.appendChild(ak);if(V<S){aa[ah+1]=ak=ai.createTextNode(al.substring(W,S));ad.insertBefore(ak,ao.nextSibling)}}V=W;if(V>=S){ah+=2}if(V>=ap){Z+=2}}}var t={};function c(U,V){for(var S=V.length;--S>=0;){var T=V[S];if(!t.hasOwnProperty(T)){t[T]=U}else{if(window.console){console.warn("cannot override language handler %s",T)}}}}function q(T,S){if(!(T&&t.hasOwnProperty(T))){T=/^\s*</.test(S)?"default-markup":"default-code"}return t[T]}c(K,["default-code"]);c(g([],[[F,/^[^<?]+/],[E,/^<!\w[^>]*(?:>|$)/],[j,/^<\!--[\s\S]*?(?:-\->|$)/],["lang-",/^<\?([\s\S]+?)(?:\?>|$)/],["lang-",/^<%([\s\S]+?)(?:%>|$)/],[L,/^(?:<[%?]|[%?]>)/],["lang-",/^<xmp\b[^>]*>([\s\S]+?)<\/xmp\b[^>]*>/i],["lang-js",/^<script\b[^>]*>([\s\S]*?)(<\/script\b[^>]*>)/i],["lang-css",/^<style\b[^>]*>([\s\S]*?)(<\/style\b[^>]*>)/i],["lang-in.tag",/^(<\/?[a-z][^<>]*>)/i]]),["default-markup","htm","html","mxml","xhtml","xml","xsl"]);c(g([[F,/^[\s]+/,null," \t\r\n"],[n,/^(?:\"[^\"]*\"?|\'[^\']*\'?)/,null,"\"'"]],[[m,/^^<\/?[a-z](?:[\w.:-]*\w)?|\/?>$/i],[P,/^(?!style[\s=]|on)[a-z](?:[\w:-]*\w)?/i],["lang-uq.val",/^=\s*([^>\'\"\s]*(?:[^>\'\"\s\/]|\/(?=\s)))/],[L,/^[=<>\/]+/],["lang-js",/^on\w+\s*=\s*\"([^\"]+)\"/i],["lang-js",/^on\w+\s*=\s*\'([^\']+)\'/i],["lang-js",/^on\w+\s*=\s*([^\"\'>\s]+)/i],["lang-css",/^style\s*=\s*\"([^\"]+)\"/i],["lang-css",/^style\s*=\s*\'([^\']+)\'/i],["lang-css",/^style\s*=\s*([^\"\'>\s]+)/i]]),["in.tag"]);c(g([],[[n,/^[\s\S]+/]]),["uq.val"]);c(i({keywords:l,hashComments:true,cStyleComments:true,types:e}),["c","cc","cpp","cxx","cyc","m"]);c(i({keywords:"null,true,false"}),["json"]);c(i({keywords:R,hashComments:true,cStyleComments:true,verbatimStrings:true,types:e}),["cs"]);c(i({keywords:x,cStyleComments:true}),["java"]);c(i({keywords:H,hashComments:true,multiLineStrings:true}),["bsh","csh","sh"]);c(i({keywords:I,hashComments:true,multiLineStrings:true,tripleQuotedStrings:true}),["cv","py"]);c(i({keywords:s,hashComments:true,multiLineStrings:true,regexLiterals:true}),["perl","pl","pm"]);c(i({keywords:f,hashComments:true,multiLineStrings:true,regexLiterals:true}),["rb"]);c(i({keywords:w,cStyleComments:true,regexLiterals:true}),["js"]);c(i({keywords:r,hashComments:3,cStyleComments:true,multilineStrings:true,tripleQuotedStrings:true,regexLiterals:true}),["coffee"]);c(g([],[[C,/^[\s\S]+/]]),["regex"]);function d(V){var U=V.langExtension;try{var S=a(V.sourceNode);var T=S.sourceCode;V.sourceCode=T;V.spans=S.spans;V.basePos=0;q(U,T)(V);D(V)}catch(W){if("console" in window){console.log(W&&W.stack?W.stack:W)}}}function y(W,V,U){var S=document.createElement("PRE");S.innerHTML=W;if(U){Q(S,U)}var T={langExtension:V,numberLines:U,sourceNode:S};d(T);return S.innerHTML}function b(ad){function Y(af){return document.getElementsByTagName(af)}var ac=[Y("pre"),Y("code"),Y("xmp")];var T=[];for(var aa=0;aa<ac.length;++aa){for(var Z=0,V=ac[aa].length;Z<V;++Z){T.push(ac[aa][Z])}}ac=null;var W=Date;if(!W.now){W={now:function(){return +(new Date)}}}var X=0;var S;var ab=/\blang(?:uage)?-([\w.]+)(?!\S)/;var ae=/\bprettyprint\b/;function U(){var ag=(window.PR_SHOULD_USE_CONTINUATION?W.now()+250:Infinity);for(;X<T.length&&W.now()<ag;X++){var aj=T[X];var ai=aj.className;if(ai.indexOf("prettyprint")>=0){var ah=ai.match(ab);var am;if(!ah&&(am=o(aj))&&"CODE"===am.tagName){ah=am.className.match(ab)}if(ah){ah=ah[1]}var al=false;for(var ak=aj.parentNode;ak;ak=ak.parentNode){if((ak.tagName==="pre"||ak.tagName==="code"||ak.tagName==="xmp")&&ak.className&&ak.className.indexOf("prettyprint")>=0){al=true;break}}if(!al){var af=aj.className.match(/\blinenums\b(?::(\d+))?/);af=af?af[1]&&af[1].length?+af[1]:true:false;if(af){Q(aj,af)}S={langExtension:ah,sourceNode:aj,numberLines:af};d(S)}}}if(X<T.length){setTimeout(U,250)}else{if(ad){ad()}}}U()}window.prettyPrintOne=y;window.prettyPrint=b;window.PR={createSimpleLexer:g,registerLangHandler:c,sourceDecorator:i,PR_ATTRIB_NAME:P,PR_ATTRIB_VALUE:n,PR_COMMENT:j,PR_DECLARATION:E,PR_KEYWORD:z,PR_LITERAL:G,PR_NOCODE:N,PR_PLAIN:F,PR_PUNCTUATION:L,PR_SOURCE:J,PR_STRING:C,PR_TAG:m,PR_TYPE:O}})();PR.registerLangHandler(PR.createSimpleLexer([],[[PR.PR_DECLARATION,/^<!\w[^>]*(?:>|$)/],[PR.PR_COMMENT,/^<\!--[\s\S]*?(?:-\->|$)/],[PR.PR_PUNCTUATION,/^(?:<[%?]|[%?]>)/],["lang-",/^<\?([\s\S]+?)(?:\?>|$)/],["lang-",/^<%([\s\S]+?)(?:%>|$)/],["lang-",/^<xmp\b[^>]*>([\s\S]+?)<\/xmp\b[^>]*>/i],["lang-handlebars",/^<script\b[^>]*type\s*=\s*['"]?text\/x-handlebars-template['"]?\b[^>]*>([\s\S]*?)(<\/script\b[^>]*>)/i],["lang-js",/^<script\b[^>]*>([\s\S]*?)(<\/script\b[^>]*>)/i],["lang-css",/^<style\b[^>]*>([\s\S]*?)(<\/style\b[^>]*>)/i],["lang-in.tag",/^(<\/?[a-z][^<>]*>)/i],[PR.PR_DECLARATION,/^{{[#^>/]?\s*[\w.][^}]*}}/],[PR.PR_DECLARATION,/^{{&?\s*[\w.][^}]*}}/],[PR.PR_DECLARATION,/^{{{>?\s*[\w.][^}]*}}}/],[PR.PR_COMMENT,/^{{![^}]*}}/]]),["handlebars","hbs"]);PR.registerLangHandler(PR.createSimpleLexer([[PR.PR_PLAIN,/^[ \t\r\n\f]+/,null," \t\r\n\f"]],[[PR.PR_STRING,/^\"(?:[^\n\r\f\\\"]|\\(?:\r\n?|\n|\f)|\\[\s\S])*\"/,null],[PR.PR_STRING,/^\'(?:[^\n\r\f\\\']|\\(?:\r\n?|\n|\f)|\\[\s\S])*\'/,null],["lang-css-str",/^url\(([^\)\"\']*)\)/i],[PR.PR_KEYWORD,/^(?:url|rgb|\!important|@import|@page|@media|@charset|inherit)(?=[^\-\w]|$)/i,null],["lang-css-kw",/^(-?(?:[_a-z]|(?:\\[0-9a-f]+ ?))(?:[_a-z0-9\-]|\\(?:\\[0-9a-f]+ ?))*)\s*:/i],[PR.PR_COMMENT,/^\/\*[^*]*\*+(?:[^\/*][^*]*\*+)*\//],[PR.PR_COMMENT,/^(?:<!--|-->)/],[PR.PR_LITERAL,/^(?:\d+|\d*\.\d+)(?:%|[a-z]+)?/i],[PR.PR_LITERAL,/^#(?:[0-9a-f]{3}){1,2}/i],[PR.PR_PLAIN,/^-?(?:[_a-z]|(?:\\[\da-f]+ ?))(?:[_a-z\d\-]|\\(?:\\[\da-f]+ ?))*/i],[PR.PR_PUNCTUATION,/^[^\s\w\'\"]+/]]),["css"]);PR.registerLangHandler(PR.createSimpleLexer([],[[PR.PR_KEYWORD,/^-?(?:[_a-z]|(?:\\[\da-f]+ ?))(?:[_a-z\d\-]|\\(?:\\[\da-f]+ ?))*/i]]),["css-kw"]);PR.registerLangHandler(PR.createSimpleLexer([],[[PR.PR_STRING,/^[^\)\"\']+/]]),["css-str"]);
-EOF_1785916429_6963
+EOF_1785920389_104
 
 mkdir -p "coverage/packages/plugins/auth-ad/src"
 echo "作成: coverage/packages/plugins/auth-ad/src/index.html"
-cat << 'EOF_1785916429_32165' > "coverage/packages/plugins/auth-ad/src/index.html"
+cat << 'EOF_1785920389_26150' > "coverage/packages/plugins/auth-ad/src/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -1163,11 +1163,11 @@ cat << 'EOF_1785916429_32165' > "coverage/packages/plugins/auth-ad/src/index.htm
     </body>
 </html>
     
-EOF_1785916429_32165
+EOF_1785920389_26150
 
 mkdir -p "coverage/packages/plugins/auth-ad/src"
 echo "作成: coverage/packages/plugins/auth-ad/src/index.ts.html"
-cat << 'EOF_1785916429_24246' > "coverage/packages/plugins/auth-ad/src/index.ts.html"
+cat << 'EOF_1785920389_8560' > "coverage/packages/plugins/auth-ad/src/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -1292,11 +1292,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     </body>
 </html>
     
-EOF_1785916429_24246
+EOF_1785920389_8560
 
 mkdir -p "coverage/packages/plugins/auth-local/src"
 echo "作成: coverage/packages/plugins/auth-local/src/auth-utils.ts.html"
-cat << 'EOF_1785916429_10614' > "coverage/packages/plugins/auth-local/src/auth-utils.ts.html"
+cat << 'EOF_1785920389_32145' > "coverage/packages/plugins/auth-local/src/auth-utils.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -1562,11 +1562,11 @@ export async function verifyJwt&lt;T = Record&lt;string, unknown&gt;&gt;(
     </body>
 </html>
     
-EOF_1785916429_10614
+EOF_1785920389_32145
 
 mkdir -p "coverage/packages/plugins/auth-local/src"
 echo "作成: coverage/packages/plugins/auth-local/src/index.html"
-cat << 'EOF_1785916429_11790' > "coverage/packages/plugins/auth-local/src/index.html"
+cat << 'EOF_1785920389_8829' > "coverage/packages/plugins/auth-local/src/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -1698,11 +1698,11 @@ cat << 'EOF_1785916429_11790' > "coverage/packages/plugins/auth-local/src/index.
     </body>
 </html>
     
-EOF_1785916429_11790
+EOF_1785920389_8829
 
 mkdir -p "coverage/packages/plugins/auth-local/src"
 echo "作成: coverage/packages/plugins/auth-local/src/index.ts.html"
-cat << 'EOF_1785916429_24218' > "coverage/packages/plugins/auth-local/src/index.ts.html"
+cat << 'EOF_1785920389_26411' > "coverage/packages/plugins/auth-local/src/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -1833,11 +1833,11 @@ export * from './auth-utils';
     </body>
 </html>
     
-EOF_1785916429_24218
+EOF_1785920389_26411
 
 mkdir -p "coverage/packages/core"
 echo "作成: coverage/packages/core/index.html"
-cat << 'EOF_1785916429_30434' > "coverage/packages/core/index.html"
+cat << 'EOF_1785920389_6651' > "coverage/packages/core/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -1969,11 +1969,11 @@ cat << 'EOF_1785916429_30434' > "coverage/packages/core/index.html"
     </body>
 </html>
     
-EOF_1785916429_30434
+EOF_1785920389_6651
 
 mkdir -p "coverage/packages/core"
 echo "作成: coverage/packages/core/drizzle-test.config.ts.html"
-cat << 'EOF_1785916429_8975' > "coverage/packages/core/drizzle-test.config.ts.html"
+cat << 'EOF_1785920389_29077' > "coverage/packages/core/drizzle-test.config.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -2110,11 +2110,11 @@ export default defineConfig({
     </body>
 </html>
     
-EOF_1785916429_8975
+EOF_1785920389_29077
 
 mkdir -p "coverage/packages/core/src/registry"
 echo "作成: coverage/packages/core/src/registry/index.html"
-cat << 'EOF_1785916429_18151' > "coverage/packages/core/src/registry/index.html"
+cat << 'EOF_1785920389_23451' > "coverage/packages/core/src/registry/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -2231,11 +2231,11 @@ cat << 'EOF_1785916429_18151' > "coverage/packages/core/src/registry/index.html"
     </body>
 </html>
     
-EOF_1785916429_18151
+EOF_1785920389_23451
 
 mkdir -p "coverage/packages/core/src/registry"
 echo "作成: coverage/packages/core/src/registry/hono-auto-loader.ts.html"
-cat << 'EOF_1785916429_25553' > "coverage/packages/core/src/registry/hono-auto-loader.ts.html"
+cat << 'EOF_1785920389_9838' > "coverage/packages/core/src/registry/hono-auto-loader.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -2387,11 +2387,11 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     </body>
 </html>
     
-EOF_1785916429_25553
+EOF_1785920389_9838
 
 mkdir -p "coverage/packages/core/src"
 echo "作成: coverage/packages/core/src/index.html"
-cat << 'EOF_1785916429_32145' > "coverage/packages/core/src/index.html"
+cat << 'EOF_1785920389_9606' > "coverage/packages/core/src/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -2523,11 +2523,11 @@ cat << 'EOF_1785916429_32145' > "coverage/packages/core/src/index.html"
     </body>
 </html>
     
-EOF_1785916429_32145
+EOF_1785920389_9606
 
 mkdir -p "coverage/packages/core/src/config"
 echo "作成: coverage/packages/core/src/config/index.html"
-cat << 'EOF_1785916429_25631' > "coverage/packages/core/src/config/index.html"
+cat << 'EOF_1785920389_12605' > "coverage/packages/core/src/config/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -2644,11 +2644,11 @@ cat << 'EOF_1785916429_25631' > "coverage/packages/core/src/config/index.html"
     </body>
 </html>
     
-EOF_1785916429_25631
+EOF_1785920389_12605
 
 mkdir -p "coverage/packages/core/src/config"
 echo "作成: coverage/packages/core/src/config/env.ts.html"
-cat << 'EOF_1785916429_26907' > "coverage/packages/core/src/config/env.ts.html"
+cat << 'EOF_1785920389_1847' > "coverage/packages/core/src/config/env.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -2926,11 +2926,11 @@ export type ClientEnv = z.infer&lt;typeof clientEnvSchema&gt;;
     </body>
 </html>
     
-EOF_1785916429_26907
+EOF_1785920389_1847
 
 mkdir -p "coverage/packages/core/src/db"
 echo "作成: coverage/packages/core/src/db/schema.ts.html"
-cat << 'EOF_1785916429_23499' > "coverage/packages/core/src/db/schema.ts.html"
+cat << 'EOF_1785920389_3689' > "coverage/packages/core/src/db/schema.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -3046,11 +3046,11 @@ export const users = pgTable('users', {
     </body>
 </html>
     
-EOF_1785916429_23499
+EOF_1785920389_3689
 
 mkdir -p "coverage/packages/core/src/db"
 echo "作成: coverage/packages/core/src/db/index.html"
-cat << 'EOF_1785916429_4929' > "coverage/packages/core/src/db/index.html"
+cat << 'EOF_1785920389_3790' > "coverage/packages/core/src/db/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -3182,11 +3182,11 @@ cat << 'EOF_1785916429_4929' > "coverage/packages/core/src/db/index.html"
     </body>
 </html>
     
-EOF_1785916429_4929
+EOF_1785920389_3790
 
 mkdir -p "coverage/packages/core/src/db"
 echo "作成: coverage/packages/core/src/db/index.ts.html"
-cat << 'EOF_1785916429_19298' > "coverage/packages/core/src/db/index.ts.html"
+cat << 'EOF_1785920389_13096' > "coverage/packages/core/src/db/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -3311,11 +3311,11 @@ export { schema };
     </body>
 </html>
     
-EOF_1785916429_19298
+EOF_1785920389_13096
 
 mkdir -p "coverage/packages/core/src/auth"
 echo "作成: coverage/packages/core/src/auth/index.html"
-cat << 'EOF_1785916429_25346' > "coverage/packages/core/src/auth/index.html"
+cat << 'EOF_1785920389_7134' > "coverage/packages/core/src/auth/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -3432,11 +3432,11 @@ cat << 'EOF_1785916429_25346' > "coverage/packages/core/src/auth/index.html"
     </body>
 </html>
     
-EOF_1785916429_25346
+EOF_1785920389_7134
 
 mkdir -p "coverage/packages/core/src/auth"
 echo "作成: coverage/packages/core/src/auth/auth-registry.ts.html"
-cat << 'EOF_1785916429_13549' > "coverage/packages/core/src/auth/auth-registry.ts.html"
+cat << 'EOF_1785920389_27349' > "coverage/packages/core/src/auth/auth-registry.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -3585,11 +3585,11 @@ export class AuthRegistry {
     </body>
 </html>
     
-EOF_1785916429_13549
+EOF_1785920389_27349
 
 mkdir -p "coverage/packages/core/src/errors"
 echo "作成: coverage/packages/core/src/errors/index.html"
-cat << 'EOF_1785916429_17277' > "coverage/packages/core/src/errors/index.html"
+cat << 'EOF_1785920389_915' > "coverage/packages/core/src/errors/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -3706,11 +3706,11 @@ cat << 'EOF_1785916429_17277' > "coverage/packages/core/src/errors/index.html"
     </body>
 </html>
     
-EOF_1785916429_17277
+EOF_1785920389_915
 
 mkdir -p "coverage/packages/core/src/errors"
 echo "作成: coverage/packages/core/src/errors/index.ts.html"
-cat << 'EOF_1785916429_17993' > "coverage/packages/core/src/errors/index.ts.html"
+cat << 'EOF_1785920389_16302' > "coverage/packages/core/src/errors/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -3952,11 +3952,11 @@ export class UnauthorizedError extends AppError {
     </body>
 </html>
     
-EOF_1785916429_17993
+EOF_1785920389_16302
 
 mkdir -p "coverage/packages/core/src/test"
 echo "作成: coverage/packages/core/src/test/global-setup.ts.html"
-cat << 'EOF_1785916429_1113' > "coverage/packages/core/src/test/global-setup.ts.html"
+cat << 'EOF_1785920390_32277' > "coverage/packages/core/src/test/global-setup.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -4117,11 +4117,11 @@ export async function <span class="fstat-no" title="function not covered" >setup
     </body>
 </html>
     
-EOF_1785916429_1113
+EOF_1785920390_32277
 
 mkdir -p "coverage/packages/core/src/test"
 echo "作成: coverage/packages/core/src/test/index.html"
-cat << 'EOF_1785916429_4061' > "coverage/packages/core/src/test/index.html"
+cat << 'EOF_1785920390_21335' > "coverage/packages/core/src/test/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -4238,11 +4238,11 @@ cat << 'EOF_1785916429_4061' > "coverage/packages/core/src/test/index.html"
     </body>
 </html>
     
-EOF_1785916429_4061
+EOF_1785920390_21335
 
 mkdir -p "coverage/packages/core/src"
 echo "作成: coverage/packages/core/src/index.ts.html"
-cat << 'EOF_1785916429_12592' > "coverage/packages/core/src/index.ts.html"
+cat << 'EOF_1785920390_14329' > "coverage/packages/core/src/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -4343,11 +4343,11 @@ export * from './errors';
     </body>
 </html>
     
-EOF_1785916429_12592
+EOF_1785920390_14329
 
 mkdir -p "coverage/packages/core/src"
 echo "作成: coverage/packages/core/src/seed-dev-user.ts.html"
-cat << 'EOF_1785916429_6123' > "coverage/packages/core/src/seed-dev-user.ts.html"
+cat << 'EOF_1785920390_1667' > "coverage/packages/core/src/seed-dev-user.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -4511,11 +4511,11 @@ async function <span class="fstat-no" title="function not covered" >main() {</sp
     </body>
 </html>
     
-EOF_1785916429_6123
+EOF_1785920390_1667
 
 mkdir -p "coverage/packages/core"
 echo "作成: coverage/packages/core/drizzle.config.ts.html"
-cat << 'EOF_1785916429_17957' > "coverage/packages/core/drizzle.config.ts.html"
+cat << 'EOF_1785920390_9763' > "coverage/packages/core/drizzle.config.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -4652,11 +4652,11 @@ export default defineConfig({
     </body>
 </html>
     
-EOF_1785916429_17957
+EOF_1785920390_9763
 
 mkdir -p "coverage/packages/features/sample/src"
 echo "作成: coverage/packages/features/sample/src/index.html"
-cat << 'EOF_1785916429_2919' > "coverage/packages/features/sample/src/index.html"
+cat << 'EOF_1785920390_17421' > "coverage/packages/features/sample/src/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -4773,11 +4773,11 @@ cat << 'EOF_1785916429_2919' > "coverage/packages/features/sample/src/index.html
     </body>
 </html>
     
-EOF_1785916429_2919
+EOF_1785920390_17421
 
 mkdir -p "coverage/packages/features/sample/src"
 echo "作成: coverage/packages/features/sample/src/index.ts.html"
-cat << 'EOF_1785916429_6285' > "coverage/packages/features/sample/src/index.ts.html"
+cat << 'EOF_1785920390_13747' > "coverage/packages/features/sample/src/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -4896,11 +4896,11 @@ export default function createSampleFeature() {
     </body>
 </html>
     
-EOF_1785916429_6285
+EOF_1785920390_13747
 
 mkdir -p "coverage"
 echo "作成: coverage/clover.xml"
-cat << 'EOF_1785916429_1053' > "coverage/clover.xml"
+cat << 'EOF_1785920390_2501' > "coverage/clover.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <coverage generated="1785897439564" clover="3.2.0">
   <project timestamp="1785897439564" name="All files">
@@ -5264,11 +5264,11 @@ cat << 'EOF_1785916429_1053' > "coverage/clover.xml"
     </package>
   </project>
 </coverage>
-EOF_1785916429_1053
+EOF_1785920390_2501
 
 mkdir -p "coverage"
 echo "作成: coverage/base.css"
-cat << 'EOF_1785916429_6348' > "coverage/base.css"
+cat << 'EOF_1785920390_12406' > "coverage/base.css"
 body, html {
   margin:0; padding: 0;
   height: 100%;
@@ -5493,11 +5493,11 @@ pre.prettyprint {
 .footer, .push {
   height: 48px;
 }
-EOF_1785916429_6348
+EOF_1785920390_12406
 
 mkdir -p "coverage/apps/web/src"
 echo "作成: coverage/apps/web/src/index.html"
-cat << 'EOF_1785916429_30253' > "coverage/apps/web/src/index.html"
+cat << 'EOF_1785920390_10943' > "coverage/apps/web/src/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -5644,11 +5644,11 @@ cat << 'EOF_1785916429_30253' > "coverage/apps/web/src/index.html"
     </body>
 </html>
     
-EOF_1785916429_30253
+EOF_1785920390_10943
 
 mkdir -p "coverage/apps/web/src"
 echo "作成: coverage/apps/web/src/main.tsx.html"
-cat << 'EOF_1785916429_10624' > "coverage/apps/web/src/main.tsx.html"
+cat << 'EOF_1785920390_2425' > "coverage/apps/web/src/main.tsx.html"
 
 <!doctype html>
 <html lang="en">
@@ -5761,11 +5761,11 @@ import App from './App.tsx';
     </body>
 </html>
     
-EOF_1785916429_10624
+EOF_1785920390_2425
 
 mkdir -p "coverage/apps/web/src"
 echo "作成: coverage/apps/web/src/env.ts.html"
-cat << 'EOF_1785916429_10617' > "coverage/apps/web/src/env.ts.html"
+cat << 'EOF_1785920390_9201' > "coverage/apps/web/src/env.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -5875,11 +5875,11 @@ export const env: ClientEnv = <span class="cstat-no" title="statement not covere
     </body>
 </html>
     
-EOF_1785916429_10617
+EOF_1785920390_9201
 
 mkdir -p "coverage/apps/web/src"
 echo "作成: coverage/apps/web/src/App.tsx.html"
-cat << 'EOF_1785916429_25083' > "coverage/apps/web/src/App.tsx.html"
+cat << 'EOF_1785920390_11605' > "coverage/apps/web/src/App.tsx.html"
 
 <!doctype html>
 <html lang="en">
@@ -6100,11 +6100,11 @@ export default App;
     </body>
 </html>
     
-EOF_1785916429_25083
+EOF_1785920390_11605
 
 mkdir -p "coverage/apps/web/src/context"
 echo "作成: coverage/apps/web/src/context/index.html"
-cat << 'EOF_1785916429_14120' > "coverage/apps/web/src/context/index.html"
+cat << 'EOF_1785920390_13172' > "coverage/apps/web/src/context/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -6221,11 +6221,11 @@ cat << 'EOF_1785916429_14120' > "coverage/apps/web/src/context/index.html"
     </body>
 </html>
     
-EOF_1785916429_14120
+EOF_1785920390_13172
 
 mkdir -p "coverage/apps/web/src/context"
 echo "作成: coverage/apps/web/src/context/AuthContext.tsx.html"
-cat << 'EOF_1785916429_25098' > "coverage/apps/web/src/context/AuthContext.tsx.html"
+cat << 'EOF_1785920390_3323' > "coverage/apps/web/src/context/AuthContext.tsx.html"
 
 <!doctype html>
 <html lang="en">
@@ -6659,11 +6659,11 @@ export const useAuth = (): AuthContextType =&gt; {
     </body>
 </html>
     
-EOF_1785916429_25098
+EOF_1785920390_3323
 
 mkdir -p "coverage/apps/web/src/components"
 echo "作成: coverage/apps/web/src/components/index.html"
-cat << 'EOF_1785916429_32194' > "coverage/apps/web/src/components/index.html"
+cat << 'EOF_1785920390_25374' > "coverage/apps/web/src/components/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -6780,11 +6780,11 @@ cat << 'EOF_1785916429_32194' > "coverage/apps/web/src/components/index.html"
     </body>
 </html>
     
-EOF_1785916429_32194
+EOF_1785920390_25374
 
 mkdir -p "coverage/apps/web/src/components"
 echo "作成: coverage/apps/web/src/components/LoginForm.tsx.html"
-cat << 'EOF_1785916429_18117' > "coverage/apps/web/src/components/LoginForm.tsx.html"
+cat << 'EOF_1785920390_32647' > "coverage/apps/web/src/components/LoginForm.tsx.html"
 
 <!doctype html>
 <html lang="en">
@@ -7077,11 +7077,11 @@ export const LoginForm: React.FC&lt;LoginFormProps&gt; = ({ onSuccess }) =&gt; {
     </body>
 </html>
     
-EOF_1785916429_18117
+EOF_1785920390_32647
 
 mkdir -p "coverage/apps/api/src"
 echo "作成: coverage/apps/api/src/index.html"
-cat << 'EOF_1785916429_14742' > "coverage/apps/api/src/index.html"
+cat << 'EOF_1785920390_10408' > "coverage/apps/api/src/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -7213,11 +7213,11 @@ cat << 'EOF_1785916429_14742' > "coverage/apps/api/src/index.html"
     </body>
 </html>
     
-EOF_1785916429_14742
+EOF_1785920390_10408
 
 mkdir -p "coverage/apps/api/src/routes"
 echo "作成: coverage/apps/api/src/routes/auth.ts.html"
-cat << 'EOF_1785916429_309' > "coverage/apps/api/src/routes/auth.ts.html"
+cat << 'EOF_1785920390_29276' > "coverage/apps/api/src/routes/auth.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -7558,11 +7558,11 @@ export function authRouter(jwtSecret: string) {
     </body>
 </html>
     
-EOF_1785916429_309
+EOF_1785920390_29276
 
 mkdir -p "coverage/apps/api/src/routes"
 echo "作成: coverage/apps/api/src/routes/index.html"
-cat << 'EOF_1785916429_3748' > "coverage/apps/api/src/routes/index.html"
+cat << 'EOF_1785920390_16120' > "coverage/apps/api/src/routes/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -7679,11 +7679,11 @@ cat << 'EOF_1785916429_3748' > "coverage/apps/api/src/routes/index.html"
     </body>
 </html>
     
-EOF_1785916429_3748
+EOF_1785920390_16120
 
 mkdir -p "coverage/apps/api/src"
 echo "作成: coverage/apps/api/src/env.ts.html"
-cat << 'EOF_1785916429_1597' > "coverage/apps/api/src/env.ts.html"
+cat << 'EOF_1785920390_7954' > "coverage/apps/api/src/env.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -7811,11 +7811,11 @@ export function validateEnv(env: Record&lt;string, string | undefined&gt; = proc
     </body>
 </html>
     
-EOF_1785916429_1597
+EOF_1785920390_7954
 
 mkdir -p "coverage/apps/api/src"
 echo "作成: coverage/apps/api/src/index.ts.html"
-cat << 'EOF_1785916429_28916' > "coverage/apps/api/src/index.ts.html"
+cat << 'EOF_1785920390_2967' > "coverage/apps/api/src/index.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -8318,11 +8318,11 @@ export default app;
     </body>
 </html>
     
-EOF_1785916429_28916
+EOF_1785920390_2967
 
 mkdir -p "coverage/apps/api/src/middlewares"
 echo "作成: coverage/apps/api/src/middlewares/auth-middleware.ts.html"
-cat << 'EOF_1785916429_20619' > "coverage/apps/api/src/middlewares/auth-middleware.ts.html"
+cat << 'EOF_1785920390_29767' > "coverage/apps/api/src/middlewares/auth-middleware.ts.html"
 
 <!doctype html>
 <html lang="en">
@@ -8516,11 +8516,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
     </body>
 </html>
     
-EOF_1785916429_20619
+EOF_1785920390_29767
 
 mkdir -p "coverage/apps/api/src/middlewares"
 echo "作成: coverage/apps/api/src/middlewares/index.html"
-cat << 'EOF_1785916429_24957' > "coverage/apps/api/src/middlewares/index.html"
+cat << 'EOF_1785920390_2821' > "coverage/apps/api/src/middlewares/index.html"
 
 <!doctype html>
 <html lang="en">
@@ -8637,16 +8637,16 @@ cat << 'EOF_1785916429_24957' > "coverage/apps/api/src/middlewares/index.html"
     </body>
 </html>
     
-EOF_1785916429_24957
+EOF_1785920390_2821
 
 mkdir -p "coverage"
 echo "作成: coverage/prettify.css"
-cat << 'EOF_1785916429_13415' > "coverage/prettify.css"
+cat << 'EOF_1785920390_31506' > "coverage/prettify.css"
 .pln{color:#000}@media screen{.str{color:#080}.kwd{color:#008}.com{color:#800}.typ{color:#606}.lit{color:#066}.pun,.opn,.clo{color:#660}.tag{color:#008}.atn{color:#606}.atv{color:#080}.dec,.var{color:#606}.fun{color:red}}@media print,projection{.str{color:#060}.kwd{color:#006;font-weight:bold}.com{color:#600;font-style:italic}.typ{color:#404;font-weight:bold}.lit{color:#044}.pun,.opn,.clo{color:#440}.tag{color:#006;font-weight:bold}.atn{color:#404}.atv{color:#060}}pre.prettyprint{padding:2px;border:1px solid #888}ol.linenums{margin-top:0;margin-bottom:0}li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8{list-style-type:none}li.L1,li.L3,li.L5,li.L7,li.L9{background:#eee}
-EOF_1785916429_13415
+EOF_1785920390_31506
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1785916429_5540' > "vitest.config.ts"
+cat << 'EOF_1785920390_32480' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -8674,11 +8674,11 @@ export default defineConfig({
 
   },
 });
-EOF_1785916429_5540
+EOF_1785920390_32480
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1785916429_19922' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1785920390_16205' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -8686,11 +8686,11 @@ cat << 'EOF_1785916429_19922' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785916429_19922
+EOF_1785920390_16205
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1785916429_25798' > "packages/plugins/auth-ad/src/index.ts"
+cat << 'EOF_1785920390_29601' > "packages/plugins/auth-ad/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -8704,11 +8704,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1785916429_25798
+EOF_1785920390_29601
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1785916429_4566' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1785920390_4549' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
@@ -8723,11 +8723,11 @@ cat << 'EOF_1785916429_4566' > "packages/plugins/auth-local/package.json"
     "@types/bcryptjs": "^2.4.6"
   }
 }
-EOF_1785916429_4566
+EOF_1785920390_4549
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1785916429_23336' > "packages/plugins/auth-local/src/index.ts"
+cat << 'EOF_1785920390_25737' > "packages/plugins/auth-local/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -8743,11 +8743,11 @@ export class LocalAuthPlugin implements AuthPlugin {
 }
 
 export * from './auth-utils';
-EOF_1785916429_23336
+EOF_1785920390_25737
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/auth-utils.ts"
-cat << 'EOF_1785916429_17207' > "packages/plugins/auth-local/src/auth-utils.ts"
+cat << 'EOF_1785920390_1496' > "packages/plugins/auth-local/src/auth-utils.ts"
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -8808,11 +8808,11 @@ export async function verifyJwt<T = Record<string, unknown>>(
         return null;
     }
 }
-EOF_1785916429_17207
+EOF_1785920390_1496
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/auth-utils.test.ts"
-cat << 'EOF_1785916429_509' > "packages/plugins/auth-local/src/auth-utils.test.ts"
+cat << 'EOF_1785920390_2608' > "packages/plugins/auth-local/src/auth-utils.test.ts"
 import { describe, it, expect } from 'vitest';
 import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
 
@@ -8874,11 +8874,11 @@ describe('Auth Utilities (Step 4.1)', () => {
         });
     });
 });
-EOF_1785916429_509
+EOF_1785920390_2608
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1785916429_27975' > "packages/core/package.json"
+cat << 'EOF_1785920390_2624' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
@@ -8901,11 +8901,11 @@ cat << 'EOF_1785916429_27975' > "packages/core/package.json"
     "drizzle-kit": "^0.31.10"
   }
 }
-EOF_1785916429_27975
+EOF_1785920390_2624
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle-test.config.ts"
-cat << 'EOF_1785916429_27672' > "packages/core/drizzle-test.config.ts"
+cat << 'EOF_1785920390_9473' > "packages/core/drizzle-test.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from './src/config/env';
 
@@ -8917,11 +8917,11 @@ export default defineConfig({
         url: env.TEST_DATABASE_URL,
     },
 });
-EOF_1785916429_27672
+EOF_1785920390_9473
 
 mkdir -p "packages/core"
 echo "作成: packages/core/vitest.config.ts"
-cat << 'EOF_1785916429_21097' > "packages/core/vitest.config.ts"
+cat << 'EOF_1785920390_26818' > "packages/core/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -8931,11 +8931,11 @@ export default defineConfig({
         fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1785916429_21097
+EOF_1785920390_26818
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1785916429_16007' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1785920390_31458' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
@@ -8958,21 +8958,21 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
   }
 }
-EOF_1785916429_16007
+EOF_1785920390_31458
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1785916429_25711' > "packages/core/src/index.ts"
+cat << 'EOF_1785920390_19718' > "packages/core/src/index.ts"
 export * from './auth/auth-registry';
 export * from './registry/hono-auto-loader';
 export * from './db';
 export * from './config/env';
 export * from './errors';
-EOF_1785916429_25711
+EOF_1785920390_19718
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1785916429_2511' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1785920390_27632' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { envSchema, formatEnvForLog } from './env';
 
@@ -9053,11 +9053,11 @@ describe('formatEnvForLog', () => {
         expect(formatted).toContain('***'); // マスクされていること
     });
 });
-EOF_1785916429_2511
+EOF_1785920390_27632
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1785916430_27362' > "packages/core/src/config/env.ts"
+cat << 'EOF_1785920390_10163' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -9144,12 +9144,14 @@ export const clientEnvSchema = z.object({
 });
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
-EOF_1785916430_27362
+EOF_1785920390_10163
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/index.ts"
-cat << 'EOF_1785916430_13839' > "packages/core/src/db/index.ts"
+cat << 'EOF_1785920390_17788' > "packages/core/src/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
+// import { drizzle } from 'drizzle-orm/node-postgres';
+
 import postgres from 'postgres';
 import * as schema from './schema';
 import { env } from '../config/env';
@@ -9167,51 +9169,16 @@ export const test_db = drizzle(queryTestClient, { schema });
 // テスト用と開発用（本番用）の接続クライアント動的に選択
 export const db = isTest ? test_db : dev_db;
 
+// テスト終了時などにコネクションを安全に破棄するためのクライアント
+export const activeQueryClient = isTest ? queryTestClient : queryClient;
+
 // 💡 スキーマも外部から参照できるように export します
 export { schema };
-EOF_1785916430_13839
-
-mkdir -p "packages/core/src/db"
-echo "作成: packages/core/src/db/db.test.ts"
-cat << 'EOF_1785916430_31673' > "packages/core/src/db/db.test.ts"
-import { describe, it, expect } from 'vitest';
-import { db } from './index';
-import { users } from './schema';
-import { eq } from 'drizzle-orm';
-
-describe('DB Integration Test (Step 3)', () => {
-    it('ユーザーテーブルにデータを挿入し、取得できること', async () => {
-        const testEmail = `test-${Date.now()}@example.com`;
-
-        // 1. レコード挿入 (Create)
-        const [insertedUser] = await db
-            .insert(users)
-            .values({
-                name: 'Test User',
-                email: testEmail,
-                passwordHash: 'hashed_password_sample_123',
-            })
-            .returning();
-
-        expect(insertedUser).toBeDefined();
-        expect(insertedUser.name).toBe('Test User');
-        expect(insertedUser.email).toBe(testEmail);
-
-        // 2. レコード取得 (Read)
-        const [fetchedUser] = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, insertedUser.id));
-
-        expect(fetchedUser).toBeDefined();
-        expect(fetchedUser.email).toBe(testEmail);
-    });
-});
-EOF_1785916430_31673
+EOF_1785920390_17788
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/schema.ts"
-cat << 'EOF_1785916430_25319' > "packages/core/src/db/schema.ts"
+cat << 'EOF_1785920390_3924' > "packages/core/src/db/schema.ts"
 import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -9222,11 +9189,71 @@ export const users = pgTable('users', {
     role: text('role').notNull().default('user'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-EOF_1785916430_25319
+EOF_1785920390_3924
+
+mkdir -p "packages/core/src/db"
+echo "作成: packages/core/src/db/users.test.ts"
+cat << 'EOF_1785920390_1296' > "packages/core/src/db/users.test.ts"
+import { describe, it, expect, afterAll, beforeEach } from 'vitest';
+import { db, activeQueryClient } from './index';
+import { users } from './schema';
+import { eq } from 'drizzle-orm';
+
+describe('Users DB Integration Tests', () => {
+    afterAll(async () => {
+        // テスト終了後に PostgreSQL 接続をシャットダウン
+        await activeQueryClient.end();
+    });
+
+    beforeEach(async () => {
+        // テストごとに users テーブルをクリーンアップ
+        await db.delete(users);
+    });
+
+    it('ユーザーを正常に挿入および取得できること', async () => {
+        const newUser = {
+            name: 'テストユーザー',
+            email: 'test@example.com',
+            passwordHash: '$2a$10$hashedpasswordexample',
+        };
+
+        const [inserted] = await db.insert(users).values(newUser).returning();
+
+        expect(inserted.id).toBeDefined();
+        expect(inserted.name).toBe(newUser.name);
+        expect(inserted.email).toBe(newUser.email);
+        expect(inserted.role).toBe('user'); // デフォルト値の検証
+        expect(inserted.createdAt).toBeInstanceOf(Date);
+
+        // IDで検索して同一データが取得できるか
+        const [found] = await db.select().from(users).where(eq(users.id, inserted.id));
+        expect(found).toBeDefined();
+        expect(found.email).toBe(newUser.email);
+    });
+
+    it('同じ email のユーザーを挿入した場合、エラーが発生すること（Unique制約）', async () => {
+        const userPayload = {
+            name: 'ユーザー1',
+            email: 'duplicate@example.com',
+            passwordHash: 'hash123',
+        };
+
+        await db.insert(users).values(userPayload);
+
+        // 同じ email で挿入を試みると例外が発生すること
+        await expect(
+            db.insert(users).values({
+                ...userPayload,
+                name: 'ユーザー2',
+            })
+        ).rejects.toThrow();
+    });
+});
+EOF_1785920390_1296
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1785916430_9465' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1785920390_4035' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -9248,11 +9275,11 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1785916430_9465
+EOF_1785920390_4035
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/index.ts"
-cat << 'EOF_1785916430_32634' > "packages/core/src/errors/index.ts"
+cat << 'EOF_1785920390_21939' > "packages/core/src/errors/index.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -9305,11 +9332,11 @@ export class UnauthorizedError extends AppError {
         super(401, 'unauthorized', 'Unauthorized', message);
     }
 }
-EOF_1785916430_32634
+EOF_1785920390_21939
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/setup.ts"
-cat << 'EOF_1785916430_3152' > "packages/core/src/test/setup.ts"
+cat << 'EOF_1785920390_27643' > "packages/core/src/test/setup.ts"
 import { beforeEach } from 'vitest';
 import { db } from '../db'; // テスト用DBに接続しているDrizzleインスタンス
 import { sql } from 'drizzle-orm';
@@ -9326,11 +9353,11 @@ beforeEach(async () => {
     END $$;
   `);
 });
-EOF_1785916430_3152
+EOF_1785920390_27643
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/global-setup.ts"
-cat << 'EOF_1785916430_23623' > "packages/core/src/test/global-setup.ts"
+cat << 'EOF_1785920390_16845' > "packages/core/src/test/global-setup.ts"
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9356,11 +9383,11 @@ export async function setup() {
         throw error;
     }
 }
-EOF_1785916430_23623
+EOF_1785920390_16845
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/seed-dev-user.ts"
-cat << 'EOF_1785916430_31208' > "packages/core/src/seed-dev-user.ts"
+cat << 'EOF_1785920390_5495' > "packages/core/src/seed-dev-user.ts"
 import { db } from './db'; // packages/core 内の db エクスポートのパス
 import { users } from './db/schema'; // users スキーマ
 import { hashPassword } from '@app/plugins-auth-local';
@@ -9387,11 +9414,11 @@ main().catch((err) => {
     console.error('❌ Failed:', err);
     process.exit(1);
 });
-EOF_1785916430_31208
+EOF_1785920390_5495
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle.config.ts"
-cat << 'EOF_1785916430_23018' > "packages/core/drizzle.config.ts"
+cat << 'EOF_1785920390_29631' > "packages/core/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from './src/config/env';
 
@@ -9403,11 +9430,11 @@ export default defineConfig({
         url: env.DATABASE_URL,
     },
 });
-EOF_1785916430_23018
+EOF_1785920390_29631
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1785916430_2291' > "packages/features/sample/package.json"
+cat << 'EOF_1785920390_18296' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -9415,11 +9442,11 @@ cat << 'EOF_1785916430_2291' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1785916430_2291
+EOF_1785920390_18296
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1785916430_2617' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1785920390_22908' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -9431,11 +9458,11 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1785916430_2617
+EOF_1785920390_22908
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1785916430_21129' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1785920390_10283' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import createSampleFeature from './index';
 
@@ -9452,10 +9479,10 @@ describe('Sample Feature Module', () => {
     });
   });
 });
-EOF_1785916430_21129
+EOF_1785920390_10283
 
 echo "作成: doc.md"
-cat << 'EOF_1785916430_8527' > "doc.md"
+cat << 'EOF_1785920390_3304' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -9570,10 +9597,10 @@ cat << 'EOF_1785916430_8527' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1785916430_8527
+EOF_1785920390_3304
 
 echo "作成: SUMMRY.md"
-cat << 'EOF_1785916430_22982' > "SUMMRY.md"
+cat << 'EOF_1785920390_30585' > "SUMMRY.md"
 これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
 # 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
 
@@ -9840,11 +9867,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 
 ---
-EOF_1785916430_22982
+EOF_1785920390_30585
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1785916430_2852' > "apps/web/package.json"
+cat << 'EOF_1785920390_28903' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -9868,11 +9895,11 @@ cat << 'EOF_1785916430_2852' > "apps/web/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785916430_2852
+EOF_1785920390_28903
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1785916430_6339' > "apps/web/index.html"
+cat << 'EOF_1785920390_9129' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -9884,11 +9911,11 @@ cat << 'EOF_1785916430_6339' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1785916430_6339
+EOF_1785920390_9129
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1785916430_11176' > "apps/web/tsconfig.json"
+cat << 'EOF_1785920390_29365' > "apps/web/tsconfig.json"
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
@@ -9919,11 +9946,11 @@ cat << 'EOF_1785916430_11176' > "apps/web/tsconfig.json"
     }
   ]
 }
-EOF_1785916430_11176
+EOF_1785920390_29365
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1785916430_1484' > "apps/web/vitest.config.ts"
+cat << 'EOF_1785920390_20580' > "apps/web/vitest.config.ts"
 import { defineConfig, mergeConfig } from 'vitest/config';
 import viteConfig from './vite.config';
 
@@ -9942,11 +9969,11 @@ export default defineConfig(async (configEnv) => {
         })
     );
 });
-EOF_1785916430_1484
+EOF_1785920390_20580
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.node.json"
-cat << 'EOF_1785916430_22946' > "apps/web/tsconfig.node.json"
+cat << 'EOF_1785920390_21549' > "apps/web/tsconfig.node.json"
 {
     "compilerOptions": {
         "composite": true,
@@ -9959,17 +9986,17 @@ cat << 'EOF_1785916430_22946' > "apps/web/tsconfig.node.json"
         "vite.config.ts"
     ]
 }
-EOF_1785916430_22946
+EOF_1785920390_21549
 
 mkdir -p "apps/web/src/test"
 echo "作成: apps/web/src/test/setup.ts"
-cat << 'EOF_1785916430_27127' > "apps/web/src/test/setup.ts"
+cat << 'EOF_1785920390_4618' > "apps/web/src/test/setup.ts"
 import '@testing-library/jest-dom';
-EOF_1785916430_27127
+EOF_1785920390_4618
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1785916430_3571' > "apps/web/src/main.tsx"
+cat << 'EOF_1785920390_26019' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -9979,11 +10006,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1785916430_3571
+EOF_1785920390_26019
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.test.tsx"
-cat << 'EOF_1785916430_30461' > "apps/web/src/context/AuthContext.test.tsx"
+cat << 'EOF_1785920390_13467' > "apps/web/src/context/AuthContext.test.tsx"
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -10070,11 +10097,11 @@ describe('AuthContext / useAuth (Step 5.1)', () => {
         expect(result.current.user).toBeNull();
     });
 });
-EOF_1785916430_30461
+EOF_1785920390_13467
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.tsx"
-cat << 'EOF_1785916430_4020' > "apps/web/src/context/AuthContext.tsx"
+cat << 'EOF_1785920390_16711' > "apps/web/src/context/AuthContext.tsx"
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // ユーザーオブジェクトの型定義
@@ -10191,11 +10218,11 @@ export const useAuth = (): AuthContextType => {
     }
     return context;
 };
-EOF_1785916430_4020
+EOF_1785920390_16711
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1785916430_31585' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1785920390_17665' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -10265,11 +10292,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </form>
     );
 };
-EOF_1785916430_31585
+EOF_1785920390_17665
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.test.tsx"
-cat << 'EOF_1785916430_10881' > "apps/web/src/components/LoginForm.test.tsx"
+cat << 'EOF_1785920390_15999' > "apps/web/src/components/LoginForm.test.tsx"
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
@@ -10349,11 +10376,11 @@ describe('LoginForm Component (Step 5.2)', () => {
         expect(errorMessage).toHaveTextContent('メールアドレスまたはパスワードが正しくありません。');
     });
 });
-EOF_1785916430_10881
+EOF_1785920390_15999
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1785916430_28742' > "apps/web/src/App.tsx"
+cat << 'EOF_1785920390_14831' > "apps/web/src/App.tsx"
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginForm } from './components/LoginForm';
@@ -10399,11 +10426,11 @@ export function App() {
 }
 
 export default App;
-EOF_1785916430_28742
+EOF_1785920390_14831
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.ts"
-cat << 'EOF_1785916430_30254' > "apps/web/src/env.ts"
+cat << 'EOF_1785920390_2404' > "apps/web/src/env.ts"
 import { clientEnvSchema, type ClientEnv } from '@app/core';
 
 // Vite の import.meta.env を Zod で検証・補完
@@ -10412,11 +10439,11 @@ export const env: ClientEnv = clientEnvSchema.parse({
     VITE_API_TARGET_URL: import.meta.env.VITE_API_TARGET_URL,
     VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 });
-EOF_1785916430_30254
+EOF_1785920390_2404
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1785916430_16444' > "apps/web/vite.config.ts"
+cat << 'EOF_1785920390_16779' > "apps/web/vite.config.ts"
 import { defineConfig } from 'vitest/config';
 import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -10450,11 +10477,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1785916430_16444
+EOF_1785920390_16779
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1785916430_6968' > "apps/api/package.json"
+cat << 'EOF_1785920390_1508' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -10479,11 +10506,11 @@ cat << 'EOF_1785916430_6968' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1785916430_6968
+EOF_1785920390_1508
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1785916430_24999' > "apps/api/tsconfig.json"
+cat << 'EOF_1785920390_10203' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -10499,11 +10526,11 @@ cat << 'EOF_1785916430_24999' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1785916430_24999
+EOF_1785920390_10203
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1785916430_7435' > "apps/api/vitest.config.ts"
+cat << 'EOF_1785920390_1568' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -10512,11 +10539,11 @@ export default defineConfig({
     environment: 'node',
   },
 });
-EOF_1785916430_7435
+EOF_1785920390_1568
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1785916430_10013' > "apps/api/src/index.ts"
+cat << 'EOF_1785920390_12422' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
@@ -10653,11 +10680,11 @@ if (env.NODE_ENV !== 'test') {
 }
 
 export default app;
-EOF_1785916430_10013
+EOF_1785920390_12422
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1785916430_9317' > "apps/api/src/index.test.ts"
+cat << 'EOF_1785920390_15965' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import app from './index';
 
@@ -10726,11 +10753,11 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
-EOF_1785916430_9317
+EOF_1785920390_15965
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1785916430_29801' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1785920390_28650' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
@@ -10816,11 +10843,11 @@ export function authRouter(jwtSecret: string) {
 
     return app;
 }
-EOF_1785916430_29801
+EOF_1785920390_28650
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.test.ts"
-cat << 'EOF_1785916430_14603' > "apps/api/src/routes/auth.test.ts"
+cat << 'EOF_1785920390_2617' > "apps/api/src/routes/auth.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
@@ -10929,11 +10956,11 @@ describe('Auth Routes (Step 4.3)', () => {
         });
     });
 });
-EOF_1785916430_14603
+EOF_1785920390_2617
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.ts"
-cat << 'EOF_1785916430_17320' > "apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1785920390_12220' > "apps/api/src/middlewares/auth-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { verifyJwt } from '@app/plugins-auth-local';
 import { UnauthorizedError } from '@app/core';
@@ -10970,11 +10997,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
         await next();
     };
 }
-EOF_1785916430_17320
+EOF_1785920390_12220
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
-cat << 'EOF_1785916430_4536' > "apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1785920390_25186' > "apps/api/src/middlewares/auth-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 import { authMiddleware } from './auth-middleware';
@@ -11056,11 +11083,11 @@ describe('Auth Middleware (Step 4.2)', () => {
         expect(body.user).toMatchObject(payload);
     });
 });
-EOF_1785916430_4536
+EOF_1785920390_25186
 
 echo "作成: README.md"
-cat << 'EOF_1785916430_5132' > "README.md"
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - 全体統合版
+cat << 'EOF_1785920390_31596' > "README.md"
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.0 最新版
 
 ## 1. システム概要 (Overview)
 
@@ -11104,7 +11131,7 @@ cat << 'EOF_1785916430_5132' > "README.md"
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
 | **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 7807)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
-| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (Bcrypt / JWT ユーティリティ)、外部 ID プロバイダー（Active Directory 等）の認証アダプター | アプリ層から依存性を注入（DI）して利用 |
+| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
 | **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
 
 ### 3.2 拡張ルールと依存方向 (Extension Rules)
@@ -11120,8 +11147,31 @@ cat << 'EOF_1785916430_5132' > "README.md"
 
 ### 4.1 ORM の設計と接続管理
 
-* **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM) を採用します。
-* **シングルトン接続:** データベースへのコネクション pool の無駄遣いを防ぐため、`packages/core/src/db/index.ts` にて環境変数の正常性を検証した上で、単一の接続インスタンス（`db`）を保持・供給します。
+* **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM + `postgres` ライブラリ) を採用します。
+* **動的接続・マルチクライアント管理:**
+`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。また、テスト終了時にコネクションプールを正常終了できるよう `activeQueryClient` をエクスポートします。
+
+```typescript
+// packages/core/src/db/index.ts
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
+import { env } from '../config/env';
+
+const isTest = env.NODE_ENV === 'test';
+
+export const queryClient = postgres(env.DATABASE_URL);
+export const dev_db = drizzle(queryClient, { schema });
+
+export const queryTestClient = postgres(env.TEST_DATABASE_URL);
+export const test_db = drizzle(queryTestClient, { schema });
+
+export const db = isTest ? test_db : dev_db;
+export const activeQueryClient = isTest ? queryTestClient : queryClient;
+
+export { schema };
+
+```
 
 ### 4.2 スキーマ定義 (Single Source of Truth)
 
@@ -11133,6 +11183,8 @@ cat << 'EOF_1785916430_5132' > "README.md"
 
 ```typescript
 // packages/core/src/db/schema.ts
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -11149,14 +11201,14 @@ export const users = pgTable('users', {
 | `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
 | `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
 | `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
-| `passwordHash` | `password_hash` | `text` | NOT NULL | Bcrypt でハッシュ化されたパスワード |
+| `passwordHash` | `password_hash` | `text` | NOT NULL | `bcryptjs` でハッシュ化されたパスワード |
 | `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
 | `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
 
 ### 4.3 構成ファイルの分離設計
 
 * テスト実行時と通常開発時でデータベース設定が混同するのを防ぐため、設定ファイルを明確に分離します。
-* 特にテスト専用の設定ファイルは、テストフレームワーク（Vitest）の自動テスト検出機能が誤ってテストケースと誤認しないよう、**`drizzle-test.config.ts`** のように明示的な命名ルールを設けて構成します。
+* テスト専用の設定ファイルは、テスト検出機能との競合を避けるため **`drizzle-test.config.ts`** と命名して管理します。
 
 ---
 
@@ -11168,12 +11220,10 @@ export const users = pgTable('users', {
 
 ### 5.2 クロスプラットフォーム＆モジュール互換性の保障
 
-* 動的インポート実行時における OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、以下の実装ガイドラインを厳守します。
-
-> **意図:** 単純な文字列連結によるパス指定（`file://...`）を避け、Node.js 標準の URI 変換処理を用いることで、ポータブルで安全な動的インポートを実現します。また、ビルドツールに対して不必要な静的解析警告を出さないよう抑制します。
+* OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、`pathToFileURL` を用いて変換します。
 
 ```typescript
-// 安全な動的インポート実装例 (packages/core/src/registry/hono-auto-loader.ts)
+// packages/core/src/registry/hono-auto-loader.ts
 const absolutePath = path.resolve(file);
 const moduleUrl = pathToFileURL(absolutePath).href; // URI形式へ安全に変換
 const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解析警告を抑止
@@ -11184,7 +11234,7 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ## 6. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
-モノレポ全体を見通し良く管理するための標準的なフォルダおよび全ファイル構成です。
+プロジェクト全体のフォルダおよびファイル構造です。各モジュールごとのテスト配置と役割分担を整理しています。
 
 ```text
 .
@@ -11203,14 +11253,14 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 ├── apps/                         # アプリケーション層 (実行体)
 │   ├── api/                      # サーバーサイド API アプリケーション (Hono)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・エラー処理・ライフサイクル制御)
-│   │   │   ├── index.test.ts     # API 統合テスト (RFC 7807 エラー検証・Zod バリデーション)
+│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・共通エラーハンドラー・RFC 7807)
+│   │   │   ├── index.test.ts     # API 共通挙動テスト (404/500/共通エラーハンドラー/バリデーション)
 │   │   │   ├── middlewares/      # ミドルウェア層
 │   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
 │   │   │   │   └── auth-middleware.test.ts # ミドルウェア単体・統合テスト
 │   │   │   └── routes/           # アプリケーション固有のルーティング
 │   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
-│   │   │       └── auth.test.ts  # 認証 API 統合テスト
+│   │   │       └── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
 │   │   ├── package.json          # API サーバー用依存関係・スクリプト
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
@@ -11218,7 +11268,7 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 │       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
 │       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
-│       │   ├── App.tsx           # ルート UI コンポーネント
+│       │   ├── App.tsx           # ルート UI コンポーネント (ログイン画面等)
 │       │   ├── main.tsx          # React レンダリングエントリーポイント
 │       │   └── index.css         # グローバルスタイル定義
 │       ├── index.html            # HTML エントリーテンプレート
@@ -11230,16 +11280,16 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 └── packages/                     # 共有パッケージ層 (ライブラリ・モジュール)
     ├── core/                     # システム共通基盤パッケージ
     │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
-    │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル (ファイル名衝突回避)
+    │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル
     │   ├── src/
     │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
     │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
     │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数
     │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
-    │   │   ├── db/               # DB 接続インスタンスおよびスキーマ正定義
-    │   │   │   ├── index.ts      # シングルトン DB 接続管理
+    │   │   ├── db/               # DB 接続インスタンスおよびスキーマ定義
+    │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
     │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
-    │   │   │   └── db.test.ts    # データベース CRUD 操作統合テスト
+    │   │   │   └── users.test.ts # Users テーブル CRUD & Unique 制約 DB 統合テスト
     │   │   ├── errors/           # システム標準エラー構造・RFC 7807 定義
     │   │   │   ├── index.ts      # 共通エラークラス群 (`AppError`, `UnauthorizedError`等)
     │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
@@ -11256,16 +11306,15 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
     │   │   └── package.json
     │   └── auth-local/           # ローカルデータベース認証モジュール
     │       ├── src/
-    │       │   ├── index.ts      # パッケージエントリーポイント
-    │       │   ├── password.ts   # Bcrypt パスワードハッシュ化・照合関数
-    │       │   ├── jwt.ts        # Jose による JWT 署名・検証関数
-    │       │   └── auth.test.ts  # パスワード & JWT 処理単体テスト
+    │       │   ├── index.ts          # パッケージエントリーポイント
+    │       │   ├── auth-utils.ts     # Bcrypt パスワードハッシュ化 & Jose JWT ユーティリティ
+    │       │   └── auth-utils.test.ts# パスワードハッシュ・JWT 署名/検証の単体テスト
     │       └── package.json
     └── features/                 # 業務ドメイン機能モジュール群
         └── sample/               # サンプル機能モジュール
             ├── src/
-            │   ├── index.ts      # サンプル機能 API ルート定義
-            │   └── index.test.ts # サンプル機能単体テスト
+            │   ├── index.ts      # `/sample` ルート定義
+            │   └── index.test.ts # モジュール単体（`/sample` 応答）のテスト
             └── package.json
 
 ```
@@ -11282,7 +11331,8 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 | --- | --- | --- | --- |
 | `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
 | `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
-| `DATABASE_URL` | API | URL形式文字列 | データベースへの接続URI (認証情報含む) |
+| `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続URI |
+| `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続URI |
 | `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
 | `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
 | `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
@@ -11291,15 +11341,15 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 ### 7.2 セキュリティ & バリデーション設計
 
 1. **フェイルファスト（Fail-Fast）原則:**
-アプリケーション起動時に環境変数を検証（Zod スキーマ）し、1つでも不備があれば起動を即座に安全に中断します。不正な設定のまま不完全な状態で動作し続けることを防ぎます。
+アプリケーション起動時に環境変数を検証（Zod スキーマ）し、不備があれば起動を即座に安全に中断します。
 2. **機密情報のログマスク（伏字化）:**
-動作確認用に設定内容をシステムログへ出力する際、データベースパスワード等の認証情報が含まれる文字列（`DATABASE_URL`）は自動的にマスク処理（`***` 化）を施し、ログからの情報漏洩を防ぎます。
+設定内容をシステムログへ出力する際、接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）は自動的にマスク処理（`***` 化）を施します。
 3. **パスワード保存とトークン生成:**
-平文パスワードの保持は厳禁とし、`bcryptjs` によりソルト付きでハッシュ化された値のみを保存します。JWT の生成・検証には `jose` ライブラリを使用し、ステートレスでスケーラブルな認証を実現します。
+平文パスワードの保持は厳禁とし、`bcryptjs` によりソルト付きでハッシュ化された値のみを保存します。JWT の生成・検証には `jose` ライブラリを使用し、ステートレス認証を実現します。
 4. **安全なエラー詳細返却:**
-ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、一律 `Invalid credentials.` (401) を返却し、ユーザー存在確認攻撃を防ぎます。
+ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、一律 `Invalid credentials.` (401) を返却してユーザー存在確認攻撃を防ぎます。
 5. **フロントエンドの環境変数カプセル化:**
-ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定します。グローバルな `process.env` への直接アクセスによる事故を防ぐため、フロントエンド用の安全な参照モジュール（`apps/web/src/env.ts`）を経由したアクセスのみを許可します。
+ブラウザ環境へ公開してよい変数は `VITE_` プレフィックスが付与されたものに限定し、`apps/web/src/env.ts` 経由でのみ参照を許可します。
 
 ---
 
@@ -11309,23 +11359,21 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ### 8.1 統一エラーレスポンス構造
 
-エラー時は、単なるテキストではなく必ず以下の統一フォーマット（JSON）で返却します。
-
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
-| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"about:blank"` または `"[https://api.example.com/errors/unauthorized](https://api.example.com/errors/unauthorized)"` |
-| **タイトル** | `title` | エラーの概要（ステータスコードに準拠） | `"Bad Request"`, `"Unauthorized"`, `"Not Found"` |
+| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"about:blank"` |
+| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Not Found"` |
 | **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `404`, `500` |
-| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Authentication token is missing or invalid format."` |
-| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/me"` |
+| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Invalid email or password format."` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 ### 8.2 エラー制御方針
 
 1. **例外クラスの階層化 (`AppError`):**
-すべてのドメイン例外（`ValidationError`, `UnauthorizedError`, `NotFoundError` 等）は基態クラス `AppError` を継承して定義します。
+すべてのドメイン例外（`ValidationError`, `UnauthorizedError`, `NotFoundError` 等）は基底クラス `AppError` を継承して定義します。
 2. **未定義エラーのキャッチ (500 Internal Server Error):**
-予期せぬ例外が発生した場合でも、スタックトレースや内部実装の秘匿情報をそのままクライアントへ返さず、Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換して返却します。
+予期せぬ例外が発生した場合でも、Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換して返却します。
 3. **入力検証エラーの自動標準化 (400 Bad Request):**
 リクエストデータの検証に失敗した場合、不備のある入力フィールドとエラー理由を `invalidParams` へ自動的にマッピングして通知します。
 
@@ -11333,12 +11381,13 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ## 9. 認証・認可 API 仕様 (Authentication API Spec)
 
-ベース URL: `/api`
+ベース URL: `/api/auth`
 
 ### 9.1 ログイン & トークン発行 (`POST /api/auth/login`)
 
 * **認証:** 不要
 * **リクエスト (`application/json`):**
+
 ```json
 {
   "email": "test@example.com",
@@ -11347,14 +11396,13 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ```
 
-
 * **レスポンス (200 OK):**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": 1,
-    "name": "Test User",
     "email": "test@example.com",
     "role": "user"
   }
@@ -11362,8 +11410,8 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ```
 
-
 * **エラーレスポンス (401 Unauthorized - RFC 7807):**
+
 ```json
 {
   "type": "about:blank",
@@ -11375,19 +11423,18 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ```
 
-
-
 ### 9.2 認証ユーザー情報取得 (`GET /api/auth/me`)
 
 * **認証:** 必要 (`Authorization: Bearer <JWT_TOKEN>`)
 * **リクエストヘッダー:**
+
 ```http
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```
 
-
 * **レスポンス (200 OK):**
+
 ```json
 {
   "user": {
@@ -11399,20 +11446,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```
 
-
 * **エラーレスポンス (401 Unauthorized - RFC 7807):**
+
 ```json
 {
   "type": "about:blank",
   "title": "Unauthorized",
   "status": 401,
-  "detail": "Token is invalid or expired.",
+  "detail": "Invalid credentials.",
   "instance": "/api/auth/me"
 }
 
 ```
-
-
 
 ---
 
@@ -11427,12 +11472,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### 10.2 テスト自動化ライフサイクル
 
 1. **テスト開始前のデータベース構造の自動最新化 (Global Setup):**
-全テストスイートが実行される直前に、**テスト用データベースのテーブル構造（スキーマ）を常に最新の状態へ自動同期** します。開発者が手動でマイグレーションする作業を不要にし、最新コード仕様でのテストを保証します。
-*(内部補足: `globalSetup` 内で `drizzle-kit push` 相当の最新化コマンドをテスト用設定 `drizzle-test.config.ts` で実行します)*
+全テストスイートが実行される直前に、`globalSetup` 内で `drizzle-test.config.ts` を用いてテスト用データベースのテーブル構造（スキーマ）を自動同期します。
 2. **テストケース間の完全な状態隔離 (Setup Files):**
-個々のテスト（`it` / `test`）が実行される直前に、**データベース内の既存データを自動的に一括クリーンアップ**（全テーブルに対する `TRUNCATE CASCADE` 実行）します。
-3. **テスト実行環境の分離保護:**
-テスト実行時（`NODE_ENV=test`）は、実際の HTTP ポートの解放・バインドを抑制し、ポート競合を防ぎつつインメモリ HTTP リクエストで API 動作を高速検証します。
+個々のテスト実行直前に、`packages/core/src/test/setup.ts` 等でデータベース内の既存データを全削除して環境を初期化します。
+3. **テスト終了後のコネクション安全開放:**
+DB統合テストの `afterAll` フックにて `activeQueryClient.end()` を呼び出し、PostgreSQL 接続のハンドリング漏れを防ぎます。
 
 ---
 
@@ -11451,7 +11495,7 @@ npm run dev
 
 ### 11.2 全テストの自動実行 (TDD)
 
-すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テストを一括実行します（実行時に DB スキーマの最新化とデータ破棄が自動適用されます）。
+すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テストを一括実行します。
 
 ```bash
 npm test
@@ -11466,10 +11510,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1785916430_5132
+EOF_1785920390_31596
 
 echo "作成: .env"
-cat << 'EOF_1785916430_25222' > ".env"
+cat << 'EOF_1785920390_8463' > ".env"
 # バックエンド用
 PORT=3001
 DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
@@ -11481,6 +11525,6 @@ JWT_SECRET=your-super-secret-jwt-key-must-be-at-least-32-bytes-long
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1785916430_25222
+EOF_1785920390_8463
 
 echo -e "\n復元が完了しました！"
