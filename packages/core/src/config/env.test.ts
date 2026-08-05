@@ -1,6 +1,17 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { validateEnv, formatEnvForLog } from './env';
+import { envSchema, formatEnvForLog } from './env';
 
+// 💡 テスト専用の検証用ヘルパー関数
+function parseEnv(targetEnv: Record<string, string | undefined>) {
+    const result = envSchema.safeParse(targetEnv);
+
+    if (!result.success) {
+        const formattedErrors = JSON.stringify(result.error.format(), null, 2);
+        throw new Error(`環境変数の検証に失敗しました:\n${formattedErrors}`);
+    }
+
+    return result.data;
+}
 
 describe('Environment Variables Validation', () => {
     const originalEnv = process.env;
@@ -19,7 +30,7 @@ describe('Environment Variables Validation', () => {
         process.env.PORT = '3001';
         process.env.NODE_ENV = 'development';
 
-        const env = validateEnv(process.env);
+        const env = parseEnv(process.env);
 
         expect(env.DATABASE_URL).toBe('postgresql://postgres:postgres@localhost:5432/app_db');
         expect(env.PORT).toBe(3001); // 文字列から数値へ変換されること
@@ -30,7 +41,7 @@ describe('Environment Variables Validation', () => {
         process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
         delete process.env.PORT;
 
-        const env = validateEnv(process.env);
+        const env = parseEnv(process.env);
 
         expect(env.PORT).toBe(3001);
     });
@@ -38,14 +49,14 @@ describe('Environment Variables Validation', () => {
     it('DATABASE_URL が存在しない場合、エラーをスローすること', () => {
         delete process.env.DATABASE_URL;
 
-        expect(() => validateEnv(process.env)).toThrowError('環境変数の検証に失敗しました');
+        expect(() => parseEnv(process.env)).toThrowError('環境変数の検証に失敗しました');
     });
 
     it('PORT に数値以外の文字列が渡された場合、エラーをスローすること', () => {
         process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
         process.env.PORT = 'not-a-number';
 
-        expect(() => validateEnv(process.env)).toThrowError();
+        expect(() => parseEnv(process.env)).toThrowError();
     });
 });
 

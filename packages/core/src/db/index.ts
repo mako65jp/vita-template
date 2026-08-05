@@ -1,11 +1,9 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
-import { validateEnv } from '../config/env';
+import { env } from '../config/env';
 
-const env = validateEnv();
-
-const isTest = process.env.VITEST === 'true' || process.env.NODE_ENV === 'test';
+const isTest = env.NODE_ENV === 'test';
 
 // 開発用（本番用）PostgreSQL 接続クライアントの作成
 const queryClient = postgres(env.DATABASE_URL);

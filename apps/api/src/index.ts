@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { validateEnv, formatEnvForLog } from '@app/core';
+import { env, formatEnvForLog } from '@app/core';
 import { AppError, ProblemDetails, ValidationError } from '@app/core';
 import { loadFeatureModules } from '@app/core';
 import { AuthRegistry } from '@app/core';
@@ -10,12 +10,9 @@ import { LocalAuthPlugin } from '@app/plugins-auth-local';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
 import { authRouter } from './routes/auth';
 
-// 1. 起動時に環境変数を検証・取得
-const env = validateEnv();
-
-// 2. コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
-if (process.env.NODE_ENV !== 'test') {
-    console.log('⚙️ Loaded Environment Variables:\n' + formatEnvForLog(env));
+// コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
+if (env.NODE_ENV !== 'test') {
+    console.log('⚙️ Loaded Environment Variables:\n' + formatEnvForLog());
 }
 
 // 3. プラグインの登録
@@ -27,7 +24,7 @@ const app = new Hono();
 // -----------------------------------------------------------------------------
 // テスト専用ルート (NODE_ENV === 'test' の場合のみ有効化)
 // -----------------------------------------------------------------------------
-if (process.env.NODE_ENV === 'test') {
+if (env.NODE_ENV === 'test') {
     app.get('/test/error', () => {
         throw new Error('Test internal error');
     });
@@ -44,7 +41,7 @@ await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 // -----------------------------------------------------------------------------
 // テスト専用バリデーションルート (NODE_ENV === 'test' の場合のみ)
 // -----------------------------------------------------------------------------
-if (process.env.NODE_ENV === 'test') {
+if (env.NODE_ENV === 'test') {
     const sampleSchema = z.object({
         name: z.string().min(2, 'Name must be at least 2 characters'),
         email: z.string().email('Invalid email address'),
@@ -87,7 +84,7 @@ app.notFound((c) => {
 // 共通エラーハンドラー (app.onError - RFC 7807 形式)
 // -----------------------------------------------------------------------------
 app.onError((err, c) => {
-    if (process.env.NODE_ENV !== 'test') {
+    if (env.NODE_ENV !== 'test') {
         console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
     }
 
@@ -127,7 +124,7 @@ app.onError((err, c) => {
 const port = env.PORT; // 型安全な数値ポート番号を使用
 
 // 💡 テスト環境（NODE_ENV === 'test'）以外の場合のみ、実際の HTTP サーバーを起動する
-if (process.env.NODE_ENV !== 'test') {
+if (env.NODE_ENV !== 'test') {
     console.log(`[API] Server running inside DevContainer on http://0.0.0.0:${port}`);
     serve({
         fetch: app.fetch,
