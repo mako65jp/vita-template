@@ -1,4 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
+// import { drizzle } from 'drizzle-orm/node-postgres';
+
 import postgres from 'postgres';
 import * as schema from './schema';
 import { env } from '../config/env';
@@ -15,6 +17,9 @@ export const test_db = drizzle(queryTestClient, { schema });
 
 // テスト用と開発用（本番用）の接続クライアント動的に選択
 export const db = isTest ? test_db : dev_db;
+
+// テスト終了時などにコネクションを安全に破棄するためのクライアント
+export const activeQueryClient = isTest ? queryTestClient : queryClient;
 
 // 💡 スキーマも外部から参照できるように export します
 export { schema };
