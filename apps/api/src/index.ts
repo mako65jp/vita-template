@@ -9,6 +9,7 @@ import { AuthRegistry } from '@app/core';
 import { LocalAuthPlugin } from '@app/plugins-auth-local';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
 import { authRouter } from './routes/auth';
+import { healthRouter } from './routes/health';
 
 // コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
 if (env.NODE_ENV !== 'test') {
@@ -35,6 +36,9 @@ if (env.NODE_ENV === 'test') {
 // -----------------------------------------------------------------------------
 // 💡 authRouter(env.JWT_SECRET) のように実行して Hono インスタンスを渡す
 app.route('/api/auth', authRouter(env.JWT_SECRET));
+
+// ルート登録
+app.route('/', healthRouter);
 
 await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 

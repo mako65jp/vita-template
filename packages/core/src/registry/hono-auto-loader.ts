@@ -10,7 +10,6 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
 
     // 💡 pathToFileURL を使って安全な file:// URL を生成
     const moduleUrl = pathToFileURL(absolutePath).href;
-    // const module = await import(/* @vite-ignore */ moduleUrl);
     const module = await import(moduleUrl);
 
     if (module.default && typeof module.default === 'function') {
