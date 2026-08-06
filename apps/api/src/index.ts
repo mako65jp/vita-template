@@ -10,6 +10,7 @@ import { LocalAuthPlugin } from '@app/plugins-auth-local';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
 import { authRouter } from './routes/auth';
 import { healthRouter } from './routes/health';
+import { loggerMiddleware } from './middlewares/logger';
 
 // コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
 if (env.NODE_ENV !== 'test') {
@@ -23,6 +24,11 @@ AuthRegistry.register(new ActiveDirectoryAuthPlugin());
 const app = new Hono();
 
 // -----------------------------------------------------------------------------
+// グローバルミドルウェア (全リクエストで最初に実行する処理)
+// -----------------------------------------------------------------------------
+app.use('*', loggerMiddleware);
+
+// -----------------------------------------------------------------------------
 // テスト専用ルート (NODE_ENV === 'test' の場合のみ有効化)
 // -----------------------------------------------------------------------------
 if (env.NODE_ENV === 'test') {
@@ -34,12 +40,13 @@ if (env.NODE_ENV === 'test') {
 // -----------------------------------------------------------------------------
 // ルーティング・モジュール読み込み
 // -----------------------------------------------------------------------------
-// 💡 authRouter(env.JWT_SECRET) のように実行して Hono インスタンスを渡す
-app.route('/api/auth', authRouter(env.JWT_SECRET));
-
-// ルート登録
+// ヘルスチェックルート (/healthz)
 app.route('/', healthRouter);
 
+// 認証関連ルート (/api/auth/*)
+app.route('/api/auth', authRouter(env.JWT_SECRET));
+
+// プラグイン/フィーチャーモジュールの動的読み込み
 await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 
 // -----------------------------------------------------------------------------
@@ -87,11 +94,48 @@ app.notFound((c) => {
 // -----------------------------------------------------------------------------
 // 共通エラーハンドラー (app.onError - RFC 7807 形式)
 // -----------------------------------------------------------------------------
-app.onError((err, c) => {
-    if (env.NODE_ENV !== 'test') {
-        console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
-    }
+// app.onError((err, c) => {
+//     if (env.NODE_ENV !== 'test') {
+//         console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
+//     }
 
+//     let status = 500;
+//     let type = 'https://api.example.com/errors/internal-server-error';
+//     let title = 'Internal Server Error';
+//     let detail = 'An unexpected error occurred';
+//     let invalidParams: any = undefined;
+
+//     if (err instanceof AppError) {
+//         status = err.status;
+//         type = `https://api.example.com/errors/${err.code}`;
+//         title = err.title;
+//         detail = err.message;
+
+//         // ValidationError の場合は invalidParams を抽出
+//         if (err instanceof ValidationError) {
+//             invalidParams = err.invalidParams;
+//         }
+//     }
+
+//     // 💡 500系の内部エラー（またはAppError以外の未捕捉例外）の場合のみ、スタックトレースを出力する
+//     const isUnexpectedError = !(err instanceof AppError) || status >= 500;
+//     if (env.NODE_ENV !== 'test' && isUnexpectedError) {
+//         console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
+//     }
+
+//     const problem: ProblemDetails = {
+//         type,
+//         title,
+//         status,
+//         detail,
+//         instance: c.req.path,
+//         ...(invalidParams && { invalidParams }),
+//     };
+
+//     return c.json(problem, status as any);
+// });
+// 共通エラーハンドラー (app.onError)
+app.onError((err, c) => {
     let status = 500;
     let type = 'https://api.example.com/errors/internal-server-error';
     let title = 'Internal Server Error';
@@ -104,7 +148,6 @@ app.onError((err, c) => {
         title = err.title;
         detail = err.message;
 
-        // ValidationError の場合は invalidParams を抽出
         if (err instanceof ValidationError) {
             invalidParams = err.invalidParams;
         }
@@ -119,6 +162,8 @@ app.onError((err, c) => {
         ...(invalidParams && { invalidParams }),
     };
 
+    // 💡 console.error(...) を削除し、レスポンスを返却するだけにする
+    // Hono が c.error に err を保持し、loggerMiddleware 側で 500 ログとして一元出力される
     return c.json(problem, status as any);
 });
 
