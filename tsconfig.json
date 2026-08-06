@@ -21,6 +21,9 @@
       "@app/core/*": [
         "packages/core/src/*"
       ],
+      "@app/ui/*": [
+        "packages/ui/src/*"
+      ],
       "@app/plugins/*": [
         "packages/plugins/*"
       ],

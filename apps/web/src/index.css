@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* モノレポ内の共有 UI パッケージも Tailwind のスキャン対象に指定 */
+@source "../../../packages/ui/src";

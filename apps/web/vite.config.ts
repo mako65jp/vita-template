@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import { loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -16,7 +17,7 @@ export default defineConfig(({ mode }) => {
         // Vite が .env ファイルを探すディレクトリを指定
         envDir,
 
-        plugins: [react()],
+        plugins: [react(), tailwindcss()],
         resolve: {
             tsconfigPaths: true
         },
