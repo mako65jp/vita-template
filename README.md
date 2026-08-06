@@ -1,4 +1,4 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.2
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.3
 
 ## 1. システム概要 (Overview)
 
@@ -79,7 +79,9 @@
 │   │   │   ├── index.test.ts     # API 共通挙動テスト (404/500/共通エラーハンドラー/バリデーション)
 │   │   │   ├── middlewares/      # ミドルウェア層
 │   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
-│   │   │   │   └── auth-middleware.test.ts # ミドルウェア単体・統合テスト
+│   │   │   │   ├── auth-middleware.test.ts # 認証ミドルウェア単体・統合テスト
+│   │   │   │   ├── rbac-middleware.ts      # ロールベース認可ミドルウェア (requireRole)
+│   │   │   │   └── rbac-middleware.test.ts # 認可ミドルウェア単体・統合テスト (403 Forbidden 検証)
 │   │   │   └── routes/           # アプリケーション固有のルーティング
 │   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
 │   │   │       ├── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
@@ -114,8 +116,15 @@
     │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
     │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
     │   │   │   └── users.test.ts # Users テーブル CRUD & Unique 制約 DB 統合テスト
-    │   │   ├── errors/           # システム標準エラー構造・RFC 9457 定義
-    │   │   │   ├── index.ts      # 共通エラークラス群 (`AppError`, `UnauthorizedError`等)
+    │   │   ├── errors/           # システム標準エラー構造・RFC 9457 定義 (役割ごとにファイル分割)
+    │   │   │   ├── types.ts      # エラー型定義 (`ProblemDetails`, `InvalidParam`)
+    │   │   │   ├── app-error.ts  # 基底例外クラス (`AppError`)
+    │   │   │   ├── not-found-error.ts       # 404 例外 (`NotFoundError`)
+    │   │   │   ├── internal-server-error.ts # 500 例外 (`InternalServerError`)
+    │   │   │   ├── validation-error.ts      # 400 例外 (`ValidationError`)
+    │   │   │   ├── unauthorized-error.ts    # 401 例外 (`UnauthorizedError`)
+    │   │   │   ├── forbidden-error.ts       # 403 例外 (`ForbiddenError`)
+    │   │   │   ├── index.ts      # 共通エラー一括エクスポート
     │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
     │   │   ├── registry/         # 動的モジュールローダー
     │   │   │   └── hono-auto-loader.ts # Feature モジュール自動探索機能
@@ -225,21 +234,21 @@ export const users = pgTable('users', {
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
 | **エラー分類 URI** | `type` | エラーの種類を明確に識別する URI。特別な説明ドキュメントを持たない場合は `"about:blank"` | `"about:blank"` |
-| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Not Found"`, `"Service Unavailable"` |
-| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `404`, `500`, `503` |
-| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Invalid email or password format."` |
-| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"`, `"/healthz"` |
+| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Forbidden"`, `"Not Found"`, `"Service Unavailable"` |
+| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `403`, `404`, `500`, `503` |
+| **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"You do not have permission to access this resource."` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"`, `"/admin/dashboard"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 #### エラー制御方針
 
-1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError` 等）は基底クラス `AppError` を継承して定義。
+1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError`, `ForbiddenError` 等）は基底クラス `AppError` を継承して定義し、`packages/core/src/errors/` 配下に1クラス1ファイルで管理。
 2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造（`type: "about:blank"`）へ変換。
 3. **入力検証エラーの標準化 (400):** Zod バリデーション失敗時は不備フィールドと理由を `invalidParams` へ自動マッピング。
 
 ---
 
-### 6.2 認証 API 仕様 (Authentication API Spec)
+### 6.2 認証・認可 API 仕様 (Authentication & Authorization API Spec)
 
 ベース URL: `/api/auth`
 
@@ -312,6 +321,22 @@ export const users = pgTable('users', {
 
 ```
 
+#### ③ ロールベース認可制御 (RBAC Middleware)
+
+* **認証・認可:** 必要 (`authMiddleware` + `requireRole(['admin'])`)
+* **エラーレスポンス (403 Forbidden - RFC 9457):**
+
+```json
+{
+  "type": "about:blank",
+  "title": "Forbidden",
+  "status": 403,
+  "detail": "You do not have permission to access this resource.",
+  "instance": "/admin/dashboard"
+}
+
+```
+
 ---
 
 ### 6.3 ヘルスチェック & 構造化ログ仕様
@@ -371,8 +396,9 @@ export const users = pgTable('users', {
 2. **`API_BASE_URL` の動的連動:** ハードコードを排除し、環境変数または `PORT` から動的に計算されたベース URL を使用。
 3. **ログマスク処理:** 接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）はシステムログ出力時に自動でマスク（`***` 化）。
 4. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
-5. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
-6. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
+5. **権限制御（RBAC）:** ロールベースアクセス制御 (`requireRole`) により、無効または権限不足のリクエストに対して 403 Forbidden（RFC 9457）を厳格に返却。
+6. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
+7. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
 
 ---
 
