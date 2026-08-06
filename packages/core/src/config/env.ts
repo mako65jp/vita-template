@@ -3,17 +3,24 @@ import { z } from 'zod';
 // ==========================================
 // 1. バックエンド用 (Node.js) スキーマ & 関数
 // ==========================================
-export const envSchema = z.object({
-    NODE_ENV: z.enum(['development', 'test', 'production'])
-        .default('development'),
-    PORT: z.coerce.number()
-        .default(3001),
-    DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' }),
-    TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
-        .default('postgresql://postgres:postgres@localhost:5432/app_db_test'),
-    JWT_SECRET: z.string().min(32)
-        .default('super-secret-jwt-key-for-testing-purposes-123456'),
-});
+export const envSchema = z
+    .object({
+        NODE_ENV: z.enum(['development', 'test', 'production'])
+            .default('development'),
+        PORT: z.coerce.number()
+            .default(3001),
+        API_BASE_URL: z.string().url().optional(),
+        DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' }),
+        TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
+            .default('postgresql://postgres:postgres@localhost:5432/app_db_test'),
+        JWT_SECRET: z.string().min(32)
+            .default('super-secret-jwt-key-for-testing-purposes-123456'),
+    })
+    .transform((data) => ({
+        ...data,
+        // API_BASE_URL が明示的に与えられていない場合は PORT から動的に補完
+        API_BASE_URL: data.API_BASE_URL ?? `http://localhost:${data.PORT}`,
+    }));
 
 export type Env = z.infer<typeof envSchema>;
 
@@ -31,25 +38,6 @@ function validateEnv(targetEnv: Record<string, string | undefined> = process.env
 
     return result.data;
 }
-
-// /**
-//  * ログ出力用に環境変数を整形（パスワード等はマスク）する関数
-//  */
-// export function formatEnvForLog(envObj: Env): string {
-//     const maskedEnv = { ...envObj };
-
-//     if (maskedEnv.DATABASE_URL) {
-//         maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL.replace(/:\/\/(.*):(.*)@/, '://$1:***@');
-//     }
-//     if (maskedEnv.TEST_DATABASE_URL) {
-//         maskedEnv.TEST_DATABASE_URL = maskedEnv.TEST_DATABASE_URL.replace(/:\/\/(.*):(.*)@/, '://$1:***@');
-//     }
-//     if (maskedEnv.JWT_SECRET) {
-//         maskedEnv.JWT_SECRET = '***';
-//     }
-
-//     return JSON.stringify(maskedEnv, null, 2);
-// }
 
 /**
  * ログ出力用に環境変数を整形（パスワード等はマスク）する関数

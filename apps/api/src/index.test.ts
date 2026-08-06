@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import app from './index';
 
-describe('API Error Handling (RFC 7807)', () => {
-    it('未定義のルートにアクセスした場合、404エラーがRFC7807形式で返ること', async () => {
+describe('API Error Handling (RFC 9457)', () => {
+    it('未定義のルートにアクセスした場合、404エラーがRFC9457形式で返ること', async () => {
         const res = await app.request('/api/non-existent-route');
         expect(res.status).toBe(404);
 
         const body = await res.json();
         expect(body).toEqual({
-            type: 'https://api.example.com/errors/not-found',
+            type: 'about:blank',
             title: 'Not Found',
             status: 404,
             detail: 'The requested resource was not found',
@@ -22,7 +22,7 @@ describe('API Error Handling (RFC 7807)', () => {
 
         const body = await res.json();
         expect(body).toEqual({
-            type: 'https://api.example.com/errors/internal-server-error',
+            type: 'about:blank',
             title: 'Internal Server Error',
             status: 500,
             detail: 'An unexpected error occurred',
@@ -32,7 +32,7 @@ describe('API Error Handling (RFC 7807)', () => {
 });
 
 describe('Zod Request Validation (Step 2)', () => {
-    it('リクエストBodyが不正な場合、400エラーと詳細なフィールドエラー情報がRFC7807形式で返ること', async () => {
+    it('リクエストBodyが不正な場合、400エラーと詳細なフィールドエラー情報がRFC9457形式で返ること', async () => {
         // 必須項目（email）が欠落しており、name が短すぎる不正なリクエストデータ
         const invalidPayload = {
             name: 'a', // 最低2文字以上必要とする仕様
@@ -50,7 +50,7 @@ describe('Zod Request Validation (Step 2)', () => {
 
         const body = await res.json();
         expect(body).toMatchObject({
-            type: 'https://api.example.com/errors/validation-error',
+            type: 'about:blank',
             title: 'Bad Request',
             status: 400,
             detail: 'Validation failed for the request payload',

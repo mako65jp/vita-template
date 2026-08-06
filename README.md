@@ -1,4 +1,4 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.1
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.2
 
 ## 1. システム概要 (Overview)
 
@@ -41,7 +41,7 @@
 
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 7807)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 9457)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
 | **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
 | **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
 
@@ -75,14 +75,16 @@
 ├── apps/                         # アプリケーション層 (実行体)
 │   ├── api/                      # サーバーサイド API アプリケーション (Hono)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・共通エラーハンドラー・RFC 7807)
+│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・共通エラーハンドラー・RFC 9457)
 │   │   │   ├── index.test.ts     # API 共通挙動テスト (404/500/共通エラーハンドラー/バリデーション)
 │   │   │   ├── middlewares/      # ミドルウェア層
 │   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
 │   │   │   │   └── auth-middleware.test.ts # ミドルウェア単体・統合テスト
 │   │   │   └── routes/           # アプリケーション固有のルーティング
 │   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
-│   │   │       └── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
+│   │   │       ├── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
+│   │   │       ├── health.ts     # ヘルスチェック API ルート (/healthz)
+│   │   │       └── health.test.ts# ヘルスチェック API 統合テスト (DB 接続確認・503 エラーハンドリング)
 │   │   ├── package.json          # API サーバー用依存関係・スクリプト
 │   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
 │   │
@@ -106,13 +108,13 @@
     │   ├── src/
     │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
     │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
-    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数
+    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数 (API_BASE_URL 自動変換等)
     │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
     │   │   ├── db/               # DB 接続インスタンスおよびスキーマ定義
     │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
     │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
     │   │   │   └── users.test.ts # Users テーブル CRUD & Unique 制約 DB 統合テスト
-    │   │   ├── errors/           # システム標準エラー構造・RFC 7807 定義
+    │   │   ├── errors/           # システム標準エラー構造・RFC 9457 定義
     │   │   │   ├── index.ts      # 共通エラークラス群 (`AppError`, `UnauthorizedError`等)
     │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
     │   │   ├── registry/         # 動的モジュールローダー
@@ -214,23 +216,25 @@ export const users = pgTable('users', {
 
 ## 6. API & エラーレスポンス仕様 (API & Error Handling)
 
-### 6.1 統一エラーレスポンス仕様 (RFC 7807 準拠)
+### 6.1 統一エラーレスポンス仕様 (RFC 9457 準拠)
 
-エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、**RFC 7807 (Problem Details for HTTP APIs)** に準拠した構造を採用します。
+エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、RFC 7807 を置き換えた最新標準である **RFC 9457 (Problem Details for HTTP APIs)** に完全準拠した構造を採用します。
+
+無意味なダミー URI やハードコードを排除するため、特定の拡張ドキュメント URI を割り当てないエラーの `type` プロパティには、RFC 9457 の標準規格規定値である **`"about:blank"`** を一律に設定します。
 
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
-| **エラー分類 URI** | `type` | エラーの種類を明確に識別するURI | `"about:blank"` |
-| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Not Found"` |
-| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `404`, `500` |
+| **エラー分類 URI** | `type` | エラーの種類を明確に識別する URI。特別な説明ドキュメントを持たない場合は `"about:blank"` | `"about:blank"` |
+| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Not Found"`, `"Service Unavailable"` |
+| **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `404`, `500`, `503` |
 | **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"Invalid email or password format."` |
-| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"`, `"/healthz"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 #### エラー制御方針
 
 1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError` 等）は基底クラス `AppError` を継承して定義。
-2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造へ変換。
+2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造（`type: "about:blank"`）へ変換。
 3. **入力検証エラーの標準化 (400):** Zod バリデーション失敗時は不備フィールドと理由を `invalidParams` へ自動マッピング。
 
 ---
@@ -266,7 +270,7 @@ export const users = pgTable('users', {
 
 ```
 
-* **エラーレスポンス (401 Unauthorized - RFC 7807):**
+* **エラーレスポンス (401 Unauthorized - RFC 9457):**
 
 ```json
 {
@@ -295,7 +299,7 @@ export const users = pgTable('users', {
 
 ```
 
-* **エラーレスポンス (401 Unauthorized - RFC 7807):**
+* **エラーレスポンス (401 Unauthorized - RFC 9457):**
 
 ```json
 {
@@ -310,10 +314,38 @@ export const users = pgTable('users', {
 
 ---
 
-### 6.3 ヘルスチェック & 構造化ログ仕様（予定）
+### 6.3 ヘルスチェック & 構造化ログ仕様
 
-* **ヘルスチェック (`GET /healthz`):** API サーバーの生存確認および PostgreSQL 導通テストを実行（正常時: `200 OK`, DB不通時: `503 Service Unavailable`）。
-* **構造化ロギング:** Pino 等を利用して全リクエストを JSON 形式でログ出力（`DATABASE_URL` や `JWT_SECRET` 等の機密パラメーターは伏字化）。
+#### ヘルスチェック API (`GET /healthz`)
+
+* **役割:** API サーバーの生存確認および PostgreSQL 導通確認。
+* **正常時レスポンス (200 OK):**
+
+```json
+{
+  "status": "ok",
+  "db": "connected"
+}
+
+```
+
+* **DB接続障害時レスポンス (503 Service Unavailable - RFC 9457):**
+
+```json
+{
+  "type": "about:blank",
+  "title": "Service Unavailable",
+  "status": 503,
+  "detail": "Database connection failed",
+  "instance": "/healthz"
+}
+
+```
+
+#### 構造化ロギング
+
+* **ログ出力:** 全リクエストのコンテキスト情報を構造化ログとして出力。
+* **マスク処理:** `DATABASE_URL` や `JWT_SECRET` などの接続文字列・機密情報は `formatEnvForLog` を介して自動伏字化（`***`）。
 
 ---
 
@@ -321,12 +353,13 @@ export const users = pgTable('users', {
 
 ### 7.1 定義されている環境変数
 
-| 変数名 | 対象領域 | 型 / 制約 | 意図・役割 |
+| 変数名 | 対象領域 | 型 / 制約 | 意図・役割 / 動的補完 |
 | --- | --- | --- | --- |
 | `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
-| `PORT` | API | 数値 | API サーバーが待受を行うポート番号 |
-| `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続URI |
-| `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続URI |
+| `PORT` | API | 数値 (デフォルト: `3001`) | API サーバーが待受を行うポート番号 |
+| `API_BASE_URL` | API | URL形式文字列 (オプショナル) | API のベース URL。未定義の場合は `PORT` の値から `http://localhost:${PORT}` を Zod transform により自動生成 |
+| `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続 URI |
+| `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続 URI |
 | `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
 | `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
 | `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
@@ -335,10 +368,11 @@ export const users = pgTable('users', {
 ### 7.2 セキュリティ設計
 
 1. **フェイルファスト（Fail-Fast）原則:** 起動時に Zod で環境変数を検証し、不備があれば即座に起動を停止。
-2. **ログマスク処理:** 接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）はシステムログ出力時に自動でマスク（`***` 化）。
-3. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
-4. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
-5. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
+2. **`API_BASE_URL` の動的連動:** ハードコードを排除し、環境変数または `PORT` から動的に計算されたベース URL を使用。
+3. **ログマスク処理:** 接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）はシステムログ出力時に自動でマスク（`***` 化）。
+4. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
+5. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
+6. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
 
 ---
 
@@ -366,9 +400,11 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
 
-### 9.1 テスト基盤
+### 9.1 テスト基盤と疎結合アサーション
 
 * **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
+* **モックの適切なクリーンアップ:** 各テスト実行前に `beforeEach` で `vi.restoreAllMocks()` / `vi.clearAllMocks()` を実行し、モックの状態リークを防止。
+* **疎結合アサーション方針:** テストコードがプロダクトコードの内部実装（ドキュメント URL 構造等）に過剰に結合するのを防ぐため、アサーションには `toMatchObject` または正確なエラー構造の同一性検証を用い、脆いテスト（Fragile Test）化を防止します。
 
 ### 9.2 テスト自動化ライフサイクル
 

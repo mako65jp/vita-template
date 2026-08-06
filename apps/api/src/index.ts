@@ -78,11 +78,11 @@ if (env.NODE_ENV === 'test') {
 }
 
 // -----------------------------------------------------------------------------
-// 404 Not Found ハンドラー (RFC 7807 形式)
+// 404 Not Found ハンドラー (RFC 9457 形式)
 // -----------------------------------------------------------------------------
 app.notFound((c) => {
     const problem: ProblemDetails = {
-        type: 'https://api.example.com/errors/not-found',
+        type: 'about:blank',
         title: 'Not Found',
         status: 404,
         detail: 'The requested resource was not found',
@@ -92,59 +92,16 @@ app.notFound((c) => {
 });
 
 // -----------------------------------------------------------------------------
-// 共通エラーハンドラー (app.onError - RFC 7807 形式)
+// 共通エラーハンドラー (app.onError - RFC 9457 形式)
 // -----------------------------------------------------------------------------
-// app.onError((err, c) => {
-//     if (env.NODE_ENV !== 'test') {
-//         console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
-//     }
-
-//     let status = 500;
-//     let type = 'https://api.example.com/errors/internal-server-error';
-//     let title = 'Internal Server Error';
-//     let detail = 'An unexpected error occurred';
-//     let invalidParams: any = undefined;
-
-//     if (err instanceof AppError) {
-//         status = err.status;
-//         type = `https://api.example.com/errors/${err.code}`;
-//         title = err.title;
-//         detail = err.message;
-
-//         // ValidationError の場合は invalidParams を抽出
-//         if (err instanceof ValidationError) {
-//             invalidParams = err.invalidParams;
-//         }
-//     }
-
-//     // 💡 500系の内部エラー（またはAppError以外の未捕捉例外）の場合のみ、スタックトレースを出力する
-//     const isUnexpectedError = !(err instanceof AppError) || status >= 500;
-//     if (env.NODE_ENV !== 'test' && isUnexpectedError) {
-//         console.error(`[Error] ${c.req.method} ${c.req.path}:`, err);
-//     }
-
-//     const problem: ProblemDetails = {
-//         type,
-//         title,
-//         status,
-//         detail,
-//         instance: c.req.path,
-//         ...(invalidParams && { invalidParams }),
-//     };
-
-//     return c.json(problem, status as any);
-// });
-// 共通エラーハンドラー (app.onError)
 app.onError((err, c) => {
     let status = 500;
-    let type = 'https://api.example.com/errors/internal-server-error';
     let title = 'Internal Server Error';
     let detail = 'An unexpected error occurred';
     let invalidParams: any = undefined;
 
     if (err instanceof AppError) {
         status = err.status;
-        type = `https://api.example.com/errors/${err.code}`;
         title = err.title;
         detail = err.message;
 
@@ -154,7 +111,7 @@ app.onError((err, c) => {
     }
 
     const problem: ProblemDetails = {
-        type,
+        type: 'about:blank',
         title,
         status,
         detail,
@@ -162,8 +119,6 @@ app.onError((err, c) => {
         ...(invalidParams && { invalidParams }),
     };
 
-    // 💡 console.error(...) を削除し、レスポンスを返却するだけにする
-    // Hono が c.error に err を保持し、loggerMiddleware 側で 500 ログとして一元出力される
     return c.json(problem, status as any);
 });
 
