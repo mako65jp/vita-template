@@ -7,7 +7,16 @@
         "outDir": "./dist",
         "types": [
             "node"
-        ]
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@app/core": [
+                "../../packages/core/src/index.ts"
+            ],
+            "@app/core/*": [
+                "../../packages/core/src/*"
+            ]
+        }
     },
     "include": [
         "src/**/*"

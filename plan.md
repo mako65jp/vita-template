@@ -15,7 +15,7 @@
 | **DB スキーマ & ORM** | `apps/api` / `packages/core` | 🔴 **高** | **Step 3** | ✅ **完了** | `users` テーブル定義、`TEST_DATABASE_URL` 動的切替、CRUD / Unique 制約の DB 統合テスト完了。 |
 | **認証・認可基盤 (Auth)** | `packages/plugins/auth-*` / `apps/api` | 🔴 **高** | **Step 4** | ✅ **完了** | JWT/ハッシュ化、`/login`, `/me` API、および `ForbiddenError` (403) を含む **RBAC (権限制御) ミドルウェアの単体・結合テストまで全完了。** |
 | **構造化ロギング & ヘルス** | `apps/api` | 🟡 **中** | **Step 5** | ✅ **完了** | JSON ログ、機密情報マスク（`DATABASE_URL`等）、`/healthz` (503 DB切断テスト) 完了。 |
-| **UI 基本コンポーネント** | `apps/web` / `packages/ui` | 🟡 **中** | **Step 6** | ⏳ **未実装** | **【次に着手】** Shadcn UI / Tailwind 導入、共通 Layout、Error Boundary、Toast、Vitest+RTL テスト。 |
+| **UI 基本コンポーネント** | `apps/web` / `packages/ui` | 🟡 **中** | **Step 6** | ✅ **完了** | Tailwind CSS v4 導入、共通 Layout（Header/Sidebar）、Sonner+RFC 9457 Toast 通知、Vitest+RTL テスト（コロケーション構成）完了。 |
 | **ストレージ抽象化** | `packages/core` / `apps/api` | 🟢 **低** | **Step 7** | ⏳ **未実装** | 完全未着手。（ローカル / S3 保存機能、モックテスト） |
 | **メール・通知基盤** | `packages/core` | 🟢 **低** | **Step 8** | ⏳ **未実装** | 完全未着手。（Nodemailer / Resend 連携、HTML テンプレートテスト） |
 

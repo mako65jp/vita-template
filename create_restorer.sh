@@ -88,6 +88,7 @@ find "$TARGET_DIR" \
     -o -path "*/.idea/*" \
     -o -path "*/.vscode/*" \
     -o -name ".DS_Store" \
+    -o -name "coverage" \
     -o -name "package-lock.json" \
     -o -name "create_restorer.sh" \
     -o -name "$OUTPUT_SCRIPT" \) -prune \

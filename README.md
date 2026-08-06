@@ -1,10 +1,10 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.3
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.4
 
 ## 1. システム概要 (Overview)
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
-バックエンドには軽量・高速な Web フレームワーク（**Hono**）、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite**）、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を採用しています。
-共通ロジックや拡張機能（認証・業務コンポーネント等）を独立したパッケージへ分離することで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
+バックエンドには軽量・高速な Web フレームワーク（**Hono**）、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite + Tailwind CSS**）、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を採用しています。
+共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したパッケージへ分離することで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
 
@@ -35,13 +35,14 @@
 
 ## 3. システムアーキテクチャ (System Architecture)
 
-モノレポ構造の強みを活かし、システムの各領域（基盤・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
+モノレポ構造の強みを活かし、システムの各領域（基盤・UI・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
 
 ### 3.1 パッケージの層構造と役割 (Layer Architecture)
 
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
 | **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 9457)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/ui`** | 共通 UI | フロントエンド全域で再利用されるデザインシステム・共通コンポーネントを集約 | Tailwind CSS v4 設定、原子コンポーネント (`Button`)、共通 Layout (`Header`/`Sidebar`)、Toast 通知 (`Sonner`) | 画面固有のビジネスロジックを持たず、純粋なプレゼンテーションに専念 |
 | **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
 | **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
 
@@ -56,7 +57,7 @@
 
 ## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
-プロジェクト全体のフォルダおよびファイル構造です。各モジュールごとのテスト配置と役割分担を整理しています。
+プロジェクト全体のフォルダおよびファイル構造です。各モジュールごとのテスト配置と役割分担を整理しています。コンポーネントとそのテストはコロケーション（同一ディレクトリ配置）を基本原則とします。
 
 ```text
 .
@@ -94,14 +95,17 @@
 │       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
 │       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
-│       │   ├── App.tsx           # ルート UI コンポーネント (ログイン画面等)
-│       │   ├── main.tsx          # React レンダリングエントリーポイント
-│       │   └── index.css         # グローバルスタイル定義
+│       │   ├── App.tsx           # ルート UI コンポーネント
+│       │   ├── App.test.tsx      # ルート UI 単体テスト
+│       │   ├── main.tsx          # React レンダリングエントリーポイント (index.cssインポート必須)
+│       │   ├── index.css         # Tailwind CSS v4 エントリーポイント (@import "tailwindcss"; @source ...)
+│       │   └── test/
+│       │       └── setup.ts      # React Testing Library 用グローバルセットアップ
 │       ├── index.html            # HTML エントリーテンプレート
 │       ├── package.json          # Web アプリ用依存関係・スクリプト
-│       ├── tsconfig.json         # Web アプリ用 TypeScript 設定
+│       ├── tsconfig.json         # Web アプリ用 TypeScript 設定 (packages/ui の include パス指定含む)
 │       ├── tsconfig.node.json    # Vite 設定用 TypeScript 補助設定
-│       └── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み)
+│       └── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み・Vitest 設定)
 │
 └── packages/                     # 共有パッケージ層 (ライブラリ・モジュール)
     ├── core/                     # システム共通基盤パッケージ
@@ -133,6 +137,25 @@
     │   │       └── setup.ts      # 各テストケース実行前のデータ自動全クリーンアップ
     │   ├── package.json          # 共通基盤パッケージ用依存関係
     │   └── tsconfig.json         # 共通基盤用 TypeScript 設定
+    │
+    ├── ui/                       # 共有 UI コンポーネントパッケージ
+    │   ├── src/
+    │   │   ├── index.ts          # UI パッケージエクスポート統合
+    │   │   ├── lib/
+    │   │   │   └── utils.ts      # clsx + tailwind-merge による cn ユーティリティ
+    │   │   ├── components/
+    │   │   │   ├── button.tsx        # CVA 準拠 Button コンポーネント
+    │   │   │   ├── button.test.tsx   # Button 単体テスト (コロケーション)
+    │   │   │   ├── layout.tsx        # AppLayout, HeaderContent, SidebarNav コンポーネント
+    │   │   │   ├── layout.test.tsx   # Layout 単体テスト (コロケーション)
+    │   │   │   ├── toaster.tsx       # Sonner Toast プロバイダー & RFC 9457 エラーハンドラー
+    │   │   │   └── toaster.test.tsx  # Toast & showErrorToast 単体テスト (コロケーション)
+    │   │   └── test/
+    │   │       └── setup.ts      # jest-dom マッチャー拡張セットアップ
+    │   ├── package.json          # @app/ui 依存関係 (clsx, tailwind-merge, cva, sonner)
+    │   ├── tsconfig.json         # UI パッケージ用 TS 設定 (jest-dom / vitest 型拡張)
+    │   └── vite.config.ts        # UI パッケージ用 Vitest 設定
+    │
     ├── plugins/                  # 切り替え可能なプラグイン群
     │   ├── auth-ad/              # Active Directory 認証連携モジュール
     │   │   ├── src/index.ts
@@ -149,6 +172,7 @@
             │   ├── index.ts      # `/sample` ルート定義
             │   └── index.test.ts # モジュール単体（`/sample` 応答）のテスト
             └── package.json
+
 
 ```
 
@@ -245,6 +269,7 @@ export const users = pgTable('users', {
 1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError`, `ForbiddenError` 等）は基底クラス `AppError` を継承して定義し、`packages/core/src/errors/` 配下に1クラス1ファイルで管理。
 2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造（`type: "about:blank"`）へ変換。
 3. **入力検証エラーの標準化 (400):** Zod バリデーション失敗時は不備フィールドと理由を `invalidParams` へ自動マッピング。
+4. **フロントエンド連携:** フロントエンド側では `showErrorToast` ユーティリティ（`packages/ui`）により、レスポンスの RFC 9457 JSON（`title`, `detail`）を自動抽出し、Sonner Toast として表示。
 
 ---
 
@@ -396,7 +421,7 @@ export const users = pgTable('users', {
 2. **`API_BASE_URL` の動的連動:** ハードコードを排除し、環境変数または `PORT` から動的に計算されたベース URL を使用。
 3. **ログマスク処理:** 接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）はシステムログ出力時に自動でマスク（`***` 化）。
 4. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
-5. **権限制御（RBAC）:** ロールベースアクセス制御 (`requireRole`) により、無効または権限不足のリクエストに対して 403 Forbidden（RFC 9457）を厳格に返却。
+5. **権制度制御（RBAC）:** ロールベースアクセス制御 (`requireRole`) により、無効または権限不足のリクエストに対して 403 Forbidden（RFC 9457）を厳格に返却。
 6. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
 7. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
 
@@ -424,11 +449,12 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
 
-テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」** を自動化しています。
+テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」**、および **「コロケーション（同一ディレクトリ）テスト配置」** を導入しています。
 
 ### 9.1 テスト基盤と疎結合アサーション
 
 * **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
+* **テスト配置方針（コロケーション）:** UI コンポーネントおよび個別のユニットモジュールに対するテストコードは、実装ファイルと同じディレクトリに併設（例: `button.tsx` と `button.test.tsx`）。リファクタリング時の影響範囲を限定化します。
 * **モックの適切なクリーンアップ:** 各テスト実行前に `beforeEach` で `vi.restoreAllMocks()` / `vi.clearAllMocks()` を実行し、モックの状態リークを防止。
 * **疎結合アサーション方針:** テストコードがプロダクトコードの内部実装（ドキュメント URL 構造等）に過剰に結合するのを防ぐため、アサーションには `toMatchObject` または正確なエラー構造の同一性検証を用い、脆いテスト（Fragile Test）化を防止します。
 
@@ -438,7 +464,9 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 全テスト実行直前に `globalSetup` が `drizzle-test.config.ts` を用いてテスト用 DB（`TEST_DATABASE_URL`）のスキーマを自動同期。
 2. **テストケース間の完全な状態隔離 (Setup Files):**
 各テスト実行直前に `packages/core/src/test/setup.ts` 等でデータベース内のデータを自動一括消去。
-3. **テスト終了後のコネクション安全開放:**
+3. **DOM マッチャーの型拡張:**
+フロントエンドテスト（`apps/web`, `packages/ui`）では `@testing-library/jest-dom` および `@testing-library/user-event` を読み込み、`toBeInTheDocument` や `toBeDisabled` などの標準 DOM アサーションを完全型安全に利用可能化。
+4. **テスト終了後のコネクション安全開放:**
 各 DB 統合テストの `afterAll` フックにて `activeQueryClient.end()` を呼び出し、PostgreSQL コネクションの切り忘れを防止。
 
 ---
@@ -458,7 +486,7 @@ npm run dev
 
 ### 10.2 全テストの自動実行 (TDD)
 
-すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テストを一括実行します。
+すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テスト、UI コンポーネントテストを一括実行します。
 
 ```bash
 npm test

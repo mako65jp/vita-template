@@ -1,25 +1,25 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@app/ui/*": [
-        "./src/*"
-      ]
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {
+            "@app/ui/*": [
+                "./src/*"
+            ]
+        },
+        "types": [
+            "vitest/globals",
+            "@testing-library/jest-dom"
+        ]
     },
-    "types": [
-      "vitest/globals",
-      "@testing-library/jest-dom"
+    "include": [
+        "src/**/*"
     ]
-  },
-  "include": [
-    "src/**/*"
-  ]
 }
