@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { envSchema, formatEnvForLog } from './env';
+import { allEnvSchema, formatEnvForLog, AllEnv } from './env';
 
 // 💡 テスト専用の検証用ヘルパー関数
 function parseEnv(targetEnv: Record<string, string | undefined>) {
-    const result = envSchema.safeParse(targetEnv);
+    const result = allEnvSchema.safeParse(targetEnv);
 
     if (!result.success) {
         const formattedErrors = JSON.stringify(result.error.format(), null, 2);
@@ -13,7 +13,8 @@ function parseEnv(targetEnv: Record<string, string | undefined>) {
     return result.data;
 }
 
-describe('Environment Variables Validation', () => {
+describe('packages/core/src/config/env', () => {
+
     const originalEnv = process.env;
 
     beforeEach(() => {
@@ -25,56 +26,113 @@ describe('Environment Variables Validation', () => {
         process.env = originalEnv;
     });
 
-    it('正しい環境変数が渡された場合、検証済みオブジェクトを返すこと', () => {
-        process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
-        process.env.PORT = '3001';
-        process.env.NODE_ENV = 'development';
+    // テストで使用する最小限の有効な環境変数セット
+    const validMockEnv = {
+        DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb',
+        TEST_DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb_test',
+        JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
+    };
 
-        const env = parseEnv(process.env);
+    describe('allEnvSchema & validateAllEnv', () => {
+        it('必須の環境変数が揃っている場合、デフォルト値および動的補完値を含めて正しく検証できること', () => {
+            const result = parseEnv(validMockEnv);
 
-        expect(env.DATABASE_URL).toBe('postgresql://postgres:postgres@localhost:5432/app_db');
-        expect(env.PORT).toBe(3001); // 文字列から数値へ変換されること
-        expect(env.NODE_ENV).toBe('development');
+            // デフォルト値の検証
+            expect(result.NODE_ENV).toBe('development');
+            expect(result.PORT).toBe(3001);
+            expect(result.VITE_PORT).toBe(3000);
+            expect(result.VITE_APP_TITLE).toBe('My App');
+
+            // PORT(3001) からの動的補完 URL の検証
+            expect(result.API_BASE_URL).toBe('http://localhost:3001');
+            expect(result.VITE_API_TARGET_URL).toBe('http://127.0.0.1:3001');
+        });
+
+        it('PORT を変更した場合、API_BASE_URL と VITE_API_TARGET_URL にポート番号が動的に反映されること', () => {
+            const customEnv = {
+                ...validMockEnv,
+                PORT: '4000',
+            };
+
+            const result = parseEnv(customEnv);
+
+            expect(result.PORT).toBe(4000);
+            expect(result.API_BASE_URL).toBe('http://localhost:4000');
+            expect(result.VITE_API_TARGET_URL).toBe('http://127.0.0.1:4000');
+        });
+
+        it('API_BASE_URL や VITE_API_TARGET_URL が明示的に指定されている場合、自動補完より優先されること', () => {
+            const customEnv = {
+                ...validMockEnv,
+                PORT: '5000',
+                API_BASE_URL: 'https://api.example.com',
+                VITE_API_TARGET_URL: 'https://proxy.example.com',
+            };
+
+            const result = parseEnv(customEnv);
+
+            expect(result.API_BASE_URL).toBe('https://api.example.com');
+            expect(result.VITE_API_TARGET_URL).toBe('https://proxy.example.com');
+        });
+
+        it('PORT や VITE_PORT に文字列の数値が渡された場合、number 型に変換されること', () => {
+            const customEnv = {
+                ...validMockEnv,
+                PORT: '8080',
+                VITE_PORT: '8081',
+            };
+
+            const result = parseEnv(customEnv);
+
+            expect(result.PORT).toBe(8080);
+            expect(typeof result.PORT).toBe('number');
+            expect(result.VITE_PORT).toBe(8081);
+            expect(typeof result.VITE_PORT).toBe('number');
+        });
+
+        it('DATABASE_URL が無効な URL の場合、例外がスローされること', () => {
+            const invalidEnv = {
+                ...validMockEnv,
+                DATABASE_URL: 'invalid-url-format',
+            };
+
+            expect(() => parseEnv(invalidEnv)).toThrow('環境変数の検証に失敗しました');
+        });
+
+        it('JWT_SECRET が 32 文字未満の場合、例外がスローされること', () => {
+            const invalidEnv = {
+                ...validMockEnv,
+                JWT_SECRET: 'short-secret', // 32文字未満
+            };
+
+            expect(() => parseEnv(invalidEnv)).toThrow('環境変数の検証に失敗しました');
+        });
     });
 
-    it('PORT が指定されていない場合、デフォルト値 3001 を使用すること', () => {
-        process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
-        delete process.env.PORT;
+    describe('formatEnvForLog', () => {
+        it('DATABASE_URL や JWT_SECRET などの機密情報がマスクされること', () => {
+            const mockParsedEnv: AllEnv = {
+                NODE_ENV: 'development',
+                PORT: 3001,
+                API_BASE_URL: 'http://localhost:3001',
+                DATABASE_URL: 'postgresql://postgres:my-secret-password@localhost:5432/app_db',
+                TEST_DATABASE_URL: 'postgresql://postgres:test-password@localhost:5432/app_db_test',
+                JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
+                VITE_PORT: 3000,
+                VITE_API_TARGET_URL: 'http://127.0.0.1:3001',
+                VITE_APP_TITLE: 'My App',
+            };
 
-        const env = parseEnv(process.env);
+            const formatted = formatEnvForLog(mockParsedEnv as any);
 
-        expect(env.PORT).toBe(3001);
-    });
+            // マスクされているかの検証
+            expect(formatted).not.toContain('my-secret-password');
+            expect(formatted).not.toContain('test-password');
+            expect(formatted).not.toContain('super-secret-jwt-key-with-at-least-32-chars!');
 
-    it('DATABASE_URL が存在しない場合、エラーをスローすること', () => {
-        delete process.env.DATABASE_URL;
-
-        expect(() => parseEnv(process.env)).toThrowError('環境変数の検証に失敗しました');
-    });
-
-    it('PORT に数値以外の文字列が渡された場合、エラーをスローすること', () => {
-        process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/app_db';
-        process.env.PORT = 'not-a-number';
-
-        expect(() => parseEnv(process.env)).toThrowError();
-    });
-});
-
-describe('formatEnvForLog', () => {
-    it('DATABASE_URL などのパスワード部分がマスク処理されて文字列化されること', () => {
-        const mockEnv = {
-            NODE_ENV: 'development' as const,
-            PORT: 3001,
-            DATABASE_URL: 'postgresql://postgres:secret_pass@localhost:5432/app_db',
-            TEST_DATABASE_URL: 'postgresql://postgres:secret_pass@localhost:5432/app_db_test',
-            JWT_SECRET: 'JWT_SECRET must be at least 32 characters long',
-        };
-
-        const formatted = formatEnvForLog(mockEnv);
-
-        // ダブルクォーテーション付きの "PORT": 3001 を検証
-        expect(formatted).toContain('"PORT": 3001');
-        expect(formatted).not.toContain('secret_pass'); // パスワードが露出していないこと
-        expect(formatted).toContain('***'); // マスクされていること
+            expect(formatted).toContain('postgresql://postgres:***@localhost:5432/app_db');
+            expect(formatted).toContain('postgresql://postgres:***@localhost:5432/app_db_test');
+            expect(formatted).toContain('"JWT_SECRET": "***"');
+        });
     });
 });

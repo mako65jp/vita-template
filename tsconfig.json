@@ -18,17 +18,23 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
+      "@app/core": [
+        "packages/core/src/index.ts"
+      ],
       "@app/core/*": [
         "packages/core/src/*"
-      ],
-      "@app/ui/*": [
-        "packages/ui/src/*"
       ],
       "@app/plugins/*": [
         "packages/plugins/*"
       ],
       "@app/features/*": [
         "packages/features/*"
+      ],
+      "@app/ui": [
+        "packages/ui/src/index.ts"
+      ],
+      "@app/ui/*": [
+        "packages/ui/src/*"
       ]
     }
   },

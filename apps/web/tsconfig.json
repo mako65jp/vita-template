@@ -1,40 +1,22 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "useDefineForClassFields": true,
-    "allowJs": false,
-    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "types": [
+      "node",
       "vite/client"
     ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@app/core": [
-        "../../packages/core/src/index.ts"
-      ],
-      "@app/core/*": [
-        "../../packages/core/src/*"
-      ],
-      "@app/ui": [
-        "../../packages/ui/src/index.ts"
-      ],
-      "@app/ui/*": [
-        "../../packages/ui/src/*"
-      ]
-    }
   },
   "include": [
     "src",
-    "../../packages/ui/src/**/*"
+    "../../packages/ui/src/**/*",
+    "*.ts"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
 }

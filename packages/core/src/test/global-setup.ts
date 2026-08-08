@@ -11,11 +11,15 @@ export async function setup() {
 
     // packages/core のルートディレクトリパスを解決
     const corePackageDir = path.resolve(__dirname, '../../');
+    const configPath = path.resolve(corePackageDir, 'drizzle-test.config.ts');
 
     try {
-        execSync('npx drizzle-kit push --config=drizzle-test.config.ts', {
+        execSync(`npx drizzle-kit push --config="${configPath}"`, {
             cwd: corePackageDir,
             stdio: 'inherit',
+            env: {
+                ...process.env, // 親プロセスの環境変数を引き継ぐ
+            },
         });
         console.log('✅ テスト用データベースの準備完了!\n');
     } catch (error) {
