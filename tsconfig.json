@@ -1,45 +1,51 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "paths": {
-      "@app/core": [
-        "packages/core/src/index.ts"
-      ],
-      "@app/core/*": [
-        "packages/core/src/*"
-      ],
-      "@app/plugins/*": [
-        "packages/plugins/*"
-      ],
-      "@app/features/*": [
-        "packages/features/*"
-      ],
-      "@app/ui": [
-        "packages/ui/src/index.ts"
-      ],
-      "@app/ui/*": [
-        "packages/ui/src/*"
-      ]
-    }
-  },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "types": [
+            "node",
+            "vitest/globals",
+            "vite/client",
+            "@testing-library/jest-dom"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@app/core": [
+                "packages/core/src/index.ts"
+            ],
+            "@app/core/*": [
+                "packages/core/src/*"
+            ],
+            "@app/plugins/*": [
+                "packages/plugins/*"
+            ],
+            "@app/features/*": [
+                "packages/features/*"
+            ],
+            "@app/ui": [
+                "packages/ui/src/index.ts"
+            ],
+            "@app/ui/*": [
+                "packages/ui/src/*"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }

@@ -1,4 +1,3 @@
-// 例: apps/web/src/components/Header.tsx
 import { clientEnv } from '@app/core';
 
 export const Header = () => {

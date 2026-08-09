@@ -1,4 +1,5 @@
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@app/ui';
+import { clientEnv } from '@app/core/config/env';
 
 export function App() {
   const navItems = [
@@ -29,7 +30,7 @@ export function App() {
 
   return (
     <AppLayout
-      header={<HeaderContent title="管理システム" />}
+      header={<HeaderContent title={clientEnv.VITE_APP_TITLE} />}
       sidebar={<SidebarNav items={navItems} />}
     >
       {/* Toast のプロバイダー配置 */}
