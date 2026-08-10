@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clientEnv } from '@app/core/config/env';
+import { clientEnv } from '@app/ui';
 
 describe('Web Environment Variables (Pattern A)', () => {
     it('packages/core の clientEnv から正しく設定値および動的補完値が取得できること', () => {

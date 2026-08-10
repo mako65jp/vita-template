@@ -8,7 +8,7 @@ export default defineConfig({
         tsconfigPaths: true,
         alias: {
             // エイリアスを直接指定
-            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
+            // '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
             '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
         },
     },

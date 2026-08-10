@@ -1,4 +1,4 @@
-import { clientEnv } from '@app/core';
+import { clientEnv } from '@app/ui';
 
 export const Header = () => {
   return (

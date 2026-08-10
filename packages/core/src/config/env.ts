@@ -36,6 +36,7 @@ export const serverEnvSchema = z
         PORT: z.coerce.number().int().positive({ message: 'PORT は正の整数である必要があります' })
             .default(DEFAULT_BACKEND_PORT),
         API_BASE_URL: z.string().url().optional(),
+        CORS_ORIGIN: z.string().optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
         TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
@@ -58,6 +59,7 @@ export const serverEnvSchema = z
     .transform((data) => ({
         ...data,
         API_BASE_URL: data.API_BASE_URL ?? `http://localhost:${data.PORT}`,
+        CORS_ORIGIN: data.CORS_ORIGIN ?? `http://localhost:${DEFAULT_FRONTEND_PORT}`,
         DATABASE_URL: data.DATABASE_URL
             ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db' : ''),
         TEST_DATABASE_URL: data.TEST_DATABASE_URL

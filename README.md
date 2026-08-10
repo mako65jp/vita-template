@@ -1,4 +1,4 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.4
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.5
 
 ## 1. システム概要 (Overview)
 
@@ -42,7 +42,7 @@
 
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証、DB接続・スキーマ定義、共通エラー定義 (RFC 9457)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証 (`CORS_ORIGIN` 等)、DB接続・スキーマ定義、共通エラー定義 (RFC 9457)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
 | **`packages/ui`** | 共通 UI | フロントエンド全域で再利用されるデザインシステム・共通コンポーネントを集約 | Tailwind CSS v4 設定、原子コンポーネント (`Button`)、共通 Layout (`Header`/`Sidebar`)、Toast 通知 (`Sonner`) | 画面固有のビジネスロジックを持たず、純粋なプレゼンテーションに専念 |
 | **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
 | **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
@@ -77,7 +77,7 @@
 ├── apps/                         # アプリケーション層 (実行体)
 │   ├── api/                      # サーバーサイド API アプリケーション (Hono)
 │   │   ├── src/
-│   │   │   ├── index.ts          # API エントリーポイント (ルーティング統括・共通エラーハンドラー・RFC 9457)
+│   │   │   ├── index.ts          # API エントリーポイント (CORS/ルーティング統括・共通エラーハンドラー・RFC 9457)
 │   │   │   ├── index.test.ts     # API 共通挙動テスト (404/500/共通エラーハンドラー/バリデーション)
 │   │   │   ├── middlewares/      # ミドルウェア層
 │   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
@@ -96,16 +96,23 @@
 │       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
 │       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
-│       │   ├── App.tsx           # ルート UI コンポーネント
+│       │   ├── App.tsx           # ルート UI コンポーネント (ルーティング・ProtectedRoute 適用)
 │       │   ├── App.test.tsx      # ルート UI 単体テスト
 │       │   ├── main.tsx          # React レンダリングエントリーポイント (index.cssインポート必須)
 │       │   ├── index.css         # Tailwind CSS v4 エントリーポイント (@import "tailwindcss"; @source ...)
 │       │   ├── auth/             # 認証状態管理・コンテキスト層
 │       │   │   ├── AuthContext.tsx   # AuthContext / AuthProvider / useAuth フック実装
-│       │   │   └── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
+│       │   │   ├── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
+│       │   │   ├── ProtectedRoute.tsx   # 未認証ユーザー制限・リダイレクトガードコンポーネント
+│       │   │   └── ProtectedRoute.test.tsx # ProtectedRoute 単体テスト
 │       │   ├── components/       # アプリケーション固有の UI コンポーネント
 │       │   │   ├── LoginForm.tsx     # ログインフォームコンポーネント (useAuth 連携)
 │       │   │   └── LoginForm.test.tsx# ログインフォームの単体テスト
+│       │   ├── pages/            # 画面ページコンポーネント
+│       │   │   ├── LoginPage.tsx      # ログイン画面
+│       │   │   ├── LoginPage.test.tsx # ログイン画面統合テスト
+│       │   │   ├── DashboardPage.tsx  # ダッシュボード保護画面
+│       │   │   └── DashboardPage.test.tsx # ダッシュボード画面単体テスト
 │       │   ├── lib/              # フロントエンド共通ユーティリティ・ライブラリ
 │       │   │   ├── apiClient.ts      # Fetch ベースの型安全 API クライアント (RFC 9457 エラーパース・トークン付与)
 │       │   │   └── apiClient.test.ts # apiClient の単体・モックテスト
@@ -124,7 +131,7 @@
     │   ├── src/
     │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
     │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
-    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数 (API_BASE_URL 自動変換等)
+    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数 (CORS_ORIGIN / API_BASE_URL 自動変換等)
     │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
     │   │   ├── db/               # DB 接続インスタンスおよびスキーマ定義
     │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
@@ -422,7 +429,12 @@ export const users = pgTable('users', {
 * **提供機能:**
 * `login(email, password)`: `apiClient` を介して `/api/auth/login` を実行し、受け取ったトークンとユーザー情報を保持。
 * `logout()`: トークンを破棄し未認証状態へリセット。
+
+
 * **初期化・自動ログイン:** アプリ起動時にローカルストレージ内のトークンを確認し、`/api/auth/me` からユーザー情報を自動復元。
+* **保護ルート制御 (`apps/web/src/auth/ProtectedRoute.tsx`):**
+* `useAuth` の未認証状態時はログイン画面へ安全に自動リダイレクト。
+* 認証完了後はダッシュボード画面（`AppLayout`）を表示。
 
 
 * **UI コンポーネント連携 (`apps/web/src/components/LoginForm.tsx`):**
@@ -443,6 +455,7 @@ export const users = pgTable('users', {
 | `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
 | `PORT` | API | 数値 (デフォルト: `3001`) | API サーバーが待受を行うポート番号 |
 | `API_BASE_URL` | API | URL形式文字列 (オプショナル) | API のベース URL。未定義の場合は `PORT` の値から `http://localhost:${PORT}` を Zod transform により自動生成 |
+| `CORS_ORIGIN` | API | 文字列 (オプショナル) | バックエンドで許可する Cross-Origin。未定義の場合は `http://localhost:${DEFAULT_FRONTEND_PORT}` (3000) を自動補完設定 |
 | `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続 URI |
 | `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続 URI |
 | `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
@@ -458,7 +471,7 @@ export const users = pgTable('users', {
 4. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
 5. **権制度制御（RBAC）:** ロールベースアクセス制御 (`requireRole`) により、無効または権限不足のリクエストに対して 403 Forbidden（RFC 9457）を厳格に返却。
 6. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
-7. **CORS & クライアント環境変数:** Web アプリからの通信は CORS 設定で許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
+7. **CORS & クライアント環境変数:** Web アプリからの Cross-Origin リクエストは `apps/api/src/index.ts` の `cors()` ミドルウェアにて `env.CORS_ORIGIN` を参照して安全に許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
 
 ---
 

@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
@@ -27,6 +28,17 @@ const app = new Hono();
 // グローバルミドルウェア (全リクエストで最初に実行する処理)
 // -----------------------------------------------------------------------------
 app.use('*', loggerMiddleware);
+
+// CORS ミドルウェアの適用
+app.use(
+    '*',
+    cors({
+        origin: env.CORS_ORIGIN,
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+    })
+);
 
 // -----------------------------------------------------------------------------
 // テスト専用ルート (NODE_ENV === 'test' の場合のみ有効化)

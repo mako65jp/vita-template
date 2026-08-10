@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
         resolve: {
             tsconfigPaths: true,
             alias: {
-                '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
+                // '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
                 '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
             },
         },

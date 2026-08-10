@@ -1,21 +1,24 @@
+import React from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@app/ui';
 import { clientEnv } from '@app/core/config/env';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
-export function App() {
+const DashboardContent: React.FC = () => {
+  const { user, logout } = useAuth();
+
   const navItems = [
     { label: 'ダッシュボード', href: '#', active: true },
     { label: 'プロジェクト一覧', href: '#' },
     { label: '設定', href: '#' },
   ];
 
-  // 成功通知テスト
   const handleSuccessToast = () => {
     toast.success('処理が完了しました', {
       description: 'データが正常に保存されました。',
     });
   };
 
-  // RFC 9457 形式のエラー通知テスト
   const handleRfcErrorToast = () => {
     const mockRfc9457Error = {
       type: 'https://example.com/errors/invalid-params',
@@ -33,16 +36,16 @@ export function App() {
       header={<HeaderContent title={clientEnv.VITE_APP_TITLE} />}
       sidebar={<SidebarNav items={navItems} />}
     >
-      {/* Toast のプロバイダー配置 */}
-      <Toaster />
-
       <div className="flex flex-col gap-6">
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Toast 通知・エラー表示テスト</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">ダッシュボード</h2>
           <p className="text-sm text-gray-600 mb-4">
-            ボタンをクリックして Toast 通知および RFC 9457 エラーハンドリングの動作を確認してください。
+            ログイン中: <span className="font-semibold text-gray-900">{user?.email}</span> (Role: {user?.role})
           </p>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={logout}>
+              ログアウト
+            </Button>
             <Button variant="default" onClick={handleSuccessToast}>
               成功 Toast を表示
             </Button>
@@ -53,6 +56,17 @@ export function App() {
         </div>
       </div>
     </AppLayout>
+  );
+};
+
+export function App() {
+  return (
+    <AuthProvider>
+      <Toaster />
+      <ProtectedRoute>
+        <DashboardContent />
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }
 

@@ -1,5 +1,5 @@
 // apps/web/src/lib/apiClient.ts
-import { clientEnv } from "@app/core/config/env";
+import { clientEnv } from "@app/ui";
 
 export interface InvalidParam {
     name: string;
