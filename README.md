@@ -4,7 +4,8 @@
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
 バックエンドには軽量・高速な Web フレームワーク（**Hono**）、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite + Tailwind CSS**）、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を採用しています。
-共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したパッケージへ分離することで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
+
+共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したパッケージへ分離し、クライアント側では型安全な API クライアントと Context による認証状態管理を組み合わせることで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
 
@@ -57,7 +58,7 @@
 
 ## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
-プロジェクト全体のフォルダおよびファイル構造です。各モジュールごとのテスト配置と役割分担を整理しています。コンポーネントとそのテストはコロケーション（同一ディレクトリ配置）を基本原則とします。
+プロジェクト全体のフォルダおよびファイル構造です。コンポーネントやロジックとそのテストはコロケーション（同一ディレクトリ配置）を基本原則とします。
 
 ```text
 .
@@ -99,6 +100,15 @@
 │       │   ├── App.test.tsx      # ルート UI 単体テスト
 │       │   ├── main.tsx          # React レンダリングエントリーポイント (index.cssインポート必須)
 │       │   ├── index.css         # Tailwind CSS v4 エントリーポイント (@import "tailwindcss"; @source ...)
+│       │   ├── auth/             # 認証状態管理・コンテキスト層
+│       │   │   ├── AuthContext.tsx   # AuthContext / AuthProvider / useAuth フック実装
+│       │   │   └── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
+│       │   ├── components/       # アプリケーション固有の UI コンポーネント
+│       │   │   ├── LoginForm.tsx     # ログインフォームコンポーネント (useAuth 連携)
+│       │   │   └── LoginForm.test.tsx# ログインフォームの単体テスト
+│       │   ├── lib/              # フロントエンド共通ユーティリティ・ライブラリ
+│       │   │   ├── apiClient.ts      # Fetch ベースの型安全 API クライアント (RFC 9457 エラーパース・トークン付与)
+│       │   │   └── apiClient.test.ts # apiClient の単体・モックテスト
 │       │   └── test/
 │       │       └── setup.ts      # React Testing Library 用グローバルセットアップ
 │       ├── index.html            # HTML エントリーテンプレート
@@ -172,7 +182,6 @@
             │   ├── index.ts      # `/sample` ルート定義
             │   └── index.test.ts # モジュール単体（`/sample` 応答）のテスト
             └── package.json
-
 
 ```
 
@@ -269,7 +278,7 @@ export const users = pgTable('users', {
 1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError`, `ForbiddenError` 等）は基底クラス `AppError` を継承して定義し、`packages/core/src/errors/` 配下に1クラス1ファイルで管理。
 2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造（`type: "about:blank"`）へ変換。
 3. **入力検証エラーの標準化 (400):** Zod バリデーション失敗時は不備フィールドと理由を `invalidParams` へ自動マッピング。
-4. **フロントエンド連携:** フロントエンド側では `showErrorToast` ユーティリティ（`packages/ui`）により、レスポンスの RFC 9457 JSON（`title`, `detail`）を自動抽出し、Sonner Toast として表示。
+4. **フロントエンド連携:** クライアント側（`apps/web/src/lib/apiClient.ts`）はエラーレスポンスを自動で RFC 9457 `ProblemDetails` オブジェクトとして抽出・パースし、`packages/ui` の `showErrorToast` と連携して適切な Toast 通知を即座にユーザーへフィードバック。
 
 ---
 
@@ -399,9 +408,35 @@ export const users = pgTable('users', {
 
 ---
 
-## 7. セキュリティ & 環境変数仕様 (Security & Environment Variables)
+## 7. フロントエンド状態管理 & API 通信仕様 (Frontend State & Client Spec)
 
-### 7.1 定義されている環境変数
+### 7.1 API クライアント (`apps/web/src/lib/apiClient.ts`)
+
+* **機能:** Fetch API のラッパーとして、HTTP リクエスト生成、共通ヘッダー設定、およびエラー判定を一元管理。
+* **認証トークン自動付与:** ローカルストレージ（または認証コンテキスト）から保持中の JWT トークンを取得し、`Authorization: Bearer <token>` ヘッダーへ自動挿入。
+* **RFC 9457 エラーパース:** レスポンスが `!response.ok` の場合、JSON ボディから RFC 9457 構造（`type`, `title`, `status`, `detail`, `instance`, `invalidParams`）を安全に抽出しスロー。
+
+### 7.2 認証コンテキスト (`apps/web/src/auth/AuthContext.tsx` / `useAuth`)
+
+* **役割:** アプリ全体のログイン状態、認証済みユーザープロファイル、JWT トークンの管理および共有。
+* **提供機能:**
+* `login(email, password)`: `apiClient` を介して `/api/auth/login` を実行し、受け取ったトークンとユーザー情報を保持。
+* `logout()`: トークンを破棄し未認証状態へリセット。
+* **初期化・自動ログイン:** アプリ起動時にローカルストレージ内のトークンを確認し、`/api/auth/me` からユーザー情報を自動復元。
+
+
+* **UI コンポーネント連携 (`apps/web/src/components/LoginForm.tsx`):**
+* `useAuth` から `login` を呼び出し。
+* 送信中のローディング状態の表示・二重送信防止。
+* エラー発生時は `showErrorToast`（`packages/ui`）にエラーオブジェクトを渡し、Sonner Toast で通知。
+
+
+
+---
+
+## 8. セキュリティ & 環境変数仕様 (Security & Environment Variables)
+
+### 8.1 定義されている環境変数
 
 | 変数名 | 対象領域 | 型 / 制約 | 意図・役割 / 動的補完 |
 | --- | --- | --- | --- |
@@ -415,7 +450,7 @@ export const users = pgTable('users', {
 | `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
 | `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
 
-### 7.2 セキュリティ設計
+### 8.2 セキュリティ設計
 
 1. **フェイルファスト（Fail-Fast）原則:** 起動時に Zod で環境変数を検証し、不備があれば即座に起動を停止。
 2. **`API_BASE_URL` の動的連動:** ハードコードを排除し、環境変数または `PORT` から動的に計算されたベース URL を使用。
@@ -427,13 +462,13 @@ export const users = pgTable('users', {
 
 ---
 
-## 8. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
+## 9. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
 
-### 8.1 機能の自動検出とルーティング登録
+### 9.1 機能の自動検出とルーティング登録
 
 * 各 Feature パッケージが持つ API ルート（Hono インスタンス）を個別に手動インポートする手間を省くため、指定ディレクトリ配下のモジュールを動的に探索・一括登録する自動ローダー機構（`hono-auto-loader.ts`）を導入します。
 
-### 8.2 クロスプラットフォーム＆モジュール互換性の保障
+### 9.2 クロスプラットフォーム＆モジュール互換性の保障
 
 * OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、`pathToFileURL` を用いて変換します。
 
@@ -447,18 +482,18 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ---
 
-## 9. テストアーキテクチャ & ライフサイクル (Testing Architecture)
+## 10. テストアーキテクチャ & ライフサイクル (Testing Architecture)
 
 テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」**、および **「コロケーション（同一ディレクトリ）テスト配置」** を導入しています。
 
-### 9.1 テスト基盤と疎結合アサーション
+### 10.1 テスト基盤と疎結合アサーション
 
 * **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
-* **テスト配置方針（コロケーション）:** UI コンポーネントおよび個別のユニットモジュールに対するテストコードは、実装ファイルと同じディレクトリに併設（例: `button.tsx` と `button.test.tsx`）。リファクタリング時の影響範囲を限定化します。
+* **テスト配置方針（コロケーション）:** UI コンポーネントおよび個別のユニットモジュールに対するテストコードは、実装ファイルと同じディレクトリに併設（例: `apiClient.ts` と `apiClient.test.ts`）。リファクタリング時の影響範囲を限定化します。
 * **モックの適切なクリーンアップ:** 各テスト実行前に `beforeEach` で `vi.restoreAllMocks()` / `vi.clearAllMocks()` を実行し、モックの状態リークを防止。
 * **疎結合アサーション方針:** テストコードがプロダクトコードの内部実装（ドキュメント URL 構造等）に過剰に結合するのを防ぐため、アサーションには `toMatchObject` または正確なエラー構造の同一性検証を用い、脆いテスト（Fragile Test）化を防止します。
 
-### 9.2 テスト自動化ライフサイクル
+### 10.2 テスト自動化ライフサイクル
 
 1. **テスト開始前の DB スキーマ自動同期 (Global Setup):**
 全テスト実行直前に `globalSetup` が `drizzle-test.config.ts` を用いてテスト用 DB（`TEST_DATABASE_URL`）のスキーマを自動同期。
@@ -471,11 +506,11 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ---
 
-## 10. 実行スクリプト リファレンス (Scripts)
+## 11. 実行スクリプト リファレンス (Scripts)
 
 プロジェクト内で利用する標準的なコマンドです。
 
-### 10.1 開発サーバー起動
+### 11.1 開発サーバー起動
 
 すべてのアプリケーション（API・Web）を開発モードで並行起動します。
 
@@ -484,7 +519,7 @@ npm run dev
 
 ```
 
-### 10.2 全テストの自動実行 (TDD)
+### 11.2 全テストの自動実行 (TDD)
 
 すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テスト、UI コンポーネントテストを一括実行します。
 
@@ -493,7 +528,7 @@ npm test
 
 ```
 
-### 10.3 テスト用 DB スキーマの手動同期
+### 11.3 テスト用 DB スキーマの手動同期
 
 テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
 

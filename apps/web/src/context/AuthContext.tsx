@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiClient, getStoredToken, setStoredToken, removeStoredToken } from '../lib/apiClient';
 
 // ユーザーオブジェクトの型定義
 export interface User {
@@ -22,37 +23,25 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+    const [token, setToken] = useState<string | null>(() => getStoredToken());
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     // 初期化時：localStorage にトークンがあれば /api/auth/me でユーザー情報を復元
     useEffect(() => {
         const initAuth = async () => {
-            const storedToken = localStorage.getItem('token');
+            const storedToken = getStoredToken();
             if (!storedToken) {
                 setIsLoading(false);
                 return;
             }
 
             try {
-                const res = await fetch('/api/auth/me', {
-                    headers: {
-                        Authorization: `Bearer ${storedToken}`,
-                    },
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    setUser(data.user);
-                    setToken(storedToken);
-                } else {
-                    localStorage.removeItem('token');
-                    setToken(null);
-                    setUser(null);
-                }
+                const data = await apiClient.get<{ user: User }>('/api/auth/me');
+                setUser(data.user);
+                setToken(storedToken);
             } catch (error) {
                 console.error('Failed to restore authentication session:', error);
-                localStorage.removeItem('token');
+                removeStoredToken();
                 setToken(null);
                 setUser(null);
             } finally {
@@ -65,28 +54,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // ログイン処理
     const login = async (email: string, password: string) => {
-        const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
+        const data = await apiClient.post<{ token: string; user: User }>('/api/auth/login', {
+            email,
+            password,
         });
 
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.detail || 'Login failed');
-        }
-
-        const data = await res.json();
-        localStorage.setItem('token', data.token);
+        setStoredToken(data.token);
         setToken(data.token);
         setUser(data.user);
     };
 
     // ログアウト処理
     const logout = () => {
-        localStorage.removeItem('token');
+        removeStoredToken();
         setToken(null);
         setUser(null);
     };

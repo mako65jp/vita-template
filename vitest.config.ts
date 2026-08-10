@@ -11,7 +11,6 @@ export default defineConfig({
     projects: [
       'packages/*',
       'apps/api',
-      // 'apps/web',
       'apps/web/vitest.config.ts',
     ],
 
