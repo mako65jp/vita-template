@@ -35,8 +35,10 @@ export const serverEnvSchema = z
             .default('development'),
         PORT: z.coerce.number().int().positive({ message: 'PORT は正の整数である必要があります' })
             .default(DEFAULT_BACKEND_PORT),
-        API_BASE_URL: z.string().url().optional(),
-        CORS_ORIGIN: z.string().optional(),
+        API_BASE_URL: z.string().url()
+            .optional(),
+        CORS_ORIGIN: z.string()
+            .optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
         TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
@@ -95,14 +97,14 @@ function getClientEnv(): ClientEnv {
 function getServerEnv(): ServerEnv {
     const targetEnv = typeof process !== 'undefined' ? process.env : {};
 
-    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
-    if (targetEnv.NODE_ENV === 'test') {
-        const fallbackResult = serverEnvSchema.safeParse({
-            ...targetEnv,
-            JWT_SECRET: targetEnv.JWT_SECRET ?? '12345678901234567890123456789012',
-        });
-        if (fallbackResult.success) return fallbackResult.data;
-    }
+    //    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
+    //    if (targetEnv.NODE_ENV === 'test') {
+    //        const fallbackResult = serverEnvSchema.safeParse({
+    //            ...targetEnv,
+    //            JWT_SECRET: targetEnv.JWT_SECRET ?? '12345678901234567890123456789012',
+    //        });
+    //        if (fallbackResult.success) return fallbackResult.data;
+    //    }
 
     const result = serverEnvSchema.safeParse(targetEnv);
 
@@ -119,18 +121,20 @@ function getServerEnv(): ServerEnv {
 // 3. 外部公開用オブジェクト (Export)
 // ==========================================
 
+export const isTest = typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || Boolean(process.env.VITEST));
+export const isServer = typeof window === 'undefined';
+
 /** フロントエンド用環境変数 (App.tsx などから参照) */
 export const clientEnv: ClientEnv = getClientEnv();
 
 /** バックエンド用環境変数 (サーバーコードのみから参照) */
-export const env: ServerEnv =
-    typeof window === 'undefined'
-        ? getServerEnv()
-        : (new Proxy({} as ServerEnv, {
-            get() {
-                throw new Error('❌ [Security Alert] フロントエンド（ブラウザ）からサーバー環境変数 (env) を参照することはできません。');
-            },
-        }));
+export const env: ServerEnv = (isServer || isTest)
+    ? getServerEnv()
+    : (new Proxy({} as ServerEnv, {
+        get() {
+            throw new Error('❌ [Security Alert] フロントエンド（ブラウザ）からサーバー環境変数 (env) を参照することはできません。');
+        },
+    }));
 
 // ==========================================
 // 4. ログ出力用整形関数
@@ -152,4 +156,3 @@ export function formatEnvForLog(targetEnv: ServerEnv = env): string {
 
     return JSON.stringify(maskedEnv, null, 2);
 }
-

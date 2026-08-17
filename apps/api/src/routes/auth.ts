@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db, schema, UnauthorizedError } from '@app/core';
+import { db, users } from '@app/core/server';
+import { UnauthorizedError } from '@app/core';
 import { verifyPassword, signJwt } from '@app/plugins-auth-local';
 import { authMiddleware } from '../middlewares/auth-middleware';
 
@@ -32,7 +33,7 @@ export function authRouter(jwtSecret: string) {
 
         // DB からユーザーを検索
         const user = await db.query.users.findFirst({
-            where: eq(schema.users.email, email),
+            where: eq(users.email, email),
         });
 
         if (!user) {

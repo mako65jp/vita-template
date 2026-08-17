@@ -8,13 +8,13 @@ export default defineConfig({
         tsconfigPaths: true,
         alias: {
             // エイリアスを直接指定
-            // '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
             '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
+            '@app/features/user-management': path.resolve(import.meta.dirname, '../../packages/features/user-management/src'),
         },
     },
     test: {
-        environment: 'jsdom',
         globals: true,
+        environment: 'jsdom',
         setupFiles: ['./src/test/setup.ts'],
     },
 });

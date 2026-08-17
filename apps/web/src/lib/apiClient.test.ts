@@ -1,6 +1,7 @@
 // apps/web/src/lib/apiClient.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { apiClient, ApiError } from "./apiClient";
+import { AUTH_TOKEN_KEY } from '@app/core';
 
 describe("apiClient (API クライアント)", () => {
     const originalFetch = global.fetch;
@@ -15,7 +16,7 @@ describe("apiClient (API クライアント)", () => {
     });
 
     it("正常系: リクエストヘッダーに Content-Type と Authorization トークンが正しく設定されること", async () => {
-        localStorage.setItem("auth_token", "mock-jwt-token");
+        localStorage.setItem(AUTH_TOKEN_KEY, "mock-jwt-token");
 
         const mockResponse = { id: "1", name: "テストユーザー" };
         global.fetch = vi.fn().mockResolvedValue({
@@ -72,7 +73,7 @@ describe("apiClient (API クライアント)", () => {
     });
 
     it("異常系: 401 Unauthorized 発生時にローカルストレージのトークンが削除されること", async () => {
-        localStorage.setItem("auth_token", "expired-token");
+        localStorage.setItem(AUTH_TOKEN_KEY, "expired-token");
 
         global.fetch = vi.fn().mockResolvedValue({
             ok: false,
@@ -87,6 +88,6 @@ describe("apiClient (API クライアント)", () => {
         });
 
         await expect(apiClient.get("/api/protected")).rejects.toThrow(ApiError);
-        expect(localStorage.getItem("auth_token")).toBeNull();
+        expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull();
     });
 });

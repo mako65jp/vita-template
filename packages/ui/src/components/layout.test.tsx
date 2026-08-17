@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { AppLayout, HeaderContent, SidebarNav } from './layout';
 
@@ -24,7 +24,35 @@ describe('AppLayout Component', () => {
         );
 
         expect(screen.getByRole('heading', { name: 'テストヘッダー' })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'メニュー1' })).toBeInTheDocument();
+        expect(screen.getAllByRole('link', { name: 'メニュー1' })[0]).toBeInTheDocument();
+    });
+
+    it('モバイル表示時にメニューボタンのトグルでドロワーが開閉すること', () => {
+        render(
+            <AppLayout
+                header={<HeaderContent title="テストヘッダー" />}
+                sidebar={<SidebarNav items={[{ label: 'メニュー1', href: '#' }]} />}
+            >
+                <div>コンテンツ</div>
+            </AppLayout>
+        );
+
+        const toggleButton = screen.getByRole('button', { name: 'Toggle Menu' });
+        expect(toggleButton).toBeInTheDocument();
+
+        // トグルボタン押下でドロワー内の要素が開く
+        fireEvent.click(toggleButton);
+        expect(screen.getByRole('button', { name: 'Close Menu' })).toBeInTheDocument();
+    });
+
+    it('HeaderContent に children が指定された場合、正しく描画されること', () => {
+        render(
+            <HeaderContent title="テストヘッダー">
+                <button>カスタムボタン</button>
+            </HeaderContent>
+        );
+
+        expect(screen.getByRole('button', { name: 'カスタムボタン' })).toBeInTheDocument();
     });
 
     it('SidebarNav で active フラグが立っている要素にアクティブスタイルが適用されること', () => {

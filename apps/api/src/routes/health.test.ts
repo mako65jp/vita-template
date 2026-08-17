@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import app from '../index';
-import { db } from '@app/core';
+import { db } from '@app/core/server';
 
 describe('Health Check API (Step 6.1)', () => {
     beforeEach(() => {

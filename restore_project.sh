@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1786336632_6402' > "package.json"
+cat << 'EOF_1786952845_10691' > "package.json"
 {
   "name": "devcontainer-monorepo",
   "private": true,
@@ -21,7 +21,8 @@ cat << 'EOF_1786336632_6402' > "package.json"
     "apps/*",
     "packages/*",
     "packages/plugins/*",
-    "packages/features/*"
+    "packages/features/*",
+    "packages/ui/*"
   ],
   "scripts": {
     "start": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
@@ -29,19 +30,19 @@ cat << 'EOF_1786336632_6402' > "package.json"
     "dev:api": "npm --workspace=apps/api run dev",
     "dev:web": "npm --workspace=apps/web run dev",
     "build": "npm run build --workspaces --if-present",
-    "test": "vitest run",
+    "test": "vitest run --watch --no-cache",
     "db:push": "npm run db:push --workspaces --if-present",
     "db:push:test": "npm run db:push:test --workspaces --if-present",
     "db:push:all": "npm run db:push:all --workspaces --if-present",
-    "coverage": "vitest run --coverage",
-    "seed:user": "npx tsx --env-file=.env packages/core/src/seed-dev-user.ts",
-    "seed:all": "npm run seed:user"
+    "db:seed": "tsx packages/core/src/db/seed.ts",
+    "coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
     "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.3.3",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"
@@ -51,10 +52,42 @@ cat << 'EOF_1786336632_6402' > "package.json"
     "drizzle-orm": "^0.45.2"
   }
 }
-EOF_1786336632_6402
+EOF_1786952845_10691
+
+echo "作成: cat_files.sh"
+cat << 'EOF_1786952845_3108' > "cat_files.sh"
+#!/bin/bash
+
+# 引数が指定されていない場合は使い方を表示して終了
+if [ $# -eq 0 ]; then
+    echo "使用方法: $0 <ファイル|フォルダ|ワイルドカード...>"
+    exit 1
+fi
+
+# ワイルドカードに一致するファイルがない場合に、パターン文字列がそのまま残るのを防ぐ
+shopt -s nullglob
+
+for target in "$@"; do
+    if [ -f "$target" ]; then
+        # 対象がファイルの場合
+        echo "$target :"
+        cat "$target"
+        echo ""
+    elif [ -d "$target" ]; then
+        # 対象がディレクトリの場合、配下のファイルを再帰的に出力
+        find "$target" -type f | while read -r file; do
+            echo "$file :"
+            cat "$file"
+            echo ""
+        done
+    else
+        echo "警告: '$target' に一致するファイルやフォルダが見つかりません。" >&2
+    fi
+done
+EOF_1786952845_3108
 
 echo "作成: .gitignore"
-cat << 'EOF_1786336632_27975' > ".gitignore"
+cat << 'EOF_1786952845_20836' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -161,11 +194,11 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1786336632_27975
+EOF_1786952845_20836
 
 echo "作成: plan.md"
-cat << 'EOF_1786336632_15689' > "plan.md"
-# 📋 共通ひな形機能 一覧表（最新版）
+cat << 'EOF_1786952845_10450' > "plan.md"
+# 📋 拡張候補一覧表（最新版）
 
 ### 凡例
 
@@ -175,38 +208,75 @@ cat << 'EOF_1786336632_15689' > "plan.md"
 
 ---
 
-| 機能名 | 担当パッケージ | 機能優先順位 | TDD実装順序 | 現状 | 実績と現状の対応 |
+| 機能領域 | 機能名 | 機能概要 | 主な担当レイヤー / パッケージ | 状況 | 導入メリット・意図 |
 | --- | --- | --- | --- | --- | --- |
-| **環境変数・設定基盤** | `packages/core` | 🔴 **高** | **Step 0** | ✅ **完了** | クライアント/サーバー設定の分離、Zod検証、`PORT` による `VITE_API_TARGET_URL` 動的補完、セキュリティマスク、全ビルド・テスト通過。 |
-| **統一エラーハンドリング** | `apps/api` / `packages/core` | 🔴 **高** | **Step 1** | ✅ **完了** | RFC 9457（`about:blank`）準拠。404 / 500 / 共通例外の単体・統合テスト完了。 |
-| **Zod リクエスト検証** | `apps/api` / `packages/core` | 🔴 **高** | **Step 2** | ✅ **完了** | 不正 payload 時に `invalidParams` を含む 400 Bad Request 返却のテスト完了。 |
-| **DB スキーマ & ORM** | `apps/api` / `packages/core` | 🔴 **高** | **Step 3** | ✅ **完了** | `users` テーブル定義、`TEST_DATABASE_URL` 動的切替、`postgres(...)` 型安全性確保、CRUD / Unique 制約の DB 統合テスト完了。 |
-| **認証・認可基盤 (Auth)** | `packages/plugins/auth-*` / `apps/api` | 🔴 **高** | **Step 4** | ✅ **完了** | JWT/ハッシュ化、`/login`, `/me` API、および `ForbiddenError` (403) を含む RBAC (権限制御) ミドルウェアの単体・結合テストまで全完了。 |
-| **構造化ロギング & ヘルス** | `apps/api` | 🟡 **中** | **Step 5** | ✅ **完了** | JSON ログ、機密情報マスク（`DATABASE_URL`等）、`/healthz` (503 DB切断テスト) 完了。 |
-| **UI 基本コンポーネント** | `apps/web` / `packages/ui` | 🟡 **中** | **Step 6** | ✅ **完了** | Tailwind CSS v4 導入、共通 Layout（Header/Sidebar）、Sonner+RFC 9457 Toast 通知、Vitest+RTL テスト（コロケーション構成）完了。 |
-| **API 連携 & 状態管理基盤** | `apps/web` | 🔴 **高** | **Step 7** | ✅ **完了** | 型安全 API クライアント（`apiClient`）、`token` を含む `AuthContext` / `useAuth` による認証状態管理基盤、`/api/auth/login`・`/api/auth/me` 連携、単体テスト・型チェック・プロダクションビルド全通過および `LoginForm` との整合性確認完了。 |
-| **認証画面 & アクセス制御** | `apps/web` | 🔴 **高** | **Step 8** | ✅ **完了** | ログイン画面（`LoginForm`）、`ProtectedRoute` による認証ガード、API CORS 設定修正、およびログイン成功後のダッシュボード表示確認完了。 |
-| **サンプル CRUD 業務機能** | `packages/features` / `apps/web` | 🟡 **中** | **Step 9** | ⏳ **【次に着手】** | 実践サンプル（プロジェクト/タスク管理等）の API・一覧/作成/編集/削除画面・結合テスト一気通貫開発。 |
-| **ストレージ抽象化** | `packages/core` / `apps/api` | 🟢 **低** | **Step 10** | ⏸️ **保留** | ローカル / S3 ファイル保存機能、モックテスト（画面基盤完成後に着手）。 |
-| **メール・通知基盤** | `packages/core` | 🟢 **低** | **Step 11** | ⏸️ **保留** | Nodemailer / Resend 連携、HTML テンプレートテスト（画面基盤完成後に着手）。 |
+| **1. ユーザー管理（管理者用基盤）** | **ロール・権限の変更** | ユーザーごとのロール（`user` / `admin` 等）の割り当て・変更 | `apps/api` / `apps/web` | ✅ **完了** | アクセス制御（RBAC）の実運用を可能にする |
+|  | **アカウント無効化・削除** | システム利用停止（ステータス変更）や物理/論理削除 | `apps/api` / `packages/core` | ✅ **完了** | 退職・不要アカウントのセキュリティ保護 |
+| **2. アクセス制御・認可基盤** | **画面・コンポーネントガード** | ユーザーのロールに応じたメニュー表示切替や操作ボタンの非表示制御 | `packages/ui` / `apps/web` | ✅ **完了** | フロントエンドでの不正操作防止と表示制御の共通化 |
+|  | **権限エラー画面 (403 Forbidden)** | 権限のないページに直接アクセスした際の専用エラー画面 | `apps/web` | ✅ **完了** | ユーザーへの適切なエラー通知と遷移誘導 |
+| **3. 汎用 UI コンポーネント群** | **データテーブルコンポーネント** | 検索・ソート・ページネーション機能を備えた一覧テーブル | `packages/ui` | ⏳ **未実装** | データ一覧画面の開発スピード向上 |
+|  | **モーダル・ダイアログ** | 確認メッセージ（削除確認等）や入力フォーム用オーバーレイ | `packages/ui` | ⏳ **未実装** | 操作時の対話 UI の統一化 |
+|  | **フォーム制御・バリデーション基盤** | React Hook Form と Zod を連携した入力エラー表示の統一仕組み | `packages/ui` / `apps/web` | ⏳ **未実装** | フォーム開発の効率化とバリデーション表現の平準化 |
+| **4. 運用・セキュリティ・エラー処理** | **監査ログ (Audit Log)** | 誰が・いつ・何をしたか（ログイン、データ更新、削除等）の操作記録 | `apps/api` / `packages/core` | ⏳ **未実装** | 障害追跡・セキュリティ監査の実現 |
+|  | **自動ログアウト処理** | トークン期限切れ（401）検知時の自動ログアウトおよびリダイレクト | `apps/web` | ⏳ **未実装** | セッション切断時の不具合防止と体験向上 |
+|  | **標準エラー画面 (404 / 500)** | 不存在 URL アクセスやシステム例外発生時のフォールバック画面 | `apps/web` | ⏳ **未実装** | 未定義エラーによる画面不調の防止 |
+| **5. 通知・アナウンス基盤** | **システム内通知** | ヘッダーのベルアイコン等での個別通知および既読管理 | `apps/api` / `apps/web` | ⏳ **未実装** | ユーザーへの処理結果や状態変更の即時伝達 |
+|  | **お知らせ・アナウンス管理** | 管理者から全ユーザー/特定ロール宛へのメンテ情報等の配信 | `apps/api` / `apps/web` | ⏳ **未実装** | 運営からユーザーへの情報共有 |
+| **6. ファイル・メディア管理** | **汎用ファイルアップロード UI** | ドラッグ＆ドロップ対応の画像・ドキュメントアップロード部品 | `packages/ui` | ⏳ **未実装** | ファイル取り扱い画面の共通化 |
+|  | **S3 / クラウドストレージ API** | バックエンドからのストレージ保存および署名付き URL 発行 | `packages/core` / `apps/api` | ⏳ **未実装** | 安全なファイル保存・参照基盤の確立 |
+| **7. 非同期処理・タスク基盤** | **バックグラウンドジョブ実行** | CSV 一括処理等の重い処理の非同期実行と進捗表示 | `apps/api` / `packages/core` | ⏳ **未実装** | レスポンス遅延の防止と非同期処理可視化 |
+|  | **定期タスク (Cron Job)** | バックアップや定期処理の自動実行 | `apps/api` | ⏳ **未実装** | 運用自動化基盤の確立 |
+| **8. 組織・マルチテナント** | **組織 (テナント)・チーム管理** | 企業・部署単位でのデータアクセス範囲の完全分離 | `packages/core` / `apps/api` | ⏳ **未実装** | B2B / SaaS 型アプリへの対応力強化 |
+| **9. 多言語対応 (i18n)** | **多言語切り替え** | 日本語 / 英語等の表示切り替えおよび言語リソース管理 | `apps/web` / `packages/ui` | ⏳ **未実装** | グローバル利用への拡張性確保 |
 
 ---
-EOF_1786336632_15689
+EOF_1786952845_10450
+
+mkdir -p "dev"
+echo "作成: dev/seed-dev-user.ts"
+cat << 'EOF_1786952845_24465' > "dev/seed-dev-user.ts"
+import { db, users } from '@app/core/server';
+import { hashPassword } from '@app/plugins-auth-local';
+
+async function main() {
+    const email = 'mako65jp@gmail.com';
+    const password = '1234'; // お好みのパスワード
+
+    // もし core 内にハッシュ関数があれば使い、無ければ使っているライブラリでハッシュ化
+    const hashedPassword = await hashPassword(password);
+
+    await db.insert(users)
+        .values({
+            email,
+            passwordHash: hashedPassword,
+            name: '開発ユーザー',
+        })
+        .onConflictDoNothing();
+
+    console.log(`✅ User created: ${email}`);
+    process.exit(0);
+}
+
+main().catch((err) => {
+    console.error('❌ Failed:', err);
+    process.exit(1);
+});
+EOF_1786952845_24465
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1786336632_20557' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1786952845_30461' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1786336632_20557
+EOF_1786952845_30461
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1786336632_17035' > ".devcontainer/Dockerfile"
+cat << 'EOF_1786952845_14502' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -218,11 +288,11 @@ RUN apt-get update && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
     
-EOF_1786336632_17035
+EOF_1786952845_14502
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1786336632_3809' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1786952845_27293' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -249,11 +319,11 @@ cat << 'EOF_1786336632_3809' > ".devcontainer/devcontainer.json"
   ],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1786336632_3809
+EOF_1786952845_27293
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1786336632_20240' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1786952845_14463' > ".devcontainer/docker-compose.yml"
 
 services:
   app:
@@ -295,10 +365,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1786336632_20240
+EOF_1786952845_14463
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1786336632_20835' > "tsconfig.json"
+cat << 'EOF_1786952845_895' > "tsconfig.json"
 {
     "compilerOptions": {
         "target": "ES2022",
@@ -350,41 +420,66 @@ cat << 'EOF_1786336632_20835' > "tsconfig.json"
         "dist"
     ]
 }
-EOF_1786336632_20835
+EOF_1786952845_895
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1786336632_8412' > "vitest.config.ts"
-import { defineConfig } from 'vitest/config';
+cat << 'EOF_1786952845_32335' > "vitest.config.ts"
+import { defineConfig, defineProject } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
-  resolve: {
-    tsconfigPaths: true
-  },
-  test: {
-    globals: true,
-    reporters: ['tree'],
-
-    projects: [
-      'packages/*',
-      'apps/api',
-      'apps/web/vitest.config.ts',
-    ],
-
-    // 除外するファイル/フォルダ
-    exclude: ['node_modules', 'dist', '.next', 'coverage'],
-
-    coverage: {
-      provider: 'v8', // or 'istanbul'
-      include: ['**/*.{ts,tsx}']
+    resolve: {
+        tsconfigPaths: true,
+        alias: [
+            // @app/core/config/env を packages/core/src/config/env.ts にマッピング
+            {
+                find: '@app/core/config/env',
+                replacement: path.resolve(import.meta.dirname, 'packages/core/src/config/env.ts'),
+            },
+            // @app/core/db を packages/core/src/db/index.ts に正確にマッピング
+            {
+                find: '@app/core/db',
+                replacement: path.resolve(import.meta.dirname, 'packages/core/src/db/index.ts'),
+            },
+            // @app/core 単体を packages/core/src/index.ts にマッピング
+            {
+                find: '@app/core',
+                replacement: path.resolve(import.meta.dirname, 'packages/core/src/index.ts'),
+            },
+        ],
     },
+    test: {
+        globals: true,
+        reporters: ['tree'],
 
-  },
+        // パッケージのディレクトリパスを指定（設定ファイルのパスではなくディレクトリを指定するのが正しい仕様）
+        projects: [
+            'apps/api',
+            'apps/web',
+            'packages/core',
+            'packages/ui',
+            'packages/features/*',
+        ],
+
+        exclude: ['node_modules', 'dist', '.next', 'coverage'],
+
+        coverage: {
+            provider: 'v8', // or 'istanbul'
+            include: ['**/*.{ts,tsx}'],
+            exclude: [
+                'dev/**/*',
+                'test/**/*',
+            ],
+        },
+
+    },
 });
-EOF_1786336632_8412
+EOF_1786952845_32335
 
 mkdir -p "packages/ui"
 echo "作成: packages/ui/package.json"
-cat << 'EOF_1786336632_8800' > "packages/ui/package.json"
+cat << 'EOF_1786952845_2089' > "packages/ui/package.json"
 {
   "name": "@app/ui",
   "version": "1.0.0",
@@ -418,11 +513,11 @@ cat << 'EOF_1786336632_8800' > "packages/ui/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1786336632_8800
+EOF_1786952845_2089
 
 mkdir -p "packages/ui"
 echo "作成: packages/ui/tsconfig.json"
-cat << 'EOF_1786336632_14062' > "packages/ui/tsconfig.json"
+cat << 'EOF_1786952845_19997' > "packages/ui/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -432,11 +527,11 @@ cat << 'EOF_1786336632_14062' > "packages/ui/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1786336632_14062
+EOF_1786952845_19997
 
 mkdir -p "packages/ui"
 echo "作成: packages/ui/vitest.config.ts"
-cat << 'EOF_1786336632_12053' > "packages/ui/vitest.config.ts"
+cat << 'EOF_1786952845_10312' > "packages/ui/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -446,7 +541,7 @@ export default defineConfig({
     resolve: {
         tsconfigPaths: true,
         alias: {
-            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src/index.ts'),
+            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
         },
     },
     test: {
@@ -455,11 +550,11 @@ export default defineConfig({
         setupFiles: ['./src/test/setup.ts'],
     },
 });
-EOF_1786336632_12053
+EOF_1786952845_10312
 
 mkdir -p "packages/ui/src"
 echo "作成: packages/ui/src/index.ts"
-cat << 'EOF_1786336632_13051' > "packages/ui/src/index.ts"
+cat << 'EOF_1786952845_5234' > "packages/ui/src/index.ts"
 export * from './lib/utils';
 export * from './components/button';
 export * from './components/layout';
@@ -467,17 +562,17 @@ export * from './components/toaster';
 
 export { clientEnvSchema, clientEnv } from '@app/core/config/env'
 export type { ClientEnv } from '@app/core/config/env'
-EOF_1786336632_13051
+EOF_1786952845_5234
 
 mkdir -p "packages/ui/src/test"
 echo "作成: packages/ui/src/test/setup.ts"
-cat << 'EOF_1786336632_7104' > "packages/ui/src/test/setup.ts"
+cat << 'EOF_1786952845_14042' > "packages/ui/src/test/setup.ts"
 import '@testing-library/jest-dom';
-EOF_1786336632_7104
+EOF_1786952845_14042
 
 mkdir -p "packages/ui/src/components"
 echo "作成: packages/ui/src/components/button.tsx"
-cat << 'EOF_1786336632_25300' > "packages/ui/src/components/button.tsx"
+cat << 'EOF_1786952845_21923' > "packages/ui/src/components/button.tsx"
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
@@ -514,11 +609,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = 'Button';
-EOF_1786336632_25300
+EOF_1786952845_21923
 
 mkdir -p "packages/ui/src/components"
 echo "作成: packages/ui/src/components/toaster.tsx"
-cat << 'EOF_1786336632_24654' > "packages/ui/src/components/toaster.tsx"
+cat << 'EOF_1786952845_30513' > "packages/ui/src/components/toaster.tsx"
 import { Toaster as SonnerToaster, toast } from 'sonner';
 
 export function Toaster() {
@@ -566,84 +661,11 @@ export function showErrorToast(error: unknown) {
 }
 
 export { toast };
-EOF_1786336632_24654
-
-mkdir -p "packages/ui/src/components"
-echo "作成: packages/ui/src/components/layout.tsx"
-cat << 'EOF_1786336632_9111' > "packages/ui/src/components/layout.tsx"
-import * as React from 'react';
-import { cn } from '../lib/utils';
-
-interface LayoutProps {
-    children: React.ReactNode;
-    sidebar?: React.ReactNode;
-    header?: React.ReactNode;
-    className?: string;
-}
-
-export function AppLayout({ children, sidebar, header, className }: LayoutProps) {
-    return (
-        <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
-            {/* Header */}
-            {header && (
-                <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur">
-                    {header}
-                </header>
-            )}
-
-            <div className="flex flex-1">
-                {/* Sidebar */}
-                {sidebar && (
-                    <aside className="w-64 shrink-0 border-r border-gray-200 bg-white p-4 hidden md:block">
-                        {sidebar}
-                    </aside>
-                )}
-
-                {/* Main Content */}
-                <main className={cn('flex-1 p-6 max-w-7xl mx-auto w-full', className)}>
-                    {children}
-                </main>
-            </div>
-        </div>
-    );
-}
-
-export function HeaderContent({ title }: { title: string }) {
-    return (
-        <div className="flex h-16 items-center justify-between px-6">
-            <h1 className="text-xl font-bold tracking-tight text-gray-900">{title}</h1>
-            <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-500">Dev App</span>
-            </div>
-        </div>
-    );
-}
-
-export function SidebarNav({ items }: { items: { label: string; href: string; active?: boolean }[] }) {
-    return (
-        <nav className="flex flex-col gap-1">
-            {items.map((item) => (
-                <a
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                        'flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                        item.active
-                            ? 'bg-blue-50 text-blue-700 font-semibold'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                    )}
-                >
-                    {item.label}
-                </a>
-            ))}
-        </nav>
-    );
-}
-EOF_1786336632_9111
+EOF_1786952845_30513
 
 mkdir -p "packages/ui/src/components"
 echo "作成: packages/ui/src/components/button.test.tsx"
-cat << 'EOF_1786336632_16627' > "packages/ui/src/components/button.test.tsx"
+cat << 'EOF_1786952845_31779' > "packages/ui/src/components/button.test.tsx"
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -674,12 +696,155 @@ describe('Button Component', () => {
         expect(handleClick).not.toHaveBeenCalled();
     });
 });
-EOF_1786336632_16627
+EOF_1786952845_31779
+
+mkdir -p "packages/ui/src/components/layout"
+echo "作成: packages/ui/src/components/layout/index.ts"
+cat << 'EOF_1786952845_15750' > "packages/ui/src/components/layout/index.ts"
+export * from './AppLayout';
+export * from './SidebarNav';
+EOF_1786952845_15750
+
+mkdir -p "packages/ui/src/components/layout"
+echo "作成: packages/ui/src/components/layout/AppLayout.tsx"
+cat << 'EOF_1786952845_14614' > "packages/ui/src/components/layout/AppLayout.tsx"
+import * as React from 'react';
+import { cn } from '../../lib/utils';
+
+interface LayoutProps {
+    children: React.ReactNode;
+    sidebar?: React.ReactNode;
+    header?: React.ReactNode;
+    className?: string;
+}
+
+export function AppLayout({ children, sidebar, header, className }: LayoutProps) {
+    const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+
+    return (
+        <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
+            {/* Header */}
+            {header && (
+                <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur">
+                    <div className="flex items-center justify-between px-4">
+                        {sidebar && (
+                            <button
+                                type="button"
+                                onClick={() => setIsMobileOpen(!isMobileOpen)}
+                                className="mr-2 rounded-md p-2 text-gray-600 hover:bg-gray-100 md:hidden"
+                                aria-label="Toggle Menu"
+                            >
+                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        )}
+                        <div className="flex-1">{header}</div>
+                    </div>
+                </header>
+            )}
+
+            <div className="flex flex-1 relative">
+                {/* Desktop Sidebar */}
+                {sidebar && (
+                    <aside className="w-64 shrink-0 border-r border-gray-200 bg-white p-4 hidden md:block">
+                        {sidebar}
+                    </aside>
+                )}
+
+                {/* Mobile Drawer (Overlay Sidebar) */}
+                {sidebar && isMobileOpen && (
+                    <>
+                        <div
+                            className="fixed inset-0 z-50 bg-black/50 md:hidden"
+                            onClick={() => setIsMobileOpen(false)}
+                        />
+                        <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r border-gray-200 bg-white p-4 shadow-xl md:hidden">
+                            <div className="flex justify-end mb-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMobileOpen(false)}
+                                    className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
+                                    aria-label="Close Menu"
+                                >
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div onClick={() => setIsMobileOpen(false)}>
+                                {sidebar}
+                            </div>
+                        </aside>
+                    </>
+                )}
+
+                {/* Main Content */}
+                <main className={cn('flex-1 p-6 max-w-7xl mx-auto w-full', className)}>
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
+}
+
+export interface HeaderContentProps {
+    title: string;
+    children?: React.ReactNode;
+}
+
+export function HeaderContent({ title, children }: HeaderContentProps) {
+    return (
+        <div className="flex h-16 items-center justify-between px-2 md:px-6">
+            <h1 className="text-lg md:text-xl font-bold tracking-tight text-gray-900">{title}</h1>
+            <div className="flex items-center gap-4">
+                {children ?? <span className="text-sm text-gray-500">Dev App</span>}
+            </div>
+        </div>
+    );
+}
+EOF_1786952845_14614
+
+mkdir -p "packages/ui/src/components/layout"
+echo "作成: packages/ui/src/components/layout/SidebarNav.tsx"
+cat << 'EOF_1786952845_9811' > "packages/ui/src/components/layout/SidebarNav.tsx"
+import * as React from 'react';
+import { cn } from '../../lib/utils';
+
+export interface SidebarNavItem {
+    label: string;
+    href: string;
+    active?: boolean;
+    onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}
+
+export function SidebarNav({ items }: { items: SidebarNavItem[] }) {
+    return (
+        <nav className="flex flex-col gap-1">
+            {items.map((item, index) => (
+                <a
+                    key={`${item.label}-${item.href}-${index}`}
+                    href={item.href}
+                    onClick={item.onClick}
+                    className={cn(
+                        'flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                        item.active
+                            ? 'bg-blue-50 text-blue-700 font-semibold'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    )}
+                >
+                    {item.label}
+                </a>
+            ))}
+        </nav>
+    );
+}
+EOF_1786952845_9811
 
 mkdir -p "packages/ui/src/components"
 echo "作成: packages/ui/src/components/layout.test.tsx"
-cat << 'EOF_1786336632_25711' > "packages/ui/src/components/layout.test.tsx"
-import { render, screen } from '@testing-library/react';
+cat << 'EOF_1786952845_8171' > "packages/ui/src/components/layout.test.tsx"
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { AppLayout, HeaderContent, SidebarNav } from './layout';
 
@@ -705,7 +870,35 @@ describe('AppLayout Component', () => {
         );
 
         expect(screen.getByRole('heading', { name: 'テストヘッダー' })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'メニュー1' })).toBeInTheDocument();
+        expect(screen.getAllByRole('link', { name: 'メニュー1' })[0]).toBeInTheDocument();
+    });
+
+    it('モバイル表示時にメニューボタンのトグルでドロワーが開閉すること', () => {
+        render(
+            <AppLayout
+                header={<HeaderContent title="テストヘッダー" />}
+                sidebar={<SidebarNav items={[{ label: 'メニュー1', href: '#' }]} />}
+            >
+                <div>コンテンツ</div>
+            </AppLayout>
+        );
+
+        const toggleButton = screen.getByRole('button', { name: 'Toggle Menu' });
+        expect(toggleButton).toBeInTheDocument();
+
+        // トグルボタン押下でドロワー内の要素が開く
+        fireEvent.click(toggleButton);
+        expect(screen.getByRole('button', { name: 'Close Menu' })).toBeInTheDocument();
+    });
+
+    it('HeaderContent に children が指定された場合、正しく描画されること', () => {
+        render(
+            <HeaderContent title="テストヘッダー">
+                <button>カスタムボタン</button>
+            </HeaderContent>
+        );
+
+        expect(screen.getByRole('button', { name: 'カスタムボタン' })).toBeInTheDocument();
     });
 
     it('SidebarNav で active フラグが立っている要素にアクティブスタイルが適用されること', () => {
@@ -723,11 +916,11 @@ describe('AppLayout Component', () => {
         expect(normalLink).not.toHaveClass('bg-blue-50');
     });
 });
-EOF_1786336632_25711
+EOF_1786952845_8171
 
 mkdir -p "packages/ui/src/components"
 echo "作成: packages/ui/src/components/toaster.test.tsx"
-cat << 'EOF_1786336632_25624' > "packages/ui/src/components/toaster.test.tsx"
+cat << 'EOF_1786952845_6693' > "packages/ui/src/components/toaster.test.tsx"
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { toast, showErrorToast } from './toaster';
 
@@ -781,22 +974,22 @@ describe('showErrorToast Utility', () => {
     });
   });
 });
-EOF_1786336632_25624
+EOF_1786952845_6693
 
 mkdir -p "packages/ui/src/lib"
 echo "作成: packages/ui/src/lib/utils.ts"
-cat << 'EOF_1786336632_2135' > "packages/ui/src/lib/utils.ts"
+cat << 'EOF_1786952845_27757' > "packages/ui/src/lib/utils.ts"
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-EOF_1786336632_2135
+EOF_1786952845_27757
 
 mkdir -p "packages/plugins/auth-ad"
 echo "作成: packages/plugins/auth-ad/package.json"
-cat << 'EOF_1786336632_1284' > "packages/plugins/auth-ad/package.json"
+cat << 'EOF_1786952845_26709' > "packages/plugins/auth-ad/package.json"
 {
   "name": "@app/plugins-auth-ad",
   "version": "1.0.0",
@@ -804,11 +997,11 @@ cat << 'EOF_1786336632_1284' > "packages/plugins/auth-ad/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1786336632_1284
+EOF_1786952845_26709
 
 mkdir -p "packages/plugins/auth-ad/src"
 echo "作成: packages/plugins/auth-ad/src/index.ts"
-cat << 'EOF_1786336632_7182' > "packages/plugins/auth-ad/src/index.ts"
+cat << 'EOF_1786952845_19462' > "packages/plugins/auth-ad/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -822,11 +1015,11 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1786336632_7182
+EOF_1786952845_19462
 
 mkdir -p "packages/plugins/auth-local"
 echo "作成: packages/plugins/auth-local/package.json"
-cat << 'EOF_1786336632_20139' > "packages/plugins/auth-local/package.json"
+cat << 'EOF_1786952845_22822' > "packages/plugins/auth-local/package.json"
 {
   "name": "@app/plugins-auth-local",
   "version": "1.0.0",
@@ -841,11 +1034,11 @@ cat << 'EOF_1786336632_20139' > "packages/plugins/auth-local/package.json"
     "@types/bcryptjs": "^2.4.6"
   }
 }
-EOF_1786336632_20139
+EOF_1786952845_22822
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/index.ts"
-cat << 'EOF_1786336632_27146' > "packages/plugins/auth-local/src/index.ts"
+cat << 'EOF_1786952845_21581' > "packages/plugins/auth-local/src/index.ts"
 import { AuthPlugin } from '@app/core/auth/auth-registry';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -861,11 +1054,11 @@ export class LocalAuthPlugin implements AuthPlugin {
 }
 
 export * from './auth-utils';
-EOF_1786336632_27146
+EOF_1786952845_21581
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/auth-utils.ts"
-cat << 'EOF_1786336632_13475' > "packages/plugins/auth-local/src/auth-utils.ts"
+cat << 'EOF_1786952845_18652' > "packages/plugins/auth-local/src/auth-utils.ts"
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -926,11 +1119,11 @@ export async function verifyJwt<T = Record<string, unknown>>(
         return null;
     }
 }
-EOF_1786336632_13475
+EOF_1786952845_18652
 
 mkdir -p "packages/plugins/auth-local/src"
 echo "作成: packages/plugins/auth-local/src/auth-utils.test.ts"
-cat << 'EOF_1786336632_17128' > "packages/plugins/auth-local/src/auth-utils.test.ts"
+cat << 'EOF_1786952845_10679' > "packages/plugins/auth-local/src/auth-utils.test.ts"
 import { describe, it, expect } from 'vitest';
 import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
 
@@ -992,24 +1185,28 @@ describe('Auth Utilities (Step 4.1)', () => {
         });
     });
 });
-EOF_1786336632_17128
+EOF_1786952845_10679
 
 mkdir -p "packages/core"
 echo "作成: packages/core/package.json"
-cat << 'EOF_1786336632_10173' > "packages/core/package.json"
+cat << 'EOF_1786952845_25582' > "packages/core/package.json"
 {
   "name": "@app/core",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "db:push": "drizzle-kit push --verbose",
-    "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts --verbose",
-    "db:push:all": "npm run db:push && npm run db:push:test"
-  },
   "main": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./db": "./src/db/index.ts",
+    "./registry/hono-auto-loader": "./src/registry/hono-auto-loader.ts",
+    "./config/env": "./src/config/env.ts"
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
+    "db:push:all": "npm run db:push && npm run db:push:test"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
@@ -1022,27 +1219,27 @@ cat << 'EOF_1786336632_10173' > "packages/core/package.json"
     "drizzle-kit": "^0.31.10"
   }
 }
-EOF_1786336632_10173
+EOF_1786952845_25582
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle-test.config.ts"
-cat << 'EOF_1786336632_28061' > "packages/core/drizzle-test.config.ts"
+cat << 'EOF_1786952845_2874' > "packages/core/drizzle-test.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from './src/config/env';
 
 export default defineConfig({
-    schema: './src/db/schema.ts',
+    schema: './src/db/schema/index.ts',
     out: './drizzle',
     dialect: 'postgresql',
     dbCredentials: {
         url: env.TEST_DATABASE_URL,
     },
 });
-EOF_1786336632_28061
+EOF_1786952845_2874
 
 mkdir -p "packages/core"
 echo "作成: packages/core/tsconfig.json"
-cat << 'EOF_1786336632_4026' > "packages/core/tsconfig.json"
+cat << 'EOF_1786952845_10840' > "packages/core/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -1052,11 +1249,11 @@ cat << 'EOF_1786336632_4026' > "packages/core/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1786336632_4026
+EOF_1786952845_10840
 
 mkdir -p "packages/core"
 echo "作成: packages/core/vitest.config.ts"
-cat << 'EOF_1786336632_5810' > "packages/core/vitest.config.ts"
+cat << 'EOF_1786952845_1013' > "packages/core/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -1064,52 +1261,157 @@ export default defineConfig({
         tsconfigPaths: true
     },
     test: {
+        globals: true,
         globalSetup: ['./src/test/global-setup.ts'],    // ① テスト前に自動で db:push:test
         setupFiles: ['./src/test/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
         fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1786336632_5810
+EOF_1786952845_1013
+
+mkdir -p "packages/core/src/registry"
+echo "作成: packages/core/src/registry/hono-auto-loader.test.ts"
+cat << 'EOF_1786952845_12865' > "packages/core/src/registry/hono-auto-loader.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Hono } from 'hono';
+import { db, plugins as pluginsTable, loadFeatureModules } from '../server';
+import { PluginRegistry } from '../index';
+
+describe('hono-auto-loader', () => {
+    const dummyPluginId = 'test-dummy-plugin';
+
+    beforeEach(() => {
+        const dummyApp = new Hono();
+        dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+
+        PluginRegistry.register({
+            id: dummyPluginId,
+            name: 'テスト用プラグイン',
+            routes: dummyApp,
+            navItems: [{ label: 'テスト', path: '/test' }],
+        });
+    });
+
+    it('DBで有効(enabled: true)のプラグインのみ API ルートがマウントされること', async () => {
+        await db.insert(pluginsTable).values({
+            id: dummyPluginId,
+            name: 'テスト用プラグイン',
+            enabled: true,
+        }).onConflictDoUpdate({
+            target: pluginsTable.id,
+            set: { enabled: true },
+        });
+
+        const app = new Hono();
+        await loadFeatureModules(app, 'packages/features/*/src/server.ts');
+
+        const res = await app.request(`/api/${dummyPluginId}/hello`);
+        expect(res.status).toBe(200);
+    });
+
+    it('DBで無効(enabled: false)のプラグインはマウントされず 404 になること', async () => {
+        await db.insert(pluginsTable).values({
+            id: dummyPluginId,
+            name: 'テスト用プラグイン',
+            enabled: false,
+        }).onConflictDoUpdate({
+            target: pluginsTable.id,
+            set: { enabled: false },
+        });
+
+        const app = new Hono();
+        await loadFeatureModules(app, 'packages/features/*/src/index.ts');
+
+        const res = await app.request(`/api/${dummyPluginId}/hello`);
+        expect(res.status).toBe(404);
+    });
+});
+EOF_1786952845_12865
 
 mkdir -p "packages/core/src/registry"
 echo "作成: packages/core/src/registry/hono-auto-loader.ts"
-cat << 'EOF_1786336632_19827' > "packages/core/src/registry/hono-auto-loader.ts"
+cat << 'EOF_1786952845_29003' > "packages/core/src/registry/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { db } from '../db';
+import { plugins as pluginsTable } from '../db/schema';
+import { PluginRegistry } from '../plugins/registry';
 
+//
+// packages/features/*/src/index.ts から機能モジュールを自動読み込みし、
+// DB 上で有効（enabled: true）なプラグインのみを Hono アプリへマウントする関数
+//
 export async function loadFeatureModules(app: Hono, pattern: string) {
-  const files = await glob(pattern);
-  for (const file of files) {
-    const absolutePath = path.resolve(file);
+    const files = await glob(pattern);
 
-    // 💡 pathToFileURL を使って安全な file:// URL を生成
-    const moduleUrl = pathToFileURL(absolutePath).href;
-    const module = await import(moduleUrl);
-
-    if (module.default && typeof module.default === 'function') {
-      const route = module.default();
-      app.route('/', route);
-      console.log(`[Auto-Loader] Loaded Feature module: ${file}`);
+    // 1. 各機能モジュールを動的インポート
+    // (各モジュールの内部で PluginRegistry.register() が実行される)
+    for (const file of files) {
+        const absolutePath = path.resolve(file);
+        const moduleUrl = pathToFileURL(absolutePath).href;
+        await import(moduleUrl);
     }
-  }
+
+    // 2. DB から登録済みプラグインの有効/無効ステータスを取得
+    let dbPluginsMap = new Map<string, boolean>();
+    try {
+        const dbPlugins = await db.select().from(pluginsTable);
+        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
+    } catch (error) {
+        console.warn('[Auto-Loader] DB query failed or table not found. Defaulting all plugins to enabled.');
+    }
+
+    // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
+    for (const plugin of PluginRegistry.getAll()) {
+        // DB に未登録の場合はデフォルトで有効 (true) と判定
+        const isEnabled = dbPluginsMap.has(plugin.id)
+            ? dbPluginsMap.get(plugin.id)
+            : true;
+
+        if (isEnabled) {
+            // API パス: /api/{plugin-id} 配下にマウント
+            app.route(`/api/${plugin.id}`, plugin.routes);
+            console.log(`[Auto-Loader] ✅ Loaded & Mounted Plugin: ${plugin.id}`);
+        } else {
+            console.log(`[Auto-Loader] ⏸️ Skipped Disabled Plugin: ${plugin.id}`);
+        }
+    }
 }
-EOF_1786336632_19827
+EOF_1786952845_29003
 
 mkdir -p "packages/core/src"
 echo "作成: packages/core/src/index.ts"
-cat << 'EOF_1786336632_27412' > "packages/core/src/index.ts"
-export * from './auth/auth-registry';
-export * from './registry/hono-auto-loader';
-export * from './db';
-export * from './config/env';
+cat << 'EOF_1786952845_4467' > "packages/core/src/index.ts"
+// 共通環境（Node.js / Browser 両方）で安全に使用できるモジュールのみをエクスポート
+
+// エラー定義 (AppError, ValidationError, UnauthorizedError 等)
 export * from './errors';
-EOF_1786336632_27412
+
+// 環境変数スキーマ・型 (Zod Schema)
+export * from './config/env';
+
+export * from './config/constants';
+
+// DB スキーマ定義（型参照用）
+export * from './db/schema';
+
+// プラグインレジストリ・マニフェスト（共通機能）
+export * from './plugins/registry';
+
+export * from './auth/auth-registry';
+EOF_1786952845_4467
+
+mkdir -p "packages/core/src/config"
+echo "作成: packages/core/src/config/constants.ts"
+cat << 'EOF_1786952845_18942' > "packages/core/src/config/constants.ts"
+export const AUTH_TOKEN_KEY = 'auth_token';
+EOF_1786952845_18942
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.test.ts"
-cat << 'EOF_1786336632_25550' > "packages/core/src/config/env.test.ts"
+cat << 'EOF_1786952845_26396' > "packages/core/src/config/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { clientEnvSchema, serverEnvSchema, formatEnvForLog, ServerEnv, ClientEnv } from './env';
 
@@ -1277,11 +1579,11 @@ describe('packages/core/src/config/env', () => {
         });
     });
 });
-EOF_1786336632_25550
+EOF_1786952845_26396
 
 mkdir -p "packages/core/src/config"
 echo "作成: packages/core/src/config/env.ts"
-cat << 'EOF_1786336632_6780' > "packages/core/src/config/env.ts"
+cat << 'EOF_1786952845_13612' > "packages/core/src/config/env.ts"
 import { z } from 'zod';
 
 // アプリケーション全体で統一して使用するポートのデフォルト定数
@@ -1319,8 +1621,10 @@ export const serverEnvSchema = z
             .default('development'),
         PORT: z.coerce.number().int().positive({ message: 'PORT は正の整数である必要があります' })
             .default(DEFAULT_BACKEND_PORT),
-        API_BASE_URL: z.string().url().optional(),
-        CORS_ORIGIN: z.string().optional(),
+        API_BASE_URL: z.string().url()
+            .optional(),
+        CORS_ORIGIN: z.string()
+            .optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
         TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
@@ -1379,14 +1683,14 @@ function getClientEnv(): ClientEnv {
 function getServerEnv(): ServerEnv {
     const targetEnv = typeof process !== 'undefined' ? process.env : {};
 
-    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
-    if (targetEnv.NODE_ENV === 'test') {
-        const fallbackResult = serverEnvSchema.safeParse({
-            ...targetEnv,
-            JWT_SECRET: targetEnv.JWT_SECRET ?? '12345678901234567890123456789012',
-        });
-        if (fallbackResult.success) return fallbackResult.data;
-    }
+    //    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
+    //    if (targetEnv.NODE_ENV === 'test') {
+    //        const fallbackResult = serverEnvSchema.safeParse({
+    //            ...targetEnv,
+    //            JWT_SECRET: targetEnv.JWT_SECRET ?? '12345678901234567890123456789012',
+    //        });
+    //        if (fallbackResult.success) return fallbackResult.data;
+    //    }
 
     const result = serverEnvSchema.safeParse(targetEnv);
 
@@ -1403,18 +1707,20 @@ function getServerEnv(): ServerEnv {
 // 3. 外部公開用オブジェクト (Export)
 // ==========================================
 
+export const isTest = typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || Boolean(process.env.VITEST));
+export const isServer = typeof window === 'undefined';
+
 /** フロントエンド用環境変数 (App.tsx などから参照) */
 export const clientEnv: ClientEnv = getClientEnv();
 
 /** バックエンド用環境変数 (サーバーコードのみから参照) */
-export const env: ServerEnv =
-    typeof window === 'undefined'
-        ? getServerEnv()
-        : (new Proxy({} as ServerEnv, {
-            get() {
-                throw new Error('❌ [Security Alert] フロントエンド（ブラウザ）からサーバー環境変数 (env) を参照することはできません。');
-            },
-        }));
+export const env: ServerEnv = (isServer || isTest)
+    ? getServerEnv()
+    : (new Proxy({} as ServerEnv, {
+        get() {
+            throw new Error('❌ [Security Alert] フロントエンド（ブラウザ）からサーバー環境変数 (env) を参照することはできません。');
+        },
+    }));
 
 // ==========================================
 // 4. ログ出力用整形関数
@@ -1436,42 +1742,202 @@ export function formatEnvForLog(targetEnv: ServerEnv = env): string {
 
     return JSON.stringify(maskedEnv, null, 2);
 }
+EOF_1786952845_13612
 
-EOF_1786336632_6780
+mkdir -p "packages/core/src"
+echo "作成: packages/core/src/server.ts"
+cat << 'EOF_1786952845_12354' > "packages/core/src/server.ts"
+// Node.js (apps/api) 専用モジュールの集約エクスポート
+// export * from './auth/auth-registry';
+export * from './registry/hono-auto-loader';
+export * from './db';
+EOF_1786952845_12354
 
 mkdir -p "packages/core/src/db"
 echo "作成: packages/core/src/db/index.ts"
-cat << 'EOF_1786336632_14379' > "packages/core/src/db/index.ts"
+cat << 'EOF_1786952845_30620' > "packages/core/src/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 
 import postgres from 'postgres';
 import * as schema from './schema';
-import { env } from '../config/env';
+import { env, isTest } from '../config/env';
 
-const isTest = env.NODE_ENV === 'test';
+// 必要な接続のみを 1 つだけ生成
+const dbUrl = isTest ? env.TEST_DATABASE_URL : env.DATABASE_URL;
+export const activeQueryClient = postgres(dbUrl);
+export const db = drizzle(activeQueryClient, { schema });
 
-// 開発用（本番用）PostgreSQL 接続クライアントの作成
-const queryClient = postgres(env.DATABASE_URL);
-export const dev_db = drizzle(queryClient, { schema });
+// // 開発用（本番用）PostgreSQL 接続クライアントの作成
+// const queryClient = postgres(env.DATABASE_URL);
+// export const dev_db = drizzle(queryClient, { schema });
 
-// テスト用PostgreSQL 接続クライアントの作成
-const queryTestClient = postgres(env.TEST_DATABASE_URL);
-export const test_db = drizzle(queryTestClient, { schema });
+// // テスト用PostgreSQL 接続クライアントの作成
+// const queryTestClient = postgres(env.TEST_DATABASE_URL);
+// export const test_db = drizzle(queryTestClient, { schema });
 
-// テスト用と開発用（本番用）の接続クライアント動的に選択
-export const db = isTest ? test_db : dev_db;
+// // テスト用と開発用（本番用）の接続クライアント動的に選択
+// export const db = isTest ? test_db : dev_db;
 
-// テスト終了時などにコネクションを安全に破棄するためのクライアント
-export const activeQueryClient = isTest ? queryTestClient : queryClient;
+// // テスト終了時などにコネクションを安全に破棄するためのクライアント
+// export const activeQueryClient = isTest ? queryTestClient : queryClient;
 
-// 💡 スキーマも外部から参照できるように export します
+// 1. スキーマオブジェクト全体を export (drizzleConfig や drizzle(client, { schema }) 用)
 export { schema };
-EOF_1786336632_14379
+
+// 2. 個別のテーブルも直接 import { users, plugins } から使えるように re-export
+export * from './schema';
+EOF_1786952845_30620
 
 mkdir -p "packages/core/src/db"
-echo "作成: packages/core/src/db/schema.ts"
-cat << 'EOF_1786336632_30919' > "packages/core/src/db/schema.ts"
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+echo "作成: packages/core/src/db/seed.ts"
+cat << 'EOF_1786952845_31612' > "packages/core/src/db/seed.ts"
+import { db, users } from './index';
+import { hashPassword } from '@app/plugins-auth-local';
+import { eq } from 'drizzle-orm';
+
+export async function seed() {
+    console.log('🌱 開発用データを投入中...');
+
+    const adminEmail = 'admin@example.com';
+    const [existing] = await db.select().from(users).where(eq(users.email, adminEmail));
+
+    if (!existing) {
+        const passwordHash = await hashPassword('password123');
+        await db.insert(users).values({
+            name: '管理者ユーザー',
+            email: adminEmail,
+            passwordHash,
+            role: 'admin',
+            isActive: true,
+        });
+        console.log('✅ 管理者ユーザーを作成しました: admin@example.com / password123');
+    } else {
+        console.log('ℹ️ 管理者ユーザーは既に存在します');
+    }
+}
+
+seed().catch((err) => {
+    console.error('❌ シード処理に失敗しました:', err);
+    process.exit(1);
+});
+EOF_1786952845_31612
+
+mkdir -p "packages/core/src/db/schema"
+echo "作成: packages/core/src/db/schema/index.ts"
+cat << 'EOF_1786952845_17166' > "packages/core/src/db/schema/index.ts"
+// packages/core/src/db/schema/index.ts
+export * from './users';
+export * from './plugins';
+EOF_1786952845_17166
+
+mkdir -p "packages/core/src/db/schema"
+echo "作成: packages/core/src/db/schema/plugins.test.ts"
+cat << 'EOF_1786952845_28364' > "packages/core/src/db/schema/plugins.test.ts"
+import { describe, it, expect, afterAll, beforeEach } from 'vitest';
+import { db, activeQueryClient } from '../../server';
+import { plugins } from './plugins';
+import { eq } from 'drizzle-orm';
+
+describe('Plugins DB Integration Tests', () => {
+    afterAll(async () => {
+        // テスト終了後に DB コネクションを破棄
+        await activeQueryClient.end();
+    });
+
+    beforeEach(async () => {
+        // テストごとに plugins テーブルをクリーンアップ
+        await db.delete(plugins);
+    });
+
+    it('プラグイン情報を正常に挿入および取得できること', async () => {
+        const newPlugin = {
+            id: 'test-feature',
+            name: 'テスト機能',
+            description: 'テスト用の説明文です',
+            enabled: true,
+        };
+
+        const [inserted] = await db.insert(plugins).values(newPlugin).returning();
+
+        expect(inserted.id).toBe(newPlugin.id);
+        expect(inserted.name).toBe(newPlugin.name);
+        expect(inserted.description).toBe(newPlugin.description);
+        expect(inserted.enabled).toBe(true); // デフォルト値の検証
+        expect(inserted.updatedAt).toBeInstanceOf(Date);
+
+        // IDで検索して同一データが取得できるか検証
+        const [found] = await db.select().from(plugins).where(eq(plugins.id, inserted.id));
+        expect(found).toBeDefined();
+        expect(found.name).toBe(newPlugin.name);
+    });
+
+    it('プラグインの有効/無効 (enabled) ステータスを更新できること', async () => {
+        const targetPlugin = {
+            id: 'user-management',
+            name: 'ユーザー管理機能',
+            enabled: true,
+        };
+
+        await db.insert(plugins).values(targetPlugin);
+
+        // 有効状態を false (無効) に更新
+        const [updated] = await db
+            .update(plugins)
+            .set({ enabled: false })
+            .where(eq(plugins.id, targetPlugin.id))
+            .returning();
+
+        expect(updated.enabled).toBe(false);
+
+        // DB上でも変更が反映されているか確認
+        const [found] = await db.select().from(plugins).where(eq(plugins.id, targetPlugin.id));
+        expect(found.enabled).toBe(false);
+    });
+
+    it('主キー (id) の重複時にエラーが発生すること', async () => {
+        const pluginPayload = {
+            id: 'duplicate-plugin',
+            name: '重複テスト',
+        };
+
+        await db.insert(plugins).values(pluginPayload);
+
+        // 同じ ID で再挿入を試みると例外が発生すること
+        await expect(
+            db.insert(plugins).values({
+                ...pluginPayload,
+                name: '重複テスト2',
+            })
+        ).rejects.toThrow();
+    });
+});
+EOF_1786952845_28364
+
+mkdir -p "packages/core/src/db/schema"
+echo "作成: packages/core/src/db/schema/plugins.ts"
+cat << 'EOF_1786952845_23234' > "packages/core/src/db/schema/plugins.ts"
+import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+// プラグイン管理テーブル
+export const plugins = pgTable('plugins', {
+    id: text('id').primaryKey(), // 例: 'user-management'
+    name: text('name').notNull(), // 表示名: 'ユーザー管理'
+    description: text('description'), // 説明
+    enabled: boolean('enabled').default(true).notNull(), // 有効/無効フラグ
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+
+export type Plugin = InferSelectModel<typeof plugins>;
+export type NewPlugin = InferInsertModel<typeof plugins>;
+EOF_1786952845_23234
+
+mkdir -p "packages/core/src/db/schema"
+echo "作成: packages/core/src/db/schema/users.ts"
+cat << 'EOF_1786952845_11723' > "packages/core/src/db/schema/users.ts"
+import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
@@ -1479,16 +1945,20 @@ export const users = pgTable('users', {
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
     role: text('role').notNull().default('user'),
+    isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-EOF_1786336632_30919
 
-mkdir -p "packages/core/src/db"
-echo "作成: packages/core/src/db/users.test.ts"
-cat << 'EOF_1786336632_31860' > "packages/core/src/db/users.test.ts"
+export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
+EOF_1786952845_11723
+
+mkdir -p "packages/core/src/db/schema"
+echo "作成: packages/core/src/db/schema/users.test.ts"
+cat << 'EOF_1786952845_27131' > "packages/core/src/db/schema/users.test.ts"
 import { describe, it, expect, afterAll, beforeEach } from 'vitest';
-import { db, activeQueryClient } from './index';
-import { users } from './schema';
+import { db, activeQueryClient } from '../../server';
+import { users } from './users';
 import { eq } from 'drizzle-orm';
 
 describe('Users DB Integration Tests', () => {
@@ -1515,12 +1985,37 @@ describe('Users DB Integration Tests', () => {
         expect(inserted.name).toBe(newUser.name);
         expect(inserted.email).toBe(newUser.email);
         expect(inserted.role).toBe('user'); // デフォルト値の検証
+        expect(inserted.isActive).toBe(true); // デフォルト値(isActive: true)の検証（追加）
         expect(inserted.createdAt).toBeInstanceOf(Date);
 
         // IDで検索して同一データが取得できるか
         const [found] = await db.select().from(users).where(eq(users.id, inserted.id));
         expect(found).toBeDefined();
         expect(found.email).toBe(newUser.email);
+    });
+
+    it('ユーザーの有効/無効 (isActive) ステータスを更新できること', async () => {
+        const newUser = {
+            name: 'ステータステストユーザー',
+            email: 'status@example.com',
+            passwordHash: 'hash',
+        };
+
+        const [inserted] = await db.insert(users).values(newUser).returning();
+        expect(inserted.isActive).toBe(true);
+
+        // アカウントを無効化 (false)
+        const [disabled] = await db
+            .update(users)
+            .set({ isActive: false })
+            .where(eq(users.id, inserted.id))
+            .returning();
+
+        expect(disabled.isActive).toBe(false);
+
+        // DB上でも変更が反映されているか確認
+        const [found] = await db.select().from(users).where(eq(users.id, inserted.id));
+        expect(found.isActive).toBe(false);
     });
 
     it('同じ email のユーザーを挿入した場合、エラーが発生すること（Unique制約）', async () => {
@@ -1541,11 +2036,11 @@ describe('Users DB Integration Tests', () => {
         ).rejects.toThrow();
     });
 });
-EOF_1786336632_31860
+EOF_1786952845_27131
 
 mkdir -p "packages/core/src/auth"
 echo "作成: packages/core/src/auth/auth-registry.ts"
-cat << 'EOF_1786336632_19535' > "packages/core/src/auth/auth-registry.ts"
+cat << 'EOF_1786952845_28951' > "packages/core/src/auth/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -1567,11 +2062,46 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1786336632_19535
+EOF_1786952845_28951
+
+mkdir -p "packages/core/src/plugins"
+echo "作成: packages/core/src/plugins/registry.ts"
+cat << 'EOF_1786952845_6420' > "packages/core/src/plugins/registry.ts"
+// packages/core/src/plugins/registry.ts
+import { Hono } from 'hono';
+
+export interface PluginManifest {
+    id: string;            // 一意キー (例: 'user-management')
+    name: string;          // 表示名
+    description?: string;  // 説明
+    routes: Hono;          // プラグインが提供する Hono ルーター
+    navItems?: Array<{     // フロントエンド表示用メニュー情報
+        label: string;
+        path: string;
+        icon?: string;
+    }>;
+}
+
+export class PluginRegistry {
+    private static plugins = new Map<string, PluginManifest>();
+
+    static register(plugin: PluginManifest) {
+        this.plugins.set(plugin.id, plugin);
+    }
+
+    static get(id: string): PluginManifest | undefined {
+        return this.plugins.get(id);
+    }
+
+    static getAll(): PluginManifest[] {
+        return Array.from(this.plugins.values());
+    }
+}
+EOF_1786952845_6420
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/unauthorized-error.ts"
-cat << 'EOF_1786336632_14321' > "packages/core/src/errors/unauthorized-error.ts"
+cat << 'EOF_1786952845_766' > "packages/core/src/errors/unauthorized-error.ts"
 import { AppError } from './app-error';
 
 export class UnauthorizedError extends AppError {
@@ -1579,23 +2109,24 @@ export class UnauthorizedError extends AppError {
         super(401, 'unauthorized', 'Unauthorized', message);
     }
 }
-EOF_1786336632_14321
+EOF_1786952845_766
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/index.ts"
-cat << 'EOF_1786336632_26356' > "packages/core/src/errors/index.ts"
+cat << 'EOF_1786952845_3792' > "packages/core/src/errors/index.ts"
 export * from './types';
 export * from './app-error';
+export * from './bad-request-error';
 export * from './not-found-error';
 export * from './internal-server-error';
 export * from './validation-error';
 export * from './unauthorized-error';
 export * from './forbidden-error';
-EOF_1786336632_26356
+EOF_1786952845_3792
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/app-error.ts"
-cat << 'EOF_1786336632_31339' > "packages/core/src/errors/app-error.ts"
+cat << 'EOF_1786952845_30923' > "packages/core/src/errors/app-error.ts"
 export class AppError extends Error {
     constructor(
         public readonly status: number,
@@ -1607,11 +2138,23 @@ export class AppError extends Error {
         this.name = 'AppError';
     }
 }
-EOF_1786336632_31339
+EOF_1786952845_30923
+
+mkdir -p "packages/core/src/errors"
+echo "作成: packages/core/src/errors/bad-request-error.ts"
+cat << 'EOF_1786952845_952' > "packages/core/src/errors/bad-request-error.ts"
+import { AppError } from './app-error';
+
+export class BadRequestError extends AppError {
+    constructor(message = 'The request was invalid or cannot be served') {
+        super(400, 'bad-request', 'Bad Request', message);
+    }
+}
+EOF_1786952845_952
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/types.ts"
-cat << 'EOF_1786336632_16161' > "packages/core/src/errors/types.ts"
+cat << 'EOF_1786952845_29603' > "packages/core/src/errors/types.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -1625,11 +2168,11 @@ export interface ProblemDetails {
     instance: string;
     invalidParams?: InvalidParam[];
 }
-EOF_1786336632_16161
+EOF_1786952845_29603
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/forbidden-error.ts"
-cat << 'EOF_1786336632_17092' > "packages/core/src/errors/forbidden-error.ts"
+cat << 'EOF_1786952845_12923' > "packages/core/src/errors/forbidden-error.ts"
 import { AppError } from './app-error';
 
 export class ForbiddenError extends AppError {
@@ -1637,11 +2180,11 @@ export class ForbiddenError extends AppError {
         super(403, 'forbidden', 'Forbidden', message);
     }
 }
-EOF_1786336632_17092
+EOF_1786952845_12923
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/validation-error.ts"
-cat << 'EOF_1786336632_11712' > "packages/core/src/errors/validation-error.ts"
+cat << 'EOF_1786952845_4910' > "packages/core/src/errors/validation-error.ts"
 import { AppError } from './app-error';
 import type { InvalidParam } from './types';
 
@@ -1653,11 +2196,11 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1786336632_11712
+EOF_1786952845_4910
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/not-found-error.ts"
-cat << 'EOF_1786336632_24456' > "packages/core/src/errors/not-found-error.ts"
+cat << 'EOF_1786952845_28107' > "packages/core/src/errors/not-found-error.ts"
 import { AppError } from './app-error';
 
 export class NotFoundError extends AppError {
@@ -1665,11 +2208,11 @@ export class NotFoundError extends AppError {
         super(404, 'not-found', 'Not Found', message);
     }
 }
-EOF_1786336632_24456
+EOF_1786952845_28107
 
 mkdir -p "packages/core/src/errors"
 echo "作成: packages/core/src/errors/internal-server-error.ts"
-cat << 'EOF_1786336632_27987' > "packages/core/src/errors/internal-server-error.ts"
+cat << 'EOF_1786952845_15993' > "packages/core/src/errors/internal-server-error.ts"
 import { AppError } from './app-error';
 
 export class InternalServerError extends AppError {
@@ -1677,14 +2220,15 @@ export class InternalServerError extends AppError {
         super(500, 'internal-server-error', 'Internal Server Error', message);
     }
 }
-EOF_1786336632_27987
+EOF_1786952845_15993
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/setup.ts"
-cat << 'EOF_1786336632_2915' > "packages/core/src/test/setup.ts"
+cat << 'EOF_1786952845_31535' > "packages/core/src/test/setup.ts"
 import { beforeEach } from 'vitest';
-import { db } from '../db'; // テスト用DBに接続しているDrizzleインスタンス
+import { db } from '../server'; // テスト用DBに接続しているDrizzleインスタンス
 import { sql } from 'drizzle-orm';
+import '@testing-library/jest-dom';
 
 beforeEach(async () => {
     // 全テーブルのデータをクリーンアップ（例: public スキーマ内の全テーブルを TRUNCATE）
@@ -1698,11 +2242,11 @@ beforeEach(async () => {
     END $$;
   `);
 });
-EOF_1786336632_2915
+EOF_1786952845_31535
 
 mkdir -p "packages/core/src/test"
 echo "作成: packages/core/src/test/global-setup.ts"
-cat << 'EOF_1786336632_19573' > "packages/core/src/test/global-setup.ts"
+cat << 'EOF_1786952845_25569' > "packages/core/src/test/global-setup.ts"
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -1732,58 +2276,27 @@ export async function setup() {
         throw error;
     }
 }
-EOF_1786336632_19573
-
-mkdir -p "packages/core/src"
-echo "作成: packages/core/src/seed-dev-user.ts"
-cat << 'EOF_1786336632_19526' > "packages/core/src/seed-dev-user.ts"
-import { db } from './db'; // packages/core 内の db エクスポートのパス
-import { users } from './db/schema'; // users スキーマ
-import { hashPassword } from '@app/plugins-auth-local';
-// packages/core にハッシュ関数（または bcrypt/argon2）があればそれを使用
-
-async function main() {
-    const email = 'mako65jp@gmail.com';
-    const password = '1234'; // お好みのパスワード
-
-    // もし core 内にハッシュ関数があれば使い、無ければ使っているライブラリでハッシュ化
-    const hashedPassword = await hashPassword(password);
-
-    await db.insert(users).values({
-        email,
-        passwordHash: hashedPassword,
-        name: '開発ユーザー',
-    }).onConflictDoNothing();
-
-    console.log(`✅ User created: ${email}`);
-    process.exit(0);
-}
-
-main().catch((err) => {
-    console.error('❌ Failed:', err);
-    process.exit(1);
-});
-EOF_1786336632_19526
+EOF_1786952845_25569
 
 mkdir -p "packages/core"
 echo "作成: packages/core/drizzle.config.ts"
-cat << 'EOF_1786336632_32484' > "packages/core/drizzle.config.ts"
+cat << 'EOF_1786952845_19221' > "packages/core/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from './src/config/env';
 
 export default defineConfig({
-    schema: './src/db/schema.ts',
+    schema: './src/db/schema/index.ts',
     out: './drizzle',
     dialect: 'postgresql',
     dbCredentials: {
         url: env.DATABASE_URL,
     },
 });
-EOF_1786336632_32484
+EOF_1786952845_19221
 
 mkdir -p "packages/features/sample"
 echo "作成: packages/features/sample/package.json"
-cat << 'EOF_1786336632_4274' > "packages/features/sample/package.json"
+cat << 'EOF_1786952845_15440' > "packages/features/sample/package.json"
 {
   "name": "@app/features-sample",
   "version": "1.0.0",
@@ -1791,11 +2304,11 @@ cat << 'EOF_1786336632_4274' > "packages/features/sample/package.json"
   "type": "module",
   "main": "./src/index.ts"
 }
-EOF_1786336632_4274
+EOF_1786952845_15440
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.ts"
-cat << 'EOF_1786336632_22810' > "packages/features/sample/src/index.ts"
+cat << 'EOF_1786952845_24352' > "packages/features/sample/src/index.ts"
 import { Hono } from 'hono';
 
 export default function createSampleFeature() {
@@ -1807,11 +2320,11 @@ export default function createSampleFeature() {
 
   return app;
 }
-EOF_1786336632_22810
+EOF_1786952845_24352
 
 mkdir -p "packages/features/sample/src"
 echo "作成: packages/features/sample/src/index.test.ts"
-cat << 'EOF_1786336632_8912' > "packages/features/sample/src/index.test.ts"
+cat << 'EOF_1786952845_14786' > "packages/features/sample/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import createSampleFeature from './index';
 
@@ -1828,10 +2341,1425 @@ describe('Sample Feature Module', () => {
     });
   });
 });
-EOF_1786336632_8912
+EOF_1786952845_14786
+
+mkdir -p "packages/features/user-management"
+echo "作成: packages/features/user-management/package.json"
+cat << 'EOF_1786952845_1498' > "packages/features/user-management/package.json"
+{
+    "name": "@app/features/user-management",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./src/index.ts",
+    "exports": {
+        ".": "./src/index.ts",
+        "./ui": "./src/components/UserManagementTable.tsx"
+    },
+    "scripts": {
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@app/ui": "*",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@types/react": "^18.2.55",
+        "@types/react-dom": "^18.2.19",
+        "@vitejs/plugin-react": "^6.0.5",
+        "jsdom": "^29.1.1",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^5.3.3"
+    }
+}
+EOF_1786952845_1498
+
+mkdir -p "packages/features/user-management"
+echo "作成: packages/features/user-management/tsconfig.json"
+cat << 'EOF_1786952845_10358' > "packages/features/user-management/tsconfig.json"
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+        "jsx": "react-jsx",
+    },
+    "include": [
+        "src/**/*"
+    ]
+}
+EOF_1786952845_10358
+
+mkdir -p "packages/features/user-management"
+echo "作成: packages/features/user-management/vitest.config.ts"
+cat << 'EOF_1786952845_5555' > "packages/features/user-management/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()],
+    resolve: {
+        tsconfigPaths: true
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        globalSetup: ['./src/test/global-setup.ts'],    // ① テスト前に自動で db:push:test
+        setupFiles: ['./src/test/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
+        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+    },
+});
+EOF_1786952845_5555
+
+mkdir -p "packages/features/user-management/src"
+echo "作成: packages/features/user-management/src/index.ts"
+cat << 'EOF_1786952845_798' > "packages/features/user-management/src/index.ts"
+import { PluginRegistry } from '@app/core';
+import { userRoutes } from './routes';
+
+export { UserManagementTable } from './components/UserManagementTable';
+
+PluginRegistry.register({
+    id: 'user-management',
+    name: 'ユーザー管理機能',
+    description: 'ユーザー一覧の表示、ロール変更およびアカウント有効/無効の管理を行います',
+    routes: userRoutes,
+    navItems: [
+        {
+            label: 'ユーザー管理',
+            path: '/admin/users',
+            icon: 'users',
+        },
+    ],
+});
+EOF_1786952845_798
+
+mkdir -p "packages/features/user-management/src"
+echo "作成: packages/features/user-management/src/routes.test.ts"
+cat << 'EOF_1786952845_14204' > "packages/features/user-management/src/routes.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Hono } from 'hono';
+import { db, users } from '@app/core/server';
+import { userRoutes } from './routes';
+
+describe('User Management Plugin API', () => {
+    const app = new Hono();
+    app.route('/', userRoutes);
+
+    beforeEach(async () => {
+        await db.delete(users);
+
+        await db.insert(users).values([
+            {
+                id: 1,
+                name: '管理者',
+                email: 'admin@example.com',
+                passwordHash: 'hashed',
+                role: 'admin',
+                isActive: true,
+            },
+            {
+                id: 2,
+                name: '一般ユーザー',
+                email: 'user@example.com',
+                passwordHash: 'hashed',
+                role: 'user',
+                isActive: true,
+            },
+        ]);
+    });
+
+    it('GET / - ユーザー一覧を取得できること', async () => {
+        const res = await app.request('/');
+        expect(res.status).toBe(200);
+
+        const body = await res.json();
+        expect(body.users.length).toBe(2);
+    });
+
+    it('POST / - 新規ユーザーを追加できること', async () => {
+        const res = await app.request('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: '新規プラグインユーザー',
+                email: 'plugin_new@example.com',
+                role: 'user',
+            }),
+        });
+
+        expect(res.status).toBe(201);
+        const body = await res.json();
+        expect(body.user.email).toBe('plugin_new@example.com');
+    });
+
+    it('PATCH /:id/role - ユーザーのロールを変更できること', async () => {
+        const res = await app.request('/2/role', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: 'admin' }),
+        });
+
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        expect(body.user.role).toBe('admin');
+    });
+
+    it('PATCH /:id/status - アカウント有効/無効を切り替えられること', async () => {
+        const res = await app.request('/2/status', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isActive: false }),
+        });
+
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        expect(body.user.isActive).toBe(false);
+    });
+
+    it('DELETE /:id - ユーザーを削除できること', async () => {
+        const res = await app.request('/2', {
+            method: 'DELETE',
+        });
+
+        expect(res.status).toBe(200);
+    });
+});
+
+// import { describe, it, expect, beforeEach } from 'vitest';
+// import { Hono } from 'hono';
+// import { db, users } from '@app/core/server';
+// import { userRoutes } from './routes';
+
+// describe('User Management Plugin API', () => {
+//     const app = new Hono();
+//     app.route('/', userRoutes);
+
+//     beforeEach(async () => {
+//         await db.delete(users);
+
+//         await db.insert(users).values({
+//             name: 'Test User',
+//             email: 'test@example.com',
+//             passwordHash: 'hashed',
+//             role: 'user',
+//             isActive: true,
+//         });
+//     });
+
+//     it('GET / - ユーザー一覧を取得できること', async () => {
+//         const res = await app.request('/');
+//         expect(res.status).toBe(200);
+
+//         const body = await res.json();
+//         expect(body.users).toBeDefined();
+//         expect(Array.isArray(body.users)).toBe(true);
+//         expect(body.users.length).toBeGreaterThan(0);
+//         expect(body.users[0].isActive).toBeDefined();
+//     });
+
+//     it('PATCH /:id/role - ユーザーのロールを変更できること', async () => {
+//         const userListRes = await app.request('/');
+//         const { users } = await userListRes.json();
+//         const targetUser = users[0];
+
+//         const res = await app.request(`/${targetUser.id}/role`, {
+//             method: 'PATCH',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ role: 'admin' }),
+//         });
+
+//         expect(res.status).toBe(200);
+//         const body = await res.json();
+//         expect(body.user.role).toBe('admin');
+//     });
+
+//     it('PATCH /:id/status - ユーザーのアカウント有効/無効を切り替えられること', async () => {
+//         const userListRes = await app.request('/');
+//         const { users } = await userListRes.json();
+//         const targetUser = users[0];
+
+//         const res = await app.request(`/${targetUser.id}/status`, {
+//             method: 'PATCH',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ isActive: false }),
+//         });
+
+//         expect(res.status).toBe(200);
+//         const body = await res.json();
+//         expect(body.user.isActive).toBe(false);
+//     });
+// });
+EOF_1786952845_14204
+
+mkdir -p "packages/features/user-management/src/api"
+echo "作成: packages/features/user-management/src/api/user-management-api.ts"
+cat << 'EOF_1786952845_647' > "packages/features/user-management/src/api/user-management-api.ts"
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'user';
+    isActive: boolean;
+    createdAt?: string;
+}
+
+export interface CreateUserInput {
+    name: string;
+    email: string;
+    role: 'admin' | 'user';
+}
+
+export const fetchUsers = async (apiBaseUrl: string): Promise<User[]> => {
+    const res = await fetch(apiBaseUrl);
+    if (!res.ok) throw new Error('ユーザー一覧の取得に失敗しました');
+    const data = await res.json();
+    return data.users;
+};
+
+export const createUser = async (apiBaseUrl: string, input: CreateUserInput): Promise<User> => {
+    const res = await fetch(apiBaseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.message || 'ユーザーの作成に失敗しました');
+    }
+    const data = await res.json();
+    return data.user;
+};
+
+export const updateUserStatus = async (apiBaseUrl: string, id: number, isActive: boolean): Promise<User> => {
+    const res = await fetch(`${apiBaseUrl}/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive }),
+    });
+    if (!res.ok) throw new Error('ステータスの更新に失敗しました');
+    const data = await res.json();
+    return data.user;
+};
+
+export const updateUserRole = async (apiBaseUrl: string, id: number, role: 'admin' | 'user'): Promise<User> => {
+    const res = await fetch(`${apiBaseUrl}/${id}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new Error('ロールの更新に失敗しました');
+    const data = await res.json();
+    return data.user;
+};
+EOF_1786952845_647
+
+mkdir -p "packages/features/user-management/src"
+echo "作成: packages/features/user-management/src/routes.ts"
+cat << 'EOF_1786952845_7451' > "packages/features/user-management/src/routes.ts"
+import { Hono } from 'hono';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
+import { db, users as usersTable } from '@app/core/server';
+import { ValidationError, BadRequestError, NotFoundError } from '@app/core';
+import { hashPassword } from '@app/plugins-auth-local';
+import { eq } from 'drizzle-orm';
+
+export const userRoutes = new Hono();
+
+// ログインユーザー ID の取得ヘルパー
+function getCurrentUserId(c: any): number | null {
+    const user = c.get('user');
+    if (!user) return null;
+    const rawId = user.sub ?? user.id;
+    return rawId ? Number(rawId) : null;
+}
+
+// 1. ユーザー一覧取得
+userRoutes.get('/', async (c) => {
+    const userList = await db.select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        role: usersTable.role,
+        isActive: usersTable.isActive,
+        createdAt: usersTable.createdAt,
+    }).from(usersTable);
+
+    return c.json({ users: userList });
+});
+
+// 2. ユーザー新規追加
+const createUserSchema = z.object({
+    name: z.string().min(1, '名前は必須です'),
+    email: z.string().email('有効なメールアドレスを入力してください'),
+    role: z.enum(['admin', 'user']),
+});
+
+userRoutes.post(
+    '/',
+    zValidator('json', createUserSchema, (result) => {
+        if (!result.success) {
+            const invalidParams = result.error.issues.map((issue) => ({
+                name: issue.path.join('.'),
+                reason: issue.message,
+            }));
+            throw new ValidationError(invalidParams);
+        }
+    }),
+    async (c) => {
+        const body = c.req.valid('json');
+
+        const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, body.email));
+        if (existingUser) {
+            throw new BadRequestError('指定されたメールアドレスは既に登録されています');
+        }
+
+        const defaultPassword = `InitPass_${Math.random().toString(36).slice(-8)}`;
+        const passwordHash = await hashPassword(defaultPassword);
+
+        const [newUser] = await db.insert(usersTable).values({
+            name: body.name,
+            email: body.email,
+            passwordHash,
+            role: body.role,
+            isActive: true,
+        }).returning({
+            id: usersTable.id,
+            name: usersTable.name,
+            email: usersTable.email,
+            role: usersTable.role,
+            isActive: usersTable.isActive,
+            createdAt: usersTable.createdAt,
+        });
+
+        return c.json({ user: newUser }, 201);
+    }
+);
+
+// 3. ロール変更
+const updateRoleSchema = z.object({
+    role: z.enum(['user', 'admin']),
+});
+
+userRoutes.patch(
+    '/:id/role',
+    zValidator('json', updateRoleSchema),
+    async (c) => {
+        const id = Number(c.req.param('id'));
+        const currentUserId = getCurrentUserId(c);
+        const { role } = c.req.valid('json');
+
+        if (currentUserId === id && role !== 'admin') {
+            throw new BadRequestError('自分自身の管理者権限を変更することはできません');
+        }
+
+        const updatedUsers = await db
+            .update(usersTable)
+            .set({ role })
+            .where(eq(usersTable.id, id))
+            .returning({
+                id: usersTable.id,
+                name: usersTable.name,
+                email: usersTable.email,
+                role: usersTable.role,
+                isActive: usersTable.isActive,
+            });
+
+        if (updatedUsers.length === 0) {
+            throw new NotFoundError('ユーザーが見つかりません');
+        }
+
+        return c.json({ user: updatedUsers[0] });
+    }
+);
+
+// 4. アカウント有効化/無効化
+const updateStatusSchema = z.object({
+    isActive: z.boolean(),
+});
+
+userRoutes.patch(
+    '/:id/status',
+    zValidator('json', updateStatusSchema),
+    async (c) => {
+        const id = Number(c.req.param('id'));
+        const currentUserId = getCurrentUserId(c);
+        const { isActive } = c.req.valid('json');
+
+        if (currentUserId === id && isActive === false) {
+            throw new BadRequestError('自分自身のアカウントを無効化することはできません');
+        }
+
+        const updatedUsers = await db
+            .update(usersTable)
+            .set({ isActive })
+            .where(eq(usersTable.id, id))
+            .returning({
+                id: usersTable.id,
+                name: usersTable.name,
+                email: usersTable.email,
+                role: usersTable.role,
+                isActive: usersTable.isActive,
+            });
+
+        if (updatedUsers.length === 0) {
+            throw new NotFoundError('ユーザーが見つかりません');
+        }
+
+        return c.json({ user: updatedUsers[0] });
+    }
+);
+
+// 5. ユーザー削除
+userRoutes.delete('/:id', async (c) => {
+    const id = Number(c.req.param('id'));
+    const currentUserId = getCurrentUserId(c);
+
+    if (currentUserId === id) {
+        throw new BadRequestError('自分自身のアカウントを削除することはできません');
+    }
+
+    const deletedUsers = await db
+        .delete(usersTable)
+        .where(eq(usersTable.id, id))
+        .returning({
+            id: usersTable.id,
+            name: usersTable.name,
+            email: usersTable.email,
+        });
+
+    if (deletedUsers.length === 0) {
+        throw new NotFoundError('ユーザーが見つかりません');
+    }
+
+    return c.json({ message: 'ユーザーを削除しました', user: deletedUsers[0] });
+});
+
+// import { Hono } from 'hono';
+// import { z } from 'zod';
+// import { zValidator } from '@hono/zod-validator';
+// import { db, users as usersTable } from '@app/core/server';
+// import { eq } from 'drizzle-orm';
+
+// export const userRoutes = new Hono();
+
+// // 1. ユーザー一覧取得
+// userRoutes.get('/', async (c) => {
+//     const userList = await db.select({
+//         id: usersTable.id,
+//         name: usersTable.name,
+//         email: usersTable.email,
+//         role: usersTable.role,
+//         isActive: usersTable.isActive,
+//         createdAt: usersTable.createdAt,
+//     }).from(usersTable);
+
+//     return c.json({ users: userList });
+// });
+
+// // 2. ロール変更
+// const updateRoleSchema = z.object({
+//     role: z.enum(['user', 'admin']),
+// });
+
+// userRoutes.patch(
+//     '/:id/role',
+//     zValidator('json', updateRoleSchema),
+//     async (c) => {
+//         const id = Number(c.req.param('id'));
+//         const { role } = c.req.valid('json');
+
+//         const updatedUsers = await db
+//             .update(usersTable)
+//             .set({ role })
+//             .where(eq(usersTable.id, id))
+//             .returning({
+//                 id: usersTable.id,
+//                 name: usersTable.name,
+//                 email: usersTable.email,
+//                 role: usersTable.role,
+//                 isActive: usersTable.isActive,
+//             });
+
+//         if (updatedUsers.length === 0) {
+//             return c.json({ message: 'User not found' }, 404);
+//         }
+
+//         return c.json({ user: updatedUsers[0] });
+//     }
+// );
+
+// // 3. アカウント有効化/無効化
+// const updateStatusSchema = z.object({
+//     isActive: z.boolean(),
+// });
+
+// userRoutes.patch(
+//     '/:id/status',
+//     zValidator('json', updateStatusSchema),
+//     async (c) => {
+//         const id = Number(c.req.param('id'));
+//         const { isActive } = c.req.valid('json');
+
+//         const updatedUsers = await db
+//             .update(usersTable)
+//             .set({ isActive })
+//             .where(eq(usersTable.id, id))
+//             .returning({
+//                 id: usersTable.id,
+//                 name: usersTable.name,
+//                 email: usersTable.email,
+//                 role: usersTable.role,
+//                 isActive: usersTable.isActive,
+//             });
+
+//         if (updatedUsers.length === 0) {
+//             return c.json({ message: 'User not found' }, 404);
+//         }
+
+//         return c.json({ user: updatedUsers[0] });
+//     }
+// );
+EOF_1786952845_7451
+
+mkdir -p "packages/features/user-management/src/test"
+echo "作成: packages/features/user-management/src/test/setup.ts"
+cat << 'EOF_1786952845_8672' > "packages/features/user-management/src/test/setup.ts"
+import '@testing-library/jest-dom';
+
+// import { beforeEach } from 'vitest';
+// import { db } from '@app/core/db';
+// import { sql } from 'drizzle-orm';
+// import '@testing-library/jest-dom';
+
+// beforeEach(async () => {
+//     // 全テーブルのデータをクリーンアップ（例: public スキーマ内の全テーブルを TRUNCATE）
+//     await db.execute(sql`
+//     DO $$ DECLARE
+//         r RECORD;
+//     BEGIN
+//         FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+//             EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE;';
+//         END LOOP;
+//     END $$;
+//   `);
+// });
+EOF_1786952845_8672
+
+mkdir -p "packages/features/user-management/src/test"
+echo "作成: packages/features/user-management/src/test/global-setup.ts"
+cat << 'EOF_1786952845_2553' > "packages/features/user-management/src/test/global-setup.ts"
+import { execSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// import.meta.url から安全にパスを抽出
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function setup() {
+    console.log('\n🔄 テスト用データベースに最新のスキーマを反映中...');
+
+    // packages/core のルートディレクトリパスを解決
+    const corePackageDir = path.resolve(__dirname, '../../../../core');
+    const configPath = path.resolve(corePackageDir, 'drizzle-test.config.ts');
+
+    try {
+        execSync(`npx drizzle-kit push --config="${configPath}"`, {
+            cwd: corePackageDir,
+            stdio: 'inherit',
+            env: {
+                ...process.env, // 親プロセスの環境変数を引き継ぐ
+            },
+        });
+        console.log('✅ テスト用データベースの準備完了!\n');
+    } catch (error) {
+        console.error('❌ テスト用データベースへのスキーマ反映に失敗しました:', error);
+        throw error;
+    }
+}
+EOF_1786952845_2553
+
+mkdir -p "packages/features/user-management/src/components"
+echo "作成: packages/features/user-management/src/components/UserManagementTable.test.tsx"
+cat << 'EOF_1786952845_16528' > "packages/features/user-management/src/components/UserManagementTable.test.tsx"
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { UserManagementTable } from './UserManagementTable';
+
+const globalFetch = vi.fn();
+global.fetch = globalFetch;
+
+describe('UserManagementTable Component', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    afterEach(() => {
+        cleanup();
+    });
+
+    it('初期ロード時にユーザー一覧が取得され、正常に描画されること', async () => {
+        const mockUsers = [
+            {
+                id: 1,
+                name: 'テスト太郎',
+                email: 'taro@example.com',
+                role: 'user',
+                isActive: true,
+                createdAt: '2026-08-12T00:00:00Z',
+            },
+        ];
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ users: mockUsers }),
+        });
+
+        render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+        expect(screen.getByText('読み込み中...')).toBeDefined();
+
+        await waitFor(() => {
+            expect(screen.getByText('テスト太郎')).toBeDefined();
+            expect(screen.getByText('taro@example.com')).toBeDefined();
+            expect(screen.getByText('有効')).toBeDefined();
+            expect(screen.getByRole('button', { name: '無効化する' })).toBeDefined();
+        });
+    });
+
+    it('ステータストグルボタンをクリックした際、PATCH リクエストが送信され表示が切り替わること', async () => {
+        const mockUsers = [
+            {
+                id: 1,
+                name: 'テスト太郎',
+                email: 'taro@example.com',
+                role: 'user',
+                isActive: true,
+                createdAt: '2026-08-12T00:00:00Z',
+            },
+        ];
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ users: mockUsers }),
+        });
+
+        render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+        await waitFor(() => {
+            expect(screen.getByText('テスト太郎')).toBeDefined();
+        });
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                user: { ...mockUsers[0], isActive: false },
+            }),
+        });
+
+        const toggleButton = screen.getByRole('button', { name: '無効化する' });
+        fireEvent.click(toggleButton);
+
+        await waitFor(() => {
+            expect(globalFetch).toHaveBeenCalledWith(
+                '/api/user-management/1/status',
+                expect.objectContaining({
+                    method: 'PATCH',
+                    body: JSON.stringify({ isActive: false }),
+                })
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText('無効')).toBeDefined();
+            expect(screen.getByRole('button', { name: '有効化する' })).toBeDefined();
+        });
+    });
+
+    it('ロール変更セレクトを変更した際、PATCH リクエストが送信され表示が切り替わること', async () => {
+        const mockUsers = [
+            {
+                id: 1,
+                name: 'テスト太郎',
+                email: 'taro@example.com',
+                role: 'user' as const,
+                isActive: true,
+                createdAt: '2026-08-12T00:00:00Z',
+            },
+        ];
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ users: mockUsers }),
+        });
+
+        render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+        await waitFor(() => {
+            expect(screen.getByText('テスト太郎')).toBeDefined();
+        });
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                user: { ...mockUsers[0], role: 'admin' },
+            }),
+        });
+
+        const selectEl = screen.getByRole('combobox');
+        fireEvent.change(selectEl, { target: { value: 'admin' } });
+
+        await waitFor(() => {
+            expect(globalFetch).toHaveBeenCalledWith(
+                '/api/user-management/1/role',
+                expect.objectContaining({
+                    method: 'PATCH',
+                    body: JSON.stringify({ role: 'admin' }),
+                })
+            );
+        });
+
+        await waitFor(() => {
+            expect((selectEl as HTMLSelectElement).value).toBe('admin');
+        });
+    });
+
+    it('「＋ ユーザー追加」ボタンでモーダルが開き、新規ユーザーをPOST登録できること', async () => {
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ users: [] }),
+        });
+
+        render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+        await waitFor(() => {
+            expect(screen.getByRole('button', { name: '＋ ユーザー追加' })).toBeDefined();
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: '＋ ユーザー追加' }));
+
+        expect(screen.getByText('新規ユーザー追加')).toBeDefined();
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                user: { id: 2, name: '新規ユーザー', email: 'new@example.com', role: 'user', isActive: true },
+            }),
+        });
+
+        fireEvent.change(screen.getByPlaceholderText('山田 太郎'), { target: { value: '新規ユーザー' } });
+        fireEvent.change(screen.getByPlaceholderText('user@example.com'), { target: { value: 'new@example.com' } });
+
+        fireEvent.click(screen.getByRole('button', { name: '追加する' }));
+
+        await waitFor(() => {
+            expect(globalFetch).toHaveBeenCalledWith(
+                '/api/user-management',
+                expect.objectContaining({
+                    method: 'POST',
+                    body: JSON.stringify({ name: '新規ユーザー', email: 'new@example.com', role: 'user' }),
+                })
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.getByText('新規ユーザー')).toBeDefined();
+        });
+    });
+
+    it('削除ボタンをクリックした際、DELETE リクエストが送信され一覧から除外されること', async () => {
+        // window.confirm が true を返すように明示的にモック化
+        vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+        const mockUsers = [
+            {
+                id: 1,
+                name: '削除対象ユーザー',
+                email: 'delete@example.com',
+                role: 'user' as const,
+                isActive: true,
+            },
+        ];
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ users: mockUsers }),
+        });
+
+        render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+        await waitFor(() => {
+            expect(screen.getByText('削除対象ユーザー')).toBeDefined();
+        });
+
+        globalFetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ message: 'ユーザーを削除しました' }),
+        });
+
+        fireEvent.click(screen.getByRole('button', { name: '削除' }));
+
+        await waitFor(() => {
+            expect(globalFetch).toHaveBeenCalledWith(
+                '/api/user-management/1',
+                expect.objectContaining({ method: 'DELETE' })
+            );
+        });
+
+        await waitFor(() => {
+            expect(screen.queryByText('削除対象ユーザー')).toBeNull();
+        });
+    });
+
+});
+
+
+
+// import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+// import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+// import { UserManagementTable } from './UserManagementTable';
+
+// const globalFetch = vi.fn();
+// global.fetch = globalFetch;
+
+// describe('UserManagementTable Component', () => {
+//     beforeEach(() => {
+//         vi.clearAllMocks();
+//         vi.spyOn(window, 'confirm').mockImplementation(() => true);
+//     });
+
+//     afterEach(() => {
+//         cleanup();
+//         vi.restoreAllMocks();
+//     });
+
+//     it('初期ロード時にユーザー一覧が取得され、正常に描画されること', async () => {
+//         const mockUsers = [
+//             {
+//                 id: 1,
+//                 name: 'テスト太郎',
+//                 email: 'taro@example.com',
+//                 role: 'user',
+//                 isActive: true,
+//                 createdAt: '2026-08-12T00:00:00Z',
+//             },
+//         ];
+
+//         globalFetch.mockResolvedValueOnce({
+//             ok: true,
+//             json: async () => ({ users: mockUsers }),
+//         });
+
+//         render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+//         expect(screen.getByText('読み込み中...')).toBeDefined();
+
+//         await waitFor(() => {
+//             expect(screen.getByText('テスト太郎')).toBeDefined();
+//             expect(screen.getByText('taro@example.com')).toBeDefined();
+//             expect(screen.getByText('有効')).toBeDefined();
+//             expect(screen.getByRole('button', { name: '無効化する' })).toBeDefined();
+//         });
+//     });
+
+//     it('「＋ ユーザー追加」ボタンでモーダルが開き、新規ユーザーをPOST登録できること', async () => {
+//         globalFetch.mockResolvedValueOnce({
+//             ok: true,
+//             json: async () => ({ users: [] }),
+//         });
+
+//         render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+//         await waitFor(() => {
+//             expect(screen.getByRole('button', { name: '＋ ユーザー追加' })).toBeDefined();
+//         });
+
+//         fireEvent.click(screen.getByRole('button', { name: '＋ ユーザー追加' }));
+
+//         expect(screen.getByText('新規ユーザー追加')).toBeDefined();
+
+//         globalFetch.mockResolvedValueOnce({
+//             ok: true,
+//             json: async () => ({
+//                 user: { id: 2, name: '新規ユーザー', email: 'new@example.com', role: 'user', isActive: true },
+//             }),
+//         });
+
+//         fireEvent.change(screen.getByPlaceholderText('山田 太郎'), { target: { value: '新規ユーザー' } });
+//         fireEvent.change(screen.getByPlaceholderText('user@example.com'), { target: { value: 'new@example.com' } });
+
+//         fireEvent.click(screen.getByRole('button', { name: '追加する' }));
+
+//         await waitFor(() => {
+//             expect(globalFetch).toHaveBeenCalledWith(
+//                 '/api/user-management',
+//                 expect.objectContaining({
+//                     method: 'POST',
+//                     body: JSON.stringify({ name: '新規ユーザー', email: 'new@example.com', role: 'user' }),
+//                 })
+//             );
+//         });
+
+//         await waitFor(() => {
+//             expect(screen.getByText('新規ユーザー')).toBeDefined();
+//         });
+//     });
+
+//     it('削除ボタンをクリックした際、DELETE リクエストが送信され一覧から除外されること', async () => {
+//         const mockUsers = [
+//             {
+//                 id: 1,
+//                 name: '削除対象ユーザー',
+//                 email: 'delete@example.com',
+//                 role: 'user' as const,
+//                 isActive: true,
+//             },
+//         ];
+
+//         globalFetch.mockResolvedValueOnce({
+//             ok: true,
+//             json: async () => ({ users: mockUsers }),
+//         });
+
+//         render(<UserManagementTable apiBaseUrl="/api/user-management" />);
+
+//         await waitFor(() => {
+//             expect(screen.getByText('削除対象ユーザー')).toBeDefined();
+//         });
+
+//         globalFetch.mockResolvedValueOnce({
+//             ok: true,
+//             json: async () => ({ message: 'ユーザーを削除しました' }),
+//         });
+
+//         fireEvent.click(screen.getByRole('button', { name: '削除' }));
+
+//         await waitFor(() => {
+//             expect(globalFetch).toHaveBeenCalledWith(
+//                 '/api/user-management/1',
+//                 expect.objectContaining({ method: 'DELETE' })
+//             );
+//         });
+
+//         await waitFor(() => {
+//             expect(screen.queryByText('削除対象ユーザー')).toBeNull();
+//         });
+//     });
+// });
+EOF_1786952845_16528
+
+mkdir -p "packages/features/user-management/src/components"
+echo "作成: packages/features/user-management/src/components/CreateUserModal.tsx"
+cat << 'EOF_1786952845_18443' > "packages/features/user-management/src/components/CreateUserModal.tsx"
+import React, { useState } from 'react';
+
+interface CreateUserModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: { name: string; email: string; role: 'user' | 'admin' }) => Promise<void>;
+}
+
+export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClose, onSubmit }) => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [role, setRole] = useState<'user' | 'admin'>('user');
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setSubmitting(true);
+
+        try {
+            await onSubmit({ name, email, role });
+            setName('');
+            setEmail('');
+            setRole('user');
+            onClose();
+        } catch (err: any) {
+            setError(err.message || 'ユーザーの追加に失敗しました');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <h3 className="text-lg font-bold mb-4">新規ユーザー追加</h3>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded border border-red-200">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">名前</label>
+                        <input
+                            type="text"
+                            required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="山田 太郎"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+                        <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="user@example.com"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">権限 (Role)</label>
+                        <select
+                            value={role}
+                            onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
+                            className="w-full border rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="user">ユーザー (user)</option>
+                            <option value="admin">管理者 (admin)</option>
+                        </select>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-4 border-t">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={submitting}
+                            className="px-4 py-2 border rounded text-sm text-gray-600 hover:bg-gray-50 transition"
+                        >
+                            キャンセル
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+                        >
+                            {submitting ? '保存中...' : '追加する'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+EOF_1786952845_18443
+
+mkdir -p "packages/features/user-management/src/components"
+echo "作成: packages/features/user-management/src/components/UserManagementTable.tsx"
+cat << 'EOF_1786952845_27252' > "packages/features/user-management/src/components/UserManagementTable.tsx"
+import React, { useEffect, useState } from 'react';
+import { toast, showErrorToast } from '@app/ui';
+import { CreateUserModal } from './CreateUserModal';
+import { AUTH_TOKEN_KEY } from '@app/core';
+
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: 'user' | 'admin';
+    isActive: boolean;
+    createdAt?: string;
+}
+
+interface UserManagementTableProps {
+    apiBaseUrl?: string;
+}
+
+// 認証ヘッダーを取得するヘルパー関数 (AUTH_TOKEN_KEYを指定)
+const getAuthHeaders = (): Record<string, string> => {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+};
+
+export const UserManagementTable: React.FC<UserManagementTableProps> = ({
+    apiBaseUrl = '/api/user-management',
+}) => {
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    // 1. 一覧取得 (GET)
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const res = await fetch(apiBaseUrl, {
+                headers: getAuthHeaders(),
+            });
+            if (!res.ok) throw new Error('ユーザー情報の取得に失敗しました');
+            const data = await res.json();
+            setUsers(data.users);
+            setError(null);
+        } catch (err: any) {
+            setError(err.message || 'エラーが発生しました');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, [apiBaseUrl]);
+
+    // 2. 新規作成 (POST)
+    const handleCreateUser = async (newUser: { name: string; email: string; role: 'user' | 'admin' }) => {
+        const res = await fetch(apiBaseUrl, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(newUser),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            showErrorToast(data);
+            throw new Error(data.detail || data.message || 'ユーザーの作成に失敗しました');
+        }
+
+        toast.success('ユーザーを追加しました', {
+            description: `${data.user.name} を作成しました。`,
+        });
+
+        setUsers((prev) => [...prev, data.user]);
+    };
+
+    // 3. ロール変更 (PATCH)
+    const handleRoleChange = async (userId: number, newRole: 'user' | 'admin') => {
+        try {
+            const res = await fetch(`${apiBaseUrl}/${userId}/role`, {
+                method: 'PATCH',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ role: newRole }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.message || 'ロールの更新に失敗しました');
+
+            setUsers((prev) =>
+                prev.map((u) => (u.id === userId ? { ...u, role: data.user.role } : u))
+            );
+        } catch (err: any) {
+            alert(err.message || '更新エラー');
+        }
+    };
+
+    // 4. ステータス変更 (PATCH)
+    const handleStatusToggle = async (userId: number, currentStatus: boolean) => {
+        try {
+            const res = await fetch(`${apiBaseUrl}/${userId}/status`, {
+                method: 'PATCH',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ isActive: !currentStatus }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.message || 'ステータスの更新に失敗しました');
+
+            setUsers((prev) =>
+                prev.map((u) => (u.id === userId ? { ...u, isActive: data.user.isActive } : u))
+            );
+        } catch (err: any) {
+            alert(err.message || '更新エラー');
+        }
+    };
+
+    // 5. 削除 (DELETE)
+    const handleDeleteUser = async (userId: number) => {
+        if (!confirm('本当にこのユーザーを削除しますか？')) return;
+
+        try {
+            const res = await fetch(`${apiBaseUrl}/${userId}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders(),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                showErrorToast(data);
+                return;
+            }
+
+            toast.success('ユーザーを削除しました');
+            setUsers((prev) => prev.filter((u) => u.id !== userId));
+        } catch (err: any) {
+            toast.error(err.message || '削除エラーが発生しました');
+        }
+    };
+
+    if (loading) return <div className="p-4">読み込み中...</div>;
+    if (error) return <div className="p-4 text-red-500">エラー: {error}</div>;
+
+    return (
+        <div className="p-6 bg-white rounded-lg shadow-sm">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">ユーザー管理</h2>
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition"
+                >
+                    ＋ ユーザー追加
+                </button>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="border-b bg-gray-50 text-sm font-semibold text-gray-600">
+                            <th className="p-3">ID</th>
+                            <th className="p-3">名前</th>
+                            <th className="p-3">メールアドレス</th>
+                            <th className="p-3">権限 (Role)</th>
+                            <th className="p-3">ステータス</th>
+                            <th className="p-3">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {users.map((user) => (
+                            <tr key={user.id} className="border-b hover:bg-gray-50">
+                                <td className="p-3 text-sm text-gray-500">{user.id}</td>
+                                <td className="p-3 text-sm font-medium">{user.name}</td>
+                                <td className="p-3 text-sm text-gray-600">{user.email}</td>
+                                <td className="p-3 text-sm">
+                                    <select
+                                        value={user.role}
+                                        onChange={(e) =>
+                                            handleRoleChange(user.id, e.target.value as 'user' | 'admin')
+                                        }
+                                        className="border rounded px-2 py-1 text-sm bg-white"
+                                    >
+                                        <option value="user">ユーザー (user)</option>
+                                        <option value="admin">管理者 (admin)</option>
+                                    </select>
+                                </td>
+                                <td className="p-3 text-sm">
+                                    <span
+                                        className={`inline-block px-2 py-1 rounded text-xs font-semibold ${user.isActive
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-red-100 text-red-800'
+                                            }`}
+                                    >
+                                        {user.isActive ? '有効' : '無効'}
+                                    </span>
+                                </td>
+                                <td className="p-3 text-sm flex gap-2">
+                                    <button
+                                        onClick={() => handleStatusToggle(user.id, user.isActive)}
+                                        className={`px-3 py-1 rounded text-xs text-white transition ${user.isActive
+                                            ? 'bg-amber-500 hover:bg-amber-600'
+                                            : 'bg-green-500 hover:bg-green-600'
+                                            }`}
+                                    >
+                                        {user.isActive ? '無効化する' : '有効化する'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteUser(user.id)}
+                                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition"
+                                    >
+                                        削除
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <CreateUserModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleCreateUser}
+            />
+        </div>
+    );
+};
+
+EOF_1786952845_27252
+
+echo "作成: plan-step9.md"
+cat << 'EOF_1786952845_3905' > "plan-step9.md"
+# 📌 Step 9: ユーザー管理機能（管理者用基盤）状況整理（最新版）
+
+### 🎯 Step 9 のゴール
+
+1. 管理者ロール（`admin`）を持つユーザーがログインした際、ナビゲーションから「ユーザー管理」画面にアクセスできる。
+2. バックエンド API（`/api/user-management`）からユーザー一覧データを取得し、フロントエンド（`apps/web`）および独立パッケージ（`packages/features/user-management`）のテーブルコンポーネントで表示・編集・削除・ロール変更・無効化等の操作ができる。
+3. 権限がない場合や直接アクセス時に適切な 403 権限エラー画面（`ForbiddenPage`）へ遷移・描画できる。
+
+---
+
+## 🚦 現在の進捗ステータス
+
+| レイヤー / タスク | 内容 | ステータス | 詳細・通過内容 |
+| --- | --- | --- | --- |
+| **API (`apps/api`)** | `user-management.ts` の実装 | ✅ **完了** | `/api/user-management`（一覧・更新・削除・ステータス変更等）の定義および RBAC (403 制御) ミドルウェアの単体・結合テスト完了。 |
+| **UI (`packages/ui`)** | Layout & `SidebarNav` 修正 | ✅ **完了** | `onClick` イベント属性の追加、コンポーネント構造（エントリポイント）の整理完了。 |
+| **Feature (`packages/features/user-management`)** | テーブル UI コンポーネント | ✅ **完了** | 一覧表示、ロール変更（`admin` / `user`）、無効化・削除ボタン、ユーザー追加機能等のUIコンポーネント分離・実装完了。 |
+| **Web (`apps/web`)** | Navigation & タブ切り替え / エラー制御 | ✅ **完了** | `role: 'admin'` 検出時の「ユーザー管理」表示、`currentTab` 状態遷移、および 403 権限エラー画面（`ForbiddenPage`）の描画ロジックとテスト通過。 |
+| **結合連携 (`Web ↔ API`)** | API クライアント連携 & データ描画 | ✅ **完了** | `apiClient` 経由でのユーザー一覧取得・操作連動、全ビルド・型チェックおよび Vitest 単体/統合テスト全通過（Green）。 |
+
+---
+
+## 📝 これまでの完了内容 (Green 達成事項)
+
+1. **バックエンド API & RBAC 認可処理**
+* `/api/user-management` エンドポイントの実装完了。管理者以外のアクセスに対する 403 Forbidden 返却処理の動作検証済み。
+
+
+2. **フロントエンド側の動的ナビゲーション & モジュール分離**
+* `apps/web/src/App.tsx` にて `user.role === 'admin'` に応じて「ユーザー管理」メニュー項目を追加。
+* テーブルコンポーネントを `packages/features/user-management` へパッケージ分離し、モジュール間の境界を定義。
+
+
+3. **コンポーネント間のイベントハンドリング & 画面操作**
+* `SidebarNav` に `onClick` ハンドラを適用し、SPA 内でのタブ切り替えイベントを正しくトリガーできるように修正。
+* ロール変更ドロップダウン、無効化・削除ボタン、ユーザー追加モーダル等の UI 操作ロジックを実装完了。
+
+
+4. **権限エラー画面 (403 Forbidden) の実装**
+* `ForbiddenPage` コンポーネントおよび「ダッシュボードへ戻る」インタラクションを実装。
+* 文字列部分一致テスト（`getByText(/.../)`）を含め、Vitest の単体テスト全 88 件が **Green** で通過。
+
+
+5. **ビルド & 全テスト検証**
+* `npm run build` による型チェック（`tsc`）通過および全体のモジュールツリーの正常性を確認。
+
+
+
+---
+
+## ⏭️ これから行う作業（次のアクション）
+
+Step 9（ユーザー管理および認可基盤）が完了したため、次の機能拡張へ進みます。
+
+1. **拡張候補機能（Step 10 以降）の選定・設計**
+* **候補 A (汎用 UI):** データテーブルコンポーネント（検索・ソート・ページネーション）、汎用モーダル・ダイアログの抽象化基盤。
+* **候補 B (エラー・認証):** 自動ログアウト処理（401 トークン切れ検知）や標準エラー画面 (404 / 500) の作成。
+* **候補 C (その他):** 監査ログ (Audit Log) の記録基盤やシステム内通知基盤。
+EOF_1786952845_3905
 
 echo "作成: doc.md"
-cat << 'EOF_1786336632_24029' > "doc.md"
+cat << 'EOF_1786952845_22207' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -1946,10 +3874,65 @@ cat << 'EOF_1786336632_24029' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1786336632_24029
+EOF_1786952845_22207
+
+mkdir -p "test"
+echo "作成: test/setup.ts"
+cat << 'EOF_1786952845_1606' > "test/setup.ts"
+import { beforeEach } from 'vitest';
+import { db } from '@app/core/server'; // テスト用DBに接続しているDrizzleインスタンス
+import { sql } from 'drizzle-orm';
+
+beforeEach(async () => {
+    // 全テーブルのデータをクリーンアップ（例: public スキーマ内の全テーブルを TRUNCATE）
+    await db.execute(sql`
+    DO $$ DECLARE
+        r RECORD;
+    BEGIN
+        FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+            EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE;';
+        END LOOP;
+    END $$;
+  `);
+});
+EOF_1786952845_1606
+
+mkdir -p "test"
+echo "作成: test/global-setup.ts"
+cat << 'EOF_1786952845_1121' > "test/global-setup.ts"
+import { execSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// import.meta.url から安全にパスを抽出
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function setup() {
+    console.log('\n🔄 テスト用データベースに最新のスキーマを反映中...');
+
+    // packages/core のルートディレクトリパスを解決
+    const corePackageDir = path.resolve(__dirname, '../../../../core');
+    const configPath = path.resolve(corePackageDir, 'drizzle-test.config.ts');
+
+    try {
+        execSync(`npx drizzle-kit push --config="${configPath}"`, {
+            cwd: corePackageDir,
+            stdio: 'inherit',
+            env: {
+                ...process.env, // 親プロセスの環境変数を引き継ぐ
+            },
+        });
+        console.log('✅ テスト用データベースの準備完了!\n');
+    } catch (error) {
+        console.error('❌ テスト用データベースへのスキーマ反映に失敗しました:', error);
+        throw error;
+    }
+}
+EOF_1786952845_1121
 
 echo "作成: SUMMRY.md"
-cat << 'EOF_1786336632_29308' > "SUMMRY.md"
+cat << 'EOF_1786952845_16440' > "SUMMRY.md"
 これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
 # 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
 
@@ -2216,11 +4199,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 
 ---
-EOF_1786336632_29308
+EOF_1786952845_16440
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1786336632_32573' > "apps/web/package.json"
+cat << 'EOF_1786952845_13059' > "apps/web/package.json"
 {
   "name": "@app/web",
   "version": "1.0.0",
@@ -2247,11 +4230,11 @@ cat << 'EOF_1786336632_32573' > "apps/web/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1786336632_32573
+EOF_1786952845_13059
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1786336632_5664' > "apps/web/index.html"
+cat << 'EOF_1786952845_31823' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -2263,11 +4246,11 @@ cat << 'EOF_1786336632_5664' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1786336632_5664
+EOF_1786952845_31823
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1786336632_4513' > "apps/web/tsconfig.json"
+cat << 'EOF_1786952845_10606' > "apps/web/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -2277,11 +4260,11 @@ cat << 'EOF_1786336632_4513' > "apps/web/tsconfig.json"
         "src/**/*"
     ],
 }
-EOF_1786336632_4513
+EOF_1786952845_10606
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1786336632_25641' > "apps/web/vitest.config.ts"
+cat << 'EOF_1786952845_9606' > "apps/web/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -2292,36 +4275,207 @@ export default defineConfig({
         tsconfigPaths: true,
         alias: {
             // エイリアスを直接指定
-            // '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
             '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
+            '@app/features/user-management': path.resolve(import.meta.dirname, '../../packages/features/user-management/src'),
         },
     },
     test: {
-        environment: 'jsdom',
         globals: true,
+        environment: 'jsdom',
         setupFiles: ['./src/test/setup.ts'],
     },
 });
-EOF_1786336632_25641
+EOF_1786952845_9606
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/index.css"
-cat << 'EOF_1786336632_16945' > "apps/web/src/index.css"
+cat << 'EOF_1786952845_5973' > "apps/web/src/index.css"
 @import "tailwindcss";
 
 /* モノレポ内の共有 UI パッケージも Tailwind のスキャン対象に指定 */
 @source "../../../packages/ui/src";
-EOF_1786336632_16945
+EOF_1786952845_5973
+
+mkdir -p "apps/web/src"
+echo "作成: apps/web/src/App.test.tsx"
+cat << 'EOF_1786952845_4153' > "apps/web/src/App.test.tsx"
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import React from 'react';
+import { App } from './App';
+
+// useAuth のモック設定
+const mockUseAuth = vi.fn();
+
+vi.mock('./context/AuthContext', () => ({
+    AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    useAuth: () => mockUseAuth(),
+}));
+
+// ProtectedRoute のモック（認証チェックをスルー）
+vi.mock('./components/ProtectedRoute', () => ({
+    ProtectedRoute: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+// UserManagementTable のモック化（インポート元パスを App.tsx と一致させる）
+vi.mock('@app/features-user-management/ui', () => ({
+    UserManagementTable: () => <div data-testid="user-management-table">ユーザー管理テーブル画面</div>,
+}));
+
+// @app/core/config/env の部分モック
+vi.mock('@app/core/config/env', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@app/core/config/env')>();
+    return {
+        ...actual,
+        clientEnv: {
+            ...actual.clientEnv,
+            VITE_APP_TITLE: 'テストアプリ',
+        },
+    };
+});
+
+// fetch のモック
+const globalFetch = vi.fn();
+global.fetch = globalFetch;
+
+describe('App Component (User Management Integration)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    afterEach(() => {
+        cleanup();
+    });
+
+    it('admin ユーザーの場合、サイドナビに「ユーザー管理」が表示され、クリックすると管理画面に切り替わること', async () => {
+        mockUseAuth.mockReturnValue({
+            user: { id: 1, email: 'admin@example.com', role: 'admin' },
+            logout: vi.fn(),
+        });
+
+        render(<App />);
+
+        // ダッシュボード見出し（h2）の初期表示確認
+        expect(screen.getByRole('heading', { name: 'ダッシュボード' })).toBeDefined();
+
+        // admin のためサイドナビに「ユーザー管理」リンクが存在すること
+        const userMgmtNav = screen.getByRole('link', { name: 'ユーザー管理' });
+        expect(userMgmtNav).toBeDefined();
+
+        // クリックしてユーザー管理画面を表示
+        fireEvent.click(userMgmtNav);
+
+        await waitFor(() => {
+            expect(screen.getByTestId('user-management-table')).toBeDefined();
+        });
+    });
+
+    it('user（一般権限）ユーザーの場合、サイドナビに「ユーザー管理」が表示されないこと', () => {
+        mockUseAuth.mockReturnValue({
+            user: { id: 2, email: 'user@example.com', role: 'user' },
+            logout: vi.fn(),
+        });
+
+        render(<App />);
+
+        expect(screen.queryByRole('link', { name: 'ユーザー管理' })).toBeNull();
+    });
+});
+
+
+// import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+// import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+// import React from 'react';
+// import { App } from './App';
+
+// // useAuth のモック設定
+// const mockUseAuth = vi.fn();
+
+// vi.mock('./context/AuthContext', () => ({
+//     AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+//     useAuth: () => mockUseAuth(),
+// }));
+
+// // ProtectedRoute のモック（認証チェックをスルー）
+// vi.mock('./components/ProtectedRoute', () => ({
+//     ProtectedRoute: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+// }));
+
+// // UserManagementTable のモック化（表示確認用）
+// vi.mock('@app/features/user-management', () => ({
+//     UserManagementTable: () => <div data-testid="user-management-table">ユーザー管理テーブル画面</div>,
+// }));
+
+// // @app/core/config/env の部分モック
+// vi.mock('@app/core/config/env', async (importOriginal) => {
+//     const actual = await importOriginal<typeof import('@app/core/config/env')>();
+//     return {
+//         ...actual,
+//         clientEnv: {
+//             ...actual.clientEnv,
+//             VITE_APP_TITLE: 'テストアプリ',
+//         },
+//     };
+// });
+
+// // fetch のモック
+// const globalFetch = vi.fn();
+// global.fetch = globalFetch;
+
+// describe('App Component (User Management Integration)', () => {
+//     beforeEach(() => {
+//         vi.clearAllMocks();
+//     });
+
+//     afterEach(() => {
+//         cleanup();
+//     });
+
+//     it('admin ユーザーの場合、サイドナビに「ユーザー管理」が表示され、クリックすると管理画面に切り替わること', async () => {
+//         mockUseAuth.mockReturnValue({
+//             user: { id: 1, email: 'admin@example.com', role: 'admin' },
+//             logout: vi.fn(),
+//         });
+
+//         render(<App />);
+
+//         // ダッシュボード見出し（h2）の初期表示確認
+//         expect(screen.getByRole('heading', { name: 'ダッシュボード' })).toBeDefined();
+
+//         // admin のためサイドナビに「ユーザー管理」リンクが存在すること
+//         const userMgmtNav = screen.getByRole('link', { name: 'ユーザー管理' });
+//         expect(userMgmtNav).toBeDefined();
+
+//         // クリックしてユーザー管理画面を表示
+//         fireEvent.click(userMgmtNav);
+
+//         await waitFor(() => {
+//             expect(screen.getByTestId('user-management-table')).toBeDefined();
+//         });
+//     });
+
+//     it('user（一般権限）ユーザーの場合、サイドナビに「ユーザー管理」が表示されないこと', () => {
+//         mockUseAuth.mockReturnValue({
+//             user: { id: 2, email: 'user@example.com', role: 'user' },
+//             logout: vi.fn(),
+//         });
+
+//         render(<App />);
+
+//         expect(screen.queryByRole('link', { name: 'ユーザー管理' })).toBeNull();
+//     });
+// });
+EOF_1786952845_4153
 
 mkdir -p "apps/web/src/test"
 echo "作成: apps/web/src/test/setup.ts"
-cat << 'EOF_1786336632_23154' > "apps/web/src/test/setup.ts"
+cat << 'EOF_1786952845_26764' > "apps/web/src/test/setup.ts"
 import '@testing-library/jest-dom';
-EOF_1786336632_23154
+EOF_1786952845_26764
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1786336632_32325' > "apps/web/src/main.tsx"
+cat << 'EOF_1786952845_1858' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
@@ -2332,11 +4486,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1786336632_32325
+EOF_1786952845_1858
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.test.ts"
-cat << 'EOF_1786336632_28723' > "apps/web/src/env.test.ts"
+cat << 'EOF_1786952845_7448' > "apps/web/src/env.test.ts"
 import { describe, it, expect } from 'vitest';
 import { clientEnv } from '@app/ui';
 
@@ -2354,11 +4508,11 @@ describe('Web Environment Variables (Pattern A)', () => {
         expect(clientEnv.VITE_API_TARGET_URL).toMatch(/^http/);
     });
 });
-EOF_1786336632_28723
+EOF_1786952845_7448
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.test.tsx"
-cat << 'EOF_1786336632_772' > "apps/web/src/context/AuthContext.test.tsx"
+cat << 'EOF_1786952845_27863' > "apps/web/src/context/AuthContext.test.tsx"
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -2366,15 +4520,29 @@ import React from 'react';
 import { apiClient, getStoredToken, setStoredToken, removeStoredToken } from '../lib/apiClient';
 
 // apiClient のモック設定
-vi.mock('../lib/apiClient', () => ({
-    apiClient: {
-        get: vi.fn(),
-        post: vi.fn(),
-    },
-    getStoredToken: vi.fn(),
-    setStoredToken: vi.fn(),
-    removeStoredToken: vi.fn(),
-}));
+// vi.mock('../lib/apiClient', () => ({
+//     apiClient: {
+//         get: vi.fn(),
+//         post: vi.fn(),
+//     },
+//     getStoredToken: vi.fn(),
+//     setStoredToken: vi.fn(),
+//     removeStoredToken: vi.fn(),
+// }));
+// 実際の ApiError クラスをそのままモックへ引き継ぐ場合
+vi.mock('../lib/apiClient', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../lib/apiClient')>();
+    return {
+        ...actual,
+        apiClient: {
+            get: vi.fn(),
+            post: vi.fn(),
+        },
+        getStoredToken: vi.fn(),
+        setStoredToken: vi.fn(),
+        removeStoredToken: vi.fn(),
+    };
+});
 
 describe('AuthContext / useAuth (Step 7 修正版)', () => {
     beforeEach(() => {
@@ -2459,13 +4627,13 @@ describe('AuthContext / useAuth (Step 7 修正版)', () => {
         expect(result.current.token).toBeNull();
     });
 });
-EOF_1786336632_772
+EOF_1786952845_27863
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.tsx"
-cat << 'EOF_1786336632_25038' > "apps/web/src/context/AuthContext.tsx"
+cat << 'EOF_1786952845_29141' > "apps/web/src/context/AuthContext.tsx"
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient, getStoredToken, setStoredToken, removeStoredToken } from '../lib/apiClient';
+import { apiClient, getStoredToken, setStoredToken, removeStoredToken, ApiError } from '../lib/apiClient';
 
 // ユーザーオブジェクトの型定義
 export interface User {
@@ -2506,7 +4674,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUser(data.user);
                 setToken(storedToken);
             } catch (error) {
-                console.error('Failed to restore authentication session:', error);
+                // 401/403 エラー（トークン無効・期限切れ）は一般的な未ログイン状態のため、静かにクリア
+                const isUnauthorized = error instanceof ApiError && (error.status === 401 || error.status === 403);
+
+                if (!isUnauthorized) {
+                    // サーバー障害(500系)やネットワークエラー等のみログを出力
+                    console.warn('Authentication restore failed due to network or server error:', error);
+                }
+
                 removeStoredToken();
                 setToken(null);
                 setUser(null);
@@ -2560,11 +4735,12 @@ export const useAuth = (): AuthContextType => {
     }
     return context;
 };
-EOF_1786336632_25038
+
+EOF_1786952845_29141
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.test.tsx"
-cat << 'EOF_1786336632_22538' > "apps/web/src/components/ProtectedRoute.test.tsx"
+cat << 'EOF_1786952845_27137' > "apps/web/src/components/ProtectedRoute.test.tsx"
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -2632,11 +4808,11 @@ describe('ProtectedRoute', () => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 });
-EOF_1786336632_22538
+EOF_1786952845_27137
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/Header.tsx"
-cat << 'EOF_1786336632_28857' > "apps/web/src/components/Header.tsx"
+cat << 'EOF_1786952845_16886' > "apps/web/src/components/Header.tsx"
 import { clientEnv } from '@app/ui';
 
 export const Header = () => {
@@ -2646,11 +4822,41 @@ export const Header = () => {
     </header>
   );
 };
-EOF_1786336632_28857
+EOF_1786952845_16886
+
+mkdir -p "apps/web/src/components"
+echo "作成: apps/web/src/components/ForbiddenPage.test.tsx"
+cat << 'EOF_1786952845_10930' > "apps/web/src/components/ForbiddenPage.test.tsx"
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { ForbiddenPage } from './ForbiddenPage';
+
+describe('ForbiddenPage Component', () => {
+    it('403 エラーメッセージとタイトルが正しく表示されること', () => {
+        render(<ForbiddenPage onBackToDashboard={vi.fn()} />);
+
+        expect(screen.getByText('403')).toBeInTheDocument();
+        expect(screen.getByText('アクセス権限がありません')).toBeInTheDocument();
+        expect(
+            screen.getByText(/このページを閲覧・操作するための権限が付与されていません/)
+        ).toBeInTheDocument();
+    });
+
+    it('「ダッシュボードへ戻る」ボタンを押すとコールバックが実行されること', () => {
+        const handleBack = vi.fn();
+        render(<ForbiddenPage onBackToDashboard={handleBack} />);
+
+        const backButton = screen.getByRole('button', { name: 'ダッシュボードへ戻る' });
+        fireEvent.click(backButton);
+
+        expect(handleBack).toHaveBeenCalledTimes(1);
+    });
+});
+EOF_1786952845_10930
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.tsx"
-cat << 'EOF_1786336632_28935' > "apps/web/src/components/ProtectedRoute.tsx"
+cat << 'EOF_1786952845_1175' > "apps/web/src/components/ProtectedRoute.tsx"
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LoginForm } from './LoginForm';
@@ -2680,11 +4886,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     return <>{children}</>;
 };
-EOF_1786336632_28935
+EOF_1786952845_1175
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1786336632_25165' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1786952845_6002' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -2754,11 +4960,54 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </form>
     );
 };
-EOF_1786336632_25165
+EOF_1786952845_6002
+
+mkdir -p "apps/web/src/components"
+echo "作成: apps/web/src/components/ForbiddenPage.tsx"
+cat << 'EOF_1786952845_14850' > "apps/web/src/components/ForbiddenPage.tsx"
+import React from 'react';
+import { Button } from '@app/ui';
+
+interface ForbiddenPageProps {
+    onBackToDashboard: () => void;
+}
+
+export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({ onBackToDashboard }) => {
+    return (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center text-center p-6">
+            <div className="rounded-full bg-red-100 p-4 mb-4">
+                <svg
+                    className="h-12 w-12 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                </svg>
+            </div>
+
+            <h1 className="text-4xl font-extrabold text-gray-900 mb-2">403</h1>
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">アクセス権限がありません</h2>
+            <p className="text-sm text-gray-600 max-w-md mb-6">
+                このページを閲覧・操作するための権限が付与されていません。管理者にお問い合わせいただくか、ダッシュボードへお戻りください。
+            </p>
+
+            <Button variant="default" onClick={onBackToDashboard}>
+                ダッシュボードへ戻る
+            </Button>
+        </div>
+    );
+};
+EOF_1786952845_14850
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.test.tsx"
-cat << 'EOF_1786336632_12078' > "apps/web/src/components/LoginForm.test.tsx"
+cat << 'EOF_1786952845_17135' > "apps/web/src/components/LoginForm.test.tsx"
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
@@ -2838,22 +5087,46 @@ describe('LoginForm Component (Step 5.2)', () => {
         expect(errorMessage).toHaveTextContent('メールアドレスまたはパスワードが正しくありません。');
     });
 });
-EOF_1786336632_12078
+EOF_1786952845_17135
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1786336632_31637' > "apps/web/src/App.tsx"
-import React from 'react';
+cat << 'EOF_1786952845_14223' > "apps/web/src/App.tsx"
+import React, { useState } from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@app/ui';
 import { clientEnv } from '@app/core/config/env';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { UserManagementTable } from '@app/features-user-management/ui';
+import { ForbiddenPage } from './components/ForbiddenPage';
 
 const DashboardContent: React.FC = () => {
   const { user, logout } = useAuth();
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'users' | 'forbidden'>('dashboard');
 
   const navItems = [
-    { label: 'ダッシュボード', href: '#', active: true },
+    {
+      label: 'ダッシュボード',
+      href: '#',
+      active: currentTab === 'dashboard',
+      onClick: (e: React.MouseEvent) => {
+        e.preventDefault();
+        setCurrentTab('dashboard');
+      },
+    },
+    ...(user?.role === 'admin'
+      ? [
+        {
+          label: 'ユーザー管理',
+          href: '#',
+          active: currentTab === 'users',
+          onClick: (e: React.MouseEvent) => {
+            e.preventDefault();
+            setCurrentTab('users');
+          },
+        },
+      ]
+      : []),
     { label: 'プロジェクト一覧', href: '#' },
     { label: '設定', href: '#' },
   ];
@@ -2876,29 +5149,61 @@ const DashboardContent: React.FC = () => {
     showErrorToast(mockRfc9457Error);
   };
 
+  const handleTriggerForbidden = () => {
+    // 403 権限エラー発生時の画面テスト用動作
+    setCurrentTab('forbidden');
+  };
+
   return (
     <AppLayout
-      header={<HeaderContent title={clientEnv.VITE_APP_TITLE} />}
+      header={
+        <HeaderContent title={clientEnv.VITE_APP_TITLE}>
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-gray-600">
+              <span className="font-semibold text-gray-900">{user?.email}</span> ({user?.role})
+            </span>
+            <Button variant="outline" size="sm" onClick={logout}>
+              ログアウト
+            </Button>
+          </div>
+        </HeaderContent>
+      }
       sidebar={<SidebarNav items={navItems} />}
     >
       <div className="flex flex-col gap-6">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">ダッシュボード</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            ログイン中: <span className="font-semibold text-gray-900">{user?.email}</span> (Role: {user?.role})
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={logout}>
-              ログアウト
-            </Button>
-            <Button variant="default" onClick={handleSuccessToast}>
-              成功 Toast を表示
-            </Button>
-            <Button variant="destructive" onClick={handleRfcErrorToast}>
-              RFC 9457 エラー Toast を表示
-            </Button>
+        {currentTab === 'dashboard' && (
+          <div className="flex flex-col gap-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">ダッシュボード</h2>
+              <p className="text-sm text-gray-600">
+                システム概要や各種機能へのショートカットをここに表示します。
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-dashed border-gray-300 p-4">
+              <p className="text-xs font-semibold text-gray-500 mb-2">UI 動作確認 (Debug)</p>
+              <div className="flex gap-2">
+                <Button variant="default" size="sm" onClick={handleSuccessToast}>
+                  成功 Toast を表示
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleRfcErrorToast}>
+                  RFC 9457 エラー Toast を表示
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleTriggerForbidden}>
+                  403 権限エラー画面を表示
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {currentTab === 'users' && user?.role === 'admin' && (
+          <UserManagementTable apiBaseUrl="/api/user-management" />
+        )}
+
+        {currentTab === 'forbidden' && (
+          <ForbiddenPage onBackToDashboard={() => setCurrentTab('dashboard')} />
+        )}
       </div>
     </AppLayout>
   );
@@ -2916,14 +5221,15 @@ export function App() {
 }
 
 export default App;
-EOF_1786336632_31637
+EOF_1786952845_14223
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.test.ts"
-cat << 'EOF_1786336632_7000' > "apps/web/src/lib/apiClient.test.ts"
+cat << 'EOF_1786952845_32485' > "apps/web/src/lib/apiClient.test.ts"
 // apps/web/src/lib/apiClient.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { apiClient, ApiError } from "./apiClient";
+import { AUTH_TOKEN_KEY } from '@app/core';
 
 describe("apiClient (API クライアント)", () => {
     const originalFetch = global.fetch;
@@ -2938,7 +5244,7 @@ describe("apiClient (API クライアント)", () => {
     });
 
     it("正常系: リクエストヘッダーに Content-Type と Authorization トークンが正しく設定されること", async () => {
-        localStorage.setItem("auth_token", "mock-jwt-token");
+        localStorage.setItem(AUTH_TOKEN_KEY, "mock-jwt-token");
 
         const mockResponse = { id: "1", name: "テストユーザー" };
         global.fetch = vi.fn().mockResolvedValue({
@@ -2995,7 +5301,7 @@ describe("apiClient (API クライアント)", () => {
     });
 
     it("異常系: 401 Unauthorized 発生時にローカルストレージのトークンが削除されること", async () => {
-        localStorage.setItem("auth_token", "expired-token");
+        localStorage.setItem(AUTH_TOKEN_KEY, "expired-token");
 
         global.fetch = vi.fn().mockResolvedValue({
             ok: false,
@@ -3010,16 +5316,17 @@ describe("apiClient (API クライアント)", () => {
         });
 
         await expect(apiClient.get("/api/protected")).rejects.toThrow(ApiError);
-        expect(localStorage.getItem("auth_token")).toBeNull();
+        expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull();
     });
 });
-EOF_1786336632_7000
+EOF_1786952845_32485
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.ts"
-cat << 'EOF_1786336632_32422' > "apps/web/src/lib/apiClient.ts"
+cat << 'EOF_1786952845_21488' > "apps/web/src/lib/apiClient.ts"
 // apps/web/src/lib/apiClient.ts
 import { clientEnv } from "@app/ui";
+import { AUTH_TOKEN_KEY } from '@app/core';
 
 export interface InvalidParam {
     name: string;
@@ -3050,18 +5357,16 @@ export class ApiError extends Error {
     }
 }
 
-const TOKEN_KEY = "auth_token";
-
 export const getStoredToken = (): string | null => {
-    return localStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem(AUTH_TOKEN_KEY);
 };
 
 export const setStoredToken = (token: string): void => {
-    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
 };
 
 export const removeStoredToken = (): void => {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
 };
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -3130,11 +5435,11 @@ export const apiClient = {
     delete: <T>(endpoint: string, options?: RequestInit) =>
         request<T>(endpoint, { ...options, method: "DELETE" }),
 };
-EOF_1786336632_32422
+EOF_1786952845_21488
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1786336632_21314' > "apps/web/vite.config.ts"
+cat << 'EOF_1786952845_11985' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -3157,7 +5462,6 @@ export default defineConfig(({ mode }) => {
         resolve: {
             tsconfigPaths: true,
             alias: {
-                // '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
                 '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
             },
         },
@@ -3177,11 +5481,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1786336632_21314
+EOF_1786952845_11985
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1786336632_1490' > "apps/api/package.json"
+cat << 'EOF_1786952845_17643' > "apps/api/package.json"
 {
   "name": "@app/api",
   "version": "1.0.0",
@@ -3206,59 +5510,60 @@ cat << 'EOF_1786336632_1490' > "apps/api/package.json"
     "typescript": "^5.3.3"
   }
 }
-EOF_1786336632_1490
+EOF_1786952845_17643
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1786336632_13030' > "apps/api/tsconfig.json"
+cat << 'EOF_1786952845_26002' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "include": [
         "src/**/*"
     ]
 }
-EOF_1786336632_13030
+EOF_1786952845_26002
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1786336632_16191' > "apps/api/vitest.config.ts"
+cat << 'EOF_1786952845_6335' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
 export default defineConfig({
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src/index.ts'),
-        },
     },
     test: {
         globals: true,
         environment: 'node',
+        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1786336632_16191
+EOF_1786952845_6335
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1786336632_13130' > "apps/api/src/index.ts"
+cat << 'EOF_1786952845_27267' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { env, formatEnvForLog } from '@app/core';
+import { env, isTest, formatEnvForLog } from '@app/core';
 import { AppError, ProblemDetails, ValidationError } from '@app/core';
-import { loadFeatureModules } from '@app/core';
 import { AuthRegistry } from '@app/core';
+import { loadFeatureModules } from '@app/core/server';
 import { LocalAuthPlugin } from '@app/plugins-auth-local';
 import { ActiveDirectoryAuthPlugin } from '@app/plugins-auth-ad';
 import { authRouter } from './routes/auth';
 import { healthRouter } from './routes/health';
+import { systemRouter } from './routes/system';
+import { userManagementRoutes } from './routes/user-management';
 import { loggerMiddleware } from './middlewares/logger';
+import { authMiddleware } from './middlewares/auth-middleware';
 
 // コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
-if (env.NODE_ENV !== 'test') {
+if (!isTest) {
     console.log('⚙️ Loaded Environment Variables:\n' + formatEnvForLog());
 }
 
@@ -3278,16 +5583,16 @@ app.use(
     '*',
     cors({
         origin: env.CORS_ORIGIN,
-        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
     })
 );
 
 // -----------------------------------------------------------------------------
-// テスト専用ルート (NODE_ENV === 'test' の場合のみ有効化)
+// テスト専用ルート (テストの場合のみ有効化)
 // -----------------------------------------------------------------------------
-if (env.NODE_ENV === 'test') {
+if (isTest) {
     app.get('/test/error', () => {
         throw new Error('Test internal error');
     });
@@ -3302,13 +5607,20 @@ app.route('/', healthRouter);
 // 認証関連ルート (/api/auth/*)
 app.route('/api/auth', authRouter(env.JWT_SECRET));
 
+// システム状態管理ルート (/api/system/*)
+app.route('/api/system', systemRouter);
+
+// ユーザー管理ルート (/api/user-management/*) - 認証 + RBACガード付き
+app.use('/api/user-management/*', authMiddleware(env.JWT_SECRET));
+app.route('/api/user-management', userManagementRoutes);
+
 // プラグイン/フィーチャーモジュールの動的読み込み
 await loadFeatureModules(app, 'packages/features/*/src/index.ts');
 
 // -----------------------------------------------------------------------------
-// テスト専用バリデーションルート (NODE_ENV === 'test' の場合のみ)
+// テスト専用バリデーションルート (テストの場合のみ)
 // -----------------------------------------------------------------------------
-if (env.NODE_ENV === 'test') {
+if (isTest) {
     const sampleSchema = z.object({
         name: z.string().min(2, 'Name must be at least 2 characters'),
         email: z.string().email('Invalid email address'),
@@ -3383,8 +5695,8 @@ app.onError((err, c) => {
 // -----------------------------------------------------------------------------
 const port = env.PORT; // 型安全な数値ポート番号を使用
 
-// 💡 テスト環境（NODE_ENV === 'test'）以外の場合のみ、実際の HTTP サーバーを起動する
-if (env.NODE_ENV !== 'test') {
+// 💡 テスト以外の場合のみ、実際の HTTP サーバーを起動する
+if (!isTest) {
     console.log(`[API] Server running inside DevContainer on http://0.0.0.0:${port}`);
     serve({
         fetch: app.fetch,
@@ -3394,11 +5706,11 @@ if (env.NODE_ENV !== 'test') {
 }
 
 export default app;
-EOF_1786336632_13130
+EOF_1786952845_27267
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1786336632_6449' > "apps/api/src/index.test.ts"
+cat << 'EOF_1786952845_26640' > "apps/api/src/index.test.ts"
 import { describe, it, expect } from 'vitest';
 import app from './index';
 
@@ -3467,14 +5779,21 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
-EOF_1786336632_6449
+
+describe('User Management Integration (Step 9)', () => {
+    it('未認証の状態で /api/user-management にアクセスした際、401 Unauthorized が返ること', async () => {
+        const res = await app.request('/api/user-management');
+        expect(res.status).toBe(401);
+    });
+});
+EOF_1786952845_26640
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.test.ts"
-cat << 'EOF_1786336632_6356' > "apps/api/src/routes/health.test.ts"
+cat << 'EOF_1786952845_18028' > "apps/api/src/routes/health.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import app from '../index';
-import { db } from '@app/core';
+import { db } from '@app/core/server';
 
 describe('Health Check API (Step 6.1)', () => {
     beforeEach(() => {
@@ -3514,15 +5833,16 @@ describe('Health Check API (Step 6.1)', () => {
         });
     });
 });
-EOF_1786336632_6356
+EOF_1786952845_18028
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1786336632_30671' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1786952845_25828' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db, schema, UnauthorizedError } from '@app/core';
+import { db, users } from '@app/core/server';
+import { UnauthorizedError } from '@app/core';
 import { verifyPassword, signJwt } from '@app/plugins-auth-local';
 import { authMiddleware } from '../middlewares/auth-middleware';
 
@@ -3553,7 +5873,7 @@ export function authRouter(jwtSecret: string) {
 
         // DB からユーザーを検索
         const user = await db.query.users.findFirst({
-            where: eq(schema.users.email, email),
+            where: eq(users.email, email),
         });
 
         if (!user) {
@@ -3604,13 +5924,313 @@ export function authRouter(jwtSecret: string) {
 
     return app;
 }
-EOF_1786336632_30671
+EOF_1786952845_25828
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/system.ts"
+cat << 'EOF_1786952845_29978' > "apps/api/src/routes/system.ts"
+import { Hono } from 'hono';
+import { db, plugins as pluginsTable } from '@app/core/server';
+import { PluginRegistry } from '@app/core';
+
+export const systemRouter = new Hono();
+
+/**
+ * GET /api/system/plugins
+ * 有効化（enabled: true）されているプラグインの一覧および
+ * フロントエンド表示に必要なナビゲーション（navItems）を返却するAPI
+ */
+systemRouter.get('/plugins', async (c) => {
+    // 1. DBからプラグインの有効/無効ステータスを取得
+    let dbPluginsMap = new Map<string, boolean>();
+    try {
+        const dbPlugins = await db.select().from(pluginsTable);
+        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
+    } catch (error) {
+        console.warn('[System API] Failed to fetch plugins table status.');
+    }
+
+    // 2. レジストリから全プラグイン情報を取得し、有効なもののみフィルタリング
+    const activePlugins = PluginRegistry.getAll()
+        .filter((plugin) => {
+            // DBに存在する場合はその値、存在しない場合はデフォルトで有効(true)とする
+            return dbPluginsMap.has(plugin.id) ? dbPluginsMap.get(plugin.id) : true;
+        })
+        .map((plugin) => ({
+            id: plugin.id,
+            name: plugin.name,
+            description: plugin.description,
+            navItems: plugin.navItems ?? [],
+        }));
+
+    return c.json({
+        plugins: activePlugins,
+    });
+});
+EOF_1786952845_29978
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/user-management.test.ts"
+cat << 'EOF_1786952845_18360' > "apps/api/src/routes/user-management.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import app from '../index';
+import { signJwt } from '@app/plugins-auth-local';
+import { env } from '@app/core';
+import { db, users } from '@app/core/server';
+import { eq } from 'drizzle-orm';
+
+async function createToken(id: string, role: 'admin' | 'user') {
+    return await signJwt({ sub: id, role }, env.JWT_SECRET);
+}
+
+describe('User Management API Routes (PostgreSQL Integration)', () => {
+    beforeEach(async () => {
+        await db.delete(users);
+        await db.insert(users).values([
+            {
+                id: 1,
+                name: '管理者',
+                email: 'admin@example.com',
+                passwordHash: 'dummy_hash',
+                role: 'admin',
+                isActive: true,
+            },
+            {
+                id: 2,
+                name: '一般ユーザー',
+                email: 'user@example.com',
+                passwordHash: 'dummy_hash',
+                role: 'user',
+                isActive: true,
+            },
+        ]);
+    });
+
+    it('認証ヘッダーがない場合は 401 を返すこと', async () => {
+        const res = await app.request('/api/user-management');
+        expect(res.status).toBe(401);
+    });
+
+    it('一般ユーザーからのアクセスは 403 を返すこと', async () => {
+        const token = await createToken('2', 'user');
+        const res = await app.request('/api/user-management', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        expect(res.status).toBe(403);
+    });
+
+    it('GET /api/user-management - ユーザー一覧を取得できること', async () => {
+        const token = await createToken('1', 'admin');
+        const res = await app.request('/api/user-management', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data.users.length).toBe(2);
+        expect(data.users[0].email).toBe('admin@example.com');
+    });
+
+    it('POST /api/user-management - テスト用DBに新規ユーザーを挿入できること', async () => {
+        const token = await createToken('1', 'admin');
+        const res = await app.request('/api/user-management', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                name: '新規追加ユーザー',
+                email: 'newuser@example.com',
+                role: 'user',
+            }),
+        });
+
+        expect(res.status).toBe(201);
+        const data = await res.json();
+        expect(data.user).toHaveProperty('id');
+        expect(data.user.email).toBe('newuser@example.com');
+
+        // 仮ハッシュ（'default_hash'）ではなく暗号化されていること
+        const [savedUser] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+        expect(savedUser).toBeDefined();
+        expect(savedUser.passwordHash).not.toBe('default_hash');
+    });
+
+    describe('安全策（自己操作の禁止）', () => {
+        it('管理者自身（ID: 1）を削除しようとした場合、400 エラーになること', async () => {
+            const token = await createToken('1', 'admin');
+            const res = await app.request('/api/user-management/1', {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            expect(res.status).toBe(400);
+            const data = await res.json();
+            // RFC 9457 エラー形式の確認
+            expect(data).toHaveProperty('title');
+        });
+
+        it('管理者自身（ID: 1）のロールを user に変更しようとした場合、400 エラーになること', async () => {
+            const token = await createToken('1', 'admin');
+            const res = await app.request('/api/user-management/1/role', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ role: 'user' }),
+            });
+
+            expect(res.status).toBe(400);
+        });
+
+        it('管理者自身（ID: 1）を無効化しようとした場合、400 エラーになること', async () => {
+            const token = await createToken('1', 'admin');
+            const res = await app.request('/api/user-management/1/status', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ isActive: false }),
+            });
+
+            expect(res.status).toBe(400);
+        });
+    });
+
+    it('DELETE /api/user-management/:id - 他のユーザー（ID: 2）を正しく削除できること', async () => {
+        const token = await createToken('1', 'admin');
+        const res = await app.request('/api/user-management/2', {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        expect(res.status).toBe(200);
+
+        const [deletedUser] = await db.select().from(users).where(eq(users.id, 2));
+        expect(deletedUser).toBeUndefined();
+    });
+});
+
+// import { describe, it, expect, beforeEach } from 'vitest';
+// import app from '../index';
+// import { signJwt } from '@app/plugins-auth-local';
+// import { env } from '@app/core';
+// import { db, users } from '@app/core/server';
+// import { eq } from 'drizzle-orm';
+
+// async function createToken(role: 'admin' | 'user') {
+//     return await signJwt({ sub: '1', role }, env.JWT_SECRET);
+// }
+
+// describe('User Management API Routes (PostgreSQL Integration)', () => {
+//     beforeEach(async () => {
+//         await db.delete(users);
+//         await db.insert(users).values([
+//             {
+//                 id: 1,
+//                 name: '管理者',
+//                 email: 'admin@example.com',
+//                 passwordHash: 'dummy_hash',
+//                 role: 'admin',
+//                 isActive: true,
+//             },
+//             {
+//                 id: 2,
+//                 name: '一般ユーザー',
+//                 email: 'user@example.com',
+//                 passwordHash: 'dummy_hash',
+//                 role: 'user',
+//                 isActive: true,
+//             },
+//         ]);
+//     });
+
+//     it('認証ヘッダーがない場合は 401 を返すこと', async () => {
+//         const res = await app.request('/api/user-management');
+//         expect(res.status).toBe(401);
+//     });
+
+//     it('一般ユーザーからのアクセスは 403 を返すこと', async () => {
+//         const token = await createToken('user');
+//         const res = await app.request('/api/user-management', {
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+//         expect(res.status).toBe(403);
+//     });
+
+//     it('GET /api/user-management - ユーザー一覧を取得できること', async () => {
+//         const token = await createToken('admin');
+//         const res = await app.request('/api/user-management', {
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+
+//         // 500の場合にレスポンスボディ（エラー内容）を出力してログで確認する
+//         if (res.status === 500) {
+//             console.error('500 Error Response Body:', await res.text());
+//         }
+
+//         expect(res.status).toBe(200);
+//         const data = await res.json();
+//         expect(data.users.length).toBe(2);
+//         expect(data.users[0].email).toBe('admin@example.com');
+//     });
+
+//     it('POST /api/user-management - テスト用DBに新規ユーザーを挿入できること', async () => {
+//         const token = await createToken('admin');
+//         const res = await app.request('/api/user-management', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 Authorization: `Bearer ${token}`,
+//             },
+//             body: JSON.stringify({
+//                 name: '新規追加ユーザー',
+//                 email: 'newuser@example.com',
+//                 role: 'user',
+//             }),
+//         });
+
+//         if (res.status === 500) {
+//             console.error('500 Error Response Body:', await res.text());
+//         }
+
+//         expect(res.status).toBe(201);
+//         const data = await res.json();
+//         expect(data.user).toHaveProperty('id');
+//         expect(data.user.email).toBe('newuser@example.com');
+
+//         const [savedUser] = await db.select().from(users).where(eq(users.email, 'newuser@example.com'));
+//         expect(savedUser).toBeDefined();
+//     });
+
+//     it('DELETE /api/user-management/:id - テスト用DBからユーザーを削除できること', async () => {
+//         const token = await createToken('admin');
+//         const res = await app.request('/api/user-management/2', {
+//             method: 'DELETE',
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+
+//         if (res.status === 500) {
+//             console.error('500 Error Response Body:', await res.text());
+//         }
+
+//         expect(res.status).toBe(200);
+
+//         const [deletedUser] = await db.select().from(users).where(eq(users.id, 2));
+//         expect(deletedUser).toBeUndefined();
+//     });
+// });
+EOF_1786952845_18360
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.ts"
-cat << 'EOF_1786336632_16282' > "apps/api/src/routes/health.ts"
+cat << 'EOF_1786952845_23574' > "apps/api/src/routes/health.ts"
 import { Hono } from 'hono';
-import { db, AppError } from '@app/core';
+import { db } from '@app/core/server';
+import { AppError } from '@app/core';
 import { sql } from 'drizzle-orm';
 
 export const healthRouter = new Hono();
@@ -3634,15 +6254,434 @@ healthRouter.get('/healthz', async (c) => {
         );
     }
 });
-EOF_1786336632_16282
+EOF_1786952845_23574
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/system.test.ts"
+cat << 'EOF_1786952845_4541' > "apps/api/src/routes/system.test.ts"
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Hono } from 'hono';
+import { PluginRegistry } from '@app/core';
+import { systemRouter } from './system';
+
+describe('GET /api/system/plugins', () => {
+    beforeEach(() => {
+        PluginRegistry.register({
+            id: 'sample-plugin',
+            name: 'サンプル',
+            routes: new Hono(),
+            navItems: [{ label: 'サンプル画面', path: '/sample' }],
+        });
+    });
+
+    it('有効なプラグイン一覧と navItems を返却すること', async () => {
+        const app = new Hono();
+        app.route('/api/system', systemRouter);
+
+        const res = await app.request('/api/system/plugins');
+        expect(res.status).toBe(200);
+
+        const body = await res.json();
+        expect(body.plugins).toBeDefined();
+
+        const target = body.plugins.find((p: any) => p.id === 'sample-plugin');
+        expect(target).toBeDefined();
+        expect(target.navItems).toHaveLength(1);
+    });
+});
+EOF_1786952845_4541
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/user-management.ts"
+cat << 'EOF_1786952845_21616' > "apps/api/src/routes/user-management.ts"
+import { Hono } from 'hono';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
+import { requireRole } from '../middlewares/rbac-middleware';
+import { ValidationError, BadRequestError, NotFoundError } from '@app/core';
+import { db, users } from '@app/core/server';
+import { hashPassword } from '@app/plugins-auth-local';
+import { eq } from 'drizzle-orm';
+
+export const userManagementRoutes = new Hono();
+
+// RBAC: admin ロールのみ許可
+userManagementRoutes.use('*', requireRole(['admin']));
+
+// JWT ペイロード（sub / id）からログインユーザー ID を取得するヘルパー
+function getCurrentUserId(c: any): number | null {
+    const user = c.get('user');
+    if (!user) return null;
+    const rawId = user.sub ?? user.id;
+    return rawId ? Number(rawId) : null;
+}
+
+const createUserSchema = z.object({
+    name: z.string().min(1, '名前は必須です'),
+    email: z.string().email('有効なメールアドレスを入力してください'),
+    role: z.enum(['admin', 'user'], { message: 'ロールは admin または user を指定してください' }),
+});
+
+// GET /api/user-management - ユーザー一覧取得
+userManagementRoutes.get('/', async (c) => {
+    const userList = await db.select().from(users);
+    return c.json({ users: userList });
+});
+
+// POST /api/user-management - ユーザー新規追加
+userManagementRoutes.post(
+    '/',
+    zValidator('json', createUserSchema, (result) => {
+        if (!result.success) {
+            const invalidParams = result.error.issues.map((issue) => ({
+                name: issue.path.join('.'),
+                reason: issue.message,
+            }));
+            throw new ValidationError(invalidParams);
+        }
+    }),
+    async (c) => {
+        const body = await c.req.json<z.infer<typeof createUserSchema>>();
+
+        const [existingUser] = await db.select().from(users).where(eq(users.email, body.email));
+        if (existingUser) {
+            throw new BadRequestError('指定されたメールアドレスは既に登録されています');
+        }
+
+        // 初期パスワードのハッシュ化生成
+        const defaultPassword = `InitPass_${Math.random().toString(36).slice(-8)}`;
+        const passwordHash = await hashPassword(defaultPassword);
+
+        const [newUser] = await db.insert(users).values({
+            name: body.name,
+            email: body.email,
+            passwordHash,
+            role: body.role,
+            isActive: true,
+        }).returning();
+
+        return c.json({ user: newUser }, 201);
+    }
+);
+
+// PATCH /api/user-management/:id/status - ステータス変更
+userManagementRoutes.patch('/:id/status', async (c) => {
+    const id = Number(c.req.param('id'));
+    const currentUserId = getCurrentUserId(c);
+    const { isActive } = await c.req.json<{ isActive: boolean }>();
+
+    // 自分自身の無効化を防止
+    if (currentUserId === id && isActive === false) {
+        throw new BadRequestError('自分自身のアカウントを無効化することはできません');
+    }
+
+    const [updatedUser] = await db.update(users)
+        .set({ isActive })
+        .where(eq(users.id, id))
+        .returning();
+
+    if (!updatedUser) {
+        throw new NotFoundError('ユーザーが見つかりません');
+    }
+
+    return c.json({ user: updatedUser });
+});
+
+// PATCH /api/user-management/:id/role - ロール変更
+userManagementRoutes.patch('/:id/role', async (c) => {
+    const id = Number(c.req.param('id'));
+    const currentUserId = getCurrentUserId(c);
+    const { role } = await c.req.json<{ role: 'user' | 'admin' }>();
+
+    // 自分自身の管理者権限の剥奪（user化）を防止
+    if (currentUserId === id && role !== 'admin') {
+        throw new BadRequestError('自分自身の管理者権限を変更することはできません');
+    }
+
+    const [updatedUser] = await db.update(users)
+        .set({ role })
+        .where(eq(users.id, id))
+        .returning();
+
+    if (!updatedUser) {
+        throw new NotFoundError('ユーザーが見つかりません');
+    }
+
+    return c.json({ user: updatedUser });
+});
+
+// DELETE /api/user-management/:id - ユーザー削除
+userManagementRoutes.delete('/:id', async (c) => {
+    const id = Number(c.req.param('id'));
+    const currentUserId = getCurrentUserId(c);
+
+    // 自分自身の削除を防止
+    if (currentUserId === id) {
+        throw new BadRequestError('自分自身のアカウントを削除することはできません');
+    }
+
+    const [deletedUser] = await db.delete(users)
+        .where(eq(users.id, id))
+        .returning();
+
+    if (!deletedUser) {
+        throw new NotFoundError('ユーザーが見つかりません');
+    }
+
+    return c.json({ message: 'ユーザーを削除しました', user: deletedUser });
+});
+
+// import { Hono } from 'hono';
+// import { z } from 'zod';
+// import { zValidator } from '@hono/zod-validator';
+// import { requireRole } from '../middlewares/rbac-middleware';
+// import { ValidationError, BadRequestError, NotFoundError } from '@app/core';
+// import { db, users } from '@app/core/server';
+// import { hashPassword } from '@app/plugins-auth-local';
+// import { eq } from 'drizzle-orm';
+
+// export const userManagementRoutes = new Hono();
+
+// // ログインユーザーの ID を安全に取得するヘルパー
+// function getCurrentUserId(c: any): number | null {
+//     const user = c.get('user');
+//     if (!user) return null;
+//     const rawId = user.sub ?? user.id;
+//     return rawId ? Number(rawId) : null;
+// }
+
+// // RBAC: admin ロールのみ許可
+// userManagementRoutes.use('*', requireRole(['admin']));
+
+// const createUserSchema = z.object({
+//     name: z.string().min(1, '名前は必須です'),
+//     email: z.string().email('有効なメールアドレスを入力してください'),
+//     role: z.enum(['admin', 'user'], { message: 'ロールは admin または user を指定してください' }),
+// });
+
+// // GET /api/user-management - ユーザー一覧取得
+// userManagementRoutes.get('/', async (c) => {
+//     const userList = await db.select().from(users);
+//     return c.json({ users: userList });
+// });
+
+// // POST /api/user-management - ユーザー新規追加
+// userManagementRoutes.post(
+//     '/',
+//     zValidator('json', createUserSchema, (result) => {
+//         if (!result.success) {
+//             const invalidParams = result.error.issues.map((issue) => ({
+//                 name: issue.path.join('.'),
+//                 reason: issue.message,
+//             }));
+//             throw new ValidationError(invalidParams);
+//         }
+//     }),
+//     async (c) => {
+//         const body = await c.req.json<z.infer<typeof createUserSchema>>();
+
+//         const [existingUser] = await db.select().from(users).where(eq(users.email, body.email));
+//         if (existingUser) {
+//             throw new BadRequestError('指定されたメールアドレスは既に登録されています');
+//         }
+
+//         const defaultPassword = `InitPass_${Math.random().toString(36).slice(-8)}`;
+//         const passwordHash = await hashPassword(defaultPassword);
+
+//         const [newUser] = await db.insert(users).values({
+//             name: body.name,
+//             email: body.email,
+//             passwordHash,
+//             role: body.role,
+//             isActive: true,
+//         }).returning();
+
+//         return c.json({ user: newUser }, 201);
+//     }
+// );
+
+// // PATCH /api/user-management/:id/status - ステータス変更
+// userManagementRoutes.patch('/:id/status', async (c) => {
+//     const id = Number(c.req.param('id'));
+//     const currentUser = c.get('user');
+//     const { isActive } = await c.req.json<{ isActive: boolean }>();
+
+//     // 自分自身の無効化を防止
+//     if (currentUser && Number(currentUser.id) === id && isActive === false) {
+//         throw new BadRequestError('自分自身のアカウントを無効化することはできません');
+//     }
+
+//     const [updatedUser] = await db.update(users)
+//         .set({ isActive })
+//         .where(eq(users.id, id))
+//         .returning();
+
+//     if (!updatedUser) {
+//         throw new NotFoundError('ユーザーが見つかりません');
+//     }
+
+//     return c.json({ user: updatedUser });
+// });
+
+// // PATCH /api/user-management/:id/role - ロール変更
+// userManagementRoutes.patch('/:id/role', async (c) => {
+//     const id = Number(c.req.param('id'));
+//     const currentUser = c.get('user');
+//     const { role } = await c.req.json<{ role: 'user' | 'admin' }>();
+
+//     // 自分自身の管理者権限の剥奪を防止
+//     if (currentUser && Number(currentUser.id) === id && role !== 'admin') {
+//         throw new BadRequestError('自分自身の管理者権限を変更することはできません');
+//     }
+
+//     const [updatedUser] = await db.update(users)
+//         .set({ role })
+//         .where(eq(users.id, id))
+//         .returning();
+
+//     if (!updatedUser) {
+//         throw new NotFoundError('ユーザーが見つかりません');
+//     }
+
+//     return c.json({ user: updatedUser });
+// });
+
+// // DELETE /api/user-management/:id - ユーザー削除
+// userManagementRoutes.delete('/:id', async (c) => {
+//     const id = Number(c.req.param('id'));
+//     const currentUser = c.get('user');
+
+//     // 自分自身の削除を防止
+//     if (currentUser && Number(currentUser.id) === id) {
+//         throw new BadRequestError('自分自身のアカウントを削除することはできません');
+//     }
+
+//     const [deletedUser] = await db.delete(users)
+//         .where(eq(users.id, id))
+//         .returning();
+
+//     if (!deletedUser) {
+//         throw new NotFoundError('ユーザーが見つかりません');
+//     }
+
+//     return c.json({ message: 'ユーザーを削除しました', user: deletedUser });
+// });
+
+// // import { Hono } from 'hono';
+// // import { z } from 'zod';
+// // import { zValidator } from '@hono/zod-validator';
+// // import { requireRole } from '../middlewares/rbac-middleware';
+// // import { ValidationError } from '@app/core';
+// // import { db, users } from '@app/core/server';
+// // import { eq } from 'drizzle-orm';
+
+// // export const userManagementRoutes = new Hono();
+
+// // // RBAC: admin ロールのみ許可
+// // userManagementRoutes.use('*', requireRole(['admin']));
+
+// // const createUserSchema = z.object({
+// //     name: z.string().min(1, '名前は必須です'),
+// //     email: z.string().email('有効なメールアドレスを入力してください'),
+// //     role: z.enum(['admin', 'user'], { message: 'ロールは admin または user を指定してください' }),
+// // });
+
+// // // GET /api/user-management - ユーザー一覧取得
+// // userManagementRoutes.get('/', async (c) => {
+// //     const userList = await db.select().from(users);
+// //     return c.json({ users: userList });
+// // });
+
+// // // POST /api/user-management - ユーザー新規追加
+// // userManagementRoutes.post(
+// //     '/',
+// //     zValidator('json', createUserSchema, (result) => {
+// //         if (!result.success) {
+// //             const invalidParams = result.error.issues.map((issue) => ({
+// //                 name: issue.path.join('.'),
+// //                 reason: issue.message,
+// //             }));
+// //             throw new ValidationError(invalidParams);
+// //         }
+// //     }),
+// //     async (c) => {
+// //         const body = await c.req.json<z.infer<typeof createUserSchema>>();
+
+// //         const [existingUser] = await db.select().from(users).where(eq(users.email, body.email));
+// //         if (existingUser) {
+// //             return c.json({ message: '指定されたメールアドレスは既に登録されています' }, 400);
+// //         }
+
+// //         const [newUser] = await db.insert(users).values({
+// //             name: body.name,
+// //             email: body.email,
+// //             passwordHash: 'default_hash',
+// //             role: body.role,
+// //             isActive: true,
+// //         }).returning();
+
+// //         return c.json({ user: newUser }, 201);
+// //     }
+// // );
+
+// // // PATCH /api/user-management/:id/status - ステータス変更
+// // userManagementRoutes.patch('/:id/status', async (c) => {
+// //     const id = Number(c.req.param('id'));
+// //     const { isActive } = await c.req.json<{ isActive: boolean }>();
+
+// //     const [updatedUser] = await db.update(users)
+// //         .set({ isActive })
+// //         .where(eq(users.id, id))
+// //         .returning();
+
+// //     if (!updatedUser) {
+// //         return c.json({ message: 'ユーザーが見つかりません' }, 404);
+// //     }
+
+// //     return c.json({ user: updatedUser });
+// // });
+
+// // // PATCH /api/user-management/:id/role - ロール変更
+// // userManagementRoutes.patch('/:id/role', async (c) => {
+// //     const id = Number(c.req.param('id'));
+// //     const { role } = await c.req.json<{ role: 'user' | 'admin' }>();
+
+// //     const [updatedUser] = await db.update(users)
+// //         .set({ role })
+// //         .where(eq(users.id, id))
+// //         .returning();
+
+// //     if (!updatedUser) {
+// //         return c.json({ message: 'ユーザーが見つかりません' }, 404);
+// //     }
+
+// //     return c.json({ user: updatedUser });
+// // });
+
+// // // DELETE /api/user-management/:id - ユーザー削除
+// // userManagementRoutes.delete('/:id', async (c) => {
+// //     const id = Number(c.req.param('id'));
+
+// //     const [deletedUser] = await db.delete(users)
+// //         .where(eq(users.id, id))
+// //         .returning();
+
+// //     if (!deletedUser) {
+// //         return c.json({ message: 'ユーザーが見つかりません' }, 404);
+// //     }
+
+// //     return c.json({ message: 'ユーザーを削除しました', user: deletedUser });
+// // });
+EOF_1786952845_21616
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.test.ts"
-cat << 'EOF_1786336632_4996' > "apps/api/src/routes/auth.test.ts"
+cat << 'EOF_1786952845_22795' > "apps/api/src/routes/auth.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
-import { AppError, db, schema } from '@app/core';
+import { db, users } from '@app/core/server';
+import { AppError } from '@app/core';
 import { hashPassword } from '@app/plugins-auth-local';
 
 describe('Auth Routes (Step 4.3)', () => {
@@ -3676,11 +6715,11 @@ describe('Auth Routes (Step 4.3)', () => {
     // テスト用初期ユーザーのセットアップ
     beforeEach(async () => {
         // 既存データのクリーンアップ
-        await db.delete(schema.users);
+        await db.delete(users);
 
         // テストユーザーを挿入
         const hashedPassword = await hashPassword('password123');
-        await db.insert(schema.users).values({
+        await db.insert(users).values({
             name: 'Test User',
             email: 'test@example.com',
             passwordHash: hashedPassword,
@@ -3704,6 +6743,7 @@ describe('Auth Routes (Step 4.3)', () => {
             const body = await res.json();
             expect(body.token).toBeDefined();
             expect(body.user.email).toBe('test@example.com');
+            expect(body.user.passwordHash).toBeUndefined();
         });
 
         it('誤ったパスワードの場合、401 エラーを返すこと', async () => {
@@ -3714,6 +6754,20 @@ describe('Auth Routes (Step 4.3)', () => {
                 body: JSON.stringify({
                     email: 'test@example.com',
                     password: 'wrongpassword',
+                }),
+            });
+
+            expect(res.status).toBe(401);
+        });
+
+        it('存在しないメールアドレスの場合、401 エラーを返すこと', async () => {
+            const app = createTestApp();
+            const res = await app.request('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'nonexistent@example.com',
+                    password: 'password123',
                 }),
             });
 
@@ -3744,14 +6798,22 @@ describe('Auth Routes (Step 4.3)', () => {
             expect(meRes.status).toBe(200);
             const meBody = await meRes.json();
             expect(meBody.user.email).toBe('test@example.com');
+            expect(meBody.user.passwordHash).toBeUndefined();
+        });
+
+        it('Authorization ヘッダーがない場合、401 エラーを返すこと', async () => {
+            const app = createTestApp();
+            const res = await app.request('/api/auth/me');
+
+            expect(res.status).toBe(401);
         });
     });
 });
-EOF_1786336632_4996
+EOF_1786952845_22795
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.ts"
-cat << 'EOF_1786336632_9566' > "apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1786952845_23658' > "apps/api/src/middlewares/auth-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { verifyJwt } from '@app/plugins-auth-local';
 import { UnauthorizedError } from '@app/core';
@@ -3788,11 +6850,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
         await next();
     };
 }
-EOF_1786336632_9566
+EOF_1786952845_23658
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
-cat << 'EOF_1786336632_15251' > "apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1786952845_18980' > "apps/api/src/middlewares/auth-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 import { authMiddleware } from './auth-middleware';
@@ -3874,11 +6936,11 @@ describe('Auth Middleware (Step 4.2)', () => {
         expect(body.user).toMatchObject(payload);
     });
 });
-EOF_1786336632_15251
+EOF_1786952845_18980
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.test.ts"
-cat << 'EOF_1786336632_20966' > "apps/api/src/middlewares/rbac-middleware.test.ts"
+cat << 'EOF_1786952845_23659' > "apps/api/src/middlewares/rbac-middleware.test.ts"
 // apps/api/src/middlewares/rbac-middleware.test.ts
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
@@ -3947,11 +7009,11 @@ describe('RBAC Middleware (Step 4.3)', () => {
         expect(body.message).toBe('Admin Dashboard');
     });
 });
-EOF_1786336632_20966
+EOF_1786952845_23659
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.test.ts"
-cat << 'EOF_1786336632_24210' > "apps/api/src/middlewares/logger.test.ts"
+cat << 'EOF_1786952845_22111' > "apps/api/src/middlewares/logger.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
 import { loggerMiddleware } from './logger';
@@ -4063,11 +7125,11 @@ describe('Logger Middleware (Step 6.2)', () => {
         expect(typeof logOutput.error.stack).toBe('string');
     });
 });
-EOF_1786336632_24210
+EOF_1786952845_22111
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.ts"
-cat << 'EOF_1786336632_16156' > "apps/api/src/middlewares/rbac-middleware.ts"
+cat << 'EOF_1786952845_31507' > "apps/api/src/middlewares/rbac-middleware.ts"
 // apps/api/src/middlewares/rbac-middleware.ts
 import type { MiddlewareHandler } from 'hono';
 import { ForbiddenError, UnauthorizedError } from '@app/core';
@@ -4093,11 +7155,11 @@ export function requireRole(allowedRoles: string[]): MiddlewareHandler {
         await next();
     };
 }
-EOF_1786336632_16156
+EOF_1786952845_31507
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.ts"
-cat << 'EOF_1786336632_20544' > "apps/api/src/middlewares/logger.ts"
+cat << 'EOF_1786952845_25147' > "apps/api/src/middlewares/logger.ts"
 import { MiddlewareHandler } from 'hono';
 
 function formatLocalISOString(date: Date): string {
@@ -4162,10 +7224,10 @@ export const loggerMiddleware: MiddlewareHandler = async (c, next) => {
 
     console.log(JSON.stringify(logPayload));
 };
-EOF_1786336632_20544
+EOF_1786952845_25147
 
 echo "作成: README.md"
-cat << 'EOF_1786336632_25944' > "README.md"
+cat << 'EOF_1786952845_7840' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.5
 
 ## 1. システム概要 (Overview)
@@ -4717,10 +7779,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1786336632_25944
+EOF_1786952845_7840
 
 echo "作成: .env"
-cat << 'EOF_1786336632_21546' > ".env"
+cat << 'EOF_1786952845_12828' > ".env"
 # バックエンド用
 PORT=3001
 API_BASE_URL=http://localhost:3001
@@ -4734,6 +7796,6 @@ TZ=Asia/Tokyo
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1786336632_21546
+EOF_1786952845_12828
 
 echo -e "\n復元が完了しました！"

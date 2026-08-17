@@ -1,5 +1,6 @@
 // apps/web/src/lib/apiClient.ts
 import { clientEnv } from "@app/ui";
+import { AUTH_TOKEN_KEY } from '@app/core';
 
 export interface InvalidParam {
     name: string;
@@ -30,18 +31,16 @@ export class ApiError extends Error {
     }
 }
 
-const TOKEN_KEY = "auth_token";
-
 export const getStoredToken = (): string | null => {
-    return localStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem(AUTH_TOKEN_KEY);
 };
 
 export const setStoredToken = (token: string): void => {
-    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
 };
 
 export const removeStoredToken = (): void => {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
 };
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

@@ -66,3 +66,10 @@ describe('Zod Request Validation (Step 2)', () => {
         );
     });
 });
+
+describe('User Management Integration (Step 9)', () => {
+    it('未認証の状態で /api/user-management にアクセスした際、401 Unauthorized が返ること', async () => {
+        const res = await app.request('/api/user-management');
+        expect(res.status).toBe(401);
+    });
+});

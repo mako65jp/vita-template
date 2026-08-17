@@ -6,7 +6,8 @@
     "apps/*",
     "packages/*",
     "packages/plugins/*",
-    "packages/features/*"
+    "packages/features/*",
+    "packages/ui/*"
   ],
   "scripts": {
     "start": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
@@ -14,19 +15,19 @@
     "dev:api": "npm --workspace=apps/api run dev",
     "dev:web": "npm --workspace=apps/web run dev",
     "build": "npm run build --workspaces --if-present",
-    "test": "vitest run",
+    "test": "vitest run --watch --no-cache",
     "db:push": "npm run db:push --workspaces --if-present",
     "db:push:test": "npm run db:push:test --workspaces --if-present",
     "db:push:all": "npm run db:push:all --workspaces --if-present",
-    "coverage": "vitest run --coverage",
-    "seed:user": "npx tsx --env-file=.env packages/core/src/seed-dev-user.ts",
-    "seed:all": "npm run seed:user"
+    "db:seed": "tsx packages/core/src/db/seed.ts",
+    "coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
     "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.3.3",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"

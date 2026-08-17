@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient, getStoredToken, setStoredToken, removeStoredToken } from '../lib/apiClient';
+import { apiClient, getStoredToken, setStoredToken, removeStoredToken, ApiError } from '../lib/apiClient';
 
 // ユーザーオブジェクトの型定義
 export interface User {
@@ -40,7 +40,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUser(data.user);
                 setToken(storedToken);
             } catch (error) {
-                console.error('Failed to restore authentication session:', error);
+                // 401/403 エラー（トークン無効・期限切れ）は一般的な未ログイン状態のため、静かにクリア
+                const isUnauthorized = error instanceof ApiError && (error.status === 401 || error.status === 403);
+
+                if (!isUnauthorized) {
+                    // サーバー障害(500系)やネットワークエラー等のみログを出力
+                    console.warn('Authentication restore failed due to network or server error:', error);
+                }
+
                 removeStoredToken();
                 setToken(null);
                 setUser(null);
@@ -94,3 +101,4 @@ export const useAuth = (): AuthContextType => {
     }
     return context;
 };
+

@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
-import { AppError, db, schema } from '@app/core';
+import { db, users } from '@app/core/server';
+import { AppError } from '@app/core';
 import { hashPassword } from '@app/plugins-auth-local';
 
 describe('Auth Routes (Step 4.3)', () => {
@@ -35,11 +36,11 @@ describe('Auth Routes (Step 4.3)', () => {
     // テスト用初期ユーザーのセットアップ
     beforeEach(async () => {
         // 既存データのクリーンアップ
-        await db.delete(schema.users);
+        await db.delete(users);
 
         // テストユーザーを挿入
         const hashedPassword = await hashPassword('password123');
-        await db.insert(schema.users).values({
+        await db.insert(users).values({
             name: 'Test User',
             email: 'test@example.com',
             passwordHash: hashedPassword,
@@ -63,6 +64,7 @@ describe('Auth Routes (Step 4.3)', () => {
             const body = await res.json();
             expect(body.token).toBeDefined();
             expect(body.user.email).toBe('test@example.com');
+            expect(body.user.passwordHash).toBeUndefined();
         });
 
         it('誤ったパスワードの場合、401 エラーを返すこと', async () => {
@@ -73,6 +75,20 @@ describe('Auth Routes (Step 4.3)', () => {
                 body: JSON.stringify({
                     email: 'test@example.com',
                     password: 'wrongpassword',
+                }),
+            });
+
+            expect(res.status).toBe(401);
+        });
+
+        it('存在しないメールアドレスの場合、401 エラーを返すこと', async () => {
+            const app = createTestApp();
+            const res = await app.request('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'nonexistent@example.com',
+                    password: 'password123',
                 }),
             });
 
@@ -103,6 +119,14 @@ describe('Auth Routes (Step 4.3)', () => {
             expect(meRes.status).toBe(200);
             const meBody = await meRes.json();
             expect(meBody.user.email).toBe('test@example.com');
+            expect(meBody.user.passwordHash).toBeUndefined();
+        });
+
+        it('Authorization ヘッダーがない場合、401 エラーを返すこと', async () => {
+            const app = createTestApp();
+            const res = await app.request('/api/auth/me');
+
+            expect(res.status).toBe(401);
         });
     });
 });

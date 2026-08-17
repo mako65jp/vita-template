@@ -4,12 +4,10 @@ import path from 'path';
 export default defineConfig({
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src/index.ts'),
-        },
     },
     test: {
         globals: true,
         environment: 'node',
+        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });

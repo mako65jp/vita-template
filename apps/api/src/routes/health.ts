@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { db, AppError } from '@app/core';
+import { db } from '@app/core/server';
+import { AppError } from '@app/core';
 import { sql } from 'drizzle-orm';
 
 export const healthRouter = new Hono();

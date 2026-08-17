@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "db:push": "drizzle-kit push --verbose",
-    "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts --verbose",
-    "db:push:all": "npm run db:push && npm run db:push:test"
-  },
   "main": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./db": "./src/db/index.ts",
+    "./registry/hono-auto-loader": "./src/registry/hono-auto-loader.ts",
+    "./config/env": "./src/config/env.ts"
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
+    "db:push:all": "npm run db:push && npm run db:push:test"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

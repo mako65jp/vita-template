@@ -7,7 +7,7 @@ export default defineConfig({
     resolve: {
         tsconfigPaths: true,
         alias: {
-            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src/index.ts'),
+            '@app/core': path.resolve(import.meta.dirname, '../../packages/core/src'),
         },
     },
     test: {

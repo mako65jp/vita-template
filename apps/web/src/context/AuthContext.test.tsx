@@ -5,15 +5,29 @@ import React from 'react';
 import { apiClient, getStoredToken, setStoredToken, removeStoredToken } from '../lib/apiClient';
 
 // apiClient のモック設定
-vi.mock('../lib/apiClient', () => ({
-    apiClient: {
-        get: vi.fn(),
-        post: vi.fn(),
-    },
-    getStoredToken: vi.fn(),
-    setStoredToken: vi.fn(),
-    removeStoredToken: vi.fn(),
-}));
+// vi.mock('../lib/apiClient', () => ({
+//     apiClient: {
+//         get: vi.fn(),
+//         post: vi.fn(),
+//     },
+//     getStoredToken: vi.fn(),
+//     setStoredToken: vi.fn(),
+//     removeStoredToken: vi.fn(),
+// }));
+// 実際の ApiError クラスをそのままモックへ引き継ぐ場合
+vi.mock('../lib/apiClient', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../lib/apiClient')>();
+    return {
+        ...actual,
+        apiClient: {
+            get: vi.fn(),
+            post: vi.fn(),
+        },
+        getStoredToken: vi.fn(),
+        setStoredToken: vi.fn(),
+        removeStoredToken: vi.fn(),
+    };
+});
 
 describe('AuthContext / useAuth (Step 7 修正版)', () => {
     beforeEach(() => {
