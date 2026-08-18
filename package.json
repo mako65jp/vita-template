@@ -19,7 +19,7 @@
     "db:push": "npm run db:push --workspaces --if-present",
     "db:push:test": "npm run db:push:test --workspaces --if-present",
     "db:push:all": "npm run db:push:all --workspaces --if-present",
-    "db:seed": "tsx packages/core/src/db/seed.ts",
+    "db:seed": "npm run db:seed --workspaces --if-present",
     "coverage": "vitest run --coverage"
   },
   "devDependencies": {

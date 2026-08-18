@@ -23,7 +23,18 @@ export async function seed() {
     }
 }
 
-seed().catch((err) => {
-    console.error('❌ シード処理に失敗しました:', err);
-    process.exit(1);
-});
+// 実行と終了の制御
+async function main() {
+    try {
+        await seed();
+        console.log('🎉 シード処理が完了しました');
+    } catch (err) {
+        console.error('❌ シード処理に失敗しました:', err);
+        process.exitCode = 1;
+    } finally {
+        // 必要に応じてここで db.client.end() などの切断処理を行うか、直接プロセスを終了します
+        process.exit();
+    }
+}
+
+main();
