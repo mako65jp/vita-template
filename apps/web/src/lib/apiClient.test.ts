@@ -4,7 +4,7 @@ import { apiClient, ApiError } from "./apiClient";
 import { AUTH_TOKEN_KEY } from '@app/core';
 
 describe("apiClient (API クライアント)", () => {
-    const originalFetch = global.fetch;
+    const originalFetch = globalThis.fetch;
 
     beforeEach(() => {
         localStorage.clear();
@@ -12,14 +12,14 @@ describe("apiClient (API クライアント)", () => {
     });
 
     afterEach(() => {
-        global.fetch = originalFetch;
+        globalThis.fetch = originalFetch;
     });
 
     it("正常系: リクエストヘッダーに Content-Type と Authorization トークンが正しく設定されること", async () => {
         localStorage.setItem(AUTH_TOKEN_KEY, "mock-jwt-token");
 
         const mockResponse = { id: "1", name: "テストユーザー" };
-        global.fetch = vi.fn().mockResolvedValue({
+        (globalThis as any).fetch = vi.fn().mockResolvedValue({
             ok: true,
             headers: new Headers({ "content-type": "application/json" }),
             json: async () => mockResponse,
@@ -30,7 +30,7 @@ describe("apiClient (API クライアント)", () => {
         expect(data).toEqual(mockResponse);
 
         // fetch の呼出し引数を検証
-        const [url, options] = (global.fetch as any).mock.calls[0];
+        const [url, options] = ((globalThis as any).fetch as any).mock.calls[0];
         expect(url).toContain("/api/me");
         expect(options.method).toBe("GET");
 
@@ -52,7 +52,7 @@ describe("apiClient (API クライアント)", () => {
             ],
         };
 
-        global.fetch = vi.fn().mockResolvedValue({
+        (globalThis as any).fetch = vi.fn().mockResolvedValue({
             ok: false,
             status: 400,
             headers: new Headers({ "content-type": "application/problem+json" }),
@@ -75,7 +75,7 @@ describe("apiClient (API クライアント)", () => {
     it("異常系: 401 Unauthorized 発生時にローカルストレージのトークンが削除されること", async () => {
         localStorage.setItem(AUTH_TOKEN_KEY, "expired-token");
 
-        global.fetch = vi.fn().mockResolvedValue({
+        (globalThis as any).fetch = vi.fn().mockResolvedValue({
             ok: false,
             status: 401,
             headers: new Headers({ "content-type": "application/problem+json" }),

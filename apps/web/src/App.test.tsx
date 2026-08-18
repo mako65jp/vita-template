@@ -35,7 +35,7 @@ vi.mock('@app/core/config/env', async (importOriginal) => {
 
 // fetch のモック
 const globalFetch = vi.fn();
-global.fetch = globalFetch;
+(globalThis as any).fetch = globalFetch;
 
 describe('App Component (User Management Integration)', () => {
     beforeEach(() => {

@@ -56,7 +56,12 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     }, [apiBaseUrl]);
 
     // 2. 新規作成 (POST)
-    const handleCreateUser = async (newUser: { name: string; email: string; role: 'user' | 'admin' }) => {
+    const handleCreateUser = async (newUser: {
+        name: string;
+        email: string;
+        role: 'user' | 'admin';
+        password?: string;
+    }) => {
         const res = await fetch(apiBaseUrl, {
             method: 'POST',
             headers: getAuthHeaders(),
@@ -71,7 +76,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         }
 
         toast.success('ユーザーを追加しました', {
-            description: `${data.user.name} を作成しました。`,
+            description: `${data.user.name} を作成しました。初期パスワード: ${data.initialPassword}`,
         });
 
         setUsers((prev) => [...prev, data.user]);
@@ -226,4 +231,3 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </div>
     );
 };
-

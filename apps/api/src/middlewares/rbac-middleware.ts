@@ -6,7 +6,7 @@ import { ForbiddenError, UnauthorizedError } from '@app/core';
  * 許可されたロールのみアクセスを許可する RBAC ミドルウェア
  * @param allowedRoles 許可するロールの配列 (例: ['admin'])
  */
-export function requireRole(allowedRoles: string[]): MiddlewareHandler {
+export function rbacMiddleware(allowedRoles: string[]): MiddlewareHandler {
     return async (c, next) => {
         const user = c.get('user') as { role?: string } | undefined;
 

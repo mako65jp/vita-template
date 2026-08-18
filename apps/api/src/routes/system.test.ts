@@ -19,12 +19,12 @@ describe('GET /api/system/plugins', () => {
 
         const res = await app.request('/api/system/plugins');
         expect(res.status).toBe(200);
-
-        const body = await res.json();
+        const body = (await res.json()) as any;
         expect(body.plugins).toBeDefined();
 
         const target = body.plugins.find((p: any) => p.id === 'sample-plugin');
         expect(target).toBeDefined();
         expect(target.navItems).toHaveLength(1);
+
     });
 });

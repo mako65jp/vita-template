@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+// ==========================================
+// 0. 環境非依存の型宣言・補助定義
+// ==========================================
+
+// Node.js process のグローバル型宣言（DOM環境における型欠落防止）
+declare const process: {
+    env?: Record<string, string>;
+} | undefined;
+
 // アプリケーション全体で統一して使用するポートのデフォルト定数
 export const DEFAULT_BACKEND_PORT = 3001;
 export const DEFAULT_FRONTEND_PORT = 3000;
@@ -77,9 +86,10 @@ export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
 /** クライアント環境変数のパース (Vite 環境) */
 function getClientEnv(): ClientEnv {
+    const metaEnv = typeof import.meta !== 'undefined' ? (import.meta as { env?: Record<string, string> }).env : undefined;
     const targetEnv =
-        typeof import.meta !== 'undefined' && import.meta.env
-            ? import.meta.env : typeof process !== 'undefined'
+        metaEnv
+            ? metaEnv : typeof process !== 'undefined' && process.env
                 ? process.env : {};
 
     const result = clientEnvSchema.safeParse(targetEnv);
@@ -95,7 +105,7 @@ function getClientEnv(): ClientEnv {
 
 /** サーバー環境変数のパース (Node.js 環境) */
 function getServerEnv(): ServerEnv {
-    const targetEnv = typeof process !== 'undefined' ? process.env : {};
+    const targetEnv = typeof process !== 'undefined' && process.env ? process.env : {};
 
     //    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
     //    if (targetEnv.NODE_ENV === 'test') {
@@ -121,8 +131,8 @@ function getServerEnv(): ServerEnv {
 // 3. 外部公開用オブジェクト (Export)
 // ==========================================
 
-export const isTest = typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || Boolean(process.env.VITEST));
-export const isServer = typeof window === 'undefined';
+export const isTest = typeof process !== 'undefined' && process.env && (process.env.NODE_ENV === 'test' || Boolean(process.env.VITEST));
+export const isServer = typeof globalThis !== 'undefined' && !('document' in globalThis);
 
 /** フロントエンド用環境変数 (App.tsx などから参照) */
 export const clientEnv: ClientEnv = getClientEnv();

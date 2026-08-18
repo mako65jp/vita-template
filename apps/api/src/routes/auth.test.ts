@@ -61,7 +61,8 @@ describe('Auth Routes (Step 4.3)', () => {
             });
 
             expect(res.status).toBe(200);
-            const body = await res.json();
+            const body = (await res.json()) as any;
+
             expect(body.token).toBeDefined();
             expect(body.user.email).toBe('test@example.com');
             expect(body.user.passwordHash).toBeUndefined();
@@ -81,9 +82,11 @@ describe('Auth Routes (Step 4.3)', () => {
             expect(res.status).toBe(401);
         });
 
+
         it('存在しないメールアドレスの場合、401 エラーを返すこと', async () => {
             const app = createTestApp();
             const res = await app.request('/api/auth/login', {
+
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -109,15 +112,19 @@ describe('Auth Routes (Step 4.3)', () => {
                     password: 'password123',
                 }),
             });
-            const { token } = await loginRes.json();
+            const { token } = (await loginRes.json()) as any;
 
             // 2. /me にリクエスト
+
+
             const meRes = await app.request('/api/auth/me', {
                 headers: { Authorization: `Bearer ${token}` },
+
+
             });
 
             expect(meRes.status).toBe(200);
-            const meBody = await meRes.json();
+            const meBody = (await meRes.json()) as any;
             expect(meBody.user.email).toBe('test@example.com');
             expect(meBody.user.passwordHash).toBeUndefined();
         });

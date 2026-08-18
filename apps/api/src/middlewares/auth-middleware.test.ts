@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
+
 import { authMiddleware } from './auth-middleware';
 import { AppError } from '@app/core';
 import { signJwt } from '@app/plugins-auth-local';
@@ -35,15 +36,17 @@ describe('Auth Middleware (Step 4.2)', () => {
             return c.json({ message: 'Success', user });
         });
 
+
         return app;
     };
+
 
     it('Authorization ヘッダーがない場合、RFC 7807 形式で 401 エラーを返すこと', async () => {
         const app = createTestApp();
         const res = await app.request('/protected/profile');
 
         expect(res.status).toBe(401);
-        const body = await res.json();
+        const body = (await res.json()) as any;
 
         // RFC 7807 の形式チェック
         expect(body.status).toBe(401);
@@ -74,7 +77,8 @@ describe('Auth Middleware (Step 4.2)', () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as any;
+
         expect(body.message).toBe('Success');
         expect(body.user).toMatchObject(payload);
     });

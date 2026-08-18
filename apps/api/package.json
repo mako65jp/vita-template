@@ -8,6 +8,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@types/node": "^26.1.2",
     "@app/core": "*",
     "@app/plugins-auth-ad": "*",
     "@app/plugins-auth-local": "*",

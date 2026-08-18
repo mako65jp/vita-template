@@ -6,7 +6,7 @@ describe('API Error Handling (RFC 9457)', () => {
         const res = await app.request('/api/non-existent-route');
         expect(res.status).toBe(404);
 
-        const body = await res.json();
+        const body = (await res.json()) as any;
         expect(body).toEqual({
             type: 'about:blank',
             title: 'Not Found',
@@ -20,7 +20,7 @@ describe('API Error Handling (RFC 9457)', () => {
         const res = await app.request('/test/error');
         expect(res.status).toBe(500);
 
-        const body = await res.json();
+        const body = (await res.json()) as any;
         expect(body).toEqual({
             type: 'about:blank',
             title: 'Internal Server Error',
@@ -48,7 +48,7 @@ describe('Zod Request Validation (Step 2)', () => {
 
         expect(res.status).toBe(400);
 
-        const body = await res.json();
+        const body = (await res.json()) as any;
         expect(body).toMatchObject({
             type: 'about:blank',
             title: 'Bad Request',
