@@ -16,14 +16,17 @@
             "@app/core": [
                 "packages/core/src/index.ts"
             ],
+            "@app/core/server": [
+                "packages/core/src/server.ts"
+            ],
             "@app/core/*": [
                 "packages/core/src/*"
             ],
             "@app/plugins/*": [
                 "packages/plugins/*"
             ],
-            "@app/features/*": [
-                "packages/features/*"
+            "@app/features/user-management/*": [
+                "packages/features/user-management/src/*"
             ],
             "@app/ui": [
                 "packages/ui/src/index.ts"

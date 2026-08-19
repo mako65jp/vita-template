@@ -9,7 +9,7 @@ describe('GET /api/system/plugins', () => {
             id: 'sample-plugin',
             name: 'サンプル',
             routes: new Hono(),
-            navItems: [{ label: 'サンプル画面', path: '/sample' }],
+            navItems: [{ id: 'sample-plugin', label: 'サンプル画面', path: '/sample' }],
         });
     });
 

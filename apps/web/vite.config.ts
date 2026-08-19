@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
             tsconfigPaths: true,
             alias: {
                 '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
+                '@app/features/user-management': path.resolve(import.meta.dirname, '../../packages/features/user-management/src'),
             },
         },
         server: {
@@ -28,10 +29,6 @@ export default defineConfig(({ mode }) => {
             host: true,
             proxy: {
                 '/api': {
-                    target: apiTarget,
-                    changeOrigin: true,
-                },
-                '/sample': {
                     target: apiTarget,
                     changeOrigin: true,
                 },

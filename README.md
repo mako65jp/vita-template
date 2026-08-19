@@ -1,4 +1,4 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.5
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.6
 
 ## 1. システム概要 (Overview)
 
@@ -42,10 +42,10 @@
 
 | パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
 | --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証 (`CORS_ORIGIN` 等)、DB接続・スキーマ定義、共通エラー定義 (RFC 9457)、動的ローダー | 上位のビジネスロジックや特定アプリへの依存厳禁 |
+| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証 (`CORS_ORIGIN` 等)、DB接続・スキーマ定義（`users`, `plugins` テーブル等）、共通エラー定義 (RFC 9457)、パス解決ユーティリティ、動的ローダー (`hono-auto-loader.ts`) | 上位のビジネスロジックや特定アプリへの依存厳禁 |
 | **`packages/ui`** | 共通 UI | フロントエンド全域で再利用されるデザインシステム・共通コンポーネントを集約 | Tailwind CSS v4 設定、原子コンポーネント (`Button`)、共通 Layout (`Header`/`Sidebar`)、Toast 通知 (`Sonner`) | 画面固有のビジネスロジックを持たず、純粋なプレゼンテーションに専念 |
 | **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
-| **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
+| **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | **`sample`**（サンプル機能）, **`user-management`**（ユーザー管理機能）。ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
 
 ### 3.2 拡張ルールと依存方向 (Extension Rules)
 
@@ -58,7 +58,7 @@
 
 ## 4. ディレクトリ構造 & 全ファイル一覧 (Directory & File Structure)
 
-プロジェクト全体のフォルダおよびファイル構造です。コンポーネントやロジックとそのテストはコロケーション（同一ディレクトリ配置）を基本原則とします。
+プロジェクトに存在する**すべてのファイル・フォルダを網羅**したディレクトリ構造です。コンポーネントやロジックとそのテストはコロケーション（同一ディレクトリ配置）を基本原則とします。
 
 ```text
 .
@@ -84,7 +84,7 @@
 │   │   │   │   ├── auth-middleware.test.ts # 認証ミドルウェア単体・統合テスト
 │   │   │   │   ├── rbac-middleware.ts      # ロールベース認可ミドルウェア (requireRole)
 │   │   │   │   └── rbac-middleware.test.ts # 認可ミドルウェア単体・統合テスト (403 Forbidden 検証)
-│   │   │   └── routes/           # アプリケーション固有のルーティング
+│   │   │   └── routes/           # アプリケーション固有のコア API ルーティング
 │   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
 │   │   │       ├── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
 │   │   │       ├── health.ts     # ヘルスチェック API ルート (/healthz)
@@ -135,7 +135,7 @@
     │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
     │   │   ├── db/               # DB 接続インスタンスおよびスキーマ定義
     │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
-    │   │   │   ├── schema.ts     # Drizzle テーブル定義 (Single Source of Truth)
+    │   │   │   ├── schema.ts     # Drizzle テーブル定義 (`users`, `plugins` 等 Single Source of Truth)
     │   │   │   └── users.test.ts # Users テーブル CRUD & Unique 制約 DB 統合テスト
     │   │   ├── errors/           # システム標準エラー構造・RFC 9457 定義 (役割ごとにファイル分割)
     │   │   │   ├── types.ts      # エラー型定義 (`ProblemDetails`, `InvalidParam`)
@@ -147,8 +147,14 @@
     │   │   │   ├── forbidden-error.ts       # 403 例外 (`ForbiddenError`)
     │   │   │   ├── index.ts      # 共通エラー一括エクスポート
     │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
+    │   │   ├── plugins/          # プラグインレジストリ基盤
+    │   │   │   └── registry.ts   # プラグイン（PluginRegistry）の一括登録・保持機構
     │   │   ├── registry/         # 動的モジュールローダー
-    │   │   │   └── hono-auto-loader.ts # Feature モジュール自動探索機能
+    │   │   │   ├── hono-auto-loader.ts      # Feature モジュール自動探索・DBステータス連動マウント機能
+    │   │   │   └── hono-auto-loader.test.ts # 動的モジュール探索・RBAC・DB ステータス制御統合テスト
+    │   │   ├── utils/            # システム共通ユーティリティ
+    │   │   │   ├── path.ts       # ESM 準拠プロジェクトルート取得 (`getProjectRootDir`)・絶対パス解決関数
+    │   │   │   └── path.test.ts  # パス解決ユーティリティの環境独立性検証テスト
     │   │   └── test/             # テスト自動化ライフサイクル定義
     │   │       ├── global-setup.ts# 全テスト実行前の DB スキーマ自動同期処理
     │   │       └── setup.ts      # 各テストケース実行前のデータ自動全クリーンアップ
@@ -183,12 +189,32 @@
     │       │   ├── auth-utils.ts     # Bcrypt パスワードハッシュ化 & Jose JWT ユーティリティ
     │       │   └── auth-utils.test.ts# パスワードハッシュ・JWT 署名/検証の単体テスト
     │       └── package.json
-    └── features/                 # 業務ドメイン機能モジュール群
-        └── sample/               # サンプル機能モジュール
+    │
+    └── features/                 # 業務ドメイン機能モジュール群 (自動探索・マウント対象)
+        ├── sample/               # サンプル業務ドメイン機能モジュール
+        │   ├── src/
+        │   │   ├── index.ts      # モジュール登録エントリーポイント（PluginRegistry.register 実行 / `/sample` ルート定義）
+        │   │   └── index.test.ts # モジュール単体（`/sample` ルート動作・RBAC制御）のテスト
+        │   └── package.json      # サンプルモジュール用依存関係・スクリプト
+        │
+        └── user-management/      # ユーザー管理業務ドメインモジュール
             ├── src/
-            │   ├── index.ts      # `/sample` ルート定義
-            │   └── index.test.ts # モジュール単体（`/sample` 応答）のテスト
-            └── package.json
+            │   ├── index.ts      # ユーザー管理モジュールエントリーポイント (PluginRegistry 登録)
+            │   ├── routes.ts     # ユーザー管理 API ルーティング実装
+            │   ├── routes.test.ts# ユーザー管理 API 単体・統合テスト
+            │   ├── ui.ts         # フロントエンド共有用コンポーネント一括エクスポート
+            │   ├── api/          # クライアント用 API 呼び出しモジュール
+            │   │   └── user-management-api.ts # ユーザー管理 API クライアント関数群
+            │   ├── components/   # ユーザー管理専用 React UI コンポーネント
+            │   │   ├── CreateUserModal.tsx      # ユーザー新規作成モーダル
+            │   │   ├── UserManagementTable.tsx  # ユーザー一覧・操作テーブル
+            │   │   └── UserManagementTable.test.tsx # テーブルコンポーネント単体テスト
+            │   └── test/         # モジュール個別テスト環境設定
+            │       ├── global-setup.ts
+            │       └── setup.ts
+            ├── package.json      # @app/feature-user-management 依存関係・スクリプト
+            ├── tsconfig.json     # ユーザー管理モジュール用 TypeScript 設定
+            └── vitest.config.ts  # ユーザー管理モジュール用 Vitest 単体テスト設定
 
 ```
 
@@ -200,27 +226,19 @@
 
 * **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM + `postgres` ライブラリ) を採用します。
 * **動的接続・マルチクライアント管理:**
-`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。また、テスト終了時にコネクションプールを正常終了できるよう `activeQueryClient` をエクスポートします。
+`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。
 
 ```typescript
-// packages/core/src/db/index.ts
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
-import { env } from '../config/env';
-
-const isTest = env.NODE_ENV === 'test';
-
+// packages/core/src/db/index.ts (要約コード)
 export const queryClient = postgres(env.DATABASE_URL);
-export const dev_db = drizzle(queryClient, { schema });
-
 export const queryTestClient = postgres(env.TEST_DATABASE_URL);
+
+export const dev_db = drizzle(queryClient, { schema });
 export const test_db = drizzle(queryTestClient, { schema });
 
+// テスト環境判定による動的エクスポート
 export const db = isTest ? test_db : dev_db;
 export const activeQueryClient = isTest ? queryTestClient : queryClient;
-
-export { schema };
 
 ```
 
@@ -228,14 +246,8 @@ export { schema };
 
 データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
 
-#### `users` テーブル
-
-ユーザー認証、権限、およびプロファイル情報を一元管理します。
-
 ```typescript
-// packages/core/src/db/schema.ts
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-
+// packages/core/src/db/schema.ts (要約コード)
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -245,7 +257,17 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const plugins = pgTable('plugins', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  enabled: boolean('enabled').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 ```
+
+#### ① `users` テーブル仕様
 
 | カラム名 | DB論理名 | 型 | 制約 | 説明 |
 | --- | --- | --- | --- | --- |
@@ -256,10 +278,15 @@ export const users = pgTable('users', {
 | `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
 | `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
 
-### 5.3 マイグレーション & 構成ファイルの分離設計
+#### ② `plugins` テーブル仕様
 
-* **マイグレーション運用:** スキーマ変更時は `drizzle-kit generate` でマイグレーションファイルを生成し、`drizzle-kit push` または `migrate` コマンドで DB に反映します。
-* **構成ファイルの分離:** テスト実行時と通常開発時でデータベース設定が混同するのを防ぐため、テスト用構成は **`drizzle-test.config.ts`** と命名して管理します。
+| カラム名 | DB論理名 | 型 | 制約 | 説明 |
+| --- | --- | --- | --- | --- |
+| `id` | `id` | `serial` | PRIMARY KEY | プラグインレコード識別子 |
+| `name` | `name` | `text` | NOT NULL, UNIQUE | モジュール名（`sample`, `user-management` 等） |
+| `enabled` | `enabled` | `boolean` | NOT NULL, Default: `true` | 有効/無効 フラグ |
+| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード登録日時 |
+| `updatedAt` | `updated_at` | `timestamp` | NOT NULL, Default: `now()` | レコード更新日時 |
 
 ---
 
@@ -273,19 +300,12 @@ export const users = pgTable('users', {
 
 | フィールド名 | キー名 | 役割・説明 | 設定例 |
 | --- | --- | --- | --- |
-| **エラー分類 URI** | `type` | エラーの種類を明確に識別する URI。特別な説明ドキュメントを持たない場合は `"about:blank"` | `"about:blank"` |
-| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Forbidden"`, `"Not Found"`, `"Service Unavailable"` |
+| **エラー分類 URI** | `type` | エラーの種類を識別する URI（既定値: `"about:blank"`） | `"about:blank"` |
+| **タイトル** | `title` | エラーの概要 | `"Bad Request"`, `"Unauthorized"`, `"Forbidden"` |
 | **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `403`, `404`, `500`, `503` |
 | **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"You do not have permission to access this resource."` |
-| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"`, `"/admin/dashboard"` |
+| **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"` |
 | **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
-
-#### エラー制御方針
-
-1. **例外クラスの階層化 (`AppError`):** ドメイン例外（`ValidationError`, `UnauthorizedError`, `ForbiddenError` 等）は基底クラス `AppError` を継承して定義し、`packages/core/src/errors/` 配下に1クラス1ファイルで管理。
-2. **未定義エラーのキャッチ (500):** 予期せぬ例外は Hono の `app.onError` ハンドラを介して規格化された 500 エラー構造（`type: "about:blank"`）へ変換。
-3. **入力検証エラーの標準化 (400):** Zod バリデーション失敗時は不備フィールドと理由を `invalidParams` へ自動マッピング。
-4. **フロントエンド連携:** クライアント側（`apps/web/src/lib/apiClient.ts`）はエラーレスポンスを自動で RFC 9457 `ProblemDetails` オブジェクトとして抽出・パースし、`packages/ui` の `showErrorToast` と連携して適切な Toast 通知を即座にユーザーへフィードバック。
 
 ---
 
@@ -299,10 +319,7 @@ export const users = pgTable('users', {
 * **リクエスト (`application/json`):**
 
 ```json
-{
-  "email": "test@example.com",
-  "password": "password123"
-}
+{ "email": "test@example.com", "password": "password123" }
 
 ```
 
@@ -311,11 +328,7 @@ export const users = pgTable('users', {
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "email": "test@example.com",
-    "role": "user"
-  }
+  "user": { "id": 1, "email": "test@example.com", "role": "user" }
 }
 
 ```
@@ -339,26 +352,7 @@ export const users = pgTable('users', {
 * **レスポンス (200 OK):**
 
 ```json
-{
-  "user": {
-    "id": 1,
-    "email": "test@example.com",
-    "role": "user"
-  }
-}
-
-```
-
-* **エラーレスポンス (401 Unauthorized - RFC 9457):**
-
-```json
-{
-  "type": "about:blank",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Invalid credentials.",
-  "instance": "/api/auth/me"
-}
+{ "user": { "id": 1, "email": "test@example.com", "role": "user" } }
 
 ```
 
@@ -384,18 +378,8 @@ export const users = pgTable('users', {
 
 #### ヘルスチェック API (`GET /healthz`)
 
-* **役割:** API サーバーの生存確認および PostgreSQL 導通確認。
-* **正常時レスポンス (200 OK):**
-
-```json
-{
-  "status": "ok",
-  "db": "connected"
-}
-
-```
-
-* **DB接続障害時レスポンス (503 Service Unavailable - RFC 9457):**
+* **正常時 (200 OK):** `{ "status": "ok", "db": "connected" }`
+* **DB障害時 (503 Service Unavailable - RFC 9457):**
 
 ```json
 {
@@ -408,41 +392,14 @@ export const users = pgTable('users', {
 
 ```
 
-#### 構造化ロギング
-
-* **ログ出力:** 全リクエストのコンテキスト情報を構造化ログとして出力。
-* **マスク処理:** `DATABASE_URL` や `JWT_SECRET` などの接続文字列・機密情報は `formatEnvForLog` を介して自動伏字化（`***`）。
-
 ---
 
 ## 7. フロントエンド状態管理 & API 通信仕様 (Frontend State & Client Spec)
 
-### 7.1 API クライアント (`apps/web/src/lib/apiClient.ts`)
-
-* **機能:** Fetch API のラッパーとして、HTTP リクエスト生成、共通ヘッダー設定、およびエラー判定を一元管理。
-* **認証トークン自動付与:** ローカルストレージ（または認証コンテキスト）から保持中の JWT トークンを取得し、`Authorization: Bearer <token>` ヘッダーへ自動挿入。
-* **RFC 9457 エラーパース:** レスポンスが `!response.ok` の場合、JSON ボディから RFC 9457 構造（`type`, `title`, `status`, `detail`, `instance`, `invalidParams`）を安全に抽出しスロー。
-
-### 7.2 認証コンテキスト (`apps/web/src/auth/AuthContext.tsx` / `useAuth`)
-
-* **役割:** アプリ全体のログイン状態、認証済みユーザープロファイル、JWT トークンの管理および共有。
-* **提供機能:**
-* `login(email, password)`: `apiClient` を介して `/api/auth/login` を実行し、受け取ったトークンとユーザー情報を保持。
-* `logout()`: トークンを破棄し未認証状態へリセット。
-
-
-* **初期化・自動ログイン:** アプリ起動時にローカルストレージ内のトークンを確認し、`/api/auth/me` からユーザー情報を自動復元。
-* **保護ルート制御 (`apps/web/src/auth/ProtectedRoute.tsx`):**
-* `useAuth` の未認証状態時はログイン画面へ安全に自動リダイレクト。
-* 認証完了後はダッシュボード画面（`AppLayout`）を表示。
-
-
-* **UI コンポーネント連携 (`apps/web/src/components/LoginForm.tsx`):**
-* `useAuth` から `login` を呼び出し。
-* 送信中のローディング状態の表示・二重送信防止。
-* エラー発生時は `showErrorToast`（`packages/ui`）にエラーオブジェクトを渡し、Sonner Toast で通知。
-
-
+* **API クライアント (`apiClient.ts`):** Fetch ラッパー。JWT ヘッダー自動セット、および `!response.ok` 発生時に RFC 9457 オブジェクトを抽出してスロー。
+* **認証コンテキスト (`AuthContext.tsx` / `useAuth`):** ログイン/ログアウト処理、ローカルストレージと連携したトークン保持・自動復元機能。
+* **保護ルートガード (`ProtectedRoute.tsx`):** 未認証アクセス時にログインページへ安全に自動リダイレクト。
+* **トースト通知 (`showErrorToast`):** `apiClient` で発生したエラーを受け取り Sonner Toast でユーザーへ視覚的に通知。
 
 ---
 
@@ -454,42 +411,29 @@ export const users = pgTable('users', {
 | --- | --- | --- | --- |
 | `NODE_ENV` | API | `'development'` | `'test'` | `'production'` | 実行環境の動作モード指定 |
 | `PORT` | API | 数値 (デフォルト: `3001`) | API サーバーが待受を行うポート番号 |
-| `API_BASE_URL` | API | URL形式文字列 (オプショナル) | API のベース URL。未定義の場合は `PORT` の値から `http://localhost:${PORT}` を Zod transform により自動生成 |
-| `CORS_ORIGIN` | API | 文字列 (オプショナル) | バックエンドで許可する Cross-Origin。未定義の場合は `http://localhost:${DEFAULT_FRONTEND_PORT}` (3000) を自動補完設定 |
+| `API_BASE_URL` | API | URL形式文字列 (オプショナル) | 未定義時は `http://localhost:${PORT}` を自動補完 |
+| `CORS_ORIGIN` | API | 文字列 (オプショナル) | 未定義時は `http://localhost:3000` を自動設定 |
 | `DATABASE_URL` | API | URL形式文字列 | 開発・本番データベースへの接続 URI |
 | `TEST_DATABASE_URL` | API | URL形式文字列 | テスト専用データベースへの接続 URI |
-| `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証に使用するシークレットキー |
+| `JWT_SECRET` | API | 32文字以上の文字列 | JWT アクセストークンの署名・検証キー |
 | `VITE_PORT` | Web | 数値・文字列 | 開発用 Web サーバーの待受ポート |
 | `VITE_API_TARGET_URL` | Web | URL形式文字列 | 開発時の API 転送先 (DevProxy ターゲット) |
 | `VITE_APP_TITLE` | Web | 文字列 | アプリケーションの表示タイトル |
-
-### 8.2 セキュリティ設計
-
-1. **フェイルファスト（Fail-Fast）原則:** 起動時に Zod で環境変数を検証し、不備があれば即座に起動を停止。
-2. **`API_BASE_URL` の動的連動:** ハードコードを排除し、環境変数または `PORT` から動的に計算されたベース URL を使用。
-3. **ログマスク処理:** 接続パスワード等を含む文字列（`DATABASE_URL`, `TEST_DATABASE_URL`）はシステムログ出力時に自動でマスク（`***` 化）。
-4. **パスワードハッシュ & トークン:** 平文保存を禁止し、`bcryptjs` でハッシュ化。トークン生成には `jose` を使用。
-5. **権制度制御（RBAC）:** ロールベースアクセス制御 (`requireRole`) により、無効または権限不足のリクエストに対して 403 Forbidden（RFC 9457）を厳格に返却。
-6. **曖昧なエラーメッセージ:** ログイン失敗時は理由を区別せず一律 `Invalid credentials.` (401) を返却し、アカウント列挙攻撃を防止。
-7. **CORS & クライアント環境変数:** Web アプリからの Cross-Origin リクエストは `apps/api/src/index.ts` の `cors()` ミドルウェアにて `env.CORS_ORIGIN` を参照して安全に許可。ブラウザ公開環境変数は `VITE_` プレフィックスに限定し `apps/web/src/env.ts` 経由でカプセル化。
 
 ---
 
 ## 9. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
 
-### 9.1 機能の自動検出とルーティング登録
-
-* 各 Feature パッケージが持つ API ルート（Hono インスタンス）を個別に手動インポートする手間を省くため、指定ディレクトリ配下のモジュールを動的に探索・一括登録する自動ローダー機構（`hono-auto-loader.ts`）を導入します。
-
-### 9.2 クロスプラットフォーム＆モジュール互換性の保障
-
-* OS 間（Windows / Linux / macOS）のファイルパス記法差異や、ビルドツール（Vite / Node.js ESM）の URL 解釈エラーを回避するため、`pathToFileURL` を用いて変換します。
+`packages/core/src/registry/hono-auto-loader.ts` が DB の `plugins` テーブルの `enabled` フラグを参照し、`packages/features/` 配下の機能モジュールを動的にインポートして Hono ルーティングへ展開します。
 
 ```typescript
-// packages/core/src/registry/hono-auto-loader.ts
-const absolutePath = path.resolve(file);
-const moduleUrl = pathToFileURL(absolutePath).href; // URI形式へ安全に変換
-const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解析警告を抑止
+// packages/core/src/registry/hono-auto-loader.ts (要約コード)
+const projectRoot = getProjectRootDir();
+const absolutePath = path.resolve(projectRoot, file);
+const moduleUrl = pathToFileURL(absolutePath).href; // OS非依存のURL変換
+
+// 動的インポートとHonoインスタンスへのマウント
+const module = await import(/* @vite-ignore */ moduleUrl);
 
 ```
 
@@ -497,55 +441,27 @@ const module = await import(/* @vite-ignore */ moduleUrl); // 不要な静的解
 
 ## 10. テストアーキテクチャ & ライフサイクル (Testing Architecture)
 
-テストの信頼性と再現性を維持するため、**「テスト実行時の環境の自動セットアップ」** と **「テストケース間の相互干渉防止」**、および **「コロケーション（同一ディレクトリ）テスト配置」** を導入しています。
+* **テストランナー:** Vitest
+* **配置方針:** コロケーション（実装ファイルと同階層に `.test.ts` を配置）
+* **自動クリーンアップ & 非同期管理:**
+1. **Global Setup:** テスト開始前にテスト用 DB のスキーマを自動同期 (`drizzle-test.config.ts`)。
+2. **Setup Files:** 各テストケース実行前に DB データを全消去。
+3. **Teardown:** 各 DB テストの `afterAll` で `activeQueryClient.end()` を呼び出しコネクション開放。
 
-### 10.1 テスト基盤と疎結合アサーション
 
-* **テストランナー:** Vitest（高速なインメモリ実行およびモジュール連携環境を提供）
-* **テスト配置方針（コロケーション）:** UI コンポーネントおよび個別のユニットモジュールに対するテストコードは、実装ファイルと同じディレクトリに併設（例: `apiClient.ts` と `apiClient.test.ts`）。リファクタリング時の影響範囲を限定化します。
-* **モックの適切なクリーンアップ:** 各テスト実行前に `beforeEach` で `vi.restoreAllMocks()` / `vi.clearAllMocks()` を実行し、モックの状態リークを防止。
-* **疎結合アサーション方針:** テストコードがプロダクトコードの内部実装（ドキュメント URL 構造等）に過剰に結合するのを防ぐため、アサーションには `toMatchObject` または正確なエラー構造の同一性検証を用い、脆いテスト（Fragile Test）化を防止します。
-
-### 10.2 テスト自動化ライフサイクル
-
-1. **テスト開始前の DB スキーマ自動同期 (Global Setup):**
-全テスト実行直前に `globalSetup` が `drizzle-test.config.ts` を用いてテスト用 DB（`TEST_DATABASE_URL`）のスキーマを自動同期。
-2. **テストケース間の完全な状態隔離 (Setup Files):**
-各テスト実行直前に `packages/core/src/test/setup.ts` 等でデータベース内のデータを自動一括消去。
-3. **DOM マッチャーの型拡張:**
-フロントエンドテスト（`apps/web`, `packages/ui`）では `@testing-library/jest-dom` および `@testing-library/user-event` を読み込み、`toBeInTheDocument` や `toBeDisabled` などの標準 DOM アサーションを完全型安全に利用可能化。
-4. **テスト終了後のコネクション安全開放:**
-各 DB 統合テストの `afterAll` フックにて `activeQueryClient.end()` を呼び出し、PostgreSQL コネクションの切り忘れを防止。
 
 ---
 
 ## 11. 実行スクリプト リファレンス (Scripts)
 
-プロジェクト内で利用する標準的なコマンドです。
-
-### 11.1 開発サーバー起動
-
-すべてのアプリケーション（API・Web）を開発モードで並行起動します。
-
 ```bash
+# 開発サーバー起動（API + Web 並行起動）
 npm run dev
 
-```
-
-### 11.2 全テストの自動実行 (TDD)
-
-すべてのパッケージの単体テスト、DB 連携テスト、ミドルウェア・API 統合テスト、UI コンポーネントテストを一括実行します。
-
-```bash
+# 全パッケージのテスト実行（TDD）
 npm test
 
-```
-
-### 11.3 テスト用 DB スキーマの手動同期
-
-テスト環境のデータベース構造を手動で最新状態へ更新したい場合に実行します。
-
-```bash
+# テスト用 DB スキーマ手動適用
 npm run db:push:test
 
 ```

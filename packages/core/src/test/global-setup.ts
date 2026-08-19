@@ -1,18 +1,16 @@
 import { execSync } from 'node:child_process';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-// import.meta.url から安全にパスを抽出
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getProjectRootDir, resolveFromProjectRoot } from '../utils/path';
 
 export async function setup() {
     console.log('\n🔄 テスト用データベースに最新のスキーマを反映中...');
 
-    // packages/core のルートディレクトリパスを解決
-    const corePackageDir = path.resolve(__dirname, '../../');
-    const configPath = path.resolve(corePackageDir, 'drizzle-test.config.ts');
+    // 💡 プロジェクトルートを環境に依存せず確実に取得
+    const rootDir = getProjectRootDir();
 
+    // packages/core のルートディレクトリパスを解決
+    const corePackageDir = resolveFromProjectRoot('packages', 'core');
+    const configPath = path.resolve(corePackageDir, 'drizzle-test.config.ts');
     try {
         execSync(`npx drizzle-kit push --config="${configPath}"`, {
             cwd: corePackageDir,

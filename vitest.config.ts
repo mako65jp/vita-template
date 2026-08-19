@@ -20,7 +20,7 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             include: ['**/*.{ts,tsx}'],
-            exclude: ['dev/**/*', 'test/**/*'],
+            exclude: ['test/**/*'],
         },
     },
 });
