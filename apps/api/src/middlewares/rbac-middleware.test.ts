@@ -3,8 +3,8 @@ import { Hono } from 'hono';
 
 import { authMiddleware } from './auth-middleware';
 import { rbacMiddleware } from './rbac-middleware';
-import { AppError } from '@app/core';
-import { signJwt } from '@app/plugins-auth-local';
+import { AppError } from '@shared/errors';
+import { signJwt } from '@plugins/auth-local';
 
 describe('RBAC Middleware (Step 4.3)', () => {
     const secret = 'test-secret-key-at-least-32-chars-long';

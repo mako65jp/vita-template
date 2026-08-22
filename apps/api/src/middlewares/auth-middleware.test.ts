@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
 import { authMiddleware } from './auth-middleware';
-import { AppError } from '@app/core';
-import { signJwt } from '@app/plugins-auth-local';
+import { AppError } from '@shared/errors';
+import { signJwt } from '@plugins/auth-local';
 
 describe('Auth Middleware (Step 4.2)', () => {
     const secret = 'test-secret-key-at-least-32-chars-long';

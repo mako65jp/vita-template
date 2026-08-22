@@ -1,43 +1,80 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ESNext"
+        ],
+        "allowJs": false,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
-        "noEmit": true,
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        /* ── パスエイリアス（新構造のフォルダ構成に対応） ── */
         "baseUrl": ".",
         "paths": {
-            "@app/core": [
-                "packages/core/src/index.ts"
+            "@apps/*": [
+                "apps/*"
             ],
-            "@app/core/server": [
-                "packages/core/src/server.ts"
+            "@features/*": [
+                "features/*"
             ],
-            "@app/core/*": [
-                "packages/core/src/*"
+            "@plugins/*": [
+                "plugins/*"
             ],
-            "@app/plugins/*": [
-                "packages/plugins/*"
+            "@shared/*": [
+                "shared/*"
             ],
-            "@app/features/user-management/*": [
-                "packages/features/user-management/src/*"
+            "@shared/client": [
+                "shared/client/index.ts"
             ],
-            "@app/ui": [
-                "packages/ui/src/index.ts"
+            "@shared/client/*": [
+                "shared/client/src/*"
             ],
-            "@app/ui/*": [
-                "packages/ui/src/*"
+            "@shared/errors": [
+                "shared/errors/index.ts"
+            ],
+            "@shared/errors/*": [
+                "shared/errors/src/*"
+            ],
+            "@shared/functions": [
+                "shared/functions/index.ts"
+            ],
+            "@shared/functions/*": [
+                "shared/functions/src/*"
+            ],
+            "@shared/schemas": [
+                "shared/schemas/index.ts"
+            ],
+            "@shared/schemas/*": [
+                "shared/schemas/src/*"
+            ],
+            "@shared/server": [
+                "shared/server/index.ts"
+            ],
+            "@shared/server/*": [
+                "shared/server/*"
             ]
         }
     },
+    "include": [
+        "apps/**/*",
+        "features/**/*",
+        "plugins/**/*",
+        "shared/**/*"
+    ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "build"
     ]
 }

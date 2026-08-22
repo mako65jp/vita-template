@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from 'hono';
-import { verifyJwt } from '@app/plugins-auth-local';
-import { UnauthorizedError } from '@app/core';
+import { verifyJwt } from '@plugins/auth-local';
+import { UnauthorizedError } from '@shared/errors';
 
 // Hono の ContextVariableMap を拡張
 declare module 'hono' {

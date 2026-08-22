@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
-import { db, users } from '@app/core/server';
-import { AppError } from '@app/core';
-import { hashPassword } from '@app/plugins-auth-local';
+import { db, users } from '@shared/server';
+import { AppError } from '@shared/errors';
+import { hashPassword } from '@plugins/auth-local';
 
 describe('Auth Routes (Step 4.3)', () => {
     const secret = 'test-secret-key-at-least-32-chars-long';

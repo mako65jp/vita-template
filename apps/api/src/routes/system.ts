@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { db, plugins as pluginsTable } from '@app/core/server';
-import { PluginRegistry } from '@app/core';
+import { db, plugins as pluginsTable } from '@shared/server';
+import { PluginRegistry } from '@shared/functions';
 
 export const systemRouter = new Hono();
 

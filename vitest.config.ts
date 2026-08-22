@@ -8,14 +8,14 @@ export default defineConfig({
         globals: true,
         reporters: ['tree'],
 
-        // パッケージのディレクトリパスを指定（設定ファイルのパスではなくディレクトリを指定するのが正しい仕様）
+        // ディレクトリではなく「vitest.config.ts を持つファイル」をワイルドカードで直接指定する
         projects: [
-            'apps/api',
-            'apps/web',
-            'packages/core',
-            'packages/ui',
-            'packages/features/*',
+            'apps/*/vitest.config.ts',
+            'features/*/vitest.config.ts',
+            'shared/*/vitest.config.ts',
+            'plugins/*/vitest.config.ts',
         ],
+
         exclude: ['node_modules', 'dist', '.next', 'coverage'],
         coverage: {
             provider: 'v8',

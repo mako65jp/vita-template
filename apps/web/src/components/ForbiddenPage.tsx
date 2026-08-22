@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@app/ui';
+import { Button } from '@shared/client';
 
 interface ForbiddenPageProps {
     onBackToDashboard: () => void;

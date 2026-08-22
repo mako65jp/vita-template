@@ -8,8 +8,8 @@ export default defineConfig({
         tsconfigPaths: true,
         alias: {
             // エイリアスを直接指定
-            '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
-            '@app/features/user-management': path.resolve(import.meta.dirname, '../../packages/features/user-management/src'),
+            '@shared/client': path.resolve(import.meta.dirname, '../../shared/client'),
+            '@features-user-management': path.resolve(import.meta.dirname, '../../features/user-management/src'),
         },
     },
     test: {

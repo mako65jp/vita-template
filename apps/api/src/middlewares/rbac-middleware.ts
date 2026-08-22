@@ -1,6 +1,5 @@
-// apps/api/src/middlewares/rbac-middleware.ts
 import type { MiddlewareHandler } from 'hono';
-import { ForbiddenError, UnauthorizedError } from '@app/core';
+import { ForbiddenError, UnauthorizedError } from '@shared/errors';
 
 /**
  * 許可されたロールのみアクセスを許可する RBAC ミドルウェア

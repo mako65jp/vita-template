@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
-import { PluginRegistry } from '@app/core';
+import { PluginRegistry } from '@shared/functions';
 import { systemRouter } from './system';
 
 describe('GET /api/system/plugins', () => {

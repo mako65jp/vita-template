@@ -1,6 +1,5 @@
-// apps/web/src/lib/apiClient.ts
-import { clientEnv } from "@app/ui";
-import { AUTH_TOKEN_KEY } from '@app/core';
+import { clientEnv } from "@shared/client";
+import { AUTH_TOKEN_KEY } from '@shared/client';
 
 export interface InvalidParam {
     name: string;

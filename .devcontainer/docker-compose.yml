@@ -9,10 +9,7 @@ services:
       - /workspace/node_modules
       - /workspace/apps/api/node_modules
       - /workspace/apps/web/node_modules
-      - /workspace/packages/core/node_modules
-      - /workspace/packages/plugins/auth-local/node_modules
-      - /workspace/packages/plugins/auth-ad/node_modules
-      - /workspace/packages/features/sample/node_modules
+      - /workspace/shared/node_modules
     command: /bin/sh -c "while sleep 1000; do :; done"
     ports:
       - "${VITE_PORT:-3000}:3000"

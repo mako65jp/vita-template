@@ -1,11 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import app from '../index';
-import { db } from '@app/core/server';
+import { createApp } from '../index';
+import { db } from '@shared/server';
 
 describe('Health Check API (Step 6.1)', () => {
-    beforeEach(() => {
+    let app: Awaited<ReturnType<typeof createApp>>;
+
+    beforeEach(async () => {
         vi.clearAllMocks();
         vi.restoreAllMocks();
+        // 非同期でアプリの初期化（ルートのロード完了）を待つ
+        app = await createApp();
     });
 
     afterEach(() => {
@@ -40,3 +44,4 @@ describe('Health Check API (Step 6.1)', () => {
         });
     });
 });
+

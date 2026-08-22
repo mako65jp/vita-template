@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db, users } from '@app/core/server';
-import { UnauthorizedError } from '@app/core';
-import { verifyPassword, signJwt } from '@app/plugins-auth-local';
+import { db, users } from '@shared/server';
+import { UnauthorizedError } from '@shared/errors';
+import { verifyPassword, signJwt } from '@plugins/auth-local';
 import { authMiddleware } from '../middlewares/auth-middleware';
 
 // ログインリクエストのバリデーションスキーマ

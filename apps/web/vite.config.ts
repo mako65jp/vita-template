@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => {
         resolve: {
             tsconfigPaths: true,
             alias: {
-                '@app/ui': path.resolve(import.meta.dirname, '../../packages/ui/src'),
-                '@app/features/user-management': path.resolve(import.meta.dirname, '../../packages/features/user-management/src'),
+                '@shared/client': path.resolve(import.meta.dirname, '../../shared/client'),
+                '@features-user-management': path.resolve(import.meta.dirname, '../../features/user-management/src'),
             },
         },
         server: {
