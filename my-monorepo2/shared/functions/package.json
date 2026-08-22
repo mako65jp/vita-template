@@ -1,0 +1,21 @@
+{
+    "name": "@shared/functions",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "exports": {
+        ".": "./index.ts"
+    },
+    "scripts": {
+        "build": "tsc",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "postgres": "^3.4.9"
+    },
+    "devDependencies": {
+        "drizzle-kit": "^0.31.10"
+    }
+}

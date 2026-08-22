@@ -1,0 +1,35 @@
+{
+    "name": "monorepo",
+    "private": true,
+    "type": "module",
+    "workspaces": [
+        "apps/*",
+        "shared/*",
+        "plugins/*",
+        "features/*"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces --if-present",
+        "coverage": "vitest run --coverage",
+        "dev": "npm start",
+        "dev:api": "npm --workspace=apps/api run dev",
+        "dev:web": "npm --workspace=apps/web run dev",
+        "db:push": "npm run db:push --workspaces --if-present",
+        "db:push:test": "npm run db:push:test --workspaces --if-present",
+        "db:push:all": "npm run db:push:all --workspaces --if-present",
+        "db:seed": "npm run db:seed --workspaces --if-present",
+        "pkg:lint": "npx manypkg check",
+        "pkg:fix": "npx manypkg fix && npm install",
+        "start": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+        "test": "vitest run --watch --no-cache",
+        "typecheck": "npm run typecheck --workspaces --if-present"
+    },
+    "devDependencies": {
+        "@manypkg/cli": "^0.25.1",
+        "@types/node": "^26.2.0",
+        "@vitest/coverage-v8": "^4.1.10",
+        "concurrently": "^8.2.2",
+        "vite": "^8.2.0",
+        "vitest": "^4.1.10"
+    }
+}

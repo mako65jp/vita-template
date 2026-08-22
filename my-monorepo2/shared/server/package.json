@@ -1,0 +1,33 @@
+{
+    "name": "@shared/server",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./index.ts",
+    "types": "./index.ts",
+    "exports": {
+        ".": "./index.ts",
+        "./auth/*": "./auth/*.ts",
+        "./db/*": "./db/*.ts",
+        "./utils/*": "./utils/*.ts"
+    },
+    "scripts": {
+        "build": "tsc",
+        "db:push": "drizzle-kit push",
+        "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
+        "db:push:all": "npm run db:push && npm run db:push:test",
+        "db:seed": "tsx db/seed.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "drizzle-orm": "^0.45.2",
+        "glob": "^13.0.6",
+        "jose": "^6.2.8",
+        "postgres": "^3.4.9"
+    },
+    "devDependencies": {
+        "@types/bcryptjs": "^2.4.6",
+        "drizzle-kit": "^0.31.10"
+    }
+}

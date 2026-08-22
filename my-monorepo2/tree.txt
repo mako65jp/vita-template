@@ -1,0 +1,171 @@
+.
+├── apps
+│   ├── api
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── auto-loader
+│   │   │   │   ├── hono-auto-loader.test.ts
+│   │   │   │   └── hono-auto-loader.ts
+│   │   │   ├── index.test.ts
+│   │   │   ├── index.ts
+│   │   │   ├── middlewares
+│   │   │   │   ├── auth-middleware.test.ts
+│   │   │   │   ├── auth-middleware.ts
+│   │   │   │   ├── logger.test.ts
+│   │   │   │   ├── logger.ts
+│   │   │   │   ├── rbac-middleware.test.ts
+│   │   │   │   └── rbac-middleware.ts
+│   │   │   └── routes
+│   │   │       ├── auth.test.ts
+│   │   │       ├── auth.ts
+│   │   │       ├── health.test.ts
+│   │   │       ├── health.ts
+│   │   │       ├── system.test.ts
+│   │   │       └── system.ts
+│   │   ├── tsconfig.json
+│   │   └── vitest.config.ts
+│   └── web
+│       ├── dist
+│       │   ├── assets
+│       │   │   ├── index-Bxv8XRWV.css
+│       │   │   └── index-D1d7Gzju.js
+│       │   └── index.html
+│       ├── index.html
+│       ├── package.json
+│       ├── src
+│       │   ├── App.test.tsx
+│       │   ├── App.tsx
+│       │   ├── components
+│       │   │   ├── ForbiddenPage.test.tsx
+│       │   │   ├── ForbiddenPage.tsx
+│       │   │   ├── Header.tsx
+│       │   │   ├── LoginForm.test.tsx
+│       │   │   ├── LoginForm.tsx
+│       │   │   ├── ProtectedRoute.test.tsx
+│       │   │   └── ProtectedRoute.tsx
+│       │   ├── context
+│       │   │   ├── AuthContext.test.tsx
+│       │   │   └── AuthContext.tsx
+│       │   ├── env.test.ts
+│       │   ├── index.css
+│       │   ├── lib
+│       │   │   ├── apiClient.test.ts
+│       │   │   └── apiClient.ts
+│       │   ├── main.tsx
+│       │   └── test
+│       │       └── setup.ts
+│       ├── tsconfig.json
+│       ├── vite.config.ts
+│       └── vitest.config.ts
+├── cat_files.sh
+├── create_restorer.sh
+├── cr.sh
+├── doc.md
+├── features
+│   └── user-management
+│       ├── package.json
+│       ├── src
+│       │   ├── api
+│       │   │   └── user-management-api.ts
+│       │   ├── components
+│       │   │   ├── CreateUserModal.tsx
+│       │   │   ├── UserManagementTable.test.tsx
+│       │   │   └── UserManagementTable.tsx
+│       │   ├── index.ts
+│       │   ├── routes.test.ts
+│       │   ├── routes.ts
+│       │   ├── test
+│       │   │   ├── global-setup.ts
+│       │   │   └── setup.ts
+│       │   └── ui.ts
+│       ├── tsconfig.json
+│       └── vitest.config.ts
+├── package.json
+├── package-lock.json
+├── plugins
+│   ├── auth-ad
+│   │   ├── package.json
+│   │   └── src
+│   │       └── index.ts
+│   └── auth-local
+│       ├── index.ts
+│       ├── package.json
+│       └── src
+│           ├── auth-utils.test.ts
+│           └── auth-utils.ts
+├── README.md
+├── refactor.sh
+├── restore_project.sh
+├── shared
+│   ├── client
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── components
+│   │   │   │   ├── button.test.tsx
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── layout
+│   │   │   │   │   ├── AppLayout.tsx
+│   │   │   │   │   ├── index.ts
+│   │   │   │   │   └── SidebarNav.tsx
+│   │   │   │   ├── layout.test.tsx
+│   │   │   │   ├── toaster.test.tsx
+│   │   │   │   └── toaster.tsx
+│   │   │   ├── lib
+│   │   │   │   └── utils.ts
+│   │   │   └── test
+│   │   │       └── setup.ts
+│   │   ├── tsconfig.json
+│   │   └── vitest.config.ts
+│   ├── errors
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── app-error.ts
+│   │       ├── bad-request-error.ts
+│   │       ├── forbidden-error.ts
+│   │       ├── internal-server-error.ts
+│   │       ├── not-found-error.ts
+│   │       ├── types.ts
+│   │       ├── unauthorized-error.ts
+│   │       └── validation-error.ts
+│   ├── functions
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── auth-registry.ts
+│   │       ├── constants.ts
+│   │       ├── env.test.ts
+│   │       ├── env.ts
+│   │       └── registry.ts
+│   ├── index.ts
+│   │   └── @types
+│   ├── schemas
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── plugins.test.ts
+│   │       ├── plugins.ts
+│   │       ├── users.test.ts
+│   │       └── users.ts
+│   ├── server
+│   │   ├── db
+│   │   │   ├── index.ts
+│   │   │   └── seed.ts
+│   │   ├── drizzle.config.ts
+│   │   ├── drizzle-test.config.ts
+│   │   ├── index.ts
+│   │   ├── package.json
+│   │   └── utils
+│   │       ├── index.ts
+│   │       ├── path.test.ts
+│   │       └── path.ts
+│   ├── tsconfig.json
+│   └── vitest.config.ts
+├── SUMMRY.md
+├── test
+│   ├── global-setup.ts
+│   └── setup.ts
+├── tree.txt
+├── tsconfig.json
+└── vitest.config.ts

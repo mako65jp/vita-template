@@ -1,0 +1,26 @@
+{
+  "name": "Monorepo DevContainer with DB",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "js/ts.tsdk.path": "node_modules/typescript/lib",
+        "editor.formatOnSave": true,
+        "vitest.enable": true
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "vitest.explorer"
+      ]
+    }
+  },
+  "forwardPorts": [
+    3000,
+    3001,
+    5432
+  ],
+  "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
+}
