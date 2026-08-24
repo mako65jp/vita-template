@@ -1,18 +1,23 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { db, users } from '@shared/server';
+import { eq } from 'drizzle-orm';
 import { userRoutes } from './routes';
 
 describe('User Management Plugin API', () => {
     const app = new Hono();
     app.route('/', userRoutes);
 
+    // テスト内で動的に取得したユーザーの ID を保持する変数
+    let adminId: number;
+    let userId: number;
+
     beforeEach(async () => {
         await db.delete(users);
 
-        await db.insert(users).values([
+        // id を指定せず、DBの自動採番（SERIAL）に任せて挿入
+        const insertedUsers = await db.insert(users).values([
             {
-                id: 1,
                 name: '管理者',
                 email: 'admin@example.com',
                 passwordHash: 'hashed',
@@ -20,20 +25,23 @@ describe('User Management Plugin API', () => {
                 isActive: true,
             },
             {
-                id: 2,
                 name: '一般ユーザー',
                 email: 'user@example.com',
                 passwordHash: 'hashed',
                 role: 'user',
                 isActive: true,
             },
-        ]);
+        ]).returning();
+
+        // 挿入されたレコードから実際の ID を取得して変数に格納
+        adminId = insertedUsers[0].id;
+        userId = insertedUsers[1].id;
     });
 
     it('GET / - ユーザー一覧を取得できること', async () => {
         const res = await app.request('/');
-        expect(res.status).toBe(200);
 
+        expect(res.status).toBe(200);
         const body = await res.json();
         expect(body.users.length).toBe(2);
     });
@@ -46,8 +54,14 @@ describe('User Management Plugin API', () => {
                 name: '新規プラグインユーザー',
                 email: 'plugin_new@example.com',
                 role: 'user',
+                password: 'securePassword123', // ルート側が必要としている場合は追加
             }),
         });
+
+        if (res.status === 500) {
+            const errorText = await res.text();
+            console.error('--- POST 500 ERROR DETAILS ---', errorText);
+        }
 
         expect(res.status).toBe(201);
         const body = await res.json();
@@ -55,7 +69,8 @@ describe('User Management Plugin API', () => {
     });
 
     it('PATCH /:id/role - ユーザーのロールを変更できること', async () => {
-        const res = await app.request('/2/role', {
+        // 固定の '2' ではなく、変数（userId）の動的なIDを使う
+        const res = await app.request(`/${userId}/role`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ role: 'admin' }),
@@ -67,7 +82,8 @@ describe('User Management Plugin API', () => {
     });
 
     it('PATCH /:id/status - アカウント有効/無効を切り替えられること', async () => {
-        const res = await app.request('/2/status', {
+        // 固定の '2' ではなく、変数（userId）の動的なIDを使う
+        const res = await app.request(`/${userId}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ isActive: false }),
@@ -79,10 +95,10 @@ describe('User Management Plugin API', () => {
     });
 
     it('DELETE /:id - ユーザーを削除できること', async () => {
-        const res = await app.request('/2', {
+        // 固定の '2' ではなく、変数（userId）の動的なIDを使う
+        const res = await app.request(`/${userId}`, {
             method: 'DELETE',
         });
-
         expect(res.status).toBe(200);
     });
 });

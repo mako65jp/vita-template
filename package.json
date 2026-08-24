@@ -15,8 +15,6 @@
         "dev:api": "npm --workspace=apps/api run dev",
         "dev:web": "npm --workspace=apps/web run dev",
         "db:push": "npm run db:push --workspaces --if-present",
-        "db:push:test": "npm run db:push:test --workspaces --if-present",
-        "db:push:all": "npm run db:push:all --workspaces --if-present",
         "db:seed": "npm run db:seed --workspaces --if-present",
         "pkg:lint": "npx manypkg check",
         "pkg:fix": "npx manypkg fix && npm install",
@@ -27,9 +25,15 @@
     "devDependencies": {
         "@manypkg/cli": "^0.25.1",
         "@types/node": "^26.2.0",
+        "@types/pg": "^8.23.1",
         "@vitest/coverage-v8": "^4.1.10",
         "concurrently": "^8.2.2",
+        "drizzle-pgmem": "^0.6.2",
+        "pg-mem": "^3.0.14",
         "vite": "^8.2.0",
         "vitest": "^4.1.11"
+    },
+    "dependencies": {
+        "pg": "^8.23.0"
     }
 }

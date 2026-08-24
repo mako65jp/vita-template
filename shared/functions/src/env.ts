@@ -50,8 +50,8 @@ export const serverEnvSchema = z
             .optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
-        TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
-            .optional(),
+        // TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
+        //     .optional(),
 
         // サーバー側では必須（optional 化の妥協は不要）
         JWT_SECRET: z.string().min(32, { message: 'JWT_SECRET は32文字以上である必要があります' }),
@@ -73,8 +73,8 @@ export const serverEnvSchema = z
         CORS_ORIGIN: data.CORS_ORIGIN ?? `http://localhost:${DEFAULT_FRONTEND_PORT}`,
         DATABASE_URL: data.DATABASE_URL
             ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db' : ''),
-        TEST_DATABASE_URL: data.TEST_DATABASE_URL
-            ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db_test' : ''),
+        // TEST_DATABASE_URL: data.TEST_DATABASE_URL
+        //     ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db_test' : ''),
     }));
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
@@ -154,10 +154,6 @@ export function formatEnvForLog(targetEnv: ServerEnv = env): string {
 
     if (maskedEnv.DATABASE_URL) {
         maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL
-            .replace(/:\/\/(.*):(.*)@/, '://$1:***@');
-    }
-    if (maskedEnv.TEST_DATABASE_URL) {
-        maskedEnv.TEST_DATABASE_URL = maskedEnv.TEST_DATABASE_URL
             .replace(/:\/\/(.*):(.*)@/, '://$1:***@');
     }
     if (maskedEnv.JWT_SECRET) {

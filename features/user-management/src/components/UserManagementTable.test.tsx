@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { UserManagementTable } from './UserManagementTable';
@@ -13,8 +12,9 @@ vi.mock('@shared/client', () => ({
     AUTH_TOKEN_KEY: 'test-auth-token',
 }));
 
+// fetch のモック
 const globalFetch = vi.fn();
-global.fetch = globalFetch;
+(globalThis as any).fetch = globalFetch;
 
 describe('UserManagementTable Component', () => {
     beforeEach(() => {

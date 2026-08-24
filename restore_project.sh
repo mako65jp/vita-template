@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1787390442_22000' > "package.json"
+cat << 'EOF_1787562352_20565' > "package.json"
 {
     "name": "monorepo",
     "private": true,
@@ -30,8 +30,6 @@ cat << 'EOF_1787390442_22000' > "package.json"
         "dev:api": "npm --workspace=apps/api run dev",
         "dev:web": "npm --workspace=apps/web run dev",
         "db:push": "npm run db:push --workspaces --if-present",
-        "db:push:test": "npm run db:push:test --workspaces --if-present",
-        "db:push:all": "npm run db:push:all --workspaces --if-present",
         "db:seed": "npm run db:seed --workspaces --if-present",
         "pkg:lint": "npx manypkg check",
         "pkg:fix": "npx manypkg fix && npm install",
@@ -42,16 +40,22 @@ cat << 'EOF_1787390442_22000' > "package.json"
     "devDependencies": {
         "@manypkg/cli": "^0.25.1",
         "@types/node": "^26.2.0",
+        "@types/pg": "^8.23.1",
         "@vitest/coverage-v8": "^4.1.10",
         "concurrently": "^8.2.2",
+        "drizzle-pgmem": "^0.6.2",
+        "pg-mem": "^3.0.14",
         "vite": "^8.2.0",
-        "vitest": "^4.1.10"
+        "vitest": "^4.1.11"
+    },
+    "dependencies": {
+        "pg": "^8.23.0"
     }
 }
-EOF_1787390442_22000
+EOF_1787562352_20565
 
 echo "作成: cat_files.sh"
-cat << 'EOF_1787390442_19581' > "cat_files.sh"
+cat << 'EOF_1787562352_30550' > "cat_files.sh"
 #!/bin/bash
 
 RECURSIVE=false
@@ -161,10 +165,10 @@ for target in "$@"; do
         fi
     fi
 done
-EOF_1787390442_19581
+EOF_1787562352_30550
 
 echo "作成: .gitignore"
-cat << 'EOF_1787390442_29689' > ".gitignore"
+cat << 'EOF_1787562352_27350' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -271,11 +275,21 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1787390442_29689
+EOF_1787562352_27350
+
+mkdir -p "shared"
+echo "作成: shared/package.json"
+cat << 'EOF_1787562352_12350' > "shared/package.json"
+{
+  "devDependencies": {
+    "@types/node": "^26.2.0"
+  }
+}
+EOF_1787562352_12350
 
 mkdir -p "shared/schemas"
 echo "作成: shared/schemas/package.json"
-cat << 'EOF_1787390442_25126' > "shared/schemas/package.json"
+cat << 'EOF_1787562352_30464' > "shared/schemas/package.json"
 {
     "name": "@shared/schemas",
     "version": "1.0.0",
@@ -297,18 +311,18 @@ cat << 'EOF_1787390442_25126' > "shared/schemas/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787390442_25126
+EOF_1787562352_30464
 
 mkdir -p "shared/schemas"
 echo "作成: shared/schemas/index.ts"
-cat << 'EOF_1787390442_4482' > "shared/schemas/index.ts"
+cat << 'EOF_1787562352_7555' > "shared/schemas/index.ts"
 export * from './src/users';
 export * from './src/plugins';
-EOF_1787390442_4482
+EOF_1787562352_7555
 
 mkdir -p "shared/schemas"
 echo "作成: shared/schemas/vitest.config.ts"
-cat << 'EOF_1787390442_15903' > "shared/schemas/vitest.config.ts"
+cat << 'EOF_1787562352_11140' > "shared/schemas/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -324,28 +338,20 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
+        setupFiles: ['../../vitest/setup.ts'],               // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787390442_15903
+EOF_1787562352_11140
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/plugins.test.ts"
-cat << 'EOF_1787390442_12228' > "shared/schemas/src/plugins.test.ts"
-import { describe, it, expect, afterAll, beforeEach } from 'vitest';
-import { db, activeQueryClient } from '../../server';
+cat << 'EOF_1787562352_30105' > "shared/schemas/src/plugins.test.ts"
+import { describe, it, expect } from 'vitest';
+import { db } from '@shared/server';
 import { plugins } from './plugins';
 import { eq } from 'drizzle-orm';
 
 describe('Plugins DB Integration Tests', () => {
-    afterAll(async () => {
-        // テスト終了後に DB コネクションを破棄
-        await activeQueryClient.end();
-    });
-
-    beforeEach(async () => {
-        // テストごとに plugins テーブルをクリーンアップ
-        await db.delete(plugins);
-    });
 
     it('プラグイン情報を正常に挿入および取得できること', async () => {
         const newPlugin = {
@@ -409,11 +415,11 @@ describe('Plugins DB Integration Tests', () => {
         ).rejects.toThrow();
     });
 });
-EOF_1787390442_12228
+EOF_1787562352_30105
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/plugins.ts"
-cat << 'EOF_1787390442_28006' > "shared/schemas/src/plugins.ts"
+cat << 'EOF_1787562352_29789' > "shared/schemas/src/plugins.ts"
 import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 // プラグイン管理テーブル
@@ -429,11 +435,11 @@ import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
 export type Plugin = InferSelectModel<typeof plugins>;
 export type NewPlugin = InferInsertModel<typeof plugins>;
-EOF_1787390442_28006
+EOF_1787562352_29789
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/users.ts"
-cat << 'EOF_1787390442_18894' > "shared/schemas/src/users.ts"
+cat << 'EOF_1787562352_14149' > "shared/schemas/src/users.ts"
 import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
@@ -449,26 +455,17 @@ export const users = pgTable('users', {
 
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
-EOF_1787390442_18894
+EOF_1787562352_14149
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/users.test.ts"
-cat << 'EOF_1787390442_170' > "shared/schemas/src/users.test.ts"
-import { describe, it, expect, afterAll, beforeEach } from 'vitest';
-import { db, activeQueryClient } from '../../server';
+cat << 'EOF_1787562352_27210' > "shared/schemas/src/users.test.ts"
+import { describe, it, expect } from 'vitest';
+import { db } from '@shared/server';
 import { users } from './users';
 import { eq } from 'drizzle-orm';
 
 describe('Users DB Integration Tests', () => {
-    afterAll(async () => {
-        // テスト終了後に PostgreSQL 接続をシャットダウン
-        await activeQueryClient.end();
-    });
-
-    beforeEach(async () => {
-        // テストごとに users テーブルをクリーンアップ
-        await db.delete(users);
-    });
 
     it('ユーザーを正常に挿入および取得できること', async () => {
         const newUser = {
@@ -534,30 +531,22 @@ describe('Users DB Integration Tests', () => {
         ).rejects.toThrow();
     });
 });
-EOF_1787390442_170
+EOF_1787562352_27210
 
 mkdir -p "shared"
 echo "作成: shared/tsconfig.json"
-cat << 'EOF_1787390442_29403' > "shared/tsconfig.json"
+cat << 'EOF_1787562352_8970' > "shared/tsconfig.json"
 {
     "extends": "../tsconfig.json",
-    "compilerOptions": {
-        "lib": [
-            "ES2022"
-        ],
-        "types": [
-            "node"
-        ]
-    },
     "include": [
         "**/src/*"
     ]
 }
-EOF_1787390442_29403
+EOF_1787562352_8970
 
 mkdir -p "shared"
 echo "作成: shared/vitest.config.ts"
-cat << 'EOF_1787390442_8705' > "shared/vitest.config.ts"
+cat << 'EOF_1787562352_2897' > "shared/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -566,16 +555,15 @@ export default defineConfig({
     },
     test: {
         globals: true,
-        globalSetup: ['../test/global-setup.ts'],    // ① テスト前に自動で db:push:test
-        setupFiles: ['../test/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
-        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        // fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../vitest/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787390442_8705
+EOF_1787562352_2897
 
 mkdir -p "shared/server"
 echo "作成: shared/server/package.json"
-cat << 'EOF_1787390442_2536' > "shared/server/package.json"
+cat << 'EOF_1787562352_22635' > "shared/server/package.json"
 {
     "name": "@shared/server",
     "version": "1.0.0",
@@ -592,8 +580,6 @@ cat << 'EOF_1787390442_2536' > "shared/server/package.json"
     "scripts": {
         "build": "tsc",
         "db:push": "drizzle-kit push",
-        "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
-        "db:push:all": "npm run db:push && npm run db:push:test",
         "db:seed": "tsx db/seed.ts",
         "typecheck": "tsc --noEmit"
     },
@@ -609,39 +595,47 @@ cat << 'EOF_1787390442_2536' > "shared/server/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787390442_2536
+EOF_1787562352_22635
 
 mkdir -p "shared/server"
 echo "作成: shared/server/index.ts"
-cat << 'EOF_1787390442_22715' > "shared/server/index.ts"
+cat << 'EOF_1787562352_13507' > "shared/server/index.ts"
 export * from './db'
 export * from './utils'
-EOF_1787390442_22715
+EOF_1787562352_13507
 
 mkdir -p "shared/server/db"
 echo "作成: shared/server/db/index.ts"
-cat << 'EOF_1787390442_23897' > "shared/server/db/index.ts"
+cat << 'EOF_1787562352_2750' > "shared/server/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
 import { env, isTest } from '../../functions';
 import * as schema from '../../schemas';
 
-// 必要な接続のみを 1 つだけ生成
-const dbUrl = isTest ? env.TEST_DATABASE_URL : env.DATABASE_URL;
-export const activeQueryClient = postgres(dbUrl);
-export const db = drizzle(activeQueryClient, { schema });
+// テスト環境の場合は、テスト側で vi.mock により db / activeQueryClient が
+// 丸ごと上書きされることを前提とし、実DBへの接続処理を実行させない（エラーを防ぐ）
+let activeQueryClient: any;
+let db: any;
 
-// 1. スキーマオブジェクト全体を export (drizzleConfig や drizzle(client, { schema }) 用)
+if (!isTest) {
+    // 本番・開発環境のみ実際に接続する
+    activeQueryClient = postgres(env.DATABASE_URL);
+    db = drizzle(activeQueryClient, { schema });
+}
+
+export { activeQueryClient, db };
+
+// 1. スキーマオブジェクト全体を export
 export { schema };
 
-// 2. 個別のテーブルも直接 import { users, plugins } から使えるように re-export
+// 2. 個別のテーブルも directly re-export
 export * from '../../schemas';
-EOF_1787390442_23897
+EOF_1787562352_2750
 
 mkdir -p "shared/server/db"
 echo "作成: shared/server/db/seed.ts"
-cat << 'EOF_1787390442_8772' > "shared/server/db/seed.ts"
+cat << 'EOF_1787562352_52' > "shared/server/db/seed.ts"
 import { db, users } from './index';
 import { hashPassword } from '@plugins/auth-local';
 import { eq } from 'drizzle-orm';
@@ -682,33 +676,17 @@ async function main() {
 }
 
 main();
-EOF_1787390442_8772
-
-mkdir -p "shared/server"
-echo "作成: shared/server/drizzle-test.config.ts"
-cat << 'EOF_1787390442_8012' > "shared/server/drizzle-test.config.ts"
-import { defineConfig } from 'drizzle-kit';
-import { env } from '../functions';
-
-export default defineConfig({
-    schema: '../schemas/index.ts',
-    out: './drizzle',
-    dialect: 'postgresql',
-    dbCredentials: {
-        url: env.TEST_DATABASE_URL,
-    },
-});
-EOF_1787390442_8012
+EOF_1787562352_52
 
 mkdir -p "shared/server/utils"
 echo "作成: shared/server/utils/index.ts"
-cat << 'EOF_1787390442_27183' > "shared/server/utils/index.ts"
+cat << 'EOF_1787562352_2784' > "shared/server/utils/index.ts"
 export * from './path';
-EOF_1787390442_27183
+EOF_1787562352_2784
 
 mkdir -p "shared/server/utils"
 echo "作成: shared/server/utils/path.test.ts"
-cat << 'EOF_1787390442_15953' > "shared/server/utils/path.test.ts"
+cat << 'EOF_1787562352_17096' > "shared/server/utils/path.test.ts"
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -730,11 +708,11 @@ describe('path utils', () => {
         expect(resolvedPath).toBe(expectedPath);
     });
 });
-EOF_1787390442_15953
+EOF_1787562352_17096
 
 mkdir -p "shared/server/utils"
 echo "作成: shared/server/utils/path.ts"
-cat << 'EOF_1787390442_24962' > "shared/server/utils/path.ts"
+cat << 'EOF_1787562352_23078' > "shared/server/utils/path.ts"
 // shared/core/src/utils/path.ts
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -757,11 +735,11 @@ export function getProjectRootDir(): string {
 export function resolveFromProjectRoot(...paths: string[]): string {
     return path.resolve(getProjectRootDir(), ...paths);
 }
-EOF_1787390442_24962
+EOF_1787562352_23078
 
 mkdir -p "shared/server"
 echo "作成: shared/server/vitest.config.ts"
-cat << 'EOF_1787390442_18810' > "shared/server/vitest.config.ts"
+cat << 'EOF_1787562352_6774' > "shared/server/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -778,11 +756,11 @@ export default defineConfig({
         globals: true,
     },
 });
-EOF_1787390442_18810
+EOF_1787562352_6774
 
 mkdir -p "shared/server"
 echo "作成: shared/server/drizzle.config.ts"
-cat << 'EOF_1787390442_10803' > "shared/server/drizzle.config.ts"
+cat << 'EOF_1787562352_4223' > "shared/server/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from '../functions';
 
@@ -794,11 +772,11 @@ export default defineConfig({
         url: env.DATABASE_URL,
     },
 });
-EOF_1787390442_10803
+EOF_1787562352_4223
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/package.json"
-cat << 'EOF_1787390442_20722' > "shared/functions/package.json"
+cat << 'EOF_1787562352_7996' > "shared/functions/package.json"
 {
     "name": "@shared/functions",
     "version": "1.0.0",
@@ -820,20 +798,20 @@ cat << 'EOF_1787390442_20722' > "shared/functions/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787390442_20722
+EOF_1787562352_7996
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/index.ts"
-cat << 'EOF_1787390442_8033' > "shared/functions/index.ts"
+cat << 'EOF_1787562352_30322' > "shared/functions/index.ts"
 export * from './src/auth-registry'
 export * from './src/constants'
 export * from './src/env'
 export * from './src/registry'
-EOF_1787390442_8033
+EOF_1787562352_30322
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/vitest.config.ts"
-cat << 'EOF_1787390442_15477' > "shared/functions/vitest.config.ts"
+cat << 'EOF_1787562352_12550' > "shared/functions/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -851,17 +829,17 @@ export default defineConfig({
         environment: 'jsdom',
     },
 });
-EOF_1787390442_15477
+EOF_1787562352_12550
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/constants.ts"
-cat << 'EOF_1787390442_31388' > "shared/functions/src/constants.ts"
+cat << 'EOF_1787562352_1546' > "shared/functions/src/constants.ts"
 export const AUTH_TOKEN_KEY = 'auth_token';
-EOF_1787390442_31388
+EOF_1787562352_1546
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/auth-registry.ts"
-cat << 'EOF_1787390442_19560' > "shared/functions/src/auth-registry.ts"
+cat << 'EOF_1787562352_11026' > "shared/functions/src/auth-registry.ts"
 export interface AuthPlugin {
   name: string;
   authenticate(credentials: any): Promise<{ id: string; name: string }>;
@@ -883,11 +861,11 @@ export class AuthRegistry {
     return plugin.authenticate(credentials);
   }
 }
-EOF_1787390442_19560
+EOF_1787562352_11026
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/registry.ts"
-cat << 'EOF_1787390442_13666' > "shared/functions/src/registry.ts"
+cat << 'EOF_1787562352_23279' > "shared/functions/src/registry.ts"
 // shared/core/src/plugins/registry.ts
 import { Hono } from 'hono';
 
@@ -928,11 +906,11 @@ export class PluginRegistry {
     }
 }
 
-EOF_1787390442_13666
+EOF_1787562352_23279
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/env.test.ts"
-cat << 'EOF_1787390442_28415' > "shared/functions/src/env.test.ts"
+cat << 'EOF_1787562352_1178' > "shared/functions/src/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { clientEnvSchema, serverEnvSchema, formatEnvForLog, ServerEnv, ClientEnv } from './env';
 
@@ -973,7 +951,6 @@ describe('shared/core/src/config/env', () => {
     // テストで使用する最小限の有効な環境変数セット
     const validMockServerEnv = {
         DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb',
-        TEST_DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb_test',
         JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
         CORS_ORIGIN: 'http://localhost:3000',
     };
@@ -1085,7 +1062,6 @@ describe('shared/core/src/config/env', () => {
                 API_BASE_URL: 'http://localhost:3001',
                 CORS_ORIGIN: 'http://localhost:3000',
                 DATABASE_URL: 'postgresql://postgres:my-secret-password@localhost:5432/app_db',
-                TEST_DATABASE_URL: 'postgresql://postgres:test-password@localhost:5432/app_db_test',
                 JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
             };
 
@@ -1097,16 +1073,15 @@ describe('shared/core/src/config/env', () => {
             expect(formatted).not.toContain('super-secret-jwt-key-with-at-least-32-chars!');
 
             expect(formatted).toContain('postgresql://postgres:***@localhost:5432/app_db');
-            expect(formatted).toContain('postgresql://postgres:***@localhost:5432/app_db_test');
             expect(formatted).toContain('"JWT_SECRET": "***"');
         });
     });
 });
-EOF_1787390442_28415
+EOF_1787562352_1178
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/env.ts"
-cat << 'EOF_1787390442_10077' > "shared/functions/src/env.ts"
+cat << 'EOF_1787562352_28562' > "shared/functions/src/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -1159,8 +1134,8 @@ export const serverEnvSchema = z
             .optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
-        TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
-            .optional(),
+        // TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
+        //     .optional(),
 
         // サーバー側では必須（optional 化の妥協は不要）
         JWT_SECRET: z.string().min(32, { message: 'JWT_SECRET は32文字以上である必要があります' }),
@@ -1182,8 +1157,8 @@ export const serverEnvSchema = z
         CORS_ORIGIN: data.CORS_ORIGIN ?? `http://localhost:${DEFAULT_FRONTEND_PORT}`,
         DATABASE_URL: data.DATABASE_URL
             ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db' : ''),
-        TEST_DATABASE_URL: data.TEST_DATABASE_URL
-            ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db_test' : ''),
+        // TEST_DATABASE_URL: data.TEST_DATABASE_URL
+        //     ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db_test' : ''),
     }));
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
@@ -1265,21 +1240,17 @@ export function formatEnvForLog(targetEnv: ServerEnv = env): string {
         maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL
             .replace(/:\/\/(.*):(.*)@/, '://$1:***@');
     }
-    if (maskedEnv.TEST_DATABASE_URL) {
-        maskedEnv.TEST_DATABASE_URL = maskedEnv.TEST_DATABASE_URL
-            .replace(/:\/\/(.*):(.*)@/, '://$1:***@');
-    }
     if (maskedEnv.JWT_SECRET) {
         maskedEnv.JWT_SECRET = '***';
     }
 
     return JSON.stringify(maskedEnv, null, 2);
 }
-EOF_1787390442_10077
+EOF_1787562352_28562
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/package.json"
-cat << 'EOF_1787390442_15443' > "shared/errors/package.json"
+cat << 'EOF_1787562352_4372' > "shared/errors/package.json"
 {
     "name": "@shared/errors",
     "version": "1.0.0",
@@ -1301,11 +1272,11 @@ cat << 'EOF_1787390442_15443' > "shared/errors/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787390442_15443
+EOF_1787562352_4372
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/index.ts"
-cat << 'EOF_1787390442_17620' > "shared/errors/index.ts"
+cat << 'EOF_1787562352_4137' > "shared/errors/index.ts"
 export * from './src/types';
 export * from './src/app-error';
 export * from './src/bad-request-error';
@@ -1314,11 +1285,11 @@ export * from './src/internal-server-error';
 export * from './src/not-found-error';
 export * from './src/unauthorized-error';
 export * from './src/validation-error';
-EOF_1787390442_17620
+EOF_1787562352_4137
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/unauthorized-error.ts"
-cat << 'EOF_1787390442_729' > "shared/errors/src/unauthorized-error.ts"
+cat << 'EOF_1787562352_27789' > "shared/errors/src/unauthorized-error.ts"
 import { AppError } from './app-error';
 
 export class UnauthorizedError extends AppError {
@@ -1326,11 +1297,11 @@ export class UnauthorizedError extends AppError {
         super(401, 'unauthorized', 'Unauthorized', message);
     }
 }
-EOF_1787390442_729
+EOF_1787562352_27789
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/app-error.ts"
-cat << 'EOF_1787390442_10438' > "shared/errors/src/app-error.ts"
+cat << 'EOF_1787562352_16903' > "shared/errors/src/app-error.ts"
 export class AppError extends Error {
     constructor(
         public readonly status: number,
@@ -1342,11 +1313,11 @@ export class AppError extends Error {
         this.name = 'AppError';
     }
 }
-EOF_1787390442_10438
+EOF_1787562352_16903
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/bad-request-error.ts"
-cat << 'EOF_1787390442_3485' > "shared/errors/src/bad-request-error.ts"
+cat << 'EOF_1787562352_3075' > "shared/errors/src/bad-request-error.ts"
 import { AppError } from './app-error';
 
 export class BadRequestError extends AppError {
@@ -1354,11 +1325,11 @@ export class BadRequestError extends AppError {
         super(400, 'bad-request', 'Bad Request', message);
     }
 }
-EOF_1787390442_3485
+EOF_1787562352_3075
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/types.ts"
-cat << 'EOF_1787390442_29115' > "shared/errors/src/types.ts"
+cat << 'EOF_1787562352_23506' > "shared/errors/src/types.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -1373,11 +1344,11 @@ export interface ProblemDetails {
     instance: string;
     invalidParams?: InvalidParam[];
 }
-EOF_1787390442_29115
+EOF_1787562352_23506
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/forbidden-error.ts"
-cat << 'EOF_1787390442_7876' > "shared/errors/src/forbidden-error.ts"
+cat << 'EOF_1787562352_20360' > "shared/errors/src/forbidden-error.ts"
 import { AppError } from './app-error';
 
 export class ForbiddenError extends AppError {
@@ -1385,11 +1356,11 @@ export class ForbiddenError extends AppError {
         super(403, 'forbidden', 'Forbidden', message);
     }
 }
-EOF_1787390442_7876
+EOF_1787562352_20360
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/validation-error.ts"
-cat << 'EOF_1787390442_10047' > "shared/errors/src/validation-error.ts"
+cat << 'EOF_1787562352_26702' > "shared/errors/src/validation-error.ts"
 import { AppError } from './app-error';
 import type { InvalidParam } from './types';
 
@@ -1401,11 +1372,11 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1787390442_10047
+EOF_1787562352_26702
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/not-found-error.ts"
-cat << 'EOF_1787390442_20672' > "shared/errors/src/not-found-error.ts"
+cat << 'EOF_1787562352_13632' > "shared/errors/src/not-found-error.ts"
 import { AppError } from './app-error';
 
 export class NotFoundError extends AppError {
@@ -1413,11 +1384,11 @@ export class NotFoundError extends AppError {
         super(404, 'not-found', 'Not Found', message);
     }
 }
-EOF_1787390442_20672
+EOF_1787562352_13632
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/internal-server-error.ts"
-cat << 'EOF_1787390442_22369' > "shared/errors/src/internal-server-error.ts"
+cat << 'EOF_1787562352_30027' > "shared/errors/src/internal-server-error.ts"
 import { AppError } from './app-error';
 
 export class InternalServerError extends AppError {
@@ -1425,11 +1396,11 @@ export class InternalServerError extends AppError {
         super(500, 'internal-server-error', 'Internal Server Error', message);
     }
 }
-EOF_1787390442_22369
+EOF_1787562352_30027
 
 mkdir -p "shared/client"
 echo "作成: shared/client/package.json"
-cat << 'EOF_1787390442_16087' > "shared/client/package.json"
+cat << 'EOF_1787562352_6733' > "shared/client/package.json"
 {
     "name": "@shared/client",
     "version": "1.0.0",
@@ -1468,11 +1439,11 @@ cat << 'EOF_1787390442_16087' > "shared/client/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787390442_16087
+EOF_1787562352_6733
 
 mkdir -p "shared/client"
 echo "作成: shared/client/index.ts"
-cat << 'EOF_1787390442_17684' > "shared/client/index.ts"
+cat << 'EOF_1787562352_24811' > "shared/client/index.ts"
 export * from './src/lib/utils';
 export * from './src/components/button';
 export * from './src/components/layout';
@@ -1482,22 +1453,15 @@ export { clientEnvSchema, clientEnv } from '@shared/functions'
 export type { ClientEnv } from '@shared/functions'
 
 export * from '../functions/src/constants'
-EOF_1787390442_17684
+EOF_1787562352_24811
 
 mkdir -p "shared/client"
 echo "作成: shared/client/tsconfig.json"
-cat << 'EOF_1787390442_11035' > "shared/client/tsconfig.json"
+cat << 'EOF_1787562352_32244' > "shared/client/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "jsx": "react-jsx",
-        "lib": [
-            "ES2022",
-            "DOM",
-            "DOM.Iterable"
-        ],
         "types": [
-            "vite/client",
             "@testing-library/jest-dom"
         ]
     },
@@ -1505,11 +1469,11 @@ cat << 'EOF_1787390442_11035' > "shared/client/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1787390442_11035
+EOF_1787562352_32244
 
 mkdir -p "shared/client"
 echo "作成: shared/client/vitest.config.ts"
-cat << 'EOF_1787390442_4657' > "shared/client/vitest.config.ts"
+cat << 'EOF_1787562352_32494' > "shared/client/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -1525,20 +1489,15 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
-        setupFiles: ['./src/test/setup.ts'],
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../../vitest/setup.ts'],  // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787390442_4657
-
-mkdir -p "shared/client/src/test"
-echo "作成: shared/client/src/test/setup.ts"
-cat << 'EOF_1787390442_28122' > "shared/client/src/test/setup.ts"
-import '@testing-library/jest-dom';
-EOF_1787390442_28122
+EOF_1787562352_32494
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/button.tsx"
-cat << 'EOF_1787390442_9196' > "shared/client/src/components/button.tsx"
+cat << 'EOF_1787562352_10779' > "shared/client/src/components/button.tsx"
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
@@ -1582,11 +1541,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = 'Button';
-EOF_1787390442_9196
+EOF_1787562352_10779
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/toaster.tsx"
-cat << 'EOF_1787390442_28918' > "shared/client/src/components/toaster.tsx"
+cat << 'EOF_1787562352_1363' > "shared/client/src/components/toaster.tsx"
 import { Toaster as SonnerToaster, toast } from 'sonner';
 import { ProblemDetails } from '@shared/errors';
 
@@ -1635,11 +1594,12 @@ export function showErrorToast(error: unknown) {
 }
 
 export { toast };
-EOF_1787390442_28918
+EOF_1787562352_1363
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/button.test.tsx"
-cat << 'EOF_1787390442_8656' > "shared/client/src/components/button.test.tsx"
+cat << 'EOF_1787562352_16585' > "shared/client/src/components/button.test.tsx"
+import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -1670,18 +1630,18 @@ describe('Button Component', () => {
         expect(handleClick).not.toHaveBeenCalled();
     });
 });
-EOF_1787390442_8656
+EOF_1787562352_16585
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/index.ts"
-cat << 'EOF_1787390442_4020' > "shared/client/src/components/layout/index.ts"
+cat << 'EOF_1787562352_16682' > "shared/client/src/components/layout/index.ts"
 export * from './AppLayout';
 export * from './SidebarNav';
-EOF_1787390442_4020
+EOF_1787562352_16682
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/AppLayout.tsx"
-cat << 'EOF_1787390442_22211' > "shared/client/src/components/layout/AppLayout.tsx"
+cat << 'EOF_1787562352_9048' > "shared/client/src/components/layout/AppLayout.tsx"
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -1777,11 +1737,11 @@ export function HeaderContent({ title, children }: HeaderContentProps) {
         </div>
     );
 }
-EOF_1787390442_22211
+EOF_1787562352_9048
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/SidebarNav.tsx"
-cat << 'EOF_1787390442_32386' > "shared/client/src/components/layout/SidebarNav.tsx"
+cat << 'EOF_1787562352_25969' > "shared/client/src/components/layout/SidebarNav.tsx"
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -1813,11 +1773,12 @@ export function SidebarNav({ items }: { items: SidebarNavItem[] }) {
         </nav>
     );
 }
-EOF_1787390442_32386
+EOF_1787562352_25969
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/layout.test.tsx"
-cat << 'EOF_1787390442_28515' > "shared/client/src/components/layout.test.tsx"
+cat << 'EOF_1787562352_13518' > "shared/client/src/components/layout.test.tsx"
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { AppLayout, HeaderContent, SidebarNav } from './layout';
@@ -1890,11 +1851,11 @@ describe('AppLayout Component', () => {
         expect(normalLink).not.toHaveClass('bg-blue-50');
     });
 });
-EOF_1787390442_28515
+EOF_1787562352_13518
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/toaster.test.tsx"
-cat << 'EOF_1787390442_5431' > "shared/client/src/components/toaster.test.tsx"
+cat << 'EOF_1787562352_6924' > "shared/client/src/components/toaster.test.tsx"
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { toast, showErrorToast } from './toaster';
 
@@ -1948,21 +1909,21 @@ describe('showErrorToast Utility', () => {
     });
   });
 });
-EOF_1787390442_5431
+EOF_1787562352_6924
 
 mkdir -p "shared/client/src/lib"
 echo "作成: shared/client/src/lib/utils.ts"
-cat << 'EOF_1787390442_16659' > "shared/client/src/lib/utils.ts"
+cat << 'EOF_1787562352_14189' > "shared/client/src/lib/utils.ts"
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-EOF_1787390442_16659
+EOF_1787562352_14189
 
 echo "作成: plan.md"
-cat << 'EOF_1787390442_19037' > "plan.md"
+cat << 'EOF_1787562352_29769' > "plan.md"
 # 📋 拡張候補一覧表（最新版）
 
 ### 凡例
@@ -1995,22 +1956,22 @@ cat << 'EOF_1787390442_19037' > "plan.md"
 | **9. 多言語対応 (i18n)** | **多言語切り替え** | 日本語 / 英語等の表示切り替えおよび言語リソース管理 | `apps/web` / `packages/ui` | ⏳ **未実装** | グローバル利用への拡張性確保 |
 
 ---
-EOF_1787390442_19037
+EOF_1787562352_29769
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1787390442_9365' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1787562352_21450' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1787390442_9365
+EOF_1787562352_21450
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1787390442_5342' > ".devcontainer/Dockerfile"
+cat << 'EOF_1787562352_26279' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -2024,11 +1985,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
-EOF_1787390442_5342
+EOF_1787562352_26279
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1787390442_9850' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1787562352_2254' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -2055,11 +2016,11 @@ cat << 'EOF_1787390442_9850' > ".devcontainer/devcontainer.json"
   ],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1787390442_9850
+EOF_1787562352_2254
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1787390442_8397' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1787562352_3852' > ".devcontainer/docker-compose.yml"
 
 services:
   app:
@@ -2098,10 +2059,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1787390442_8397
+EOF_1787562352_3852
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1787390442_15238' > "tsconfig.json"
+cat << 'EOF_1787562352_6067' > "tsconfig.json"
 {
     "compilerOptions": {
         "target": "ESNext",
@@ -2182,11 +2143,11 @@ cat << 'EOF_1787390442_15238' > "tsconfig.json"
         "build"
     ]
 }
-EOF_1787390442_15238
+EOF_1787562352_6067
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/package.json"
-cat << 'EOF_1787390442_3904' > "plugins/auth-ad/package.json"
+cat << 'EOF_1787562352_7011' > "plugins/auth-ad/package.json"
 {
     "name": "@plugins/auth-ad",
     "version": "1.0.0",
@@ -2199,11 +2160,11 @@ cat << 'EOF_1787390442_3904' > "plugins/auth-ad/package.json"
         "typecheck": "tsc --noEmit"
     }
 }
-EOF_1787390442_3904
+EOF_1787562352_7011
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/index.ts"
-cat << 'EOF_1787390442_21994' > "plugins/auth-ad/index.ts"
+cat << 'EOF_1787562352_4107' > "plugins/auth-ad/index.ts"
 import { AuthPlugin } from '@shared/functions';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
@@ -2217,17 +2178,17 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
     throw new Error('Active Directory authentication failed');
   }
 }
-EOF_1787390442_21994
+EOF_1787562352_4107
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/package.json"
-cat << 'EOF_1787390442_14180' > "plugins/auth-local/package.json"
+cat << 'EOF_1787562352_7170' > "plugins/auth-local/package.json"
 {
     "name": "@plugins/auth-local",
     "version": "1.0.0",
     "private": true,
     "type": "module",
-    "main": "./src/index.ts",
+    "main": "./index.ts",
     "scripts": {
         "build": "tsc",
         "typecheck": "tsc --noEmit"
@@ -2240,11 +2201,11 @@ cat << 'EOF_1787390442_14180' > "plugins/auth-local/package.json"
         "@types/bcryptjs": "^2.4.6"
     }
 }
-EOF_1787390442_14180
+EOF_1787562352_7170
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/index.ts"
-cat << 'EOF_1787390442_17239' > "plugins/auth-local/index.ts"
+cat << 'EOF_1787562352_10950' > "plugins/auth-local/index.ts"
 import { AuthPlugin } from '@shared/functions';
 
 export class LocalAuthPlugin implements AuthPlugin {
@@ -2260,11 +2221,11 @@ export class LocalAuthPlugin implements AuthPlugin {
 }
 
 export * from './src/auth-utils';
-EOF_1787390442_17239
+EOF_1787562352_10950
 
 mkdir -p "plugins/auth-local/src"
 echo "作成: plugins/auth-local/src/auth-utils.ts"
-cat << 'EOF_1787390442_24293' > "plugins/auth-local/src/auth-utils.ts"
+cat << 'EOF_1787562352_16792' > "plugins/auth-local/src/auth-utils.ts"
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -2325,11 +2286,11 @@ export async function verifyJwt<T = Record<string, unknown>>(
         return null;
     }
 }
-EOF_1787390442_24293
+EOF_1787562352_16792
 
 mkdir -p "plugins/auth-local/src"
 echo "作成: plugins/auth-local/src/auth-utils.test.ts"
-cat << 'EOF_1787390442_31643' > "plugins/auth-local/src/auth-utils.test.ts"
+cat << 'EOF_1787562352_12859' > "plugins/auth-local/src/auth-utils.test.ts"
 import { describe, it, expect } from 'vitest';
 import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
 
@@ -2391,10 +2352,10 @@ describe('Auth Utilities (Step 4.1)', () => {
         });
     });
 });
-EOF_1787390442_31643
+EOF_1787562352_12859
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1787390442_312' > "vitest.config.ts"
+cat << 'EOF_1787562352_20218' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -2414,6 +2375,7 @@ export default defineConfig({
         ],
 
         exclude: ['node_modules', 'dist', '.next', 'coverage'],
+
         coverage: {
             provider: 'v8',
             include: ['**/*.{ts,tsx}'],
@@ -2421,11 +2383,11 @@ export default defineConfig({
         },
     },
 });
-EOF_1787390442_312
+EOF_1787562352_20218
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/package.json"
-cat << 'EOF_1787390442_17171' > "features/user-management/package.json"
+cat << 'EOF_1787562352_29711' > "features/user-management/package.json"
 {
     "name": "@features/user-management",
     "version": "1.0.0",
@@ -2458,11 +2420,11 @@ cat << 'EOF_1787390442_17171' > "features/user-management/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787390442_17171
+EOF_1787562352_29711
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/index.ts"
-cat << 'EOF_1787390442_29055' > "features/user-management/index.ts"
+cat << 'EOF_1787562352_21671' > "features/user-management/index.ts"
 import { PluginRegistry } from '@shared/functions';
 import { userRoutes } from './src/routes';
 
@@ -2484,61 +2446,31 @@ PluginRegistry.register({
         },
     ],
 });
-EOF_1787390442_29055
-
-mkdir -p "features/user-management"
-echo "作成: features/user-management/tsconfig.json"
-cat << 'EOF_1787390442_28759' > "features/user-management/tsconfig.json"
-{
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-        "jsx": "react-jsx",
-    },
-    "include": [
-        "src/**/*"
-    ]
-}
-EOF_1787390442_28759
-
-mkdir -p "features/user-management"
-echo "作成: features/user-management/vitest.config.ts"
-cat << 'EOF_1787390442_19324' > "features/user-management/vitest.config.ts"
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig({
-    plugins: [react()],
-    resolve: {
-        tsconfigPaths: true
-    },
-    test: {
-        globals: true,
-        environment: 'jsdom',
-        globalSetup: ['./src/test/global-setup.ts'],    // ① テスト前に自動で db:push:test
-        setupFiles: ['./src/test/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
-        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-    },
-});
-EOF_1787390442_19324
+EOF_1787562352_21671
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/routes.test.ts"
-cat << 'EOF_1787390442_16169' > "features/user-management/src/routes.test.ts"
+cat << 'EOF_1787562352_17780' > "features/user-management/src/routes.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { db, users } from '@shared/server';
+import { eq } from 'drizzle-orm';
 import { userRoutes } from './routes';
 
 describe('User Management Plugin API', () => {
     const app = new Hono();
     app.route('/', userRoutes);
 
+    // テスト内で動的に取得したユーザーの ID を保持する変数
+    let adminId: number;
+    let userId: number;
+
     beforeEach(async () => {
         await db.delete(users);
 
-        await db.insert(users).values([
+        // id を指定せず、DBの自動採番（SERIAL）に任せて挿入
+        const insertedUsers = await db.insert(users).values([
             {
-                id: 1,
                 name: '管理者',
                 email: 'admin@example.com',
                 passwordHash: 'hashed',
@@ -2546,20 +2478,23 @@ describe('User Management Plugin API', () => {
                 isActive: true,
             },
             {
-                id: 2,
                 name: '一般ユーザー',
                 email: 'user@example.com',
                 passwordHash: 'hashed',
                 role: 'user',
                 isActive: true,
             },
-        ]);
+        ]).returning();
+
+        // 挿入されたレコードから実際の ID を取得して変数に格納
+        adminId = insertedUsers[0].id;
+        userId = insertedUsers[1].id;
     });
 
     it('GET / - ユーザー一覧を取得できること', async () => {
         const res = await app.request('/');
-        expect(res.status).toBe(200);
 
+        expect(res.status).toBe(200);
         const body = await res.json();
         expect(body.users.length).toBe(2);
     });
@@ -2572,8 +2507,14 @@ describe('User Management Plugin API', () => {
                 name: '新規プラグインユーザー',
                 email: 'plugin_new@example.com',
                 role: 'user',
+                password: 'securePassword123', // ルート側が必要としている場合は追加
             }),
         });
+
+        if (res.status === 500) {
+            const errorText = await res.text();
+            console.error('--- POST 500 ERROR DETAILS ---', errorText);
+        }
 
         expect(res.status).toBe(201);
         const body = await res.json();
@@ -2581,7 +2522,8 @@ describe('User Management Plugin API', () => {
     });
 
     it('PATCH /:id/role - ユーザーのロールを変更できること', async () => {
-        const res = await app.request('/2/role', {
+        // 固定の '2' ではなく、変数（userId）の動的なIDを使う
+        const res = await app.request(`/${userId}/role`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ role: 'admin' }),
@@ -2593,7 +2535,8 @@ describe('User Management Plugin API', () => {
     });
 
     it('PATCH /:id/status - アカウント有効/無効を切り替えられること', async () => {
-        const res = await app.request('/2/status', {
+        // 固定の '2' ではなく、変数（userId）の動的なIDを使う
+        const res = await app.request(`/${userId}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ isActive: false }),
@@ -2605,18 +2548,18 @@ describe('User Management Plugin API', () => {
     });
 
     it('DELETE /:id - ユーザーを削除できること', async () => {
-        const res = await app.request('/2', {
+        // 固定の '2' ではなく、変数（userId）の動的なIDを使う
+        const res = await app.request(`/${userId}`, {
             method: 'DELETE',
         });
-
         expect(res.status).toBe(200);
     });
 });
-EOF_1787390442_16169
+EOF_1787562352_17780
 
 mkdir -p "features/user-management/src/api"
 echo "作成: features/user-management/src/api/user-management-api.ts"
-cat << 'EOF_1787390442_17852' > "features/user-management/src/api/user-management-api.ts"
+cat << 'EOF_1787562352_32640' > "features/user-management/src/api/user-management-api.ts"
 export interface User {
     id: number;
     name: string;
@@ -2674,11 +2617,11 @@ export const updateUserRole = async (apiBaseUrl: string, id: number, role: 'admi
     const data = await res.json();
     return data.user;
 };
-EOF_1787390442_17852
+EOF_1787562352_32640
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/routes.ts"
-cat << 'EOF_1787390442_26582' > "features/user-management/src/routes.ts"
+cat << 'EOF_1787562352_11522' > "features/user-management/src/routes.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
@@ -2857,11 +2800,11 @@ userRoutes.delete('/:id', async (c) => {
 
     return c.json({ message: 'ユーザーを削除しました', user: deletedUsers[0] });
 });
-EOF_1787390442_26582
+EOF_1787562352_11522
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/ui.ts"
-cat << 'EOF_1787390442_17951' > "features/user-management/src/ui.ts"
+cat << 'EOF_1787562352_1594' > "features/user-management/src/ui.ts"
 import { PluginRegistry } from '@shared/functions';
 import { UserManagementTable } from './components/UserManagementTable';
 
@@ -2883,51 +2826,11 @@ export function registerUserManagementPlugin() {
         ],
     });
 }
-EOF_1787390442_17951
-
-mkdir -p "features/user-management/src/test"
-echo "作成: features/user-management/src/test/setup.ts"
-cat << 'EOF_1787390442_26195' > "features/user-management/src/test/setup.ts"
-import '@testing-library/jest-dom';
-EOF_1787390442_26195
-
-mkdir -p "features/user-management/src/test"
-echo "作成: features/user-management/src/test/global-setup.ts"
-cat << 'EOF_1787390442_29456' > "features/user-management/src/test/global-setup.ts"
-import { execSync } from 'node:child_process';
-import path from 'node:path';
-import { getProjectRootDir, resolveFromProjectRoot } from '@shared/server/utils/path';
-
-export async function setup() {
-    console.log('\n🔄 テスト用データベースに最新のスキーマを反映中...');
-
-    // 💡 プロジェクトルートを環境に依存せず確実に取得
-    const rootDir = getProjectRootDir();
-
-    // shared/server ディレクトリパスを解決
-    const corePackageDir = resolveFromProjectRoot('shared', 'server');
-    const configPath = path.resolve(corePackageDir, 'drizzle-test.config.ts');
-
-    try {
-        execSync(`npx drizzle-kit push --config="${configPath}"`, {
-            cwd: corePackageDir,
-            stdio: 'inherit',
-            env: {
-                ...process.env, // 親プロセスの環境変数を引き継ぐ
-            },
-        });
-        console.log('✅ テスト用データベースの準備完了!\n');
-    } catch (error) {
-        console.error('❌ テスト用データベースへのスキーマ反映に失敗しました:', error);
-        throw error;
-    }
-}
-EOF_1787390442_29456
+EOF_1787562352_1594
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/UserManagementTable.test.tsx"
-cat << 'EOF_1787390442_23699' > "features/user-management/src/components/UserManagementTable.test.tsx"
-import React from 'react';
+cat << 'EOF_1787562352_10598' > "features/user-management/src/components/UserManagementTable.test.tsx"
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { UserManagementTable } from './UserManagementTable';
@@ -2942,8 +2845,9 @@ vi.mock('@shared/client', () => ({
     AUTH_TOKEN_KEY: 'test-auth-token',
 }));
 
+// fetch のモック
 const globalFetch = vi.fn();
-global.fetch = globalFetch;
+(globalThis as any).fetch = globalFetch;
 
 describe('UserManagementTable Component', () => {
     beforeEach(() => {
@@ -3173,11 +3077,11 @@ describe('UserManagementTable Component', () => {
         });
     });
 });
-EOF_1787390442_23699
+EOF_1787562352_10598
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/CreateUserModal.tsx"
-cat << 'EOF_1787390442_8570' > "features/user-management/src/components/CreateUserModal.tsx"
+cat << 'EOF_1787562352_17131' > "features/user-management/src/components/CreateUserModal.tsx"
 import React, { useState } from 'react';
 
 interface CreateUserModalProps {
@@ -3304,11 +3208,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
         </div>
     );
 };
-EOF_1787390442_8570
+EOF_1787562352_17131
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/UserManagementTable.tsx"
-cat << 'EOF_1787390442_2234' > "features/user-management/src/components/UserManagementTable.tsx"
+cat << 'EOF_1787562352_2919' > "features/user-management/src/components/UserManagementTable.tsx"
 import React, { useEffect, useState } from 'react';
 import { toast, showErrorToast } from '@shared/client';
 import { CreateUserModal } from './CreateUserModal';
@@ -3542,10 +3446,46 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </div>
     );
 };
-EOF_1787390442_2234
+EOF_1787562352_2919
+
+mkdir -p "features"
+echo "作成: features/tsconfig.json"
+cat << 'EOF_1787562352_3084' > "features/tsconfig.json"
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "types": [
+            "@testing-library/jest-dom"
+        ]
+    },
+    "include": [
+        "./**/*"
+    ]
+}
+EOF_1787562352_3084
+
+mkdir -p "features"
+echo "作成: features/vitest.config.ts"
+cat << 'EOF_1787562352_20079' > "features/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()],
+    resolve: {
+        tsconfigPaths: true
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../vitest/setup.ts'],     // 各テスト実行前にテーブルデータを全消去
+    },
+});
+EOF_1787562352_20079
 
 echo "作成: plan-step9.md"
-cat << 'EOF_1787390442_4127' > "plan-step9.md"
+cat << 'EOF_1787562352_18832' > "plan-step9.md"
 # 📌 Step 9: ユーザー管理機能（管理者用基盤）状況整理（最新版）
 
 ### 🎯 Step 9 のゴール
@@ -3604,10 +3544,10 @@ Step 9（ユーザー管理および認可基盤）が完了したため、次�
 * **候補 A (汎用 UI):** データテーブルコンポーネント（検索・ソート・ページネーション）、汎用モーダル・ダイアログの抽象化基盤。
 * **候補 B (エラー・認証):** 自動ログアウト処理（401 トークン切れ検知）や標準エラー画面 (404 / 500) の作成。
 * **候補 C (その他):** 監査ログ (Audit Log) の記録基盤やシステム内通知基盤。
-EOF_1787390442_4127
+EOF_1787562352_18832
 
 echo "作成: tree.txt"
-cat << 'EOF_1787390442_11311' > "tree.txt"
+cat << 'EOF_1787562352_23351' > "tree.txt"
 .
 ├── apps
 │   ├── api
@@ -3661,9 +3601,7 @@ cat << 'EOF_1787390442_11311' > "tree.txt"
 │       │   ├── lib
 │       │   │   ├── apiClient.test.ts
 │       │   │   └── apiClient.ts
-│       │   ├── main.tsx
-│       │   └── test
-│       │       └── setup.ts
+│       │   └── main.tsx
 │       ├── tsconfig.json
 │       ├── vite.config.ts
 │       └── vitest.config.ts
@@ -3672,24 +3610,21 @@ cat << 'EOF_1787390442_11311' > "tree.txt"
 ├── cr.sh
 ├── doc.md
 ├── features
+│   ├── tsconfig.json
+│   ├── vitest.config.ts
 │   └── user-management
 │       ├── package.json
-│       ├── src
-│       │   ├── api
-│       │   │   └── user-management-api.ts
-│       │   ├── components
-│       │   │   ├── CreateUserModal.tsx
-│       │   │   ├── UserManagementTable.test.tsx
-│       │   │   └── UserManagementTable.tsx
-│       │   ├── index.ts
-│       │   ├── routes.test.ts
-│       │   ├── routes.ts
-│       │   ├── test
-│       │   │   ├── global-setup.ts
-│       │   │   └── setup.ts
-│       │   └── ui.ts
-│       ├── tsconfig.json
-│       └── vitest.config.ts
+│       └── src
+│           ├── api
+│           │   └── user-management-api.ts
+│           ├── components
+│           │   ├── CreateUserModal.tsx
+│           │   ├── UserManagementTable.test.tsx
+│           │   └── UserManagementTable.tsx
+│           ├── index.ts
+│           ├── routes.test.ts
+│           ├── routes.ts
+│           └── ui.ts
 ├── package.json
 ├── package-lock.json
 ├── plugins
@@ -3704,7 +3639,6 @@ cat << 'EOF_1787390442_11311' > "tree.txt"
 │           ├── auth-utils.test.ts
 │           └── auth-utils.ts
 ├── README.md
-├── refactor.sh
 ├── restore_project.sh
 ├── shared
 │   ├── client
@@ -3721,10 +3655,8 @@ cat << 'EOF_1787390442_11311' > "tree.txt"
 │   │   │   │   ├── layout.test.tsx
 │   │   │   │   ├── toaster.test.tsx
 │   │   │   │   └── toaster.tsx
-│   │   │   ├── lib
-│   │   │   │   └── utils.ts
-│   │   │   └── test
-│   │   │       └── setup.ts
+│   │   │   └── lib
+│   │   │       └── utils.ts
 │   │   ├── tsconfig.json
 │   │   └── vitest.config.ts
 │   ├── errors
@@ -3748,8 +3680,6 @@ cat << 'EOF_1787390442_11311' > "tree.txt"
 │   │       ├── env.test.ts
 │   │       ├── env.ts
 │   │       └── registry.ts
-│   ├── index.ts
-│   │   └── @types
 │   ├── schemas
 │   │   ├── index.ts
 │   │   ├── package.json
@@ -3773,16 +3703,12 @@ cat << 'EOF_1787390442_11311' > "tree.txt"
 │   ├── tsconfig.json
 │   └── vitest.config.ts
 ├── SUMMRY.md
-├── test
-│   ├── global-setup.ts
-│   └── setup.ts
-├── tree.txt
 ├── tsconfig.json
 └── vitest.config.ts
-EOF_1787390442_11311
+EOF_1787562352_23351
 
 echo "作成: doc.md"
-cat << 'EOF_1787390442_1643' > "doc.md"
+cat << 'EOF_1787562352_28755' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -3897,10 +3823,10 @@ cat << 'EOF_1787390442_1643' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1787390442_1643
+EOF_1787562352_28755
 
 echo "作成: SUMMRY.md"
-cat << 'EOF_1787390442_20901' > "SUMMRY.md"
+cat << 'EOF_1787562352_9994' > "SUMMRY.md"
 これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
 # 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
 
@@ -4167,11 +4093,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 
 ---
-EOF_1787390442_20901
+EOF_1787562352_9994
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1787390442_15936' > "apps/web/package.json"
+cat << 'EOF_1787562352_7531' > "apps/web/package.json"
 {
     "name": "@app/web",
     "version": "1.0.0",
@@ -4199,11 +4125,11 @@ cat << 'EOF_1787390442_15936' > "apps/web/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787390442_15936
+EOF_1787562352_7531
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1787390442_28318' > "apps/web/index.html"
+cat << 'EOF_1787562352_18085' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -4215,11 +4141,11 @@ cat << 'EOF_1787390442_28318' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1787390442_28318
+EOF_1787562352_18085
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1787390442_27973' > "apps/web/tsconfig.json"
+cat << 'EOF_1787562352_24405' > "apps/web/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -4238,11 +4164,11 @@ cat << 'EOF_1787390442_27973' > "apps/web/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1787390442_27973
+EOF_1787562352_24405
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1787390442_25645' > "apps/web/vitest.config.ts"
+cat << 'EOF_1787562352_28902' > "apps/web/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -4260,14 +4186,15 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
-        setupFiles: ['./src/test/setup.ts'],
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../../vitest/setup.ts'],      // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787390442_25645
+EOF_1787562352_28902
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/index.css"
-cat << 'EOF_1787390442_31245' > "apps/web/src/index.css"
+cat << 'EOF_1787562353_19801' > "apps/web/src/index.css"
 @import "tailwindcss";
 
 /* モノレポ内の共有 UI パッケージも Tailwind のスキャン対象に指定 */
@@ -4275,11 +4202,11 @@ cat << 'EOF_1787390442_31245' > "apps/web/src/index.css"
 
 /* 拡張する機能の置き場所にも、UI が記述される可能性があるので、その場所も Tailwind のスキャン対象に指定 */
 @source "../../../features";
-EOF_1787390442_31245
+EOF_1787562353_19801
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.test.tsx"
-cat << 'EOF_1787390442_31870' > "apps/web/src/App.test.tsx"
+cat << 'EOF_1787562353_27041' > "apps/web/src/App.test.tsx"
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
@@ -4382,17 +4309,11 @@ describe('App Component (User Management Integration)', () => {
         expect(screen.queryByRole('link', { name: 'ユーザー管理' })).toBeNull();
     });
 });
-EOF_1787390442_31870
-
-mkdir -p "apps/web/src/test"
-echo "作成: apps/web/src/test/setup.ts"
-cat << 'EOF_1787390442_21220' > "apps/web/src/test/setup.ts"
-import '@testing-library/jest-dom';
-EOF_1787390442_21220
+EOF_1787562353_27041
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1787390442_25476' > "apps/web/src/main.tsx"
+cat << 'EOF_1787562353_24782' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -4403,11 +4324,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1787390442_25476
+EOF_1787562353_24782
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.test.ts"
-cat << 'EOF_1787390442_22086' > "apps/web/src/env.test.ts"
+cat << 'EOF_1787562353_27725' > "apps/web/src/env.test.ts"
 import { describe, it, expect } from 'vitest';
 import { clientEnv } from '@shared/client';
 
@@ -4425,11 +4346,11 @@ describe('Web Environment Variables (Pattern A)', () => {
         expect(clientEnv.VITE_API_TARGET_URL).toMatch(/^http/);
     });
 });
-EOF_1787390442_22086
+EOF_1787562353_27725
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.test.tsx"
-cat << 'EOF_1787390442_5936' > "apps/web/src/context/AuthContext.test.tsx"
+cat << 'EOF_1787562353_18881' > "apps/web/src/context/AuthContext.test.tsx"
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -4534,11 +4455,11 @@ describe('AuthContext / useAuth (Step 7 修正版)', () => {
         expect(result.current.token).toBeNull();
     });
 });
-EOF_1787390442_5936
+EOF_1787562353_18881
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.tsx"
-cat << 'EOF_1787390442_17355' > "apps/web/src/context/AuthContext.tsx"
+cat << 'EOF_1787562353_31497' > "apps/web/src/context/AuthContext.tsx"
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiClient, getStoredToken, setStoredToken, removeStoredToken, ApiError } from '../lib/apiClient';
 
@@ -4643,11 +4564,12 @@ export const useAuth = (): AuthContextType => {
     return context;
 };
 
-EOF_1787390442_17355
+EOF_1787562353_31497
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.test.tsx"
-cat << 'EOF_1787390442_6115' > "apps/web/src/components/ProtectedRoute.test.tsx"
+cat << 'EOF_1787562353_3196' > "apps/web/src/components/ProtectedRoute.test.tsx"
+import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -4715,11 +4637,11 @@ describe('ProtectedRoute', () => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 });
-EOF_1787390442_6115
+EOF_1787562353_3196
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/Header.tsx"
-cat << 'EOF_1787390442_7168' > "apps/web/src/components/Header.tsx"
+cat << 'EOF_1787562353_16416' > "apps/web/src/components/Header.tsx"
 import { clientEnv } from '@shared/client';
 
 export const Header = () => {
@@ -4729,11 +4651,12 @@ export const Header = () => {
     </header>
   );
 };
-EOF_1787390442_7168
+EOF_1787562353_16416
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ForbiddenPage.test.tsx"
-cat << 'EOF_1787390442_27530' > "apps/web/src/components/ForbiddenPage.test.tsx"
+cat << 'EOF_1787562353_32272' > "apps/web/src/components/ForbiddenPage.test.tsx"
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ForbiddenPage } from './ForbiddenPage';
@@ -4759,11 +4682,11 @@ describe('ForbiddenPage Component', () => {
         expect(handleBack).toHaveBeenCalledTimes(1);
     });
 });
-EOF_1787390442_27530
+EOF_1787562353_32272
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.tsx"
-cat << 'EOF_1787390442_7682' > "apps/web/src/components/ProtectedRoute.tsx"
+cat << 'EOF_1787562353_21847' > "apps/web/src/components/ProtectedRoute.tsx"
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LoginForm } from './LoginForm';
@@ -4793,11 +4716,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     return <>{children}</>;
 };
-EOF_1787390442_7682
+EOF_1787562353_21847
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1787390442_7615' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1787562353_16079' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -4867,11 +4790,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </form>
     );
 };
-EOF_1787390442_7615
+EOF_1787562353_16079
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ForbiddenPage.tsx"
-cat << 'EOF_1787390442_18504' > "apps/web/src/components/ForbiddenPage.tsx"
+cat << 'EOF_1787562353_4241' > "apps/web/src/components/ForbiddenPage.tsx"
 import React from 'react';
 import { Button } from '@shared/client';
 
@@ -4910,14 +4833,14 @@ export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({ onBackToDashboard 
         </div>
     );
 };
-EOF_1787390442_18504
+EOF_1787562353_4241
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.test.tsx"
-cat << 'EOF_1787390442_22348' > "apps/web/src/components/LoginForm.test.tsx"
+cat << 'EOF_1787562353_27640' > "apps/web/src/components/LoginForm.test.tsx"
+import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import React from 'react';
 import { LoginForm } from './LoginForm';
 import { AuthContext, AuthContextType } from '../context/AuthContext';
 
@@ -4994,11 +4917,11 @@ describe('LoginForm Component (Step 5.2)', () => {
         expect(errorMessage).toHaveTextContent('メールアドレスまたはパスワードが正しくありません。');
     });
 });
-EOF_1787390442_22348
+EOF_1787562353_27640
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1787390442_27223' > "apps/web/src/App.tsx"
+cat << 'EOF_1787562353_5257' > "apps/web/src/App.tsx"
 import React, { useState } from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@shared/client';
 import { clientEnv } from '@shared/client';
@@ -5142,11 +5065,11 @@ export function App() {
 }
 
 export default App;
-EOF_1787390442_27223
+EOF_1787562353_5257
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.test.ts"
-cat << 'EOF_1787390442_15685' > "apps/web/src/lib/apiClient.test.ts"
+cat << 'EOF_1787562353_4698' > "apps/web/src/lib/apiClient.test.ts"
 // apps/web/src/lib/apiClient.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { apiClient, ApiError } from "./apiClient";
@@ -5240,11 +5163,11 @@ describe("apiClient (API クライアント)", () => {
         expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull();
     });
 });
-EOF_1787390442_15685
+EOF_1787562353_4698
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.ts"
-cat << 'EOF_1787390442_15245' > "apps/web/src/lib/apiClient.ts"
+cat << 'EOF_1787562353_1962' > "apps/web/src/lib/apiClient.ts"
 import { clientEnv } from "@shared/client";
 import { AUTH_TOKEN_KEY } from '@shared/client';
 
@@ -5355,11 +5278,11 @@ export const apiClient = {
     delete: <T>(endpoint: string, options?: RequestInit) =>
         request<T>(endpoint, { ...options, method: "DELETE" }),
 };
-EOF_1787390442_15245
+EOF_1787562353_1962
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1787390442_30594' > "apps/web/vite.config.ts"
+cat << 'EOF_1787562353_17143' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -5398,11 +5321,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1787390442_30594
+EOF_1787562353_17143
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1787390442_30901' > "apps/api/package.json"
+cat << 'EOF_1787562353_30009' > "apps/api/package.json"
 {
     "name": "@app/api",
     "version": "1.0.0",
@@ -5427,11 +5350,11 @@ cat << 'EOF_1787390442_30901' > "apps/api/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787390442_30901
+EOF_1787562353_30009
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1787390442_9557' > "apps/api/tsconfig.json"
+cat << 'EOF_1787562353_1392' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -5446,11 +5369,11 @@ cat << 'EOF_1787390442_9557' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1787390442_9557
+EOF_1787562353_1392
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1787390442_27823' > "apps/api/vitest.config.ts"
+cat << 'EOF_1787562353_16552' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
@@ -5461,14 +5384,15 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'node',
-        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../../vitest/setup.ts'],  // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787390442_27823
+EOF_1787562353_16552
 
 mkdir -p "apps/api/src/auto-loader"
 echo "作成: apps/api/src/auto-loader/hono-auto-loader.test.ts"
-cat << 'EOF_1787390442_5683' > "apps/api/src/auto-loader/hono-auto-loader.test.ts"
+cat << 'EOF_1787562353_3852' > "apps/api/src/auto-loader/hono-auto-loader.test.ts"
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Hono } from 'hono';
 import { sign } from 'hono/jwt';
@@ -5645,66 +5569,11 @@ describe('hono-auto-loader', () => {
         });
     });
 });
-
-// import { describe, it, expect, beforeEach } from 'vitest';
-// import { Hono } from 'hono';
-// import { db, plugins as pluginsTable, loadFeatureModules } from '../server';
-// import { PluginRegistry } from '../index';
-
-// describe('hono-auto-loader', () => {
-//     const dummyPluginId = 'test-dummy-plugin';
-
-//     beforeEach(() => {
-//         const dummyApp = new Hono();
-//         dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-
-//         PluginRegistry.register({
-//             id: dummyPluginId,
-//             name: 'テスト用プラグイン',
-//             routes: dummyApp,
-//             navItems: [{ label: 'テスト', path: '/test' }],
-//         });
-//     });
-
-//     it('DBで有効(enabled: true)のプラグインのみ API ルートがマウントされること', async () => {
-//         await db.insert(pluginsTable).values({
-//             id: dummyPluginId,
-//             name: 'テスト用プラグイン',
-//             enabled: true,
-//         }).onConflictDoUpdate({
-//             target: pluginsTable.id,
-//             set: { enabled: true },
-//         });
-
-//         const app = new Hono();
-//         await loadFeatureModules(app, 'features/*/src/server.ts');
-
-//         const res = await app.request(`/api/${dummyPluginId}/hello`);
-//         expect(res.status).toBe(200);
-//     });
-
-//     it('DBで無効(enabled: false)のプラグインはマウントされず 404 になること', async () => {
-//         await db.insert(pluginsTable).values({
-//             id: dummyPluginId,
-//             name: 'テスト用プラグイン',
-//             enabled: false,
-//         }).onConflictDoUpdate({
-//             target: pluginsTable.id,
-//             set: { enabled: false },
-//         });
-
-//         const app = new Hono();
-//         await loadFeatureModules(app, 'features/*/src/index.ts');
-
-//         const res = await app.request(`/api/${dummyPluginId}/hello`);
-//         expect(res.status).toBe(404);
-//     });
-// });
-EOF_1787390442_5683
+EOF_1787562353_3852
 
 mkdir -p "apps/api/src/auto-loader"
 echo "作成: apps/api/src/auto-loader/hono-auto-loader.ts"
-cat << 'EOF_1787390442_22484' > "apps/api/src/auto-loader/hono-auto-loader.ts"
+cat << 'EOF_1787562353_19514' > "apps/api/src/auto-loader/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
@@ -5735,7 +5604,7 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     let dbPluginsMap = new Map<string, boolean>();
     try {
         const dbPlugins = await db.select().from(pluginsTable);
-        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
+        dbPlugins.forEach((p: { id: string; enabled: boolean; }) => dbPluginsMap.set(p.id, p.enabled));
     } catch (error) {
         console.warn('[Auto-Loader] DB query failed or table not found. Defaulting all plugins to enabled.');
     }
@@ -5767,63 +5636,11 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
         }
     }
 }
-
-
-// import { Hono } from 'hono';
-// import { glob } from 'glob';
-// import path from 'node:path';
-// import { pathToFileURL } from 'node:url';
-// import { db } from '../db';
-// import { plugins as pluginsTable } from '../db/schema';
-// import { PluginRegistry } from '../plugins/registry';
-
-// //
-// // features/*/src/index.ts から機能モジュールを自動読み込みし、
-// // DB 上で有効（enabled: true）なプラグインのみを Hono アプリへマウントする関数
-// //
-// export async function loadFeatureModules(app: Hono, pattern: string) {
-//     const files = await glob(pattern);
-
-//     // 1. 各機能モジュールを動的インポート
-//     // (各モジュールの内部で PluginRegistry.register() が実行される)
-//     for (const file of files) {
-//         const absolutePath = path.resolve(file);
-//         const moduleUrl = pathToFileURL(absolutePath).href;
-//         await import(moduleUrl);
-//     }
-
-//     // 2. DB から登録済みプラグインの有効/無効ステータスを取得
-//     let dbPluginsMap = new Map<string, boolean>();
-//     try {
-//         const dbPlugins = await db.select().from(pluginsTable);
-//         dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
-//     } catch (error) {
-//         console.warn('[Auto-Loader] DB query failed or table not found. Defaulting all plugins to enabled.');
-//     }
-
-//     // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
-//     for (const plugin of PluginRegistry.getAll()) {
-//         // DB に未登録の場合はデフォルトで有効 (true) と判定
-//         const isEnabled = dbPluginsMap.has(plugin.id)
-//             ? dbPluginsMap.get(plugin.id)
-//             : true;
-
-//         if (isEnabled) {
-//             if (plugin.routes !== undefined) {
-//                 // API パス: /api/{plugin-id} 配下にマウント
-//                 app.route(`/api/${plugin.id}`, plugin.routes);
-//                 console.log(`[Auto-Loader] ✅ Loaded & Mounted Plugin: ${plugin.id}`);
-//             }
-//         } else {
-//             console.log(`[Auto-Loader] ⏸️ Skipped Disabled Plugin: ${plugin.id}`);
-//         }
-//     }
-// }
-EOF_1787390442_22484
+EOF_1787562353_19514
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1787390442_12951' > "apps/api/src/index.ts"
+cat << 'EOF_1787562353_11278' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
@@ -5987,11 +5804,11 @@ if (!isTest) {
 // デフォルトエクスポート（必要に応じて型や古いインポートとの互換用）
 const defaultApp = new Hono();
 export default defaultApp;
-EOF_1787390442_12951
+EOF_1787562353_11278
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1787390442_2428' > "apps/api/src/index.test.ts"
+cat << 'EOF_1787562353_7777' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createApp } from './index';
 
@@ -6085,11 +5902,11 @@ describe('User Management Integration (Step 9)', () => {
         expect(res.status).toBe(401);
     });
 });
-EOF_1787390442_2428
+EOF_1787562353_7777
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.test.ts"
-cat << 'EOF_1787390442_31872' > "apps/api/src/routes/health.test.ts"
+cat << 'EOF_1787562353_17922' > "apps/api/src/routes/health.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createApp } from '../index';
 import { db } from '@shared/server';
@@ -6137,11 +5954,11 @@ describe('Health Check API (Step 6.1)', () => {
     });
 });
 
-EOF_1787390442_31872
+EOF_1787562353_17922
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1787390442_15608' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1787562353_6076' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
@@ -6228,11 +6045,11 @@ export function authRouter(jwtSecret: string) {
 
     return app;
 }
-EOF_1787390442_15608
+EOF_1787562353_6076
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/system.ts"
-cat << 'EOF_1787390442_13778' > "apps/api/src/routes/system.ts"
+cat << 'EOF_1787562353_24958' > "apps/api/src/routes/system.ts"
 import { Hono } from 'hono';
 import { db, plugins as pluginsTable } from '@shared/server';
 import { PluginRegistry } from '@shared/functions';
@@ -6249,7 +6066,7 @@ systemRouter.get('/plugins', async (c) => {
     let dbPluginsMap = new Map<string, boolean>();
     try {
         const dbPlugins = await db.select().from(pluginsTable);
-        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
+        dbPlugins.forEach((p: { id: string; enabled: boolean; }) => dbPluginsMap.set(p.id, p.enabled));
     } catch (error) {
         console.warn('[System API] Failed to fetch plugins table status.');
     }
@@ -6271,11 +6088,11 @@ systemRouter.get('/plugins', async (c) => {
         plugins: activePlugins,
     });
 });
-EOF_1787390442_13778
+EOF_1787562353_24958
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.ts"
-cat << 'EOF_1787390442_8532' > "apps/api/src/routes/health.ts"
+cat << 'EOF_1787562353_15185' > "apps/api/src/routes/health.ts"
 import { Hono } from 'hono';
 import { db } from '@shared/server';
 import { AppError } from '@shared/errors';
@@ -6302,11 +6119,11 @@ healthRouter.get('/healthz', async (c) => {
         );
     }
 });
-EOF_1787390442_8532
+EOF_1787562353_15185
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/system.test.ts"
-cat << 'EOF_1787390442_15104' > "apps/api/src/routes/system.test.ts"
+cat << 'EOF_1787562353_7463' > "apps/api/src/routes/system.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { PluginRegistry } from '@shared/functions';
@@ -6337,11 +6154,11 @@ describe('GET /api/system/plugins', () => {
 
     });
 });
-EOF_1787390442_15104
+EOF_1787562353_7463
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.test.ts"
-cat << 'EOF_1787390442_2042' > "apps/api/src/routes/auth.test.ts"
+cat << 'EOF_1787562353_31479' > "apps/api/src/routes/auth.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
@@ -6481,11 +6298,11 @@ describe('Auth Routes (Step 4.3)', () => {
         });
     });
 });
-EOF_1787390442_2042
+EOF_1787562353_31479
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.ts"
-cat << 'EOF_1787390442_19611' > "apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1787562353_11149' > "apps/api/src/middlewares/auth-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { verifyJwt } from '@plugins/auth-local';
 import { UnauthorizedError } from '@shared/errors';
@@ -6522,11 +6339,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
         await next();
     };
 }
-EOF_1787390442_19611
+EOF_1787562353_11149
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
-cat << 'EOF_1787390442_15875' > "apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1787562353_30081' > "apps/api/src/middlewares/auth-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
@@ -6612,11 +6429,11 @@ describe('Auth Middleware (Step 4.2)', () => {
         expect(body.user).toMatchObject(payload);
     });
 });
-EOF_1787390442_15875
+EOF_1787562353_30081
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.test.ts"
-cat << 'EOF_1787390442_657' > "apps/api/src/middlewares/rbac-middleware.test.ts"
+cat << 'EOF_1787562353_6002' > "apps/api/src/middlewares/rbac-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
@@ -6685,11 +6502,11 @@ describe('RBAC Middleware (Step 4.3)', () => {
         expect(body.message).toBe('Admin Dashboard');
     });
 });
-EOF_1787390442_657
+EOF_1787562353_6002
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.test.ts"
-cat << 'EOF_1787390442_32746' > "apps/api/src/middlewares/logger.test.ts"
+cat << 'EOF_1787562353_13155' > "apps/api/src/middlewares/logger.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
 import { loggerMiddleware } from './logger';
@@ -6801,11 +6618,11 @@ describe('Logger Middleware (Step 6.2)', () => {
         expect(typeof logOutput.error.stack).toBe('string');
     });
 });
-EOF_1787390442_32746
+EOF_1787562353_13155
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.ts"
-cat << 'EOF_1787390442_1163' > "apps/api/src/middlewares/rbac-middleware.ts"
+cat << 'EOF_1787562353_14068' > "apps/api/src/middlewares/rbac-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { ForbiddenError, UnauthorizedError } from '@shared/errors';
 
@@ -6830,11 +6647,11 @@ export function rbacMiddleware(allowedRoles: string[]): MiddlewareHandler {
         await next();
     };
 }
-EOF_1787390442_1163
+EOF_1787562353_14068
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.ts"
-cat << 'EOF_1787390442_24956' > "apps/api/src/middlewares/logger.ts"
+cat << 'EOF_1787562353_23388' > "apps/api/src/middlewares/logger.ts"
 import { MiddlewareHandler } from 'hono';
 
 function formatLocalISOString(date: Date): string {
@@ -6899,18 +6716,18 @@ export const loggerMiddleware: MiddlewareHandler = async (c, next) => {
 
     console.log(JSON.stringify(logPayload));
 };
-EOF_1787390442_24956
+EOF_1787562353_23388
 
 echo "作成: README.md"
-cat << 'EOF_1787390442_4715' > "README.md"
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.6
+cat << 'EOF_1787562353_6125' > "README.md"
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.7
 
 ## 1. システム概要 (Overview)
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
 バックエンドには軽量・高速な Web フレームワーク（**Hono**）、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite + Tailwind CSS**）、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を採用しています。
 
-共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したパッケージへ分離し、クライアント側では型安全な API クライアントと Context による認証状態管理を組み合わせることで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
+共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したモジュール群へ分離し、クライアント側では型安全な API クライアントと Context による認証状態管理を組み合わせることで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
 
@@ -6943,21 +6760,23 @@ cat << 'EOF_1787390442_4715' > "README.md"
 
 モノレポ構造の強みを活かし、システムの各領域（基盤・UI・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
 
-### 3.1 パッケージの層構造と役割 (Layer Architecture)
+### 3.1 共有レイヤーおよびモジュールの構成方針
 
-| パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
-| --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証 (`CORS_ORIGIN` 等)、DB接続・スキーマ定義（`users`, `plugins` テーブル等）、共通エラー定義 (RFC 9457)、パス解決ユーティリティ、動的ローダー (`hono-auto-loader.ts`) | 上位のビジネスロジックや特定アプリへの依存厳禁 |
-| **`packages/ui`** | 共通 UI | フロントエンド全域で再利用されるデザインシステム・共通コンポーネントを集約 | Tailwind CSS v4 設定、原子コンポーネント (`Button`)、共通 Layout (`Header`/`Sidebar`)、Toast 通知 (`Sonner`) | 画面固有のビジネスロジックを持たず、純粋なプレゼンテーションに専念 |
-| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
-| **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | **`sample`**（サンプル機能）, **`user-management`**（ユーザー管理機能）。ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
+システムの各領域（実行体、業務機能、プラグイン、共通基盤）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
+
+| ディレクトリ名 | レイヤー区分 | 役割・含まれる機能 |
+| --- | --- | --- |
+| **`apps/`** | アプリケーション層 | 実行体となるサーバーサイドアプリケーション（`api`）およびクライアントサイドアプリケーション（`web`） |
+| **`features/`** | 業務ドメイン層 | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化（`user-management` 等） |
+| **`plugins/`** | プラグイン層 | 運用環境や顧客要件に応じて切り替え・拡張される機能（`auth-local`, `auth-ad` 等） |
+| **`shared/`** | 共通基盤層 | システム全域で利用される共有モジュール群（`client`, `errors`, `functions`, `schemas`, `server`） |
 
 ### 3.2 拡張ルールと依存方向 (Extension Rules)
 
 1. **機能追加の手順:**
-新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
+新しいドメイン機能や連携モジュールを追加する際は、`features/` または `plugins/` 配下に新規ディレクトリを作成し、ルートのワークスペース管理に登録します。
 2. **単方向依存の徹底:**
-依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
+依存の方向は常に上位（`apps/`）から下位（`shared/`, `plugins/`, `features/`）の方向に限定します。下位モジュールから上位アプリケーションへの逆参照は厳禁とします。
 
 ---
 
@@ -6984,142 +6803,159 @@ cat << 'EOF_1787390442_4715' > "README.md"
 │   │   ├── src/
 │   │   │   ├── index.ts          # API エントリーポイント (CORS/ルーティング統括・共通エラーハンドラー・RFC 9457)
 │   │   │   ├── index.test.ts     # API 共通挙動テスト (404/500/共通エラーハンドラー/バリデーション)
+│   │   │   ├── auto-loader/
+│   │   │   │   ├── hono-auto-loader.ts      # Feature モジュール自動探索・DBステータス連動マウント機能
+│   │   │   │   └── hono-auto-loader.test.ts # 動的モジュール探索・RBAC・DB ステータス制御統合テスト
 │   │   │   ├── middlewares/      # ミドルウェア層
 │   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
 │   │   │   │   ├── auth-middleware.test.ts # 認証ミドルウェア単体・統合テスト
 │   │   │   │   ├── rbac-middleware.ts      # ロールベース認可ミドルウェア (requireRole)
-│   │   │   │   └── rbac-middleware.test.ts # 認可ミドルウェア単体・統合テスト (403 Forbidden 検証)
+│   │   │   │   ├── rbac-middleware.test.ts # 認可ミドルウェア単体・統合テスト (403 Forbidden 検証)
+│   │   │   │   ├── logger.ts               # リクエストロガー
+│   │   │   │   └── logger.test.ts          # リクエストロガー単体テスト
 │   │   │   └── routes/           # アプリケーション固有のコア API ルーティング
-│   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
-│   │   │       ├── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
-│   │   │       ├── health.ts     # ヘルスチェック API ルート (/healthz)
-│   │   │       └── health.test.ts# ヘルスチェック API 統合テスト (DB 接続確認・503 エラーハンドリング)
+│   │   │       ├── auth.ts         # 認証 API ルート (/login, /me)
+│   │   │       ├── auth.test.ts    # 認証 API 統合テスト (ログイン・プロファイル取得)
+│   │   │       ├── health.ts       # ヘルスチェック API ルート (/healthz)
+│   │   │       ├── health.test.ts  # ヘルスチェック API 統合テスト (DB 接続確認・503 エラーハンドリング)
+│   │   │       ├── system.ts       # システム系 API ルート
+│   │   │       └── system.test.ts  # システム系 API 統合テスト
 │   │   ├── package.json          # API サーバー用依存関係・スクリプト
-│   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
+│   │   ├── tsconfig.json         # API サーバー用 TypeScript 設定
+│   │   └── vitest.config.ts      # API サーバー用 Vitest 設定
 │   │
 │   └── web/                      # クライアントサイド Web アプリケーション (React / Vite)
 │       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
-│       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
 │       │   ├── App.tsx           # ルート UI コンポーネント (ルーティング・ProtectedRoute 適用)
 │       │   ├── App.test.tsx      # ルート UI 単体テスト
 │       │   ├── main.tsx          # React レンダリングエントリーポイント (index.cssインポート必須)
 │       │   ├── index.css         # Tailwind CSS v4 エントリーポイント (@import "tailwindcss"; @source ...)
-│       │   ├── auth/             # 認証状態管理・コンテキスト層
-│       │   │   ├── AuthContext.tsx   # AuthContext / AuthProvider / useAuth フック実装
-│       │   │   ├── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
-│       │   │   ├── ProtectedRoute.tsx   # 未認証ユーザー制限・リダイレクトガードコンポーネント
-│       │   │   └── ProtectedRoute.test.tsx # ProtectedRoute 単体テスト
+│       │   ├── env.test.ts       # クライアント用環境変数保護・型定義テスト
+│       │   ├── context/          # 認証状態管理・コンテキスト層
+│       │   │   ├── AuthContext.tsx    # AuthContext / AuthProvider / useAuth フック実装
+│       │   │   └── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
 │       │   ├── components/       # アプリケーション固有の UI コンポーネント
-│       │   │   ├── LoginForm.tsx     # ログインフォームコンポーネント (useAuth 連携)
-│       │   │   └── LoginForm.test.tsx# ログインフォームの単体テスト
-│       │   ├── pages/            # 画面ページコンポーネント
-│       │   │   ├── LoginPage.tsx      # ログイン画面
-│       │   │   ├── LoginPage.test.tsx # ログイン画面統合テスト
-│       │   │   ├── DashboardPage.tsx  # ダッシュボード保護画面
-│       │   │   └── DashboardPage.test.tsx # ダッシュボード画面単体テスト
+│       │   │   ├── Header.tsx      # ヘッダーコンポーネント
+│       │   │   ├── LoginForm.tsx   # ログインフォームコンポーネント (useAuth 連携)
+│       │   │   ├── LoginForm.test.tsx # ログインフォームの単体テスト
+│       │   │   ├── ProtectedRoute.tsx # 未認証ユーザー制限・リダイレクトガードコンポーネント
+│       │   │   ├── ProtectedRoute.test.tsx # ProtectedRoute 単体テスト
+│       │   │   ├── ForbiddenPage.tsx  # 403 権限不足エラー画面コンポーネント
+│       │   │   └── ForbiddenPage.test.tsx # 403 画面単体テスト
 │       │   ├── lib/              # フロントエンド共通ユーティリティ・ライブラリ
-│       │   │   ├── apiClient.ts      # Fetch ベースの型安全 API クライアント (RFC 9457 エラーパース・トークン付与)
+│       │   │   ├── apiClient.ts    # Fetch ベースの型安全 API クライアント (RFC 9457 エラーパース・トークン付与)
 │       │   │   └── apiClient.test.ts # apiClient の単体・モックテスト
 │       │   └── test/
 │       │       └── setup.ts      # React Testing Library 用グローバルセットアップ
 │       ├── index.html            # HTML エントリーテンプレート
 │       ├── package.json          # Web アプリ用依存関係・スクリプト
-│       ├── tsconfig.json         # Web アプリ用 TypeScript 設定 (packages/ui の include パス指定含む)
+│       ├── tsconfig.json         # Web アプリ用 TypeScript 設定 (@shared/client の include パス指定含む)
 │       ├── tsconfig.node.json    # Vite 設定用 TypeScript 補助設定
-│       └── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み・Vitest 設定)
+│       ├── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み・Vitest 設定)
+│       └── vitest.config.ts      # Web アプリ用 Vitest 設定
 │
-└── packages/                     # 共有パッケージ層 (ライブラリ・モジュール)
-    ├── core/                     # システム共通基盤パッケージ
-    │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
-    │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル
-    │   ├── src/
-    │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
-    │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
-    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数 (CORS_ORIGIN / API_BASE_URL 自動変換等)
-    │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
-    │   │   ├── db/               # DB 接続インスタンスおよびスキーマ定義
-    │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
-    │   │   │   ├── schema.ts     # Drizzle テーブル定義 (`users`, `plugins` 等 Single Source of Truth)
-    │   │   │   └── users.test.ts # Users テーブル CRUD & Unique 制約 DB 統合テスト
-    │   │   ├── errors/           # システム標準エラー構造・RFC 9457 定義 (役割ごとにファイル分割)
-    │   │   │   ├── types.ts      # エラー型定義 (`ProblemDetails`, `InvalidParam`)
-    │   │   │   ├── app-error.ts  # 基底例外クラス (`AppError`)
-    │   │   │   ├── not-found-error.ts       # 404 例外 (`NotFoundError`)
-    │   │   │   ├── internal-server-error.ts # 500 例外 (`InternalServerError`)
-    │   │   │   ├── validation-error.ts      # 400 例外 (`ValidationError`)
-    │   │   │   ├── unauthorized-error.ts    # 401 例外 (`UnauthorizedError`)
-    │   │   │   ├── forbidden-error.ts       # 403 例外 (`ForbiddenError`)
-    │   │   │   ├── index.ts      # 共通エラー一括エクスポート
-    │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
-    │   │   ├── plugins/          # プラグインレジストリ基盤
-    │   │   │   └── registry.ts   # プラグイン（PluginRegistry）の一括登録・保持機構
-    │   │   ├── registry/         # 動的モジュールローダー
-    │   │   │   ├── hono-auto-loader.ts      # Feature モジュール自動探索・DBステータス連動マウント機能
-    │   │   │   └── hono-auto-loader.test.ts # 動的モジュール探索・RBAC・DB ステータス制御統合テスト
-    │   │   ├── utils/            # システム共通ユーティリティ
-    │   │   │   ├── path.ts       # ESM 準拠プロジェクトルート取得 (`getProjectRootDir`)・絶対パス解決関数
-    │   │   │   └── path.test.ts  # パス解決ユーティリティの環境独立性検証テスト
-    │   │   └── test/             # テスト自動化ライフサイクル定義
-    │   │       ├── global-setup.ts# 全テスト実行前の DB スキーマ自動同期処理
-    │   │       └── setup.ts      # 各テストケース実行前のデータ自動全クリーンアップ
-    │   ├── package.json          # 共通基盤パッケージ用依存関係
-    │   └── tsconfig.json         # 共通基盤用 TypeScript 設定
-    │
-    ├── ui/                       # 共有 UI コンポーネントパッケージ
-    │   ├── src/
-    │   │   ├── index.ts          # UI パッケージエクスポート統合
-    │   │   ├── lib/
-    │   │   │   └── utils.ts      # clsx + tailwind-merge による cn ユーティリティ
-    │   │   ├── components/
-    │   │   │   ├── button.tsx        # CVA 準拠 Button コンポーネント
-    │   │   │   ├── button.test.tsx   # Button 単体テスト (コロケーション)
-    │   │   │   ├── layout.tsx        # AppLayout, HeaderContent, SidebarNav コンポーネント
-    │   │   │   ├── layout.test.tsx   # Layout 単体テスト (コロケーション)
-    │   │   │   ├── toaster.tsx       # Sonner Toast プロバイダー & RFC 9457 エラーハンドラー
-    │   │   │   └── toaster.test.tsx  # Toast & showErrorToast 単体テスト (コロケーション)
-    │   │   └── test/
-    │   │       └── setup.ts      # jest-dom マッチャー拡張セットアップ
-    │   ├── package.json          # @app/ui 依存関係 (clsx, tailwind-merge, cva, sonner)
-    │   ├── tsconfig.json         # UI パッケージ用 TS 設定 (jest-dom / vitest 型拡張)
-    │   └── vite.config.ts        # UI パッケージ用 Vitest 設定
-    │
-    ├── plugins/                  # 切り替え可能なプラグイン群
-    │   ├── auth-ad/              # Active Directory 認証連携モジュール
-    │   │   ├── src/index.ts
-    │   │   └── package.json
-    │   └── auth-local/           # ローカルデータベース認証モジュール
-    │       ├── src/
-    │       │   ├── index.ts          # パッケージエントリーポイント
-    │       │   ├── auth-utils.ts     # Bcrypt パスワードハッシュ化 & Jose JWT ユーティリティ
-    │       │   └── auth-utils.test.ts# パスワードハッシュ・JWT 署名/検証の単体テスト
-    │       └── package.json
-    │
-    └── features/                 # 業務ドメイン機能モジュール群 (自動探索・マウント対象)
-        ├── sample/               # サンプル業務ドメイン機能モジュール
-        │   ├── src/
-        │   │   ├── index.ts      # モジュール登録エントリーポイント（PluginRegistry.register 実行 / `/sample` ルート定義）
-        │   │   └── index.test.ts # モジュール単体（`/sample` ルート動作・RBAC制御）のテスト
-        │   └── package.json      # サンプルモジュール用依存関係・スクリプト
-        │
-        └── user-management/      # ユーザー管理業務ドメインモジュール
-            ├── src/
-            │   ├── index.ts      # ユーザー管理モジュールエントリーポイント (PluginRegistry 登録)
-            │   ├── routes.ts     # ユーザー管理 API ルーティング実装
-            │   ├── routes.test.ts# ユーザー管理 API 単体・統合テスト
-            │   ├── ui.ts         # フロントエンド共有用コンポーネント一括エクスポート
-            │   ├── api/          # クライアント用 API 呼び出しモジュール
-            │   │   └── user-management-api.ts # ユーザー管理 API クライアント関数群
-            │   ├── components/   # ユーザー管理専用 React UI コンポーネント
-            │   │   ├── CreateUserModal.tsx      # ユーザー新規作成モーダル
-            │   │   ├── UserManagementTable.tsx  # ユーザー一覧・操作テーブル
-            │   │   └── UserManagementTable.test.tsx # テーブルコンポーネント単体テスト
-            │   └── test/         # モジュール個別テスト環境設定
-            │       ├── global-setup.ts
-            │       └── setup.ts
-            ├── package.json      # @app/feature-user-management 依存関係・スクリプト
-            ├── tsconfig.json     # ユーザー管理モジュール用 TypeScript 設定
-            └── vitest.config.ts  # ユーザー管理モジュール用 Vitest 単体テスト設定
+├── features/                     # 業務ドメイン機能モジュール群 (自動探索・マウント対象)
+│   └── user-management/          # ユーザー管理業務ドメインモジュール
+│       ├── src/
+│       │   ├── index.ts          # ユーザー管理モジュールエントリーポイント (PluginRegistry 登録)
+│       │   ├── routes.ts         # ユーザー管理 API ルーティング実装
+│       │   ├── routes.test.ts    # ユーザー管理 API 単体・統合テスト
+│       │   ├── ui.ts             # フロントエンド共有用コンポーネント一括エクスポート
+│       │   ├── api/              # クライアント用 API 呼び出しモジュール
+│       │   │   └── user-management-api.ts # ユーザー管理 API クライアント関数群
+│       │   ├── components/       # ユーザー管理専用 React UI コンポーネント
+│       │   │   ├── CreateUserModal.tsx      # ユーザー新規作成モーダル
+│       │   │   ├── UserManagementTable.tsx  # ユーザー一覧・操作テーブル
+│       │   │   └── UserManagementTable.test.tsx # テーブルコンポーネント単体テスト
+│       │   └── test/             # モジュール個別テスト環境設定
+│       │       ├── global-setup.ts
+│       │       └── setup.ts
+│       ├── package.json          # @app/feature-user-management 依存関係・スクリプト
+│       ├── tsconfig.json         # ユーザー管理モジュール用 TypeScript 設定
+│       └── vitest.config.ts      # ユーザー管理モジュール用 Vitest 単体テスト設定
+│
+├── plugins/                      # 切り替え可能なプラグイン群
+│   ├── auth-ad/                  # Active Directory 認証連携モジュール
+│   │   ├── src/index.ts
+│   │   └── package.json
+│   └── auth-local/               # ローカルデータベース認証モジュール
+│       ├── index.ts              # パッケージエントリーポイント
+│       ├── package.json          # ローカル認証モジュール用依存関係
+│       └── src/
+│           ├── auth-utils.ts     # Bcrypt パスワードハッシュ化 & Jose JWT ユーティリティ
+│           └── auth-utils.test.ts# パスワードハッシュ・JWT 署名/検証の単体テスト
+│
+├── shared/                       # 共有パッケージ層 (ライブラリ・モジュール)
+│   ├── client/                   # 共有 UI コンポーネントパッケージ (@shared/client)
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── button.tsx      # CVA 準拠 Button コンポーネント
+│   │   │   │   ├── button.test.tsx # Button 単体テスト (コロケーション)
+│   │   │   │   ├── layout/         # 共通レイアウトコンポーネント群
+│   │   │   │   │   ├── AppLayout.tsx # アプリケーション共通レイアウト
+│   │   │   │   │   ├── SidebarNav.tsx # サイドバーナビゲーション
+│   │   │   │   │   └── index.ts    # レイアウト一括エクスポート
+│   │   │   │   ├── layout.test.tsx # Layout 単体テスト (コロケーション)
+│   │   │   │   ├── toaster.tsx     # Sonner Toast プロバイダー & RFC 9457 エラーハンドラー
+│   │   │   │   └── toaster.test.tsx # Toast & showErrorToast 単体テスト (コロケーション)
+│   │   │   ├── lib/
+│   │   │   │   └── utils.ts      # clsx + tailwind-merge による cn ユーティリティ
+│   │   │   └── test/
+│   │   │       └── setup.ts      # jest-dom マッチャー拡張セットアップ
+│   │   ├── index.ts              # UI パッケージエクスポート統合
+│   │   ├── package.json          # @shared/client 依存関係 (clsx, tailwind-merge, cva, sonner)
+│   │   ├── tsconfig.json         # UI パッケージ用 TS 設定 (jest-dom / vitest 型拡張)
+│   │   └── vitest.config.ts      # UI パッケージ用 Vitest 設定
+│   │
+│   ├── errors/                   # システム標準エラー構造・RFC 9457 定義パッケージ (@shared/errors)
+│   │   ├── src/
+│   │   │   ├── types.ts          # エラー型定義 (`ProblemDetails`, `InvalidParam`)
+│   │   │   ├── app-error.ts      # 基底例外クラス (`AppError`)
+│   │   │   ├── bad-request-error.ts     # 400 例外 (`BadRequestError`)
+│   │   │   ├── forbidden-error.ts       # 403 例外 (`ForbiddenError`)
+│   │   │   ├── internal-server-error.ts # 500 例外 (`InternalServerError`)
+│   │   │   ├── not-found-error.ts       # 404 例外 (`NotFoundError`)
+│   │   │   ├── unauthorized-error.ts    # 401 例外 (`UnauthorizedError`)
+│   │   │   └── validation-error.ts      # バリデーション例外 (`ValidationError`)
+│   │   ├── index.ts              # 共通エラー一括エクスポート
+│   │   └── package.json          # 共通エラーパッケージ用依存関係
+│   │
+│   ├── functions/                # システム共通ユーティリティ・関数群パッケージ (@shared/functions)
+│   │   ├── src/
+│   │   │   ├── env.ts            # Zod による環境変数定義・検証関数 (CORS_ORIGIN / API_BASE_URL 自動変換等)
+│   │   │   ├── env.test.ts       # 環境変数検証の単体テスト
+│   │   │   ├── constants.ts      # 共通定数定義
+│   │   │   ├── registry.ts       # プラグイン（PluginRegistry）の一括登録・保持機構
+│   │   │   └── auth-registry.ts  # 認証レジストリ関連ロジック
+│   │   ├── index.ts              # 共通関数パッケージエクスポート
+│   │   └── package.json          # 共通関数パッケージ用依存関係
+│   │
+│   ├── schemas/                  # データベーススキーマ定義パッケージ (@shared/schemas)
+│   │   ├── src/
+│   │   │   ├── users.ts          # users テーブルスキーマ定義
+│   │   │   ├── users.test.ts     # Users テーブル CRUD & Unique 制約 DB 統合テスト
+│   │   │   ├── plugins.ts        # plugins テーブルスキーマ定義
+│   │   │   └── plugins.test.ts   # Plugins テーブルテスト
+│   │   ├── index.ts              # スキーマ一括エクスポート
+│   │   └── package.json          # スキーマパッケージ用依存関係
+│   │
+│   ├── server/                   # サーバーサイド共通基盤パッケージ (@shared/server)
+│   │   ├── src/
+│   │   │   ├── db/
+│   │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
+│   │   │   │   └── seed.ts       # DB 初期データシードスクリプト
+│   │   │   └── utils/
+│   │   │       ├── path.ts       # ESM 準拠プロジェクトルート取得 (`getProjectRootDir`)・絶対パス解決関数
+│   │   │       └── path.test.ts  # パス解決ユーティリティの環境独立性検証テスト
+│   │   ├── index.ts              # サーバー基盤エクスポート
+│   │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
+│   │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル
+│   │   ├── package.json          # サーバー基盤用依存関係
+│   │   └── vitest.config.ts      # サーバー基盤用 Vitest 設定
+│   │
+│   ├── tsconfig.json             # shared レイヤー共通 TypeScript 設定
+│   └── vitest.config.ts          # shared レイヤー共通 Vitest 設定
 
 ```
 
@@ -7131,10 +6967,10 @@ cat << 'EOF_1787390442_4715' > "README.md"
 
 * **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM + `postgres` ライブラリ) を採用します。
 * **動的接続・マルチクライアント管理:**
-`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。
+`shared/server/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。
 
 ```typescript
-// packages/core/src/db/index.ts (要約コード)
+// shared/server/src/db/index.ts (要約コード)
 export const queryClient = postgres(env.DATABASE_URL);
 export const queryTestClient = postgres(env.TEST_DATABASE_URL);
 
@@ -7149,10 +6985,10 @@ export const activeQueryClient = isTest ? queryTestClient : queryClient;
 
 ### 5.2 スキーマ定義 (Single Source of Truth)
 
-データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
+データベースの構造は、`shared/schemas/src/` 配下（`users.ts`, `plugins.ts` 等）を正として定義します。
 
 ```typescript
-// packages/core/src/db/schema.ts (要約コード)
+// shared/schemas/src/users.ts & plugins.ts (要約コード)
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -7199,7 +7035,7 @@ export const plugins = pgTable('plugins', {
 
 ### 6.1 統一エラーレスポンス仕様 (RFC 9457 準拠)
 
-エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、RFC 7807 を置き換えた最新標準である **RFC 9457 (Problem Details for HTTP APIs)** に完全準拠した構造を採用します。
+エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、最新標準である **RFC 9457 (Problem Details for HTTP APIs)** に完全準拠した構造を採用します（実装は `shared/errors/` に集約）。
 
 無意味なダミー URI やハードコードを排除するため、特定の拡張ドキュメント URI を割り当てないエラーの `type` プロパティには、RFC 9457 の標準規格規定値である **`"about:blank"`** を一律に設定します。
 
@@ -7210,7 +7046,6 @@ export const plugins = pgTable('plugins', {
 | **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `403`, `404`, `500`, `503` |
 | **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"You do not have permission to access this resource."` |
 | **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"` |
-| **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 ---
 
@@ -7304,13 +7139,15 @@ export const plugins = pgTable('plugins', {
 * **API クライアント (`apiClient.ts`):** Fetch ラッパー。JWT ヘッダー自動セット、および `!response.ok` 発生時に RFC 9457 オブジェクトを抽出してスロー。
 * **認証コンテキスト (`AuthContext.tsx` / `useAuth`):** ログイン/ログアウト処理、ローカルストレージと連携したトークン保持・自動復元機能。
 * **保護ルートガード (`ProtectedRoute.tsx`):** 未認証アクセス時にログインページへ安全に自動リダイレクト。
-* **トースト通知 (`showErrorToast`):** `apiClient` で発生したエラーを受け取り Sonner Toast でユーザーへ視覚的に通知。
+* **トースト通知 (`toaster.tsx`):** `apiClient` で発生したエラーを受け取り Sonner Toast でユーザーへ視覚的に通知。
 
 ---
 
 ## 8. セキュリティ & 環境変数仕様 (Security & Environment Variables)
 
 ### 8.1 定義されている環境変数
+
+環境変数の定義・検証スキーマは `shared/functions/src/env.ts` に集約されています。
 
 | 変数名 | 対象領域 | 型 / 制約 | 意図・役割 / 動的補完 |
 | --- | --- | --- | --- |
@@ -7329,10 +7166,10 @@ export const plugins = pgTable('plugins', {
 
 ## 9. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
 
-`packages/core/src/registry/hono-auto-loader.ts` が DB の `plugins` テーブルの `enabled` フラグを参照し、`packages/features/` 配下の機能モジュールを動的にインポートして Hono ルーティングへ展開します。
+`apps/api/src/auto-loader/hono-auto-loader.ts` が DB の `plugins` テーブルの `enabled` フラグを参照し、`features/` 配下の機能モジュールを動的にインポートして Hono ルーティングへ展開します。
 
 ```typescript
-// packages/core/src/registry/hono-auto-loader.ts (要約コード)
+// apps/api/src/auto-loader/hono-auto-loader.ts (要約コード)
 const projectRoot = getProjectRootDir();
 const absolutePath = path.resolve(projectRoot, file);
 const moduleUrl = pathToFileURL(absolutePath).href; // OS非依存のURL変換
@@ -7349,11 +7186,10 @@ const module = await import(/* @vite-ignore */ moduleUrl);
 * **テストランナー:** Vitest
 * **配置方針:** コロケーション（実装ファイルと同階層に `.test.ts` を配置）
 * **自動クリーンアップ & 非同期管理:**
-1. **Global Setup:** テスト開始前にテスト用 DB のスキーマを自動同期 (`drizzle-test.config.ts`)。
+
+1. **Global Setup:** テスト開始前にテスト用 DB のスキーマを自動同期（`shared/server/drizzle-test.config.ts`）。
 2. **Setup Files:** 各テストケース実行前に DB データを全消去。
 3. **Teardown:** 各 DB テストの `afterAll` で `activeQueryClient.end()` を呼び出しコネクション開放。
-
-
 
 ---
 
@@ -7370,10 +7206,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1787390442_4715
+EOF_1787562353_6125
 
 echo "作成: .env"
-cat << 'EOF_1787390442_1128' > ".env"
+cat << 'EOF_1787562353_10000' > ".env"
 # バックエンド用
 PORT=3001
 API_BASE_URL=http://localhost:3001
@@ -7381,12 +7217,83 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
 TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db_test
 JWT_SECRET=your-super-secret-jwt-key-must-be-at-least-32-bytes-long
 TZ=Asia/Tokyo
+LDAP_URL=ldap://your-ad-server.local:389
+LDAP_DOMAIN=your-domain.local
 
 # フロントエンド用 (VITE_ プレフィックスを付ける)
 # /workspace/apps/web/src/env.ts と同期する
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1787390442_1128
+EOF_1787562353_10000
+
+mkdir -p "vitest"
+echo "作成: vitest/setup.ts"
+cat << 'EOF_1787562353_8964' > "vitest/setup.ts"
+import { vi, beforeEach } from 'vitest';
+import { newDb } from 'pg-mem';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { applyIntegrationsToPool } from 'drizzle-pgmem';
+import * as actualSchema from '@shared/schemas'; // パスはプロジェクトに合わせて調整してください
+
+// 1. メモリDBインスタンスの作成
+const mem = newDb({
+  autoCreateForeignKeyIndices: true,
+});
+
+const { Pool } = mem.adapters.createPg();
+const pool = new Pool();
+
+applyIntegrationsToPool(pool);
+
+const memDb = drizzle(pool, { schema: actualSchema });
+
+// 2. 💡 テーブルの初期作成（ここはファイル読み込み時に一度だけ実行する。DROPは絶対に書かない）
+mem.public.none(`
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS plugins (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+  );
+`);
+
+// 3. モックの設定
+vi.mock('@shared/server', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@shared/server')>();
+  return {
+    ...actual,
+    db: memDb,
+    activeQueryClient: pool,
+  };
+});
+
+// 4. 💡 各テスト実行前の処理（テーブル構造は壊さず、データとシーケンスだけをきれいにする）
+beforeEach(() => {
+  mem.public.none(`
+    DELETE FROM users;
+    DELETE FROM plugins;
+  `);
+
+  // SERIALのカウンターを1に戻す
+  try {
+    mem.public.none(`ALTER SEQUENCE users_id_seq RESTART WITH 1;`);
+  } catch (e) {
+    // 無視
+  }
+});
+EOF_1787562353_8964
 
 echo -e "\n復元が完了しました！"

@@ -51,9 +51,7 @@
 │       │   ├── lib
 │       │   │   ├── apiClient.test.ts
 │       │   │   └── apiClient.ts
-│       │   ├── main.tsx
-│       │   └── test
-│       │       └── setup.ts
+│       │   └── main.tsx
 │       ├── tsconfig.json
 │       ├── vite.config.ts
 │       └── vitest.config.ts
@@ -62,24 +60,21 @@
 ├── cr.sh
 ├── doc.md
 ├── features
+│   ├── tsconfig.json
+│   ├── vitest.config.ts
 │   └── user-management
 │       ├── package.json
-│       ├── src
-│       │   ├── api
-│       │   │   └── user-management-api.ts
-│       │   ├── components
-│       │   │   ├── CreateUserModal.tsx
-│       │   │   ├── UserManagementTable.test.tsx
-│       │   │   └── UserManagementTable.tsx
-│       │   ├── index.ts
-│       │   ├── routes.test.ts
-│       │   ├── routes.ts
-│       │   ├── test
-│       │   │   ├── global-setup.ts
-│       │   │   └── setup.ts
-│       │   └── ui.ts
-│       ├── tsconfig.json
-│       └── vitest.config.ts
+│       └── src
+│           ├── api
+│           │   └── user-management-api.ts
+│           ├── components
+│           │   ├── CreateUserModal.tsx
+│           │   ├── UserManagementTable.test.tsx
+│           │   └── UserManagementTable.tsx
+│           ├── index.ts
+│           ├── routes.test.ts
+│           ├── routes.ts
+│           └── ui.ts
 ├── package.json
 ├── package-lock.json
 ├── plugins
@@ -110,10 +105,8 @@
 │   │   │   │   ├── layout.test.tsx
 │   │   │   │   ├── toaster.test.tsx
 │   │   │   │   └── toaster.tsx
-│   │   │   ├── lib
-│   │   │   │   └── utils.ts
-│   │   │   └── test
-│   │   │       └── setup.ts
+│   │   │   └── lib
+│   │   │       └── utils.ts
 │   │   ├── tsconfig.json
 │   │   └── vitest.config.ts
 │   ├── errors

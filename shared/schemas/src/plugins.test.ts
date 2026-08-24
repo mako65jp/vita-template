@@ -1,18 +1,9 @@
-import { describe, it, expect, afterAll, beforeEach } from 'vitest';
-import { db, activeQueryClient } from '../../server';
+import { describe, it, expect } from 'vitest';
+import { db } from '@shared/server';
 import { plugins } from './plugins';
 import { eq } from 'drizzle-orm';
 
 describe('Plugins DB Integration Tests', () => {
-    afterAll(async () => {
-        // テスト終了後に DB コネクションを破棄
-        await activeQueryClient.end();
-    });
-
-    beforeEach(async () => {
-        // テストごとに plugins テーブルをクリーンアップ
-        await db.delete(plugins);
-    });
 
     it('プラグイン情報を正常に挿入および取得できること', async () => {
         const newPlugin = {

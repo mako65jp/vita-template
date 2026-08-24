@@ -4,13 +4,21 @@ import postgres from 'postgres';
 import { env, isTest } from '../../functions';
 import * as schema from '../../schemas';
 
-// 必要な接続のみを 1 つだけ生成
-const dbUrl = isTest ? env.TEST_DATABASE_URL : env.DATABASE_URL;
-export const activeQueryClient = postgres(dbUrl);
-export const db = drizzle(activeQueryClient, { schema });
+// テスト環境の場合は、テスト側で vi.mock により db / activeQueryClient が
+// 丸ごと上書きされることを前提とし、実DBへの接続処理を実行させない（エラーを防ぐ）
+let activeQueryClient: any;
+let db: any;
 
-// 1. スキーマオブジェクト全体を export (drizzleConfig や drizzle(client, { schema }) 用)
+if (!isTest) {
+    // 本番・開発環境のみ実際に接続する
+    activeQueryClient = postgres(env.DATABASE_URL);
+    db = drizzle(activeQueryClient, { schema });
+}
+
+export { activeQueryClient, db };
+
+// 1. スキーマオブジェクト全体を export
 export { schema };
 
-// 2. 個別のテーブルも直接 import { users, plugins } から使えるように re-export
+// 2. 個別のテーブルも directly re-export
 export * from '../../schemas';

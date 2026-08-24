@@ -1,18 +1,9 @@
-import { describe, it, expect, afterAll, beforeEach } from 'vitest';
-import { db, activeQueryClient } from '../../server';
+import { describe, it, expect } from 'vitest';
+import { db } from '@shared/server';
 import { users } from './users';
 import { eq } from 'drizzle-orm';
 
 describe('Users DB Integration Tests', () => {
-    afterAll(async () => {
-        // テスト終了後に PostgreSQL 接続をシャットダウン
-        await activeQueryClient.end();
-    });
-
-    beforeEach(async () => {
-        // テストごとに users テーブルをクリーンアップ
-        await db.delete(users);
-    });
 
     it('ユーザーを正常に挿入および取得できること', async () => {
         const newUser = {

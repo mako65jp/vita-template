@@ -14,8 +14,6 @@
     "scripts": {
         "build": "tsc",
         "db:push": "drizzle-kit push",
-        "db:push:test": "drizzle-kit push --config=drizzle-test.config.ts",
-        "db:push:all": "npm run db:push && npm run db:push:test",
         "db:seed": "tsx db/seed.ts",
         "typecheck": "tsc --noEmit"
     },

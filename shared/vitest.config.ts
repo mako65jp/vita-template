@@ -6,8 +6,7 @@ export default defineConfig({
     },
     test: {
         globals: true,
-        globalSetup: ['../test/global-setup.ts'],    // ① テスト前に自動で db:push:test
-        setupFiles: ['../test/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
-        fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        // fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../vitest/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
     },
 });

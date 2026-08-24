@@ -17,6 +17,7 @@ export default defineConfig({
         ],
 
         exclude: ['node_modules', 'dist', '.next', 'coverage'],
+
         coverage: {
             provider: 'v8',
             include: ['**/*.{ts,tsx}'],

@@ -38,7 +38,6 @@ describe('shared/core/src/config/env', () => {
     // テストで使用する最小限の有効な環境変数セット
     const validMockServerEnv = {
         DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb',
-        TEST_DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb_test',
         JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
         CORS_ORIGIN: 'http://localhost:3000',
     };
@@ -150,7 +149,6 @@ describe('shared/core/src/config/env', () => {
                 API_BASE_URL: 'http://localhost:3001',
                 CORS_ORIGIN: 'http://localhost:3000',
                 DATABASE_URL: 'postgresql://postgres:my-secret-password@localhost:5432/app_db',
-                TEST_DATABASE_URL: 'postgresql://postgres:test-password@localhost:5432/app_db_test',
                 JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
             };
 
@@ -162,7 +160,6 @@ describe('shared/core/src/config/env', () => {
             expect(formatted).not.toContain('super-secret-jwt-key-with-at-least-32-chars!');
 
             expect(formatted).toContain('postgresql://postgres:***@localhost:5432/app_db');
-            expect(formatted).toContain('postgresql://postgres:***@localhost:5432/app_db_test');
             expect(formatted).toContain('"JWT_SECRET": "***"');
         });
     });

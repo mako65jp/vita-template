@@ -14,7 +14,7 @@ systemRouter.get('/plugins', async (c) => {
     let dbPluginsMap = new Map<string, boolean>();
     try {
         const dbPlugins = await db.select().from(pluginsTable);
-        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
+        dbPlugins.forEach((p: { id: string; enabled: boolean; }) => dbPluginsMap.set(p.id, p.enabled));
     } catch (error) {
         console.warn('[System API] Failed to fetch plugins table status.');
     }
