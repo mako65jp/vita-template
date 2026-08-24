@@ -94,7 +94,6 @@
 │           ├── auth-utils.test.ts
 │           └── auth-utils.ts
 ├── README.md
-├── refactor.sh
 ├── restore_project.sh
 ├── shared
 │   ├── client
@@ -138,8 +137,6 @@
 │   │       ├── env.test.ts
 │   │       ├── env.ts
 │   │       └── registry.ts
-│   ├── index.ts
-│   │   └── @types
 │   ├── schemas
 │   │   ├── index.ts
 │   │   ├── package.json
@@ -163,9 +160,5 @@
 │   ├── tsconfig.json
 │   └── vitest.config.ts
 ├── SUMMRY.md
-├── test
-│   ├── global-setup.ts
-│   └── setup.ts
-├── tree.txt
 ├── tsconfig.json
 └── vitest.config.ts

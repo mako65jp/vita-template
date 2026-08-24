@@ -1,11 +1,11 @@
-# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.6
+# 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.7
 
 ## 1. システム概要 (Overview)
 
 本プロジェクトは、TypeScript をベースとしたモノレポ構成の Web アプリケーションです。
 バックエンドには軽量・高速な Web フレームワーク（**Hono**）、フロントエンドにはコンポーネント指向 UI ライブラリ（**React + Vite + Tailwind CSS**）、データベース操作には型安全な ORM（**Drizzle ORM / PostgreSQL**）を採用しています。
 
-共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したパッケージへ分離し、クライアント側では型安全な API クライアントと Context による認証状態管理を組み合わせることで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
+共通ロジックや拡張機能（認証・UI コンポーネント・業務モジュール等）を独立したモジュール群へ分離し、クライアント側では型安全な API クライアントと Context による認証状態管理を組み合わせることで、保守性と拡張性を高めたコンポーザブルなアーキテクチャを実現します。
 
 ---
 
@@ -38,21 +38,23 @@
 
 モノレポ構造の強みを活かし、システムの各領域（基盤・UI・認証・機能）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
 
-### 3.1 パッケージの層構造と役割 (Layer Architecture)
+### 3.1 共有レイヤーおよびモジュールの構成方針
 
-| パッケージ名 | レイヤー区分 | 設計の意図・基本方針 | 主な役割・含まれる機能 | 制約・連携方式 |
-| --- | --- | --- | --- | --- |
-| **`packages/core`** | 共通基盤 | システム全域で利用される不変的な「基盤ルール」を集約 | 型定義、環境変数検証 (`CORS_ORIGIN` 等)、DB接続・スキーマ定義（`users`, `plugins` テーブル等）、共通エラー定義 (RFC 9457)、パス解決ユーティリティ、動的ローダー (`hono-auto-loader.ts`) | 上位のビジネスロジックや特定アプリへの依存厳禁 |
-| **`packages/ui`** | 共通 UI | フロントエンド全域で再利用されるデザインシステム・共通コンポーネントを集約 | Tailwind CSS v4 設定、原子コンポーネント (`Button`)、共通 Layout (`Header`/`Sidebar`)、Toast 通知 (`Sonner`) | 画面固有のビジネスロジックを持たず、純粋なプレゼンテーションに専念 |
-| **`packages/plugins/`** | プラグイン | 運用環境や顧客要件に応じて切り替え・拡張される機能を独立化 | **`auth-local`** (`bcryptjs` / `jose` によるハッシュ化・JWT生成・検証)、外部 ID プロバイダー（Active Directory 等）のアダプター | アプリ層から依存性を注入（DI）して利用 |
-| **`packages/features/`** | 業務ドメイン | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化 | **`sample`**（サンプル機能）, **`user-management`**（ユーザー管理機能）。ドメイン専用 API ルート、ビジネスロジック、関連 UI コンポーネント | 上位アプリから単方向参照、他ドメインとは原則独立 |
+システムの各領域（実行体、業務機能、プラグイン、共通基盤）の関心を分離（疎結合化）しています。開発者は定められた層構造に従って安全に機能を拡張します。
+
+| ディレクトリ名 | レイヤー区分 | 役割・含まれる機能 |
+| --- | --- | --- |
+| **`apps/`** | アプリケーション層 | 実行体となるサーバーサイドアプリケーション（`api`）およびクライアントサイドアプリケーション（`web`） |
+| **`features/`** | 業務ドメイン層 | 特定の業務機能を単位ごとにカプセル化し、独立した追加・削除・テストを可能化（`user-management` 等） |
+| **`plugins/`** | プラグイン層 | 運用環境や顧客要件に応じて切り替え・拡張される機能（`auth-local`, `auth-ad` 等） |
+| **`shared/`** | 共通基盤層 | システム全域で利用される共有モジュール群（`client`, `errors`, `functions`, `schemas`, `server`） |
 
 ### 3.2 拡張ルールと依存方向 (Extension Rules)
 
 1. **機能追加の手順:**
-新しいドメイン機能や連携モジュールを追加する際は、`packages/features/` または `packages/plugins/` 配下に新規パッケージを作成し、ルートのワークスペース管理に登録します。
+新しいドメイン機能や連携モジュールを追加する際は、`features/` または `plugins/` 配下に新規ディレクトリを作成し、ルートのワークスペース管理に登録します。
 2. **単方向依存の徹底:**
-依存の方向は常に **「上位（`apps/`）から下位（`packages/`）」** の一方向に限定します。下位パッケージから上位アプリケーションへの逆参照は厳禁とします。
+依存の方向は常に上位（`apps/`）から下位（`shared/`, `plugins/`, `features/`）の方向に限定します。下位モジュールから上位アプリケーションへの逆参照は厳禁とします。
 
 ---
 
@@ -79,142 +81,159 @@
 │   │   ├── src/
 │   │   │   ├── index.ts          # API エントリーポイント (CORS/ルーティング統括・共通エラーハンドラー・RFC 9457)
 │   │   │   ├── index.test.ts     # API 共通挙動テスト (404/500/共通エラーハンドラー/バリデーション)
+│   │   │   ├── auto-loader/
+│   │   │   │   ├── hono-auto-loader.ts      # Feature モジュール自動探索・DBステータス連動マウント機能
+│   │   │   │   └── hono-auto-loader.test.ts # 動的モジュール探索・RBAC・DB ステータス制御統合テスト
 │   │   │   ├── middlewares/      # ミドルウェア層
 │   │   │   │   ├── auth-middleware.ts      # JWT 検証・コンテキスト設定ミドルウェア
 │   │   │   │   ├── auth-middleware.test.ts # 認証ミドルウェア単体・統合テスト
 │   │   │   │   ├── rbac-middleware.ts      # ロールベース認可ミドルウェア (requireRole)
-│   │   │   │   └── rbac-middleware.test.ts # 認可ミドルウェア単体・統合テスト (403 Forbidden 検証)
+│   │   │   │   ├── rbac-middleware.test.ts # 認可ミドルウェア単体・統合テスト (403 Forbidden 検証)
+│   │   │   │   ├── logger.ts               # リクエストロガー
+│   │   │   │   └── logger.test.ts          # リクエストロガー単体テスト
 │   │   │   └── routes/           # アプリケーション固有のコア API ルーティング
-│   │   │       ├── auth.ts       # 認証 API ルート (/login, /me)
-│   │   │       ├── auth.test.ts  # 認証 API 統合テスト (ログイン・プロファイル取得)
-│   │   │       ├── health.ts     # ヘルスチェック API ルート (/healthz)
-│   │   │       └── health.test.ts# ヘルスチェック API 統合テスト (DB 接続確認・503 エラーハンドリング)
+│   │   │       ├── auth.ts         # 認証 API ルート (/login, /me)
+│   │   │       ├── auth.test.ts    # 認証 API 統合テスト (ログイン・プロファイル取得)
+│   │   │       ├── health.ts       # ヘルスチェック API ルート (/healthz)
+│   │   │       ├── health.test.ts  # ヘルスチェック API 統合テスト (DB 接続確認・503 エラーハンドリング)
+│   │   │       ├── system.ts       # システム系 API ルート
+│   │   │       └── system.test.ts  # システム系 API 統合テスト
 │   │   ├── package.json          # API サーバー用依存関係・スクリプト
-│   │   └── tsconfig.json         # API サーバー用 TypeScript 設定
+│   │   ├── tsconfig.json         # API サーバー用 TypeScript 設定
+│   │   └── vitest.config.ts      # API サーバー用 Vitest 設定
 │   │
 │   └── web/                      # クライアントサイド Web アプリケーション (React / Vite)
 │       ├── public/               # 静的アセット (favicon 等)
 │       ├── src/
-│       │   ├── env.ts            # クライアント用環境変数保護・型定義モジュール
 │       │   ├── App.tsx           # ルート UI コンポーネント (ルーティング・ProtectedRoute 適用)
 │       │   ├── App.test.tsx      # ルート UI 単体テスト
 │       │   ├── main.tsx          # React レンダリングエントリーポイント (index.cssインポート必須)
 │       │   ├── index.css         # Tailwind CSS v4 エントリーポイント (@import "tailwindcss"; @source ...)
-│       │   ├── auth/             # 認証状態管理・コンテキスト層
-│       │   │   ├── AuthContext.tsx   # AuthContext / AuthProvider / useAuth フック実装
-│       │   │   ├── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
-│       │   │   ├── ProtectedRoute.tsx   # 未認証ユーザー制限・リダイレクトガードコンポーネント
-│       │   │   └── ProtectedRoute.test.tsx # ProtectedRoute 単体テスト
+│       │   ├── env.test.ts       # クライアント用環境変数保護・型定義テスト
+│       │   ├── context/          # 認証状態管理・コンテキスト層
+│       │   │   ├── AuthContext.tsx    # AuthContext / AuthProvider / useAuth フック実装
+│       │   │   └── AuthContext.test.tsx # AuthContext の単体テスト (ログイン/ログアウト/トークン永続化)
 │       │   ├── components/       # アプリケーション固有の UI コンポーネント
-│       │   │   ├── LoginForm.tsx     # ログインフォームコンポーネント (useAuth 連携)
-│       │   │   └── LoginForm.test.tsx# ログインフォームの単体テスト
-│       │   ├── pages/            # 画面ページコンポーネント
-│       │   │   ├── LoginPage.tsx      # ログイン画面
-│       │   │   ├── LoginPage.test.tsx # ログイン画面統合テスト
-│       │   │   ├── DashboardPage.tsx  # ダッシュボード保護画面
-│       │   │   └── DashboardPage.test.tsx # ダッシュボード画面単体テスト
+│       │   │   ├── Header.tsx      # ヘッダーコンポーネント
+│       │   │   ├── LoginForm.tsx   # ログインフォームコンポーネント (useAuth 連携)
+│       │   │   ├── LoginForm.test.tsx # ログインフォームの単体テスト
+│       │   │   ├── ProtectedRoute.tsx # 未認証ユーザー制限・リダイレクトガードコンポーネント
+│       │   │   ├── ProtectedRoute.test.tsx # ProtectedRoute 単体テスト
+│       │   │   ├── ForbiddenPage.tsx  # 403 権限不足エラー画面コンポーネント
+│       │   │   └── ForbiddenPage.test.tsx # 403 画面単体テスト
 │       │   ├── lib/              # フロントエンド共通ユーティリティ・ライブラリ
-│       │   │   ├── apiClient.ts      # Fetch ベースの型安全 API クライアント (RFC 9457 エラーパース・トークン付与)
+│       │   │   ├── apiClient.ts    # Fetch ベースの型安全 API クライアント (RFC 9457 エラーパース・トークン付与)
 │       │   │   └── apiClient.test.ts # apiClient の単体・モックテスト
 │       │   └── test/
 │       │       └── setup.ts      # React Testing Library 用グローバルセットアップ
 │       ├── index.html            # HTML エントリーテンプレート
 │       ├── package.json          # Web アプリ用依存関係・スクリプト
-│       ├── tsconfig.json         # Web アプリ用 TypeScript 設定 (packages/ui の include パス指定含む)
+│       ├── tsconfig.json         # Web アプリ用 TypeScript 設定 (@shared/client の include パス指定含む)
 │       ├── tsconfig.node.json    # Vite 設定用 TypeScript 補助設定
-│       └── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み・Vitest 設定)
+│       ├── vite.config.ts        # Vite 設定 (API プロキシ・環境変数読み込み・Vitest 設定)
+│       └── vitest.config.ts      # Web アプリ用 Vitest 設定
 │
-└── packages/                     # 共有パッケージ層 (ライブラリ・モジュール)
-    ├── core/                     # システム共通基盤パッケージ
-    │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
-    │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル
-    │   ├── src/
-    │   │   ├── index.ts          # パッケージ共通エクスポート（Core モジュール統合）
-    │   │   ├── config/           # 環境変数スキーマおよび堅牢化ロジック
-    │   │   │   ├── env.ts        # Zod による環境変数定義・検証関数 (CORS_ORIGIN / API_BASE_URL 自動変換等)
-    │   │   │   └── env.test.ts   # 環境変数検証の単体テスト
-    │   │   ├── db/               # DB 接続インスタンスおよびスキーマ定義
-    │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
-    │   │   │   ├── schema.ts     # Drizzle テーブル定義 (`users`, `plugins` 等 Single Source of Truth)
-    │   │   │   └── users.test.ts # Users テーブル CRUD & Unique 制約 DB 統合テスト
-    │   │   ├── errors/           # システム標準エラー構造・RFC 9457 定義 (役割ごとにファイル分割)
-    │   │   │   ├── types.ts      # エラー型定義 (`ProblemDetails`, `InvalidParam`)
-    │   │   │   ├── app-error.ts  # 基底例外クラス (`AppError`)
-    │   │   │   ├── not-found-error.ts       # 404 例外 (`NotFoundError`)
-    │   │   │   ├── internal-server-error.ts # 500 例外 (`InternalServerError`)
-    │   │   │   ├── validation-error.ts      # 400 例外 (`ValidationError`)
-    │   │   │   ├── unauthorized-error.ts    # 401 例外 (`UnauthorizedError`)
-    │   │   │   ├── forbidden-error.ts       # 403 例外 (`ForbiddenError`)
-    │   │   │   ├── index.ts      # 共通エラー一括エクスポート
-    │   │   │   └── errors.test.ts# エラークラス構造化単体テスト
-    │   │   ├── plugins/          # プラグインレジストリ基盤
-    │   │   │   └── registry.ts   # プラグイン（PluginRegistry）の一括登録・保持機構
-    │   │   ├── registry/         # 動的モジュールローダー
-    │   │   │   ├── hono-auto-loader.ts      # Feature モジュール自動探索・DBステータス連動マウント機能
-    │   │   │   └── hono-auto-loader.test.ts # 動的モジュール探索・RBAC・DB ステータス制御統合テスト
-    │   │   ├── utils/            # システム共通ユーティリティ
-    │   │   │   ├── path.ts       # ESM 準拠プロジェクトルート取得 (`getProjectRootDir`)・絶対パス解決関数
-    │   │   │   └── path.test.ts  # パス解決ユーティリティの環境独立性検証テスト
-    │   │   └── test/             # テスト自動化ライフサイクル定義
-    │   │       ├── global-setup.ts# 全テスト実行前の DB スキーマ自動同期処理
-    │   │       └── setup.ts      # 各テストケース実行前のデータ自動全クリーンアップ
-    │   ├── package.json          # 共通基盤パッケージ用依存関係
-    │   └── tsconfig.json         # 共通基盤用 TypeScript 設定
-    │
-    ├── ui/                       # 共有 UI コンポーネントパッケージ
-    │   ├── src/
-    │   │   ├── index.ts          # UI パッケージエクスポート統合
-    │   │   ├── lib/
-    │   │   │   └── utils.ts      # clsx + tailwind-merge による cn ユーティリティ
-    │   │   ├── components/
-    │   │   │   ├── button.tsx        # CVA 準拠 Button コンポーネント
-    │   │   │   ├── button.test.tsx   # Button 単体テスト (コロケーション)
-    │   │   │   ├── layout.tsx        # AppLayout, HeaderContent, SidebarNav コンポーネント
-    │   │   │   ├── layout.test.tsx   # Layout 単体テスト (コロケーション)
-    │   │   │   ├── toaster.tsx       # Sonner Toast プロバイダー & RFC 9457 エラーハンドラー
-    │   │   │   └── toaster.test.tsx  # Toast & showErrorToast 単体テスト (コロケーション)
-    │   │   └── test/
-    │   │       └── setup.ts      # jest-dom マッチャー拡張セットアップ
-    │   ├── package.json          # @app/ui 依存関係 (clsx, tailwind-merge, cva, sonner)
-    │   ├── tsconfig.json         # UI パッケージ用 TS 設定 (jest-dom / vitest 型拡張)
-    │   └── vite.config.ts        # UI パッケージ用 Vitest 設定
-    │
-    ├── plugins/                  # 切り替え可能なプラグイン群
-    │   ├── auth-ad/              # Active Directory 認証連携モジュール
-    │   │   ├── src/index.ts
-    │   │   └── package.json
-    │   └── auth-local/           # ローカルデータベース認証モジュール
-    │       ├── src/
-    │       │   ├── index.ts          # パッケージエントリーポイント
-    │       │   ├── auth-utils.ts     # Bcrypt パスワードハッシュ化 & Jose JWT ユーティリティ
-    │       │   └── auth-utils.test.ts# パスワードハッシュ・JWT 署名/検証の単体テスト
-    │       └── package.json
-    │
-    └── features/                 # 業務ドメイン機能モジュール群 (自動探索・マウント対象)
-        ├── sample/               # サンプル業務ドメイン機能モジュール
-        │   ├── src/
-        │   │   ├── index.ts      # モジュール登録エントリーポイント（PluginRegistry.register 実行 / `/sample` ルート定義）
-        │   │   └── index.test.ts # モジュール単体（`/sample` ルート動作・RBAC制御）のテスト
-        │   └── package.json      # サンプルモジュール用依存関係・スクリプト
-        │
-        └── user-management/      # ユーザー管理業務ドメインモジュール
-            ├── src/
-            │   ├── index.ts      # ユーザー管理モジュールエントリーポイント (PluginRegistry 登録)
-            │   ├── routes.ts     # ユーザー管理 API ルーティング実装
-            │   ├── routes.test.ts# ユーザー管理 API 単体・統合テスト
-            │   ├── ui.ts         # フロントエンド共有用コンポーネント一括エクスポート
-            │   ├── api/          # クライアント用 API 呼び出しモジュール
-            │   │   └── user-management-api.ts # ユーザー管理 API クライアント関数群
-            │   ├── components/   # ユーザー管理専用 React UI コンポーネント
-            │   │   ├── CreateUserModal.tsx      # ユーザー新規作成モーダル
-            │   │   ├── UserManagementTable.tsx  # ユーザー一覧・操作テーブル
-            │   │   └── UserManagementTable.test.tsx # テーブルコンポーネント単体テスト
-            │   └── test/         # モジュール個別テスト環境設定
-            │       ├── global-setup.ts
-            │       └── setup.ts
-            ├── package.json      # @app/feature-user-management 依存関係・スクリプト
-            ├── tsconfig.json     # ユーザー管理モジュール用 TypeScript 設定
-            └── vitest.config.ts  # ユーザー管理モジュール用 Vitest 単体テスト設定
+├── features/                     # 業務ドメイン機能モジュール群 (自動探索・マウント対象)
+│   └── user-management/          # ユーザー管理業務ドメインモジュール
+│       ├── src/
+│       │   ├── index.ts          # ユーザー管理モジュールエントリーポイント (PluginRegistry 登録)
+│       │   ├── routes.ts         # ユーザー管理 API ルーティング実装
+│       │   ├── routes.test.ts    # ユーザー管理 API 単体・統合テスト
+│       │   ├── ui.ts             # フロントエンド共有用コンポーネント一括エクスポート
+│       │   ├── api/              # クライアント用 API 呼び出しモジュール
+│       │   │   └── user-management-api.ts # ユーザー管理 API クライアント関数群
+│       │   ├── components/       # ユーザー管理専用 React UI コンポーネント
+│       │   │   ├── CreateUserModal.tsx      # ユーザー新規作成モーダル
+│       │   │   ├── UserManagementTable.tsx  # ユーザー一覧・操作テーブル
+│       │   │   └── UserManagementTable.test.tsx # テーブルコンポーネント単体テスト
+│       │   └── test/             # モジュール個別テスト環境設定
+│       │       ├── global-setup.ts
+│       │       └── setup.ts
+│       ├── package.json          # @app/feature-user-management 依存関係・スクリプト
+│       ├── tsconfig.json         # ユーザー管理モジュール用 TypeScript 設定
+│       └── vitest.config.ts      # ユーザー管理モジュール用 Vitest 単体テスト設定
+│
+├── plugins/                      # 切り替え可能なプラグイン群
+│   ├── auth-ad/                  # Active Directory 認証連携モジュール
+│   │   ├── src/index.ts
+│   │   └── package.json
+│   └── auth-local/               # ローカルデータベース認証モジュール
+│       ├── index.ts              # パッケージエントリーポイント
+│       ├── package.json          # ローカル認証モジュール用依存関係
+│       └── src/
+│           ├── auth-utils.ts     # Bcrypt パスワードハッシュ化 & Jose JWT ユーティリティ
+│           └── auth-utils.test.ts# パスワードハッシュ・JWT 署名/検証の単体テスト
+│
+├── shared/                       # 共有パッケージ層 (ライブラリ・モジュール)
+│   ├── client/                   # 共有 UI コンポーネントパッケージ (@shared/client)
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── button.tsx      # CVA 準拠 Button コンポーネント
+│   │   │   │   ├── button.test.tsx # Button 単体テスト (コロケーション)
+│   │   │   │   ├── layout/         # 共通レイアウトコンポーネント群
+│   │   │   │   │   ├── AppLayout.tsx # アプリケーション共通レイアウト
+│   │   │   │   │   ├── SidebarNav.tsx # サイドバーナビゲーション
+│   │   │   │   │   └── index.ts    # レイアウト一括エクスポート
+│   │   │   │   ├── layout.test.tsx # Layout 単体テスト (コロケーション)
+│   │   │   │   ├── toaster.tsx     # Sonner Toast プロバイダー & RFC 9457 エラーハンドラー
+│   │   │   │   └── toaster.test.tsx # Toast & showErrorToast 単体テスト (コロケーション)
+│   │   │   ├── lib/
+│   │   │   │   └── utils.ts      # clsx + tailwind-merge による cn ユーティリティ
+│   │   │   └── test/
+│   │   │       └── setup.ts      # jest-dom マッチャー拡張セットアップ
+│   │   ├── index.ts              # UI パッケージエクスポート統合
+│   │   ├── package.json          # @shared/client 依存関係 (clsx, tailwind-merge, cva, sonner)
+│   │   ├── tsconfig.json         # UI パッケージ用 TS 設定 (jest-dom / vitest 型拡張)
+│   │   └── vitest.config.ts      # UI パッケージ用 Vitest 設定
+│   │
+│   ├── errors/                   # システム標準エラー構造・RFC 9457 定義パッケージ (@shared/errors)
+│   │   ├── src/
+│   │   │   ├── types.ts          # エラー型定義 (`ProblemDetails`, `InvalidParam`)
+│   │   │   ├── app-error.ts      # 基底例外クラス (`AppError`)
+│   │   │   ├── bad-request-error.ts     # 400 例外 (`BadRequestError`)
+│   │   │   ├── forbidden-error.ts       # 403 例外 (`ForbiddenError`)
+│   │   │   ├── internal-server-error.ts # 500 例外 (`InternalServerError`)
+│   │   │   ├── not-found-error.ts       # 404 例外 (`NotFoundError`)
+│   │   │   ├── unauthorized-error.ts    # 401 例外 (`UnauthorizedError`)
+│   │   │   └── validation-error.ts      # バリデーション例外 (`ValidationError`)
+│   │   ├── index.ts              # 共通エラー一括エクスポート
+│   │   └── package.json          # 共通エラーパッケージ用依存関係
+│   │
+│   ├── functions/                # システム共通ユーティリティ・関数群パッケージ (@shared/functions)
+│   │   ├── src/
+│   │   │   ├── env.ts            # Zod による環境変数定義・検証関数 (CORS_ORIGIN / API_BASE_URL 自動変換等)
+│   │   │   ├── env.test.ts       # 環境変数検証の単体テスト
+│   │   │   ├── constants.ts      # 共通定数定義
+│   │   │   ├── registry.ts       # プラグイン（PluginRegistry）の一括登録・保持機構
+│   │   │   └── auth-registry.ts  # 認証レジストリ関連ロジック
+│   │   ├── index.ts              # 共通関数パッケージエクスポート
+│   │   └── package.json          # 共通関数パッケージ用依存関係
+│   │
+│   ├── schemas/                  # データベーススキーマ定義パッケージ (@shared/schemas)
+│   │   ├── src/
+│   │   │   ├── users.ts          # users テーブルスキーマ定義
+│   │   │   ├── users.test.ts     # Users テーブル CRUD & Unique 制約 DB 統合テスト
+│   │   │   ├── plugins.ts        # plugins テーブルスキーマ定義
+│   │   │   └── plugins.test.ts   # Plugins テーブルテスト
+│   │   ├── index.ts              # スキーマ一括エクスポート
+│   │   └── package.json          # スキーマパッケージ用依存関係
+│   │
+│   ├── server/                   # サーバーサイド共通基盤パッケージ (@shared/server)
+│   │   ├── src/
+│   │   │   ├── db/
+│   │   │   │   ├── index.ts      # シングルトン / 動的 DB 接続管理 (`db`, `activeQueryClient`)
+│   │   │   │   └── seed.ts       # DB 初期データシードスクリプト
+│   │   │   └── utils/
+│   │   │       ├── path.ts       # ESM 準拠プロジェクトルート取得 (`getProjectRootDir`)・絶対パス解決関数
+│   │   │       └── path.test.ts  # パス解決ユーティリティの環境独立性検証テスト
+│   │   ├── index.ts              # サーバー基盤エクスポート
+│   │   ├── drizzle.config.ts     # 通常開発/マイグレーション用 Drizzle 構成
+│   │   ├── drizzle-test.config.ts# テストDB専用 ORM 構成ファイル
+│   │   ├── package.json          # サーバー基盤用依存関係
+│   │   └── vitest.config.ts      # サーバー基盤用 Vitest 設定
+│   │
+│   ├── tsconfig.json             # shared レイヤー共通 TypeScript 設定
+│   └── vitest.config.ts          # shared レイヤー共通 Vitest 設定
 
 ```
 
@@ -226,10 +245,10 @@
 
 * **型安全性の保障:** アプリケーションコードとデータベース構造の不一致を防ぐため、完全な TypeScript サポートを持つ ORM (Drizzle ORM + `postgres` ライブラリ) を採用します。
 * **動的接続・マルチクライアント管理:**
-`packages/core/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。
+`shared/server/src/db/index.ts` にて `NODE_ENV === 'test'` の条件に応じて開発用（`DATABASE_URL`）とテスト用（`TEST_DATABASE_URL`）の接続を自動切替します。
 
 ```typescript
-// packages/core/src/db/index.ts (要約コード)
+// shared/server/src/db/index.ts (要約コード)
 export const queryClient = postgres(env.DATABASE_URL);
 export const queryTestClient = postgres(env.TEST_DATABASE_URL);
 
@@ -244,10 +263,10 @@ export const activeQueryClient = isTest ? queryTestClient : queryClient;
 
 ### 5.2 スキーマ定義 (Single Source of Truth)
 
-データベースの構造は、`packages/core/src/db/schema.ts` を正として定義します。
+データベースの構造は、`shared/schemas/src/` 配下（`users.ts`, `plugins.ts` 等）を正として定義します。
 
 ```typescript
-// packages/core/src/db/schema.ts (要約コード)
+// shared/schemas/src/users.ts & plugins.ts (要約コード)
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -294,7 +313,7 @@ export const plugins = pgTable('plugins', {
 
 ### 6.1 統一エラーレスポンス仕様 (RFC 9457 準拠)
 
-エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、RFC 7807 を置き換えた最新標準である **RFC 9457 (Problem Details for HTTP APIs)** に完全準拠した構造を採用します。
+エラーレスポンスの構造を統一し、クライアント側（フロントエンド）でのエラー処理を明確化するため、最新標準である **RFC 9457 (Problem Details for HTTP APIs)** に完全準拠した構造を採用します（実装は `shared/errors/` に集約）。
 
 無意味なダミー URI やハードコードを排除するため、特定の拡張ドキュメント URI を割り当てないエラーの `type` プロパティには、RFC 9457 の標準規格規定値である **`"about:blank"`** を一律に設定します。
 
@@ -305,7 +324,6 @@ export const plugins = pgTable('plugins', {
 | **ステータスコード** | `status` | HTTP ステータスコード | `400`, `401`, `403`, `404`, `500`, `503` |
 | **詳細メッセージ** | `detail` | 発生原因の具体的な説明 | `"You do not have permission to access this resource."` |
 | **発生パス** | `instance` | エラーが発生したリクエスト URI パス | `"/api/auth/login"` |
-| **フィールド別詳細** | `invalidParams` | **(任意)** 入力検証エラー時の違反項目・理由リスト | `[{ "name": "email", "reason": "Invalid syntax" }]` |
 
 ---
 
@@ -399,13 +417,15 @@ export const plugins = pgTable('plugins', {
 * **API クライアント (`apiClient.ts`):** Fetch ラッパー。JWT ヘッダー自動セット、および `!response.ok` 発生時に RFC 9457 オブジェクトを抽出してスロー。
 * **認証コンテキスト (`AuthContext.tsx` / `useAuth`):** ログイン/ログアウト処理、ローカルストレージと連携したトークン保持・自動復元機能。
 * **保護ルートガード (`ProtectedRoute.tsx`):** 未認証アクセス時にログインページへ安全に自動リダイレクト。
-* **トースト通知 (`showErrorToast`):** `apiClient` で発生したエラーを受け取り Sonner Toast でユーザーへ視覚的に通知。
+* **トースト通知 (`toaster.tsx`):** `apiClient` で発生したエラーを受け取り Sonner Toast でユーザーへ視覚的に通知。
 
 ---
 
 ## 8. セキュリティ & 環境変数仕様 (Security & Environment Variables)
 
 ### 8.1 定義されている環境変数
+
+環境変数の定義・検証スキーマは `shared/functions/src/env.ts` に集約されています。
 
 | 変数名 | 対象領域 | 型 / 制約 | 意図・役割 / 動的補完 |
 | --- | --- | --- | --- |
@@ -424,10 +444,10 @@ export const plugins = pgTable('plugins', {
 
 ## 9. 動的モジュール読み込み仕様 (Dynamic Auto-Loader)
 
-`packages/core/src/registry/hono-auto-loader.ts` が DB の `plugins` テーブルの `enabled` フラグを参照し、`packages/features/` 配下の機能モジュールを動的にインポートして Hono ルーティングへ展開します。
+`apps/api/src/auto-loader/hono-auto-loader.ts` が DB の `plugins` テーブルの `enabled` フラグを参照し、`features/` 配下の機能モジュールを動的にインポートして Hono ルーティングへ展開します。
 
 ```typescript
-// packages/core/src/registry/hono-auto-loader.ts (要約コード)
+// apps/api/src/auto-loader/hono-auto-loader.ts (要約コード)
 const projectRoot = getProjectRootDir();
 const absolutePath = path.resolve(projectRoot, file);
 const moduleUrl = pathToFileURL(absolutePath).href; // OS非依存のURL変換
@@ -444,11 +464,10 @@ const module = await import(/* @vite-ignore */ moduleUrl);
 * **テストランナー:** Vitest
 * **配置方針:** コロケーション（実装ファイルと同階層に `.test.ts` を配置）
 * **自動クリーンアップ & 非同期管理:**
-1. **Global Setup:** テスト開始前にテスト用 DB のスキーマを自動同期 (`drizzle-test.config.ts`)。
+
+1. **Global Setup:** テスト開始前にテスト用 DB のスキーマを自動同期（`shared/server/drizzle-test.config.ts`）。
 2. **Setup Files:** 各テストケース実行前に DB データを全消去。
 3. **Teardown:** 各 DB テストの `afterAll` で `activeQueryClient.end()` を呼び出しコネクション開放。
-
-
 
 ---
 
