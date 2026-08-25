@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { AppError, ProblemDetails, ValidationError } from '@shared/errors';
 import { env, isTest, formatEnvForLog } from '@shared/functions';
-import { AuthRegistry } from '@shared/functions';
+import { AuthPluginRegistry } from '@shared/functions';
 import { loadFeatureModules } from './auto-loader/hono-auto-loader';
 import { LocalAuthPlugin } from '@plugins/auth-local';
 import { ActiveDirectoryAuthPlugin } from '@plugins/auth-ad';
@@ -20,8 +20,8 @@ if (!isTest) {
 }
 
 // 3. プラグインの登録
-AuthRegistry.register(new LocalAuthPlugin());
-AuthRegistry.register(new ActiveDirectoryAuthPlugin());
+AuthPluginRegistry.register(new LocalAuthPlugin());
+AuthPluginRegistry.register(new ActiveDirectoryAuthPlugin());
 
 /**
  * アプリケーションのインスタンスを非同期で生成・初期化する関数

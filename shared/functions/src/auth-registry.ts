@@ -1,21 +1,32 @@
+
+export interface AuthUser {
+    id: string | number;
+    email?: string;
+    name: string;
+    role?: string;
+}
+
 export interface AuthPlugin {
-  name: string;
-  authenticate(credentials: any): Promise<{ id: string; name: string }>;
+    name: string;
+    authenticate(credentials: Record<string, any>): Promise<AuthUser>;
 }
 
-export class AuthRegistry {
-  private static strategies = new Map<string, AuthPlugin>();
+/**
+ * 認証プラグインのレジストリ管理
+ */
+export class AuthPluginRegistry {
+    private static plugins = new Map<string, AuthPlugin>();
 
-  static register(plugin: AuthPlugin) {
-    this.strategies.set(plugin.name, plugin);
-    console.log(`[AuthRegistry] Registered strategy: ${plugin.name}`);
-  }
-
-  static async authenticate(strategy: string, credentials: any) {
-    const plugin = this.strategies.get(strategy);
-    if (!plugin) {
-      throw new Error(`Authentication strategy '${strategy}' not found.`);
+    static register(plugin: AuthPlugin) {
+        this.plugins.set(plugin.name, plugin);
     }
-    return plugin.authenticate(credentials);
-  }
+
+    static get(name: string): AuthPlugin {
+        const plugin = this.plugins.get(name);
+        if (!plugin) {
+            throw new Error(`認証プラグイン "${name}" が登録されていません。`);
+        }
+        return plugin;
+    }
 }
+

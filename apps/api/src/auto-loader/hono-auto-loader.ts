@@ -6,7 +6,7 @@ import { env } from '@shared/functions';
 import { PluginRegistry } from '@shared/functions';
 import { db } from '@shared/server';
 import { plugins as pluginsTable } from '@shared/schemas';
-import { getProjectRootDir } from '@shared/server/utils';
+import { getProjectRootDir } from '@shared/server';
 import { authMiddleware } from '../middlewares/auth-middleware';
 import { rbacMiddleware } from '../middlewares/rbac-middleware';
 

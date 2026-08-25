@@ -6,7 +6,7 @@ import * as actualSchema from '@shared/schemas'; // パスはプロジェクト�
 
 // 1. メモリDBインスタンスの作成
 const mem = newDb({
-  autoCreateForeignKeyIndices: true,
+    autoCreateForeignKeyIndices: true,
 });
 
 const { Pool } = mem.adapters.createPg();
@@ -40,25 +40,25 @@ mem.public.none(`
 
 // 3. モックの設定
 vi.mock('@shared/server', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@shared/server')>();
-  return {
-    ...actual,
-    db: memDb,
-    activeQueryClient: pool,
-  };
+    const actual = await importOriginal<typeof import('@shared/server')>();
+    return {
+        ...actual,
+        db: memDb,
+        activeQueryClient: pool,
+    };
 });
 
 // 4. 💡 各テスト実行前の処理（テーブル構造は壊さず、データとシーケンスだけをきれいにする）
 beforeEach(() => {
-  mem.public.none(`
+    mem.public.none(`
     DELETE FROM users;
     DELETE FROM plugins;
   `);
 
-  // SERIALのカウンターを1に戻す
-  try {
-    mem.public.none(`ALTER SEQUENCE users_id_seq RESTART WITH 1;`);
-  } catch (e) {
-    // 無視
-  }
+    // SERIALのカウンターを1に戻す
+    try {
+        mem.public.none(`ALTER SEQUENCE users_id_seq RESTART WITH 1;`);
+    } catch (e) {
+        // 無視
+    }
 });

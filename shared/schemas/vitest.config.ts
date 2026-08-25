@@ -6,13 +6,10 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@shared/schemas': path.resolve(import.meta.dirname, '../../shared/schemas'),
-        },
     },
     test: {
         globals: true,
         environment: 'jsdom',
-        setupFiles: ['../../vitest/setup.ts'],               // ② 各テスト実行前にテーブルデータを全消去
+        setupFiles: ['../../vitest-clear.ts'],               // ② 各テスト実行前にテーブルデータを全消去
     },
 });

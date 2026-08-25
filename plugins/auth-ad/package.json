@@ -8,5 +8,8 @@
         "build": "tsc",
         "test": "vitest run",
         "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "ldapts": "^8.2.0"
     }
 }

@@ -7,9 +7,9 @@
     "types": "./index.ts",
     "exports": {
         ".": "./index.ts",
-        "./auth/*": "./auth/*.ts",
-        "./db/*": "./db/*.ts",
-        "./utils/*": "./utils/*.ts"
+        "./auth": "./auth/*.ts",
+        "./db": "./db/*.ts",
+        "./utils": "./utils/*.ts"
     },
     "scripts": {
         "build": "tsc",

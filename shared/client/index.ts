@@ -6,4 +6,4 @@ export * from './src/components/toaster';
 export { clientEnvSchema, clientEnv } from '@shared/functions'
 export type { ClientEnv } from '@shared/functions'
 
-export * from '../functions/src/constants'
+export * from '@shared/functions'

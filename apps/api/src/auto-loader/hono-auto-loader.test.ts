@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Hono } from 'hono';
 import { sign } from 'hono/jwt';
-import { db, plugins as pluginsTable } from '@shared/server';
+import { db, plugins } from '@shared/server';
 import { loadFeatureModules } from './hono-auto-loader';
 import { env } from '@shared/functions';
 import { PluginRegistry } from '@shared/functions';
@@ -31,7 +31,7 @@ describe('hono-auto-loader', () => {
     };
 
     beforeEach(async () => {
-        await db.delete(pluginsTable); // または適切なクリア処理
+        // await db.delete(plugins); // または適切なクリア処理
 
         PluginRegistry.clear();
 
@@ -72,12 +72,12 @@ describe('hono-auto-loader', () => {
 
     describe('DB ステータス制御とロード処理', () => {
         it('1. DBで有効(enabled: true)のプラグインは正常にマウントされアクセスできること', async () => {
-            await db.insert(pluginsTable).values({
+            await db.insert(plugins).values({
                 id: dummyPluginId,
                 name: 'テスト用プラグイン',
                 enabled: true,
             }).onConflictDoUpdate({
-                target: pluginsTable.id,
+                target: plugins.id,
                 set: { enabled: true },
             });
 
@@ -92,12 +92,12 @@ describe('hono-auto-loader', () => {
         });
 
         it('2. DBで無効(enabled: false)のプラグインはスキップされ 404 になること', async () => {
-            await db.insert(pluginsTable).values({
+            await db.insert(plugins).values({
                 id: dummyPluginId,
                 name: 'テスト用プラグイン',
                 enabled: false,
             }).onConflictDoUpdate({
-                target: pluginsTable.id,
+                target: plugins.id,
                 set: { enabled: false },
             });
 

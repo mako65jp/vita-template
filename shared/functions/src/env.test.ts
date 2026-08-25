@@ -24,7 +24,7 @@ function parseClientEnv(targetEnv: Record<string, string | undefined>): ClientEn
     return result.data;
 }
 
-describe('shared/core/src/config/env', () => {
+describe('.env', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
@@ -40,6 +40,7 @@ describe('shared/core/src/config/env', () => {
         DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb',
         JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
         CORS_ORIGIN: 'http://localhost:3000',
+        AUTH_PROVIDER: 'local',
     };
 
     describe('serverEnvSchema', () => {
@@ -107,6 +108,30 @@ describe('shared/core/src/config/env', () => {
 
             expect(() => parseServerEnv(invalidEnv)).toThrow('[Server] 環境変数の検証に失敗しました');
         });
+
+        it('AUTH_PROVIDER が ad の場合、LDAP_URL と LDAP_DOMAIN が揃っていれば検証に成功すること', () => {
+            const adEnv = {
+                ...validMockServerEnv,
+                AUTH_PROVIDER: 'ad',
+                LDAP_URL: 'ldap://dc.example.com:389',
+                LDAP_DOMAIN: 'example.com',
+            };
+
+            const result = parseServerEnv(adEnv);
+            expect(result.AUTH_PROVIDER).toBe('ad');
+            expect(result.LDAP_URL).toBe('ldap://dc.example.com:389');
+            expect(result.LDAP_DOMAIN).toBe('example.com');
+        });
+
+        it('AUTH_PROVIDER が ad で、LDAP_URL または LDAP_DOMAIN が欠けている場合、例外がスローされること', () => {
+            const invalidAdEnv = {
+                ...validMockServerEnv,
+                AUTH_PROVIDER: 'ad',
+                // LDAP_URL がない、LDAP_DOMAIN がない状態
+            };
+
+            expect(() => parseServerEnv(invalidAdEnv)).toThrow('[Server] 環境変数の検証に失敗しました');
+        });
     });
 
     describe('clientEnvSchema', () => {
@@ -150,6 +175,7 @@ describe('shared/core/src/config/env', () => {
                 CORS_ORIGIN: 'http://localhost:3000',
                 DATABASE_URL: 'postgresql://postgres:my-secret-password@localhost:5432/app_db',
                 JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
+                AUTH_PROVIDER: 'local',
             };
 
             const formatted = formatEnvForLog(mockParsedServerEnv);
@@ -163,4 +189,5 @@ describe('shared/core/src/config/env', () => {
             expect(formatted).toContain('"JWT_SECRET": "***"');
         });
     });
+
 });

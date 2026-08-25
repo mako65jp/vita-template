@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { db, plugins as pluginsTable } from '@shared/server';
+import { db, plugins } from '@shared/server';
 import { PluginRegistry } from '@shared/functions';
 
 export const systemRouter = new Hono();
@@ -13,8 +13,8 @@ systemRouter.get('/plugins', async (c) => {
     // 1. DBからプラグインの有効/無効ステータスを取得
     let dbPluginsMap = new Map<string, boolean>();
     try {
-        const dbPlugins = await db.select().from(pluginsTable);
-        dbPlugins.forEach((p: { id: string; enabled: boolean; }) => dbPluginsMap.set(p.id, p.enabled));
+        const dbPlugins = await db.select().from(plugins);
+        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
     } catch (error) {
         console.warn('[System API] Failed to fetch plugins table status.');
     }

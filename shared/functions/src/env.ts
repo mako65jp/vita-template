@@ -21,7 +21,8 @@ export const DEFAULT_FRONTEND_PORT = 3000;
 export const clientEnvSchema = z
     .object({
         // バックエンドポート番号（VITE_API_TARGET_URL の補完計算用）
-        PORT: z.coerce.number().int().positive().default(DEFAULT_BACKEND_PORT),
+        PORT: z.coerce.number().int().positive()
+            .default(DEFAULT_BACKEND_PORT),
         // フロントエンド開発サーバー用ポート
         VITE_PORT: z.coerce.number().int().positive({ message: 'VITE_PORT は正の整数である必要があります' })
             .default(DEFAULT_FRONTEND_PORT),
@@ -50,21 +51,30 @@ export const serverEnvSchema = z
             .optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
-        // TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
-        //     .optional(),
 
         // サーバー側では必須（optional 化の妥協は不要）
         JWT_SECRET: z.string().min(32, { message: 'JWT_SECRET は32文字以上である必要があります' }),
+
+        // 認証プロバイダ選択・AD用設定 ---
+        AUTH_PROVIDER: z.enum(['local', 'ad'])
+            .default('local'),
+        LDAP_URL: z.string().optional(),
+        LDAP_DOMAIN: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-        if (data.NODE_ENV === 'production') {
-            if (!data.DATABASE_URL) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['DATABASE_URL'],
-                    message: '本番環境では DATABASE_URL の指定が必須です',
-                });
-            }
+        if (data.NODE_ENV === 'production' && !data.DATABASE_URL) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['DATABASE_URL'],
+                message: '本番環境では DATABASE_URL の指定が必須です',
+            });
+        }
+        if (data.AUTH_PROVIDER === 'ad' && (!data.LDAP_URL || !data.LDAP_DOMAIN)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['LDAP_URL'],
+                message: 'AUTH_PROVIDER が ad の場合、LDAP_URL および LDAP_DOMAIN の指定は必須です',
+            });
         }
     })
     .transform((data) => ({
@@ -73,8 +83,6 @@ export const serverEnvSchema = z
         CORS_ORIGIN: data.CORS_ORIGIN ?? `http://localhost:${DEFAULT_FRONTEND_PORT}`,
         DATABASE_URL: data.DATABASE_URL
             ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db' : ''),
-        // TEST_DATABASE_URL: data.TEST_DATABASE_URL
-        //     ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db_test' : ''),
     }));
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
@@ -86,44 +94,26 @@ export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
 /** クライアント環境変数のパース (Vite 環境) */
 function getClientEnv(): ClientEnv {
-    const metaEnv = typeof import.meta !== 'undefined' ? (import.meta as { env?: Record<string, string> }).env : undefined;
-    const targetEnv =
-        metaEnv
-            ? metaEnv : typeof process !== 'undefined' && process.env
-                ? process.env : {};
-
+    const metaEnv = typeof import.meta !== 'undefined'
+        ? (import.meta as { env?: Record<string, string> }).env
+        : undefined;
+    const targetEnv = metaEnv
+        ? metaEnv
+        : ((typeof process !== 'undefined' && process.env) ? process.env : {});
     const result = clientEnvSchema.safeParse(targetEnv);
-
     if (!result.success) {
-        const formattedErrors = JSON.stringify(result.error.format(), null, 2);
-        console.error('❌ [Client] 無効な環境変数があります:\n', formattedErrors);
-        throw new Error(`[Client] 環境変数の検証に失敗しました:\n${formattedErrors}`);
+        throw new Error(`[Client] 環境変数の検証に失敗しました:\n${JSON.stringify(result.error.format(), null, 2)}`);
     }
-
     return result.data;
 }
 
 /** サーバー環境変数のパース (Node.js 環境) */
 function getServerEnv(): ServerEnv {
     const targetEnv = typeof process !== 'undefined' && process.env ? process.env : {};
-
-    //    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
-    //    if (targetEnv.NODE_ENV === 'test') {
-    //        const fallbackResult = serverEnvSchema.safeParse({
-    //            ...targetEnv,
-    //            JWT_SECRET: targetEnv.JWT_SECRET ?? '12345678901234567890123456789012',
-    //        });
-    //        if (fallbackResult.success) return fallbackResult.data;
-    //    }
-
     const result = serverEnvSchema.safeParse(targetEnv);
-
     if (!result.success) {
-        const formattedErrors = JSON.stringify(result.error.format(), null, 2);
-        console.error('❌ [Server] 無効な環境変数があります:\n', formattedErrors);
-        throw new Error(`[Server] 環境変数の検証に失敗しました:\n${formattedErrors}`);
+        throw new Error(`[Server] 環境変数の検証に失敗しました:\n${JSON.stringify(result.error.format(), null, 2)}`);
     }
-
     return result.data;
 }
 
@@ -142,23 +132,13 @@ export const env: ServerEnv = (isServer || isTest)
     ? getServerEnv()
     : (new Proxy({} as ServerEnv, {
         get() {
-            throw new Error('❌ [Security Alert] フロントエンド（ブラウザ）からサーバー環境変数 (env) を参照することはできません。');
+            throw new Error('❌ [Security Alert] フロントエンドからサーバー環境変数を参照することはできません。');
         },
     }));
 
-// ==========================================
-// 4. ログ出力用整形関数
-// ==========================================
 export function formatEnvForLog(targetEnv: ServerEnv = env): string {
     const maskedEnv = { ...targetEnv };
-
-    if (maskedEnv.DATABASE_URL) {
-        maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL
-            .replace(/:\/\/(.*):(.*)@/, '://$1:***@');
-    }
-    if (maskedEnv.JWT_SECRET) {
-        maskedEnv.JWT_SECRET = '***';
-    }
-
+    if (maskedEnv.DATABASE_URL) maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL.replace(/:\/\/(.*):(.*)@/, '://$1:***@');
+    if (maskedEnv.JWT_SECRET) maskedEnv.JWT_SECRET = '***';
     return JSON.stringify(maskedEnv, null, 2);
 }
