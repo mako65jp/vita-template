@@ -37,6 +37,17 @@ is_excluded() {
     local filename
     filename=$(basename "$path")
 
+    # 常時除外したいフォルダ名のリスト
+    local exclude_dirs=("node_modules" ".git" "dist" "build" "coverage" ".vscode")
+
+    # リスト内のフォルダがパスに含まれているかチェック
+    for dir in "${exclude_dirs[@]}"; do
+        if [[ "$path" == */"$dir"/* ]] || [[ "$filename" == "$dir" ]]; then
+            return 0 # 除外対象
+        fi
+    done
+    
+    # ユーザー指定の除外パターン（-e オプション）のチェック
     if [ -n "$EXCLUDE_PATTERN" ]; then
         if [[ "$filename" == $EXCLUDE_PATTERN ]] || [[ "$path" == *$EXCLUDE_PATTERN* ]]; then
             return 0 # 除外対象
