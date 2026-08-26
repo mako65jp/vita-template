@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { db, users as usersTable } from '@shared/server';
+import { db, users } from '@shared/server';
 import { ValidationError, BadRequestError, NotFoundError } from '@shared/errors';
 import { hashPassword } from '@plugins/auth-local';
 import { eq } from 'drizzle-orm';
@@ -19,13 +19,13 @@ function getCurrentUserId(c: any): number | null {
 // 1. ユーザー一覧取得
 userRoutes.get('/', async (c) => {
     const userList = await db.select({
-        id: usersTable.id,
-        name: usersTable.name,
-        email: usersTable.email,
-        role: usersTable.role,
-        isActive: usersTable.isActive,
-        createdAt: usersTable.createdAt,
-    }).from(usersTable);
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+    }).from(users);
 
     return c.json({ users: userList });
 });
@@ -51,7 +51,7 @@ userRoutes.post(
     async (c) => {
         const body = c.req.valid('json');
 
-        const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, body.email));
+        const [existingUser] = await db.select().from(users).where(eq(users.email, body.email));
         if (existingUser) {
             throw new BadRequestError('指定されたメールアドレスは既に登録されています');
         }
@@ -59,19 +59,19 @@ userRoutes.post(
         const defaultPassword = `InitPass_${Math.random().toString(36).slice(-8)}`;
         const passwordHash = await hashPassword(defaultPassword);
 
-        const [newUser] = await db.insert(usersTable).values({
+        const [newUser] = await db.insert(users).values({
             name: body.name,
             email: body.email,
             passwordHash,
             role: body.role,
             isActive: true,
         }).returning({
-            id: usersTable.id,
-            name: usersTable.name,
-            email: usersTable.email,
-            role: usersTable.role,
-            isActive: usersTable.isActive,
-            createdAt: usersTable.createdAt,
+            id: users.id,
+            name: users.name,
+            email: users.email,
+            role: users.role,
+            isActive: users.isActive,
+            createdAt: users.createdAt,
         });
 
         return c.json({ user: newUser }, 201);
@@ -96,15 +96,15 @@ userRoutes.patch(
         }
 
         const updatedUsers = await db
-            .update(usersTable)
+            .update(users)
             .set({ role })
-            .where(eq(usersTable.id, id))
+            .where(eq(users.id, id))
             .returning({
-                id: usersTable.id,
-                name: usersTable.name,
-                email: usersTable.email,
-                role: usersTable.role,
-                isActive: usersTable.isActive,
+                id: users.id,
+                name: users.name,
+                email: users.email,
+                role: users.role,
+                isActive: users.isActive,
             });
 
         if (updatedUsers.length === 0) {
@@ -133,15 +133,15 @@ userRoutes.patch(
         }
 
         const updatedUsers = await db
-            .update(usersTable)
+            .update(users)
             .set({ isActive })
-            .where(eq(usersTable.id, id))
+            .where(eq(users.id, id))
             .returning({
-                id: usersTable.id,
-                name: usersTable.name,
-                email: usersTable.email,
-                role: usersTable.role,
-                isActive: usersTable.isActive,
+                id: users.id,
+                name: users.name,
+                email: users.email,
+                role: users.role,
+                isActive: users.isActive,
             });
 
         if (updatedUsers.length === 0) {
@@ -162,12 +162,12 @@ userRoutes.delete('/:id', async (c) => {
     }
 
     const deletedUsers = await db
-        .delete(usersTable)
-        .where(eq(usersTable.id, id))
+        .delete(users)
+        .where(eq(users.id, id))
         .returning({
-            id: usersTable.id,
-            name: usersTable.name,
-            email: usersTable.email,
+            id: users.id,
+            name: users.name,
+            email: users.email,
         });
 
     if (deletedUsers.length === 0) {

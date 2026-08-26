@@ -3,10 +3,8 @@ import { glob } from 'glob';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { env } from '@shared/functions';
-import { PluginRegistry } from '@shared/functions';
-import { db } from '@shared/server';
-import { plugins as pluginsTable } from '@shared/schemas';
 import { getProjectRootDir } from '@shared/server';
+import { getActivePlugins } from '../utils/auto-loader-helper';
 import { authMiddleware } from '../middlewares/auth-middleware';
 import { rbacMiddleware } from '../middlewares/rbac-middleware';
 
@@ -25,20 +23,10 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
 
     // 2. DB から登録済みプラグインの有効/無効ステータスを取得
-    let dbPluginsMap = new Map<string, boolean>();
-    try {
-        const dbPlugins = await db.select().from(pluginsTable);
-        dbPlugins.forEach((p: { id: string; enabled: boolean; }) => dbPluginsMap.set(p.id, p.enabled));
-    } catch (error) {
-        console.warn('[Auto-Loader] DB query failed or table not found. Defaulting all plugins to enabled.');
-    }
+    const pluginStatuses = await getActivePlugins();
 
     // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
-    for (const plugin of PluginRegistry.getAll()) {
-        const isEnabled = dbPluginsMap.has(plugin.id)
-            ? dbPluginsMap.get(plugin.id)
-            : true;
-
+    for (const { plugin, isEnabled } of pluginStatuses) {
         if (isEnabled) {
             if (plugin.routes !== undefined) {
                 const basePath = `/api/${plugin.id}`;

@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1787620616_13258' > "package.json"
+cat << 'EOF_1787723353_19170' > "package.json"
 {
     "name": "monorepo",
     "private": true,
@@ -52,10 +52,10 @@ cat << 'EOF_1787620616_13258' > "package.json"
         "pg": "^8.23.0"
     }
 }
-EOF_1787620616_13258
+EOF_1787723353_19170
 
 echo "作成: cat_files.sh"
-cat << 'EOF_1787620616_17455' > "cat_files.sh"
+cat << 'EOF_1787723353_12378' > "cat_files.sh"
 #!/bin/bash
 
 RECURSIVE=false
@@ -165,10 +165,10 @@ for target in "$@"; do
         fi
     fi
 done
-EOF_1787620616_17455
+EOF_1787723353_12378
 
 echo "作成: .gitignore"
-cat << 'EOF_1787620616_22167' > ".gitignore"
+cat << 'EOF_1787723353_10265' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -275,21 +275,21 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1787620616_22167
+EOF_1787723353_10265
 
 mkdir -p "shared"
 echo "作成: shared/package.json"
-cat << 'EOF_1787620616_32594' > "shared/package.json"
+cat << 'EOF_1787723353_10927' > "shared/package.json"
 {
   "devDependencies": {
     "@types/node": "^26.2.0"
   }
 }
-EOF_1787620616_32594
+EOF_1787723353_10927
 
 mkdir -p "shared/schemas"
 echo "作成: shared/schemas/package.json"
-cat << 'EOF_1787620616_25353' > "shared/schemas/package.json"
+cat << 'EOF_1787723353_20935' > "shared/schemas/package.json"
 {
     "name": "@shared/schemas",
     "version": "1.0.0",
@@ -311,18 +311,18 @@ cat << 'EOF_1787620616_25353' > "shared/schemas/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787620616_25353
+EOF_1787723353_20935
 
 mkdir -p "shared/schemas"
 echo "作成: shared/schemas/index.ts"
-cat << 'EOF_1787620616_18784' > "shared/schemas/index.ts"
+cat << 'EOF_1787723353_10856' > "shared/schemas/index.ts"
 export * from './src/users';
 export * from './src/plugins';
-EOF_1787620616_18784
+EOF_1787723353_10856
 
 mkdir -p "shared/schemas"
 echo "作成: shared/schemas/vitest.config.ts"
-cat << 'EOF_1787620616_5344' > "shared/schemas/vitest.config.ts"
+cat << 'EOF_1787723353_23075' > "shared/schemas/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -331,21 +331,18 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@shared/schemas': path.resolve(import.meta.dirname, '../../shared/schemas'),
-        },
     },
     test: {
         globals: true,
         environment: 'jsdom',
-        setupFiles: ['../../vitest/setup.ts'],               // ② 各テスト実行前にテーブルデータを全消去
+        setupFiles: ['../../vitest-clear.ts'],               // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787620616_5344
+EOF_1787723353_23075
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/plugins.test.ts"
-cat << 'EOF_1787620616_19931' > "shared/schemas/src/plugins.test.ts"
+cat << 'EOF_1787723353_5291' > "shared/schemas/src/plugins.test.ts"
 import { describe, it, expect } from 'vitest';
 import { db } from '@shared/server';
 import { plugins } from './plugins';
@@ -415,11 +412,11 @@ describe('Plugins DB Integration Tests', () => {
         ).rejects.toThrow();
     });
 });
-EOF_1787620616_19931
+EOF_1787723353_5291
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/plugins.ts"
-cat << 'EOF_1787620616_828' > "shared/schemas/src/plugins.ts"
+cat << 'EOF_1787723353_3868' > "shared/schemas/src/plugins.ts"
 import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 // プラグイン管理テーブル
@@ -435,11 +432,11 @@ import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
 export type Plugin = InferSelectModel<typeof plugins>;
 export type NewPlugin = InferInsertModel<typeof plugins>;
-EOF_1787620616_828
+EOF_1787723353_3868
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/users.ts"
-cat << 'EOF_1787620616_31718' > "shared/schemas/src/users.ts"
+cat << 'EOF_1787723353_16845' > "shared/schemas/src/users.ts"
 import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
@@ -455,11 +452,11 @@ export const users = pgTable('users', {
 
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
-EOF_1787620616_31718
+EOF_1787723353_16845
 
 mkdir -p "shared/schemas/src"
 echo "作成: shared/schemas/src/users.test.ts"
-cat << 'EOF_1787620616_22903' > "shared/schemas/src/users.test.ts"
+cat << 'EOF_1787723353_22216' > "shared/schemas/src/users.test.ts"
 import { describe, it, expect } from 'vitest';
 import { db } from '@shared/server';
 import { users } from './users';
@@ -531,22 +528,22 @@ describe('Users DB Integration Tests', () => {
         ).rejects.toThrow();
     });
 });
-EOF_1787620616_22903
+EOF_1787723353_22216
 
 mkdir -p "shared"
 echo "作成: shared/tsconfig.json"
-cat << 'EOF_1787620616_10597' > "shared/tsconfig.json"
+cat << 'EOF_1787723353_27089' > "shared/tsconfig.json"
 {
     "extends": "../tsconfig.json",
     "include": [
         "**/src/*"
     ]
 }
-EOF_1787620616_10597
+EOF_1787723353_27089
 
 mkdir -p "shared"
 echo "作成: shared/vitest.config.ts"
-cat << 'EOF_1787620616_15596' > "shared/vitest.config.ts"
+cat << 'EOF_1787723353_31034' > "shared/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -556,14 +553,14 @@ export default defineConfig({
     test: {
         globals: true,
         // fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['../vitest/setup.ts'],            // ② 各テスト実行前にテーブルデータを全消去
+        setupFiles: ['../vitest-clear.ts'],            // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787620616_15596
+EOF_1787723353_31034
 
 mkdir -p "shared/server"
 echo "作成: shared/server/package.json"
-cat << 'EOF_1787620616_26388' > "shared/server/package.json"
+cat << 'EOF_1787723353_30574' > "shared/server/package.json"
 {
     "name": "@shared/server",
     "version": "1.0.0",
@@ -573,9 +570,9 @@ cat << 'EOF_1787620616_26388' > "shared/server/package.json"
     "types": "./index.ts",
     "exports": {
         ".": "./index.ts",
-        "./auth/*": "./auth/*.ts",
-        "./db/*": "./db/*.ts",
-        "./utils/*": "./utils/*.ts"
+        "./auth": "./auth/*.ts",
+        "./db": "./db/*.ts",
+        "./utils": "./utils/*.ts"
     },
     "scripts": {
         "build": "tsc",
@@ -595,42 +592,25 @@ cat << 'EOF_1787620616_26388' > "shared/server/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787620616_26388
+EOF_1787723353_30574
 
 mkdir -p "shared/server"
 echo "作成: shared/server/index.ts"
-cat << 'EOF_1787620616_11841' > "shared/server/index.ts"
+cat << 'EOF_1787723353_16897' > "shared/server/index.ts"
 export * from './db'
 export * from './utils'
-EOF_1787620616_11841
+EOF_1787723353_16897
 
 mkdir -p "shared/server/db"
 echo "作成: shared/server/db/index.ts"
-cat << 'EOF_1787620616_18354' > "shared/server/db/index.ts"
+cat << 'EOF_1787723353_25177' > "shared/server/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-
-import { env, isTest } from '@shared/functions';
+import { env } from '@shared/functions';
 import * as schema from '@shared/schemas';
 
-// 即時関数を使い、初期化ロジックの結果をそのまま const に代入する
-const { activeQueryClient, db } = (() => {
-
-    // 本番・開発環境のみ実際に接続する
-    if (!isTest) {
-        const client = postgres(env.DATABASE_URL);
-        const drizzleDb = drizzle(client, { schema });
-        return { activeQueryClient: client, db: drizzleDb };
-    }
-
-    // テスト環境の場合は、ダミー（またはモック）を返す
-    // ※ 完全に型を合わせるため、空オブジェクトを Drizzle の型にキャスト
-    return {
-        activeQueryClient: undefined as any,
-        db: {} as ReturnType<typeof drizzle<typeof schema>>
-    };
-})();
-
+const activeQueryClient = postgres(env.DATABASE_URL);
+const db = drizzle(activeQueryClient, { schema });
 export { activeQueryClient, db };
 
 // 1. スキーマオブジェクト全体を export
@@ -638,11 +618,11 @@ export { schema };
 
 // 2. 個別のテーブルも直接参照できるように directly re-export
 export * from '@shared/schemas';
-EOF_1787620616_18354
+EOF_1787723353_25177
 
 mkdir -p "shared/server/db"
 echo "作成: shared/server/db/seed.ts"
-cat << 'EOF_1787620616_15612' > "shared/server/db/seed.ts"
+cat << 'EOF_1787723353_23307' > "shared/server/db/seed.ts"
 import { db, users } from './index';
 import { hashPassword } from '@plugins/auth-local';
 import { eq } from 'drizzle-orm';
@@ -683,17 +663,17 @@ async function main() {
 }
 
 main();
-EOF_1787620616_15612
+EOF_1787723353_23307
 
 mkdir -p "shared/server/utils"
 echo "作成: shared/server/utils/index.ts"
-cat << 'EOF_1787620616_26805' > "shared/server/utils/index.ts"
+cat << 'EOF_1787723353_21659' > "shared/server/utils/index.ts"
 export * from './path';
-EOF_1787620616_26805
+EOF_1787723353_21659
 
 mkdir -p "shared/server/utils"
 echo "作成: shared/server/utils/path.test.ts"
-cat << 'EOF_1787620616_21953' > "shared/server/utils/path.test.ts"
+cat << 'EOF_1787723353_26721' > "shared/server/utils/path.test.ts"
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -715,11 +695,11 @@ describe('path utils', () => {
         expect(resolvedPath).toBe(expectedPath);
     });
 });
-EOF_1787620616_21953
+EOF_1787723353_26721
 
 mkdir -p "shared/server/utils"
 echo "作成: shared/server/utils/path.ts"
-cat << 'EOF_1787620616_3436' > "shared/server/utils/path.ts"
+cat << 'EOF_1787723353_373' > "shared/server/utils/path.ts"
 // shared/core/src/utils/path.ts
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -742,11 +722,11 @@ export function getProjectRootDir(): string {
 export function resolveFromProjectRoot(...paths: string[]): string {
     return path.resolve(getProjectRootDir(), ...paths);
 }
-EOF_1787620616_3436
+EOF_1787723353_373
 
 mkdir -p "shared/server"
 echo "作成: shared/server/vitest.config.ts"
-cat << 'EOF_1787620616_6082' > "shared/server/vitest.config.ts"
+cat << 'EOF_1787723353_3172' > "shared/server/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -755,35 +735,33 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@shared/schemas': path.resolve(import.meta.dirname, '../../shared/schemas'),
-        },
     },
     test: {
         globals: true,
+        setupFiles: ['../../vitest-clear.ts'],               // ② 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787620616_6082
+EOF_1787723353_3172
 
 mkdir -p "shared/server"
 echo "作成: shared/server/drizzle.config.ts"
-cat << 'EOF_1787620616_2537' > "shared/server/drizzle.config.ts"
+cat << 'EOF_1787723353_10817' > "shared/server/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from '@shared/functions';
 
 export default defineConfig({
-    schema: '@shared/schemas',
+    schema: '../schemas/index.ts',
     out: './drizzle',
     dialect: 'postgresql',
     dbCredentials: {
         url: env.DATABASE_URL,
     },
 });
-EOF_1787620616_2537
+EOF_1787723353_10817
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/package.json"
-cat << 'EOF_1787620616_22632' > "shared/functions/package.json"
+cat << 'EOF_1787723353_8745' > "shared/functions/package.json"
 {
     "name": "@shared/functions",
     "version": "1.0.0",
@@ -792,7 +770,8 @@ cat << 'EOF_1787620616_22632' > "shared/functions/package.json"
     "main": "./index.ts",
     "types": "./index.ts",
     "exports": {
-        ".": "./index.ts"
+        ".": "./index.ts",
+        "./constants": "./constants.ts"
     },
     "scripts": {
         "build": "tsc",
@@ -805,74 +784,80 @@ cat << 'EOF_1787620616_22632' > "shared/functions/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787620616_22632
+EOF_1787723353_8745
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/index.ts"
-cat << 'EOF_1787620616_11427' > "shared/functions/index.ts"
+cat << 'EOF_1787723353_19536' > "shared/functions/index.ts"
 export * from './src/auth-registry'
 export * from './src/constants'
 export * from './src/env'
 export * from './src/registry'
-EOF_1787620616_11427
+EOF_1787723353_19536
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/vitest.config.ts"
-cat << 'EOF_1787620616_5952' > "shared/functions/vitest.config.ts"
+cat << 'EOF_1787723353_23206' > "shared/functions/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 
 export default defineConfig({
     plugins: [react()],
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@shared/schemas': path.resolve(import.meta.dirname, '../../shared/schemas'),
-        },
     },
     test: {
         globals: true,
-        environment: 'jsdom',
     },
 });
-EOF_1787620616_5952
+EOF_1787723353_23206
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/constants.ts"
-cat << 'EOF_1787620616_7156' > "shared/functions/src/constants.ts"
+cat << 'EOF_1787723353_31094' > "shared/functions/src/constants.ts"
 export const AUTH_TOKEN_KEY = 'auth_token';
-EOF_1787620616_7156
+EOF_1787723353_31094
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/auth-registry.ts"
-cat << 'EOF_1787620617_9847' > "shared/functions/src/auth-registry.ts"
+cat << 'EOF_1787723353_7869' > "shared/functions/src/auth-registry.ts"
+
+export interface AuthUser {
+    id: string | number;
+    email?: string;
+    name: string;
+    role?: string;
+}
+
 export interface AuthPlugin {
-  name: string;
-  authenticate(credentials: any): Promise<{ id: string; name: string }>;
+    name: string;
+    authenticate(credentials: Record<string, any>): Promise<AuthUser>;
 }
 
-export class AuthRegistry {
-  private static strategies = new Map<string, AuthPlugin>();
+/**
+ * 認証プラグインのレジストリ管理
+ */
+export class AuthPluginRegistry {
+    private static plugins = new Map<string, AuthPlugin>();
 
-  static register(plugin: AuthPlugin) {
-    this.strategies.set(plugin.name, plugin);
-    console.log(`[AuthRegistry] Registered strategy: ${plugin.name}`);
-  }
-
-  static async authenticate(strategy: string, credentials: any) {
-    const plugin = this.strategies.get(strategy);
-    if (!plugin) {
-      throw new Error(`Authentication strategy '${strategy}' not found.`);
+    static register(plugin: AuthPlugin) {
+        this.plugins.set(plugin.name, plugin);
     }
-    return plugin.authenticate(credentials);
-  }
+
+    static get(name: string): AuthPlugin {
+        const plugin = this.plugins.get(name);
+        if (!plugin) {
+            throw new Error(`認証プラグイン "${name}" が登録されていません。`);
+        }
+        return plugin;
+    }
 }
-EOF_1787620617_9847
+
+EOF_1787723353_7869
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/registry.ts"
-cat << 'EOF_1787620617_5591' > "shared/functions/src/registry.ts"
+cat << 'EOF_1787723353_32065' > "shared/functions/src/registry.ts"
 // shared/core/src/plugins/registry.ts
 import { Hono } from 'hono';
 
@@ -913,11 +898,11 @@ export class PluginRegistry {
     }
 }
 
-EOF_1787620617_5591
+EOF_1787723353_32065
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/env.test.ts"
-cat << 'EOF_1787620617_17028' > "shared/functions/src/env.test.ts"
+cat << 'EOF_1787723353_17991' > "shared/functions/src/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { clientEnvSchema, serverEnvSchema, formatEnvForLog, ServerEnv, ClientEnv } from './env';
 
@@ -960,6 +945,7 @@ describe('.env', () => {
         DATABASE_URL: 'postgresql://user:pass@localhost:5432/mydb',
         JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
         CORS_ORIGIN: 'http://localhost:3000',
+        AUTH_PROVIDER: 'local',
     };
 
     describe('serverEnvSchema', () => {
@@ -1027,6 +1013,30 @@ describe('.env', () => {
 
             expect(() => parseServerEnv(invalidEnv)).toThrow('[Server] 環境変数の検証に失敗しました');
         });
+
+        it('AUTH_PROVIDER が ad の場合、LDAP_URL と LDAP_DOMAIN が揃っていれば検証に成功すること', () => {
+            const adEnv = {
+                ...validMockServerEnv,
+                AUTH_PROVIDER: 'ad',
+                LDAP_URL: 'ldap://dc.example.com:389',
+                LDAP_DOMAIN: 'example.com',
+            };
+
+            const result = parseServerEnv(adEnv);
+            expect(result.AUTH_PROVIDER).toBe('ad');
+            expect(result.LDAP_URL).toBe('ldap://dc.example.com:389');
+            expect(result.LDAP_DOMAIN).toBe('example.com');
+        });
+
+        it('AUTH_PROVIDER が ad で、LDAP_URL または LDAP_DOMAIN が欠けている場合、例外がスローされること', () => {
+            const invalidAdEnv = {
+                ...validMockServerEnv,
+                AUTH_PROVIDER: 'ad',
+                // LDAP_URL がない、LDAP_DOMAIN がない状態
+            };
+
+            expect(() => parseServerEnv(invalidAdEnv)).toThrow('[Server] 環境変数の検証に失敗しました');
+        });
     });
 
     describe('clientEnvSchema', () => {
@@ -1070,6 +1080,7 @@ describe('.env', () => {
                 CORS_ORIGIN: 'http://localhost:3000',
                 DATABASE_URL: 'postgresql://postgres:my-secret-password@localhost:5432/app_db',
                 JWT_SECRET: 'super-secret-jwt-key-with-at-least-32-chars!',
+                AUTH_PROVIDER: 'local',
             };
 
             const formatted = formatEnvForLog(mockParsedServerEnv);
@@ -1083,12 +1094,13 @@ describe('.env', () => {
             expect(formatted).toContain('"JWT_SECRET": "***"');
         });
     });
+
 });
-EOF_1787620617_17028
+EOF_1787723353_17991
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/env.ts"
-cat << 'EOF_1787620617_19127' > "shared/functions/src/env.ts"
+cat << 'EOF_1787723353_22216' > "shared/functions/src/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -1112,7 +1124,8 @@ export const DEFAULT_FRONTEND_PORT = 3000;
 export const clientEnvSchema = z
     .object({
         // バックエンドポート番号（VITE_API_TARGET_URL の補完計算用）
-        PORT: z.coerce.number().int().positive().default(DEFAULT_BACKEND_PORT),
+        PORT: z.coerce.number().int().positive()
+            .default(DEFAULT_BACKEND_PORT),
         // フロントエンド開発サーバー用ポート
         VITE_PORT: z.coerce.number().int().positive({ message: 'VITE_PORT は正の整数である必要があります' })
             .default(DEFAULT_FRONTEND_PORT),
@@ -1141,21 +1154,30 @@ export const serverEnvSchema = z
             .optional(),
         DATABASE_URL: z.string().url({ message: 'DATABASE_URL は有効なURL形式である必要があります' })
             .optional(),
-        // TEST_DATABASE_URL: z.string().url({ message: 'TEST_DATABASE_URL は有効なURL形式である必要があります' })
-        //     .optional(),
 
         // サーバー側では必須（optional 化の妥協は不要）
         JWT_SECRET: z.string().min(32, { message: 'JWT_SECRET は32文字以上である必要があります' }),
+
+        // 認証プロバイダ選択・AD用設定 ---
+        AUTH_PROVIDER: z.enum(['local', 'ad'])
+            .default('local'),
+        LDAP_URL: z.string().optional(),
+        LDAP_DOMAIN: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-        if (data.NODE_ENV === 'production') {
-            if (!data.DATABASE_URL) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    path: ['DATABASE_URL'],
-                    message: '本番環境では DATABASE_URL の指定が必須です',
-                });
-            }
+        if (data.NODE_ENV === 'production' && !data.DATABASE_URL) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['DATABASE_URL'],
+                message: '本番環境では DATABASE_URL の指定が必須です',
+            });
+        }
+        if (data.AUTH_PROVIDER === 'ad' && (!data.LDAP_URL || !data.LDAP_DOMAIN)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['LDAP_URL'],
+                message: 'AUTH_PROVIDER が ad の場合、LDAP_URL および LDAP_DOMAIN の指定は必須です',
+            });
         }
     })
     .transform((data) => ({
@@ -1164,8 +1186,6 @@ export const serverEnvSchema = z
         CORS_ORIGIN: data.CORS_ORIGIN ?? `http://localhost:${DEFAULT_FRONTEND_PORT}`,
         DATABASE_URL: data.DATABASE_URL
             ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db' : ''),
-        // TEST_DATABASE_URL: data.TEST_DATABASE_URL
-        //     ?? (data.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@db:5432/app_db_test' : ''),
     }));
 
 export type ClientEnv = z.infer<typeof clientEnvSchema>;
@@ -1177,44 +1197,26 @@ export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
 /** クライアント環境変数のパース (Vite 環境) */
 function getClientEnv(): ClientEnv {
-    const metaEnv = typeof import.meta !== 'undefined' ? (import.meta as { env?: Record<string, string> }).env : undefined;
-    const targetEnv =
-        metaEnv
-            ? metaEnv : typeof process !== 'undefined' && process.env
-                ? process.env : {};
-
+    const metaEnv = typeof import.meta !== 'undefined'
+        ? (import.meta as { env?: Record<string, string> }).env
+        : undefined;
+    const targetEnv = metaEnv
+        ? metaEnv
+        : ((typeof process !== 'undefined' && process.env) ? process.env : {});
     const result = clientEnvSchema.safeParse(targetEnv);
-
     if (!result.success) {
-        const formattedErrors = JSON.stringify(result.error.format(), null, 2);
-        console.error('❌ [Client] 無効な環境変数があります:\n', formattedErrors);
-        throw new Error(`[Client] 環境変数の検証に失敗しました:\n${formattedErrors}`);
+        throw new Error(`[Client] 環境変数の検証に失敗しました:\n${JSON.stringify(result.error.format(), null, 2)}`);
     }
-
     return result.data;
 }
 
 /** サーバー環境変数のパース (Node.js 環境) */
 function getServerEnv(): ServerEnv {
     const targetEnv = typeof process !== 'undefined' && process.env ? process.env : {};
-
-    //    // テスト実行時 (NODE_ENV === 'test') の安全フォールバック処理
-    //    if (targetEnv.NODE_ENV === 'test') {
-    //        const fallbackResult = serverEnvSchema.safeParse({
-    //            ...targetEnv,
-    //            JWT_SECRET: targetEnv.JWT_SECRET ?? '12345678901234567890123456789012',
-    //        });
-    //        if (fallbackResult.success) return fallbackResult.data;
-    //    }
-
     const result = serverEnvSchema.safeParse(targetEnv);
-
     if (!result.success) {
-        const formattedErrors = JSON.stringify(result.error.format(), null, 2);
-        console.error('❌ [Server] 無効な環境変数があります:\n', formattedErrors);
-        throw new Error(`[Server] 環境変数の検証に失敗しました:\n${formattedErrors}`);
+        throw new Error(`[Server] 環境変数の検証に失敗しました:\n${JSON.stringify(result.error.format(), null, 2)}`);
     }
-
     return result.data;
 }
 
@@ -1233,31 +1235,21 @@ export const env: ServerEnv = (isServer || isTest)
     ? getServerEnv()
     : (new Proxy({} as ServerEnv, {
         get() {
-            throw new Error('❌ [Security Alert] フロントエンド（ブラウザ）からサーバー環境変数 (env) を参照することはできません。');
+            throw new Error('❌ [Security Alert] フロントエンドからサーバー環境変数を参照することはできません。');
         },
     }));
 
-// ==========================================
-// 4. ログ出力用整形関数
-// ==========================================
 export function formatEnvForLog(targetEnv: ServerEnv = env): string {
     const maskedEnv = { ...targetEnv };
-
-    if (maskedEnv.DATABASE_URL) {
-        maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL
-            .replace(/:\/\/(.*):(.*)@/, '://$1:***@');
-    }
-    if (maskedEnv.JWT_SECRET) {
-        maskedEnv.JWT_SECRET = '***';
-    }
-
+    if (maskedEnv.DATABASE_URL) maskedEnv.DATABASE_URL = maskedEnv.DATABASE_URL.replace(/:\/\/(.*):(.*)@/, '://$1:***@');
+    if (maskedEnv.JWT_SECRET) maskedEnv.JWT_SECRET = '***';
     return JSON.stringify(maskedEnv, null, 2);
 }
-EOF_1787620617_19127
+EOF_1787723353_22216
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/package.json"
-cat << 'EOF_1787620617_1464' > "shared/errors/package.json"
+cat << 'EOF_1787723353_17935' > "shared/errors/package.json"
 {
     "name": "@shared/errors",
     "version": "1.0.0",
@@ -1279,11 +1271,11 @@ cat << 'EOF_1787620617_1464' > "shared/errors/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1787620617_1464
+EOF_1787723353_17935
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/index.ts"
-cat << 'EOF_1787620617_20454' > "shared/errors/index.ts"
+cat << 'EOF_1787723353_6804' > "shared/errors/index.ts"
 export * from './src/types';
 export * from './src/app-error';
 export * from './src/bad-request-error';
@@ -1292,11 +1284,29 @@ export * from './src/internal-server-error';
 export * from './src/not-found-error';
 export * from './src/unauthorized-error';
 export * from './src/validation-error';
-EOF_1787620617_20454
+EOF_1787723353_6804
+
+mkdir -p "shared/errors"
+echo "作成: shared/errors/vitest.config.ts"
+cat << 'EOF_1787723353_6529' > "shared/errors/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+    plugins: [react()],
+    resolve: {
+        tsconfigPaths: true,
+    },
+    test: {
+        globals: true,
+    },
+});
+EOF_1787723353_6529
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/unauthorized-error.ts"
-cat << 'EOF_1787620617_24391' > "shared/errors/src/unauthorized-error.ts"
+cat << 'EOF_1787723353_23611' > "shared/errors/src/unauthorized-error.ts"
 import { AppError } from './app-error';
 
 export class UnauthorizedError extends AppError {
@@ -1304,11 +1314,11 @@ export class UnauthorizedError extends AppError {
         super(401, 'unauthorized', 'Unauthorized', message);
     }
 }
-EOF_1787620617_24391
+EOF_1787723353_23611
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/app-error.ts"
-cat << 'EOF_1787620617_16069' > "shared/errors/src/app-error.ts"
+cat << 'EOF_1787723353_2641' > "shared/errors/src/app-error.ts"
 export class AppError extends Error {
     constructor(
         public readonly status: number,
@@ -1320,11 +1330,11 @@ export class AppError extends Error {
         this.name = 'AppError';
     }
 }
-EOF_1787620617_16069
+EOF_1787723353_2641
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/bad-request-error.ts"
-cat << 'EOF_1787620617_25658' > "shared/errors/src/bad-request-error.ts"
+cat << 'EOF_1787723353_26151' > "shared/errors/src/bad-request-error.ts"
 import { AppError } from './app-error';
 
 export class BadRequestError extends AppError {
@@ -1332,11 +1342,11 @@ export class BadRequestError extends AppError {
         super(400, 'bad-request', 'Bad Request', message);
     }
 }
-EOF_1787620617_25658
+EOF_1787723353_26151
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/types.ts"
-cat << 'EOF_1787620617_8543' > "shared/errors/src/types.ts"
+cat << 'EOF_1787723353_16825' > "shared/errors/src/types.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -1351,11 +1361,11 @@ export interface ProblemDetails {
     instance: string;
     invalidParams?: InvalidParam[];
 }
-EOF_1787620617_8543
+EOF_1787723353_16825
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/forbidden-error.ts"
-cat << 'EOF_1787620617_21593' > "shared/errors/src/forbidden-error.ts"
+cat << 'EOF_1787723353_14615' > "shared/errors/src/forbidden-error.ts"
 import { AppError } from './app-error';
 
 export class ForbiddenError extends AppError {
@@ -1363,11 +1373,11 @@ export class ForbiddenError extends AppError {
         super(403, 'forbidden', 'Forbidden', message);
     }
 }
-EOF_1787620617_21593
+EOF_1787723353_14615
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/validation-error.ts"
-cat << 'EOF_1787620617_13869' > "shared/errors/src/validation-error.ts"
+cat << 'EOF_1787723353_13737' > "shared/errors/src/validation-error.ts"
 import { AppError } from './app-error';
 import type { InvalidParam } from './types';
 
@@ -1379,11 +1389,11 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1787620617_13869
+EOF_1787723353_13737
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/not-found-error.ts"
-cat << 'EOF_1787620617_31429' > "shared/errors/src/not-found-error.ts"
+cat << 'EOF_1787723353_6738' > "shared/errors/src/not-found-error.ts"
 import { AppError } from './app-error';
 
 export class NotFoundError extends AppError {
@@ -1391,11 +1401,11 @@ export class NotFoundError extends AppError {
         super(404, 'not-found', 'Not Found', message);
     }
 }
-EOF_1787620617_31429
+EOF_1787723353_6738
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/internal-server-error.ts"
-cat << 'EOF_1787620617_1496' > "shared/errors/src/internal-server-error.ts"
+cat << 'EOF_1787723353_19321' > "shared/errors/src/internal-server-error.ts"
 import { AppError } from './app-error';
 
 export class InternalServerError extends AppError {
@@ -1403,11 +1413,11 @@ export class InternalServerError extends AppError {
         super(500, 'internal-server-error', 'Internal Server Error', message);
     }
 }
-EOF_1787620617_1496
+EOF_1787723353_19321
 
 mkdir -p "shared/client"
 echo "作成: shared/client/package.json"
-cat << 'EOF_1787620617_12960' > "shared/client/package.json"
+cat << 'EOF_1787723353_24062' > "shared/client/package.json"
 {
     "name": "@shared/client",
     "version": "1.0.0",
@@ -1437,6 +1447,7 @@ cat << 'EOF_1787620617_12960' > "shared/client/package.json"
         "tailwind-merge": "^3.0.2"
     },
     "devDependencies": {
+        "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/user-event": "^14.6.3",
         "@types/react": "^18.2.55",
         "@types/react-dom": "^18.2.19",
@@ -1446,11 +1457,11 @@ cat << 'EOF_1787620617_12960' > "shared/client/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787620617_12960
+EOF_1787723353_24062
 
 mkdir -p "shared/client"
 echo "作成: shared/client/index.ts"
-cat << 'EOF_1787620617_11171' > "shared/client/index.ts"
+cat << 'EOF_1787723353_26515' > "shared/client/index.ts"
 export * from './src/lib/utils';
 export * from './src/components/button';
 export * from './src/components/layout';
@@ -1459,16 +1470,17 @@ export * from './src/components/toaster';
 export { clientEnvSchema, clientEnv } from '@shared/functions'
 export type { ClientEnv } from '@shared/functions'
 
-export * from '@shared/functions/constants'
-EOF_1787620617_11171
+export * from '@shared/functions'
+EOF_1787723353_26515
 
 mkdir -p "shared/client"
 echo "作成: shared/client/tsconfig.json"
-cat << 'EOF_1787620617_11385' > "shared/client/tsconfig.json"
+cat << 'EOF_1787723353_13143' > "shared/client/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "types": [
+            "vitest/globals",
             "@testing-library/jest-dom"
         ]
     },
@@ -1476,11 +1488,11 @@ cat << 'EOF_1787620617_11385' > "shared/client/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1787620617_11385
+EOF_1787723353_13143
 
 mkdir -p "shared/client"
 echo "作成: shared/client/vitest.config.ts"
-cat << 'EOF_1787620617_20426' > "shared/client/vitest.config.ts"
+cat << 'EOF_1787723353_24630' > "shared/client/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -1489,22 +1501,25 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            '@shared/schemas': path.resolve(import.meta.dirname, '../../shared/schemas'),
-        },
     },
     test: {
         globals: true,
         environment: 'jsdom',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['../../vitest/setup.ts'],  // 各テスト実行前にテーブルデータを全消去
+        setupFiles: ['../../vitest-clear.ts', './src/vitest-setup.ts'],  // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787620617_20426
+EOF_1787723353_24630
+
+mkdir -p "shared/client/src"
+echo "作成: shared/client/src/vitest-setup.ts"
+cat << 'EOF_1787723353_19925' > "shared/client/src/vitest-setup.ts"
+import '@testing-library/jest-dom/vitest';
+EOF_1787723353_19925
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/button.tsx"
-cat << 'EOF_1787620617_24933' > "shared/client/src/components/button.tsx"
+cat << 'EOF_1787723353_24958' > "shared/client/src/components/button.tsx"
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
@@ -1548,11 +1563,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = 'Button';
-EOF_1787620617_24933
+EOF_1787723353_24958
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/toaster.tsx"
-cat << 'EOF_1787620617_5847' > "shared/client/src/components/toaster.tsx"
+cat << 'EOF_1787723353_209' > "shared/client/src/components/toaster.tsx"
 import { Toaster as SonnerToaster, toast } from 'sonner';
 import { ProblemDetails } from '@shared/errors';
 
@@ -1601,12 +1616,11 @@ export function showErrorToast(error: unknown) {
 }
 
 export { toast };
-EOF_1787620617_5847
+EOF_1787723353_209
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/button.test.tsx"
-cat << 'EOF_1787620617_574' > "shared/client/src/components/button.test.tsx"
-import '@testing-library/jest-dom';
+cat << 'EOF_1787723353_10026' > "shared/client/src/components/button.test.tsx"
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -1637,18 +1651,18 @@ describe('Button Component', () => {
         expect(handleClick).not.toHaveBeenCalled();
     });
 });
-EOF_1787620617_574
+EOF_1787723353_10026
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/index.ts"
-cat << 'EOF_1787620617_21059' > "shared/client/src/components/layout/index.ts"
+cat << 'EOF_1787723353_28329' > "shared/client/src/components/layout/index.ts"
 export * from './AppLayout';
 export * from './SidebarNav';
-EOF_1787620617_21059
+EOF_1787723353_28329
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/AppLayout.tsx"
-cat << 'EOF_1787620617_8394' > "shared/client/src/components/layout/AppLayout.tsx"
+cat << 'EOF_1787723353_14179' > "shared/client/src/components/layout/AppLayout.tsx"
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -1744,11 +1758,11 @@ export function HeaderContent({ title, children }: HeaderContentProps) {
         </div>
     );
 }
-EOF_1787620617_8394
+EOF_1787723353_14179
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/SidebarNav.tsx"
-cat << 'EOF_1787620617_1376' > "shared/client/src/components/layout/SidebarNav.tsx"
+cat << 'EOF_1787723353_31892' > "shared/client/src/components/layout/SidebarNav.tsx"
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -1780,12 +1794,11 @@ export function SidebarNav({ items }: { items: SidebarNavItem[] }) {
         </nav>
     );
 }
-EOF_1787620617_1376
+EOF_1787723353_31892
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/layout.test.tsx"
-cat << 'EOF_1787620617_5616' > "shared/client/src/components/layout.test.tsx"
-import '@testing-library/jest-dom';
+cat << 'EOF_1787723353_16171' > "shared/client/src/components/layout.test.tsx"
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { AppLayout, HeaderContent, SidebarNav } from './layout';
@@ -1858,11 +1871,11 @@ describe('AppLayout Component', () => {
         expect(normalLink).not.toHaveClass('bg-blue-50');
     });
 });
-EOF_1787620617_5616
+EOF_1787723353_16171
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/toaster.test.tsx"
-cat << 'EOF_1787620617_29381' > "shared/client/src/components/toaster.test.tsx"
+cat << 'EOF_1787723353_32720' > "shared/client/src/components/toaster.test.tsx"
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { toast, showErrorToast } from './toaster';
 
@@ -1916,21 +1929,21 @@ describe('showErrorToast Utility', () => {
     });
   });
 });
-EOF_1787620617_29381
+EOF_1787723353_32720
 
 mkdir -p "shared/client/src/lib"
 echo "作成: shared/client/src/lib/utils.ts"
-cat << 'EOF_1787620617_68' > "shared/client/src/lib/utils.ts"
+cat << 'EOF_1787723353_20940' > "shared/client/src/lib/utils.ts"
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-EOF_1787620617_68
+EOF_1787723353_20940
 
 echo "作成: plan.md"
-cat << 'EOF_1787620617_15362' > "plan.md"
+cat << 'EOF_1787723353_19197' > "plan.md"
 # 📋 拡張候補一覧表（最新版）
 
 ### 凡例
@@ -1963,22 +1976,22 @@ cat << 'EOF_1787620617_15362' > "plan.md"
 | **9. 多言語対応 (i18n)** | **多言語切り替え** | 日本語 / 英語等の表示切り替えおよび言語リソース管理 | `apps/web` / `packages/ui` | ⏳ **未実装** | グローバル利用への拡張性確保 |
 
 ---
-EOF_1787620617_15362
+EOF_1787723353_19197
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1787620617_14589' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1787723353_13563' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1787620617_14589
+EOF_1787723353_13563
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1787620617_31380' > ".devcontainer/Dockerfile"
+cat << 'EOF_1787723353_6879' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -1992,11 +2005,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
-EOF_1787620617_31380
+EOF_1787723353_6879
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1787620617_533' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1787723353_25429' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -2023,11 +2036,11 @@ cat << 'EOF_1787620617_533' > ".devcontainer/devcontainer.json"
   ],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1787620617_533
+EOF_1787723353_25429
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1787620617_14436' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1787723353_5735' > ".devcontainer/docker-compose.yml"
 
 services:
   app:
@@ -2056,20 +2069,20 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app_db
-      POSTGRES_DB_TEST: app_db_test
+      # POSTGRES_DB_TEST: app_db_test
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+      # - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
       # 起動時に app_db_test も自動作成するスクリプトをマウント
 
 volumes:
   postgres-data:
-EOF_1787620617_14436
+EOF_1787723353_5735
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1787620617_629' > "tsconfig.json"
+cat << 'EOF_1787723353_5585' > "tsconfig.json"
 {
     "compilerOptions": {
         "target": "ESNext",
@@ -2150,11 +2163,11 @@ cat << 'EOF_1787620617_629' > "tsconfig.json"
         "build"
     ]
 }
-EOF_1787620617_629
+EOF_1787723353_5585
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/package.json"
-cat << 'EOF_1787620617_32462' > "plugins/auth-ad/package.json"
+cat << 'EOF_1787723353_8194' > "plugins/auth-ad/package.json"
 {
     "name": "@plugins/auth-ad",
     "version": "1.0.0",
@@ -2165,31 +2178,82 @@ cat << 'EOF_1787620617_32462' > "plugins/auth-ad/package.json"
         "build": "tsc",
         "test": "vitest run",
         "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "ldapts": "^8.2.0"
     }
 }
-EOF_1787620617_32462
+EOF_1787723353_8194
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/index.ts"
-cat << 'EOF_1787620617_14779' > "plugins/auth-ad/index.ts"
-import { AuthPlugin } from '@shared/functions';
+cat << 'EOF_1787723353_23594' > "plugins/auth-ad/index.ts"
+import { Client } from 'ldapts';
+import { AuthPlugin, AuthUser, env } from '@shared/functions';
 
 export class ActiveDirectoryAuthPlugin implements AuthPlugin {
-  name = 'ad';
+    name = 'ad';
 
-  async authenticate(credentials: any) {
-    const { username, password } = credentials;
-    if (username === 'ad_user' && password === 'domain_pass') {
-      return { id: '100', name: 'AD Domain User' };
+    async authenticate(credentials: Record<string, any>): Promise<AuthUser> {
+        const { username, password, email } = credentials;
+        const loginId = username || email;
+
+        if (!loginId || !password) {
+            throw new Error('ユーザー名（またはメールアドレス）とパスワードを入力してください。');
+        }
+
+        const ldapUrl = env.LDAP_URL;
+        const ldapDomain = env.LDAP_DOMAIN;
+
+        if (!ldapUrl || !ldapDomain) {
+            throw new Error('LDAP_URL または LDAP_DOMAIN が設定されていません。');
+        }
+
+        const client = new Client({ url: ldapUrl });
+
+        try {
+            const accountName = loginId.split('@')[0];
+            const userPrincipalName = `${accountName}@${ldapDomain}`;
+
+            await client.bind(userPrincipalName, password);
+
+            return {
+                id: accountName,
+                email: loginId.includes('@') ? loginId : `${accountName}@${ldapDomain}`,
+                name: accountName,
+                role: 'user',
+            };
+        } catch (error) {
+            throw new Error('Active Directory authentication failed');
+        } finally {
+            await client.unbind().catch(() => { });
+        }
     }
-    throw new Error('Active Directory authentication failed');
-  }
 }
-EOF_1787620617_14779
+EOF_1787723353_23594
+
+mkdir -p "plugins/auth-ad"
+echo "作成: plugins/auth-ad/vitest.config.ts"
+cat << 'EOF_1787723353_12472' > "plugins/auth-ad/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import path from 'path';
+
+export default defineConfig({
+    resolve: {
+        tsconfigPaths: true,
+    },
+    test: {
+        globals: true,
+        environment: 'node',
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../../vitest-clear.ts'],  // 各テスト実行前にテーブルデータを全消去
+    },
+});
+EOF_1787723353_12472
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/package.json"
-cat << 'EOF_1787620617_30904' > "plugins/auth-local/package.json"
+cat << 'EOF_1787723353_31413' > "plugins/auth-local/package.json"
 {
     "name": "@plugins/auth-local",
     "version": "1.0.0",
@@ -2208,31 +2272,72 @@ cat << 'EOF_1787620617_30904' > "plugins/auth-local/package.json"
         "@types/bcryptjs": "^2.4.6"
     }
 }
-EOF_1787620617_30904
+EOF_1787723353_31413
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/index.ts"
-cat << 'EOF_1787620617_21780' > "plugins/auth-local/index.ts"
-import { AuthPlugin } from '@shared/functions';
+cat << 'EOF_1787723353_22506' > "plugins/auth-local/index.ts"
+import { eq } from 'drizzle-orm';
+import { db, users } from '@shared/server';
+import { AuthPlugin, AuthUser } from '@shared/functions';
+import { verifyPassword } from './src/auth-utils';
 
 export class LocalAuthPlugin implements AuthPlugin {
-  name = 'local';
+    name = 'local';
 
-  async authenticate(credentials: any) {
-    const { username, password } = credentials;
-    if (username === 'admin' && password === 'password') {
-      return { id: '1', name: 'Local Admin' };
+    async authenticate(credentials: Record<string, any>): Promise<AuthUser> {
+        const { email, password } = credentials; // ログインIDとして email を想定
+        if (!email || !password) {
+            throw new Error('メールアドレスとパスワードを入力してください。');
+        }
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email),
+        });
+
+        if (!user) {
+            throw new Error('Invalid local credentials');
+        }
+
+        const isPasswordValid = await verifyPassword(password, user.passwordHash);
+        if (!isPasswordValid) {
+            throw new Error('Invalid local credentials');
+        }
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+        };
     }
-    throw new Error('Invalid local credentials');
-  }
 }
 
 export * from './src/auth-utils';
-EOF_1787620617_21780
+EOF_1787723353_22506
+
+mkdir -p "plugins/auth-local"
+echo "作成: plugins/auth-local/vitest.config.ts"
+cat << 'EOF_1787723353_16900' > "plugins/auth-local/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import path from 'path';
+
+export default defineConfig({
+    resolve: {
+        tsconfigPaths: true,
+    },
+    test: {
+        globals: true,
+        environment: 'node',
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../../vitest-clear.ts'],  // 各テスト実行前にテーブルデータを全消去
+    },
+});
+EOF_1787723353_16900
 
 mkdir -p "plugins/auth-local/src"
 echo "作成: plugins/auth-local/src/auth-utils.ts"
-cat << 'EOF_1787620617_19445' > "plugins/auth-local/src/auth-utils.ts"
+cat << 'EOF_1787723353_21767' > "plugins/auth-local/src/auth-utils.ts"
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 
@@ -2293,11 +2398,11 @@ export async function verifyJwt<T = Record<string, unknown>>(
         return null;
     }
 }
-EOF_1787620617_19445
+EOF_1787723353_21767
 
 mkdir -p "plugins/auth-local/src"
 echo "作成: plugins/auth-local/src/auth-utils.test.ts"
-cat << 'EOF_1787620617_16867' > "plugins/auth-local/src/auth-utils.test.ts"
+cat << 'EOF_1787723353_15507' > "plugins/auth-local/src/auth-utils.test.ts"
 import { describe, it, expect } from 'vitest';
 import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
 
@@ -2359,10 +2464,10 @@ describe('Auth Utilities (Step 4.1)', () => {
         });
     });
 });
-EOF_1787620617_16867
+EOF_1787723353_15507
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1787620617_12964' > "vitest.config.ts"
+cat << 'EOF_1787723353_12284' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -2378,7 +2483,7 @@ export default defineConfig({
             'apps/*/vitest.config.ts',
             'features/*/vitest.config.ts',
             'shared/*/vitest.config.ts',
-            'plugins/*/vitest.config.ts',
+            'plugins/*/vitest.config.ts'
         ],
 
         exclude: ['node_modules', 'dist', '.next', 'coverage'],
@@ -2390,11 +2495,79 @@ export default defineConfig({
         },
     },
 });
-EOF_1787620617_12964
+EOF_1787723353_12284
+
+echo "作成: vitest-clear.ts"
+cat << 'EOF_1787723353_7433' > "vitest-clear.ts"
+import { vi, beforeEach } from 'vitest';
+import { newDb } from 'pg-mem';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { applyIntegrationsToPool } from 'drizzle-pgmem';
+import * as actualSchema from '@shared/schemas'; // パスはプロジェクトに合わせて調整してください
+
+// 1. メモリDBインスタンスの作成
+const mem = newDb({
+    autoCreateForeignKeyIndices: true,
+});
+
+const { Pool } = mem.adapters.createPg();
+const pool = new Pool();
+
+applyIntegrationsToPool(pool);
+
+const memDb = drizzle(pool, { schema: actualSchema });
+
+// 2. 💡 テーブルの初期作成（ここはファイル読み込み時に一度だけ実行する。DROPは絶対に書かない）
+mem.public.none(`
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS plugins (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
+  );
+`);
+
+// 3. モックの設定
+vi.mock('@shared/server', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('@shared/server')>();
+    return {
+        ...actual,
+        db: memDb,
+        activeQueryClient: pool,
+    };
+});
+
+// 4. 💡 各テスト実行前の処理（テーブル構造は壊さず、データとシーケンスだけをきれいにする）
+beforeEach(() => {
+    mem.public.none(`
+    DELETE FROM users;
+    DELETE FROM plugins;
+  `);
+
+    // SERIALのカウンターを1に戻す
+    try {
+        mem.public.none(`ALTER SEQUENCE users_id_seq RESTART WITH 1;`);
+    } catch (e) {
+        // 無視
+    }
+});
+EOF_1787723353_7433
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/package.json"
-cat << 'EOF_1787620617_2711' > "features/user-management/package.json"
+cat << 'EOF_1787723353_20615' > "features/user-management/package.json"
 {
     "name": "@features/user-management",
     "version": "1.0.0",
@@ -2427,11 +2600,17 @@ cat << 'EOF_1787620617_2711' > "features/user-management/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787620617_2711
+EOF_1787723353_20615
+
+mkdir -p "features/user-management"
+echo "作成: features/user-management/vitest-setup.ts"
+cat << 'EOF_1787723353_20858' > "features/user-management/vitest-setup.ts"
+import '@testing-library/jest-dom/vitest';
+EOF_1787723353_20858
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/index.ts"
-cat << 'EOF_1787620617_23899' > "features/user-management/index.ts"
+cat << 'EOF_1787723353_25459' > "features/user-management/index.ts"
 import { PluginRegistry } from '@shared/functions';
 import { userRoutes } from './src/routes';
 
@@ -2453,11 +2632,31 @@ PluginRegistry.register({
         },
     ],
 });
-EOF_1787620617_23899
+EOF_1787723353_25459
+
+mkdir -p "features/user-management"
+echo "作成: features/user-management/vitest.config.ts"
+cat << 'EOF_1787723353_11784' > "features/user-management/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()],
+    resolve: {
+        tsconfigPaths: true
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['./vitest-setup.ts', '../../vitest-clear.ts'],     // 各テスト実行前にテーブルデータを全消去
+    },
+});
+EOF_1787723353_11784
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/routes.test.ts"
-cat << 'EOF_1787620617_27046' > "features/user-management/src/routes.test.ts"
+cat << 'EOF_1787723353_18593' > "features/user-management/src/routes.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { db, users } from '@shared/server';
@@ -2562,11 +2761,11 @@ describe('User Management Plugin API', () => {
         expect(res.status).toBe(200);
     });
 });
-EOF_1787620617_27046
+EOF_1787723353_18593
 
 mkdir -p "features/user-management/src/api"
 echo "作成: features/user-management/src/api/user-management-api.ts"
-cat << 'EOF_1787620617_11677' > "features/user-management/src/api/user-management-api.ts"
+cat << 'EOF_1787723353_13506' > "features/user-management/src/api/user-management-api.ts"
 export interface User {
     id: number;
     name: string;
@@ -2624,15 +2823,15 @@ export const updateUserRole = async (apiBaseUrl: string, id: number, role: 'admi
     const data = await res.json();
     return data.user;
 };
-EOF_1787620617_11677
+EOF_1787723353_13506
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/routes.ts"
-cat << 'EOF_1787620617_26276' > "features/user-management/src/routes.ts"
+cat << 'EOF_1787723353_22515' > "features/user-management/src/routes.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { db, users as usersTable } from '@shared/server';
+import { db, users } from '@shared/server';
 import { ValidationError, BadRequestError, NotFoundError } from '@shared/errors';
 import { hashPassword } from '@plugins/auth-local';
 import { eq } from 'drizzle-orm';
@@ -2650,13 +2849,13 @@ function getCurrentUserId(c: any): number | null {
 // 1. ユーザー一覧取得
 userRoutes.get('/', async (c) => {
     const userList = await db.select({
-        id: usersTable.id,
-        name: usersTable.name,
-        email: usersTable.email,
-        role: usersTable.role,
-        isActive: usersTable.isActive,
-        createdAt: usersTable.createdAt,
-    }).from(usersTable);
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+    }).from(users);
 
     return c.json({ users: userList });
 });
@@ -2682,7 +2881,7 @@ userRoutes.post(
     async (c) => {
         const body = c.req.valid('json');
 
-        const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, body.email));
+        const [existingUser] = await db.select().from(users).where(eq(users.email, body.email));
         if (existingUser) {
             throw new BadRequestError('指定されたメールアドレスは既に登録されています');
         }
@@ -2690,19 +2889,19 @@ userRoutes.post(
         const defaultPassword = `InitPass_${Math.random().toString(36).slice(-8)}`;
         const passwordHash = await hashPassword(defaultPassword);
 
-        const [newUser] = await db.insert(usersTable).values({
+        const [newUser] = await db.insert(users).values({
             name: body.name,
             email: body.email,
             passwordHash,
             role: body.role,
             isActive: true,
         }).returning({
-            id: usersTable.id,
-            name: usersTable.name,
-            email: usersTable.email,
-            role: usersTable.role,
-            isActive: usersTable.isActive,
-            createdAt: usersTable.createdAt,
+            id: users.id,
+            name: users.name,
+            email: users.email,
+            role: users.role,
+            isActive: users.isActive,
+            createdAt: users.createdAt,
         });
 
         return c.json({ user: newUser }, 201);
@@ -2727,15 +2926,15 @@ userRoutes.patch(
         }
 
         const updatedUsers = await db
-            .update(usersTable)
+            .update(users)
             .set({ role })
-            .where(eq(usersTable.id, id))
+            .where(eq(users.id, id))
             .returning({
-                id: usersTable.id,
-                name: usersTable.name,
-                email: usersTable.email,
-                role: usersTable.role,
-                isActive: usersTable.isActive,
+                id: users.id,
+                name: users.name,
+                email: users.email,
+                role: users.role,
+                isActive: users.isActive,
             });
 
         if (updatedUsers.length === 0) {
@@ -2764,15 +2963,15 @@ userRoutes.patch(
         }
 
         const updatedUsers = await db
-            .update(usersTable)
+            .update(users)
             .set({ isActive })
-            .where(eq(usersTable.id, id))
+            .where(eq(users.id, id))
             .returning({
-                id: usersTable.id,
-                name: usersTable.name,
-                email: usersTable.email,
-                role: usersTable.role,
-                isActive: usersTable.isActive,
+                id: users.id,
+                name: users.name,
+                email: users.email,
+                role: users.role,
+                isActive: users.isActive,
             });
 
         if (updatedUsers.length === 0) {
@@ -2793,12 +2992,12 @@ userRoutes.delete('/:id', async (c) => {
     }
 
     const deletedUsers = await db
-        .delete(usersTable)
-        .where(eq(usersTable.id, id))
+        .delete(users)
+        .where(eq(users.id, id))
         .returning({
-            id: usersTable.id,
-            name: usersTable.name,
-            email: usersTable.email,
+            id: users.id,
+            name: users.name,
+            email: users.email,
         });
 
     if (deletedUsers.length === 0) {
@@ -2807,11 +3006,11 @@ userRoutes.delete('/:id', async (c) => {
 
     return c.json({ message: 'ユーザーを削除しました', user: deletedUsers[0] });
 });
-EOF_1787620617_26276
+EOF_1787723353_22515
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/ui.ts"
-cat << 'EOF_1787620617_6958' > "features/user-management/src/ui.ts"
+cat << 'EOF_1787723353_11799' > "features/user-management/src/ui.ts"
 import { PluginRegistry } from '@shared/functions';
 import { UserManagementTable } from './components/UserManagementTable';
 
@@ -2833,11 +3032,11 @@ export function registerUserManagementPlugin() {
         ],
     });
 }
-EOF_1787620617_6958
+EOF_1787723353_11799
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/UserManagementTable.test.tsx"
-cat << 'EOF_1787620617_12564' > "features/user-management/src/components/UserManagementTable.test.tsx"
+cat << 'EOF_1787723353_27067' > "features/user-management/src/components/UserManagementTable.test.tsx"
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { UserManagementTable } from './UserManagementTable';
@@ -3084,11 +3283,11 @@ describe('UserManagementTable Component', () => {
         });
     });
 });
-EOF_1787620617_12564
+EOF_1787723353_27067
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/CreateUserModal.tsx"
-cat << 'EOF_1787620617_9654' > "features/user-management/src/components/CreateUserModal.tsx"
+cat << 'EOF_1787723353_22215' > "features/user-management/src/components/CreateUserModal.tsx"
 import React, { useState } from 'react';
 
 interface CreateUserModalProps {
@@ -3215,11 +3414,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
         </div>
     );
 };
-EOF_1787620617_9654
+EOF_1787723353_22215
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/UserManagementTable.tsx"
-cat << 'EOF_1787620617_18128' > "features/user-management/src/components/UserManagementTable.tsx"
+cat << 'EOF_1787723353_10966' > "features/user-management/src/components/UserManagementTable.tsx"
 import React, { useEffect, useState } from 'react';
 import { toast, showErrorToast } from '@shared/client';
 import { CreateUserModal } from './CreateUserModal';
@@ -3453,11 +3652,11 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </div>
     );
 };
-EOF_1787620617_18128
+EOF_1787723353_10966
 
 mkdir -p "features"
 echo "作成: features/tsconfig.json"
-cat << 'EOF_1787620617_14227' > "features/tsconfig.json"
+cat << 'EOF_1787723353_24666' > "features/tsconfig.json"
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
@@ -3469,30 +3668,10 @@ cat << 'EOF_1787620617_14227' > "features/tsconfig.json"
         "./**/*"
     ]
 }
-EOF_1787620617_14227
-
-mkdir -p "features"
-echo "作成: features/vitest.config.ts"
-cat << 'EOF_1787620617_19309' > "features/vitest.config.ts"
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig({
-    plugins: [react()],
-    resolve: {
-        tsconfigPaths: true
-    },
-    test: {
-        globals: true,
-        environment: 'jsdom',
-        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['../vitest/setup.ts'],     // 各テスト実行前にテーブルデータを全消去
-    },
-});
-EOF_1787620617_19309
+EOF_1787723353_24666
 
 echo "作成: plan-step9.md"
-cat << 'EOF_1787620617_7384' > "plan-step9.md"
+cat << 'EOF_1787723353_13222' > "plan-step9.md"
 # 📌 Step 9: ユーザー管理機能（管理者用基盤）状況整理（最新版）
 
 ### 🎯 Step 9 のゴール
@@ -3551,10 +3730,10 @@ Step 9（ユーザー管理および認可基盤）が完了したため、次�
 * **候補 A (汎用 UI):** データテーブルコンポーネント（検索・ソート・ページネーション）、汎用モーダル・ダイアログの抽象化基盤。
 * **候補 B (エラー・認証):** 自動ログアウト処理（401 トークン切れ検知）や標準エラー画面 (404 / 500) の作成。
 * **候補 C (その他):** 監査ログ (Audit Log) の記録基盤やシステム内通知基盤。
-EOF_1787620617_7384
+EOF_1787723353_13222
 
 echo "作成: tree.txt"
-cat << 'EOF_1787620617_449' > "tree.txt"
+cat << 'EOF_1787723353_4891' > "tree.txt"
 .
 ├── apps
 │   ├── api
@@ -3712,10 +3891,10 @@ cat << 'EOF_1787620617_449' > "tree.txt"
 ├── SUMMRY.md
 ├── tsconfig.json
 └── vitest.config.ts
-EOF_1787620617_449
+EOF_1787723353_4891
 
 echo "作成: doc.md"
-cat << 'EOF_1787620617_3320' > "doc.md"
+cat << 'EOF_1787723353_16222' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -3830,10 +4009,10 @@ cat << 'EOF_1787620617_3320' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1787620617_3320
+EOF_1787723353_16222
 
 echo "作成: SUMMRY.md"
-cat << 'EOF_1787620617_16841' > "SUMMRY.md"
+cat << 'EOF_1787723353_6269' > "SUMMRY.md"
 これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
 # 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
 
@@ -4100,11 +4279,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 
 ---
-EOF_1787620617_16841
+EOF_1787723353_6269
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1787620617_8878' > "apps/web/package.json"
+cat << 'EOF_1787723353_21425' > "apps/web/package.json"
 {
     "name": "@app/web",
     "version": "1.0.0",
@@ -4132,11 +4311,17 @@ cat << 'EOF_1787620617_8878' > "apps/web/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787620617_8878
+EOF_1787723353_21425
+
+mkdir -p "apps/web"
+echo "作成: apps/web/vitest-setup.ts"
+cat << 'EOF_1787723353_30660' > "apps/web/vitest-setup.ts"
+import '@testing-library/jest-dom/vitest';
+EOF_1787723353_30660
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1787620617_20744' > "apps/web/index.html"
+cat << 'EOF_1787723353_21951' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -4148,11 +4333,11 @@ cat << 'EOF_1787620617_20744' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1787620617_20744
+EOF_1787723353_21951
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1787620617_10266' > "apps/web/tsconfig.json"
+cat << 'EOF_1787723353_4843' > "apps/web/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -4163,7 +4348,7 @@ cat << 'EOF_1787620617_10266' > "apps/web/tsconfig.json"
             "DOM.Iterable"
         ],
         "types": [
-            "vite/client",
+            "vitest/globals",
             "@testing-library/jest-dom"
         ]
     },
@@ -4171,11 +4356,11 @@ cat << 'EOF_1787620617_10266' > "apps/web/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1787620617_10266
+EOF_1787723353_4843
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1787620617_10198' > "apps/web/vitest.config.ts"
+cat << 'EOF_1787723353_10028' > "apps/web/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -4184,24 +4369,19 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         tsconfigPaths: true,
-        alias: {
-            // エイリアスを直接指定
-            '@shared/client': path.resolve(import.meta.dirname, '../../shared/client'),
-            '@features-user-management': path.resolve(import.meta.dirname, '../../features/user-management/src'),
-        },
     },
     test: {
         globals: true,
         environment: 'jsdom',
-        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['../../vitest/setup.ts'],      // 各テスト実行前にテーブルデータを全消去
+        fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['./vitest-setup.ts'],      // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787620617_10198
+EOF_1787723353_10028
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/index.css"
-cat << 'EOF_1787620617_4603' > "apps/web/src/index.css"
+cat << 'EOF_1787723353_27162' > "apps/web/src/index.css"
 @import "tailwindcss";
 
 /* モノレポ内の共有 UI パッケージも Tailwind のスキャン対象に指定 */
@@ -4209,11 +4389,11 @@ cat << 'EOF_1787620617_4603' > "apps/web/src/index.css"
 
 /* 拡張する機能の置き場所にも、UI が記述される可能性があるので、その場所も Tailwind のスキャン対象に指定 */
 @source "../../../features";
-EOF_1787620617_4603
+EOF_1787723353_27162
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.test.tsx"
-cat << 'EOF_1787620617_5565' > "apps/web/src/App.test.tsx"
+cat << 'EOF_1787723353_17638' > "apps/web/src/App.test.tsx"
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
@@ -4233,14 +4413,14 @@ vi.mock('./components/ProtectedRoute', () => ({
     ProtectedRoute: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-// UserManagementTable のみモック化（PluginRegistryの登録はbeforeEachで行う）
-vi.mock('@features-user-management/ui', () => ({
+// UserManagementTable のモック（配列の `.map()` エラーを防ぐため、安全な描画を行う）
+vi.mock('@features/user-management/src/ui', () => ({
     UserManagementTable: () => <div data-testid="user-management-table">ユーザー管理テーブル画面</div>,
     registerUserManagementPlugin: vi.fn(),
 }));
 
-// @shared/env の部分モック
-vi.mock('@shared/env', async (importOriginal) => {
+// @shared/client（環境変数やトースト関連）の部分モック
+vi.mock('@shared/client', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@shared/client')>();
     return {
         ...actual,
@@ -4248,20 +4428,23 @@ vi.mock('@shared/env', async (importOriginal) => {
             ...actual.clientEnv,
             VITE_APP_TITLE: 'テストアプリ',
         },
+        toast: {
+            success: vi.fn(),
+        },
+        showErrorToast: vi.fn(),
     };
 });
 
-// fetch のモック
+// グローバル fetch のモック
 const globalFetch = vi.fn();
 (globalThis as any).fetch = globalFetch;
 
-describe('App Component (User Management Integration)', () => {
+describe('App Component Integration Tests', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // 1. テストごとに PluginRegistry を初期化
         PluginRegistry.clear();
 
-        // 2. アプリ起動前（エントリーポイント）にプラグインが登録された状態を模倣する
+        // ユーザー管理プラグインの初期登録
         PluginRegistry.register({
             id: 'user-management',
             name: 'ユーザー管理',
@@ -4274,10 +4457,30 @@ describe('App Component (User Management Integration)', () => {
                 },
             ],
         });
+
+        // デフォルトの fetch 成功レスポンスを設定
+        globalFetch.mockResolvedValue({
+            ok: true,
+            json: async () => [],
+        });
     });
 
     afterEach(() => {
         cleanup();
+    });
+
+    it('初期表示としてダッシュボードとタイトルが正しくレンダリングされること', () => {
+        mockUseAuth.mockReturnValue({
+            user: { id: 1, email: 'test@example.com', role: 'user' },
+            logout: vi.fn(),
+        });
+
+        render(<App />);
+
+        // 初期表示でダッシュボードの見出しが存在すること
+        expect(screen.getByText('テストアプリ')).toBeDefined();
+        expect(screen.getByRole('heading', { name: 'ダッシュボード' })).toBeDefined();
+        expect(screen.getByText('test@example.com')).toBeDefined();
     });
 
     it('admin ユーザーの場合、サイドナビに「ユーザー管理」が表示され、クリックすると管理画面に切り替わること', async () => {
@@ -4287,9 +4490,6 @@ describe('App Component (User Management Integration)', () => {
         });
 
         render(<App />);
-
-        // 初期表示でダッシュボードの見出しが存在すること
-        expect(screen.getByRole('heading', { name: 'ダッシュボード' })).toBeDefined();
 
         // 描画時点でレジストリが登録されているため、同期的に getByRole でナビゲーション要素が取得できる
         const userMgmtNav = screen.getByRole('link', { name: 'ユーザー管理' });
@@ -4304,7 +4504,7 @@ describe('App Component (User Management Integration)', () => {
         });
     });
 
-    it('user（一般権限）ユーザーの場合、サイドナビに「ユーザー管理」が表示されないこと', () => {
+    it('一般ユーザー（user）の場合、サイドナビに「ユーザー管理」が表示されないこと', () => {
         mockUseAuth.mockReturnValue({
             user: { id: 2, email: 'user@example.com', role: 'user' },
             logout: vi.fn(),
@@ -4312,15 +4512,57 @@ describe('App Component (User Management Integration)', () => {
 
         render(<App />);
 
-        // role: 'user' の場合はメニューに表示されないこと
         expect(screen.queryByRole('link', { name: 'ユーザー管理' })).toBeNull();
     });
+
+    it('「403 権限エラー画面を表示」ボタンを押すとForbiddenPageに切り替わり、「ダッシュボードへ戻る」で復帰すること', async () => {
+        mockUseAuth.mockReturnValue({
+            user: { id: 1, email: 'admin@example.com', role: 'admin' },
+            logout: vi.fn(),
+        });
+
+        render(<App />);
+
+        // 403画面へ遷移するボタンを押下
+        const forbiddenButton = screen.getByRole('button', { name: '403 権限エラー画面を表示' });
+        fireEvent.click(forbiddenButton);
+
+        // 403画面が表示されていることの確認
+        await waitFor(() => {
+            expect(screen.getByText('403')).toBeDefined();
+        });
+
+        // 「ダッシュボードへ戻る」ボタンを押下
+        const backButton = screen.getByRole('button', { name: 'ダッシュボードへ戻る' });
+        fireEvent.click(backButton);
+
+        // ダッシュボードの見出しが再び表示されていること
+        await waitFor(() => {
+            expect(screen.getByRole('heading', { name: 'ダッシュボード' })).toBeDefined();
+        });
+    });
+
+    it('ログアウトボタンを押すと logout 関数が呼び出されること', () => {
+        const handleLogout = vi.fn();
+        mockUseAuth.mockReturnValue({
+            user: { id: 1, email: 'admin@example.com', role: 'admin' },
+            logout: handleLogout,
+        });
+
+        render(<App />);
+
+        const logoutButton = screen.getByRole('button', { name: 'ログアウト' });
+        fireEvent.click(logoutButton);
+
+        expect(handleLogout).toHaveBeenCalledTimes(1);
+    });
 });
-EOF_1787620617_5565
+
+EOF_1787723353_17638
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1787620617_11990' > "apps/web/src/main.tsx"
+cat << 'EOF_1787723353_9085' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -4331,11 +4573,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1787620617_11990
+EOF_1787723353_9085
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.test.ts"
-cat << 'EOF_1787620617_24307' > "apps/web/src/env.test.ts"
+cat << 'EOF_1787723353_28538' > "apps/web/src/env.test.ts"
 import { describe, it, expect } from 'vitest';
 import { clientEnv } from '@shared/client';
 
@@ -4353,11 +4595,11 @@ describe('Web Environment Variables (Pattern A)', () => {
         expect(clientEnv.VITE_API_TARGET_URL).toMatch(/^http/);
     });
 });
-EOF_1787620617_24307
+EOF_1787723353_28538
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.test.tsx"
-cat << 'EOF_1787620617_16550' > "apps/web/src/context/AuthContext.test.tsx"
+cat << 'EOF_1787723353_26127' > "apps/web/src/context/AuthContext.test.tsx"
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -4462,11 +4704,11 @@ describe('AuthContext / useAuth (Step 7 修正版)', () => {
         expect(result.current.token).toBeNull();
     });
 });
-EOF_1787620617_16550
+EOF_1787723353_26127
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.tsx"
-cat << 'EOF_1787620617_29851' > "apps/web/src/context/AuthContext.tsx"
+cat << 'EOF_1787723353_1663' > "apps/web/src/context/AuthContext.tsx"
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiClient, getStoredToken, setStoredToken, removeStoredToken, ApiError } from '../lib/apiClient';
 
@@ -4571,11 +4813,11 @@ export const useAuth = (): AuthContextType => {
     return context;
 };
 
-EOF_1787620617_29851
+EOF_1787723353_1663
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.test.tsx"
-cat << 'EOF_1787620617_9229' > "apps/web/src/components/ProtectedRoute.test.tsx"
+cat << 'EOF_1787723353_16387' > "apps/web/src/components/ProtectedRoute.test.tsx"
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
@@ -4644,11 +4886,11 @@ describe('ProtectedRoute', () => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 });
-EOF_1787620617_9229
+EOF_1787723353_16387
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/Header.tsx"
-cat << 'EOF_1787620617_17260' > "apps/web/src/components/Header.tsx"
+cat << 'EOF_1787723353_5865' > "apps/web/src/components/Header.tsx"
 import { clientEnv } from '@shared/client';
 
 export const Header = () => {
@@ -4658,12 +4900,11 @@ export const Header = () => {
     </header>
   );
 };
-EOF_1787620617_17260
+EOF_1787723353_5865
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ForbiddenPage.test.tsx"
-cat << 'EOF_1787620617_4441' > "apps/web/src/components/ForbiddenPage.test.tsx"
-import '@testing-library/jest-dom';
+cat << 'EOF_1787723353_29916' > "apps/web/src/components/ForbiddenPage.test.tsx"
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ForbiddenPage } from './ForbiddenPage';
@@ -4689,11 +4930,11 @@ describe('ForbiddenPage Component', () => {
         expect(handleBack).toHaveBeenCalledTimes(1);
     });
 });
-EOF_1787620617_4441
+EOF_1787723353_29916
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.tsx"
-cat << 'EOF_1787620617_22610' > "apps/web/src/components/ProtectedRoute.tsx"
+cat << 'EOF_1787723353_25628' > "apps/web/src/components/ProtectedRoute.tsx"
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LoginForm } from './LoginForm';
@@ -4723,11 +4964,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     return <>{children}</>;
 };
-EOF_1787620617_22610
+EOF_1787723353_25628
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1787620617_4951' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1787723353_6716' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -4797,11 +5038,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </form>
     );
 };
-EOF_1787620617_4951
+EOF_1787723353_6716
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ForbiddenPage.tsx"
-cat << 'EOF_1787620617_12675' > "apps/web/src/components/ForbiddenPage.tsx"
+cat << 'EOF_1787723353_14130' > "apps/web/src/components/ForbiddenPage.tsx"
 import React from 'react';
 import { Button } from '@shared/client';
 
@@ -4840,11 +5081,11 @@ export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({ onBackToDashboard 
         </div>
     );
 };
-EOF_1787620617_12675
+EOF_1787723353_14130
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.test.tsx"
-cat << 'EOF_1787620617_32388' > "apps/web/src/components/LoginForm.test.tsx"
+cat << 'EOF_1787723353_14666' > "apps/web/src/components/LoginForm.test.tsx"
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -4924,11 +5165,11 @@ describe('LoginForm Component (Step 5.2)', () => {
         expect(errorMessage).toHaveTextContent('メールアドレスまたはパスワードが正しくありません。');
     });
 });
-EOF_1787620617_32388
+EOF_1787723353_14666
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1787620617_7461' > "apps/web/src/App.tsx"
+cat << 'EOF_1787723353_14190' > "apps/web/src/App.tsx"
 import React, { useState } from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@shared/client';
 import { clientEnv } from '@shared/client';
@@ -5072,11 +5313,11 @@ export function App() {
 }
 
 export default App;
-EOF_1787620617_7461
+EOF_1787723353_14190
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.test.ts"
-cat << 'EOF_1787620617_12684' > "apps/web/src/lib/apiClient.test.ts"
+cat << 'EOF_1787723353_1293' > "apps/web/src/lib/apiClient.test.ts"
 // apps/web/src/lib/apiClient.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { apiClient, ApiError } from "./apiClient";
@@ -5170,11 +5411,11 @@ describe("apiClient (API クライアント)", () => {
         expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull();
     });
 });
-EOF_1787620617_12684
+EOF_1787723353_1293
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.ts"
-cat << 'EOF_1787620617_28844' > "apps/web/src/lib/apiClient.ts"
+cat << 'EOF_1787723353_29029' > "apps/web/src/lib/apiClient.ts"
 import { clientEnv } from "@shared/client";
 import { AUTH_TOKEN_KEY } from '@shared/client';
 
@@ -5285,11 +5526,11 @@ export const apiClient = {
     delete: <T>(endpoint: string, options?: RequestInit) =>
         request<T>(endpoint, { ...options, method: "DELETE" }),
 };
-EOF_1787620617_28844
+EOF_1787723353_29029
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1787620617_19004' > "apps/web/vite.config.ts"
+cat << 'EOF_1787723353_6343' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -5328,11 +5569,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1787620617_19004
+EOF_1787723353_6343
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1787620617_11547' > "apps/api/package.json"
+cat << 'EOF_1787723353_31395' > "apps/api/package.json"
 {
     "name": "@app/api",
     "version": "1.0.0",
@@ -5357,11 +5598,11 @@ cat << 'EOF_1787620617_11547' > "apps/api/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1787620617_11547
+EOF_1787723353_31395
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1787620617_6966' > "apps/api/tsconfig.json"
+cat << 'EOF_1787723353_4664' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -5376,11 +5617,11 @@ cat << 'EOF_1787620617_6966' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1787620617_6966
+EOF_1787723353_4664
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1787620617_20504' > "apps/api/vitest.config.ts"
+cat << 'EOF_1787723353_14609' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
@@ -5392,30 +5633,24 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['../../vitest/setup.ts'],  // 各テスト実行前にテーブルデータを全消去
+        setupFiles: ['../../vitest-clear.ts'],  // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1787620617_20504
+EOF_1787723353_14609
 
 mkdir -p "apps/api/src/auto-loader"
 echo "作成: apps/api/src/auto-loader/hono-auto-loader.test.ts"
-cat << 'EOF_1787620617_30015' > "apps/api/src/auto-loader/hono-auto-loader.test.ts"
+cat << 'EOF_1787723353_3438' > "apps/api/src/auto-loader/hono-auto-loader.test.ts"
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Hono } from 'hono';
 import { sign } from 'hono/jwt';
-import { db, plugins as pluginsTable } from '@shared/server';
+
+import { db, plugins } from '@shared/server';
 import { loadFeatureModules } from './hono-auto-loader';
-import { env } from '@shared/functions';
-import { PluginRegistry } from '@shared/functions';
+import { env, PluginRegistry } from '@shared/functions';
 import { AppError } from '@shared/errors';
 
 describe('hono-auto-loader', () => {
-    const dummyPluginId = 'test-dummy-plugin';
-    const rbacPluginId = 'test-rbac-plugin';
-    const uiOnlyPluginId = 'test-ui-only-plugin';
-    const noRbacPluginId = 'test-no-rbac-plugin';
-
-    // 💡 ヘルパー: エラーハンドラ付き Hono アプリの作成
     const createTestApp = () => {
         const app = new Hono();
         app.onError((err, c) => {
@@ -5433,98 +5668,81 @@ describe('hono-auto-loader', () => {
     };
 
     beforeEach(async () => {
-        await db.delete(pluginsTable); // または適切なクリア処理
-
         PluginRegistry.clear();
-
-        // 1. 標準プラグイン
-        const dummyApp = new Hono();
-        dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-        PluginRegistry.register({
-            id: dummyPluginId,
-            name: 'テスト用プラグイン',
-            routes: dummyApp,
-        });
-
-        // 2. RBAC(管理者限定) プラグイン
-        const rbacApp = new Hono();
-        rbacApp.get('/admin-only', (c) => c.json({ message: 'admin content' }));
-        PluginRegistry.register({
-            id: rbacPluginId,
-            name: '権限テスト用プラグイン',
-            routes: rbacApp,
-            requiredRole: 'admin',
-        });
-
-        // 3. UI専用プラグイン (routes なし)
-        PluginRegistry.register({
-            id: uiOnlyPluginId,
-            name: 'UI専用プラグイン',
-        });
-
-        // 4. ロール指定なし (認証のみ) プラグイン
-        const noRbacApp = new Hono();
-        noRbacApp.get('/public-info', (c) => c.json({ message: 'public' }));
-        PluginRegistry.register({
-            id: noRbacPluginId,
-            name: 'ロール無指定プラグイン',
-            routes: noRbacApp,
-        });
+        try {
+            await db.delete(plugins);
+        } catch (e) {
+            // 無視
+        }
     });
 
     describe('DB ステータス制御とロード処理', () => {
         it('1. DBで有効(enabled: true)のプラグインは正常にマウントされアクセスできること', async () => {
-            await db.insert(pluginsTable).values({
-                id: dummyPluginId,
-                name: 'テスト用プラグイン',
+            const pluginId = 'test-plugin-enabled';
+            const dummyApp = new Hono();
+            dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: dummyApp });
+
+            await db.insert(plugins).values({
+                id: pluginId,
+                name: '標準プラグイン',
                 enabled: true,
-            }).onConflictDoUpdate({
-                target: pluginsTable.id,
-                set: { enabled: true },
             });
 
             const app = createTestApp();
             await loadFeatureModules(app, 'features/*/src/index.ts');
 
             const token = await createToken('user');
-            const res = await app.request(`/api/${dummyPluginId}/hello`, {
+            const res = await app.request(`/api/${pluginId}/hello`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             expect(res.status).toBe(200);
         });
 
         it('2. DBで無効(enabled: false)のプラグインはスキップされ 404 になること', async () => {
-            await db.insert(pluginsTable).values({
-                id: dummyPluginId,
-                name: 'テスト用プラグイン',
+            const pluginId = 'test-plugin-disabled';
+            const dummyApp = new Hono();
+            dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: dummyApp });
+
+            await db.insert(plugins).values({
+                id: pluginId,
+                name: '標準プラグイン',
                 enabled: false,
-            }).onConflictDoUpdate({
-                target: pluginsTable.id,
-                set: { enabled: false },
             });
 
             const app = createTestApp();
             await loadFeatureModules(app, 'features/*/src/index.ts');
 
             const token = await createToken('user');
-            const res = await app.request(`/api/${dummyPluginId}/hello`, {
+            const res = await app.request(`/api/${pluginId}/hello`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             expect(res.status).toBe(404);
         });
 
         it('3. DB未登録の場合はデフォルト有効として処理されること', async () => {
+            const pluginId = 'test-plugin-unregistered';
+            const dummyApp = new Hono();
+            dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: dummyApp });
+
             const app = createTestApp();
             await loadFeatureModules(app, 'features/*/src/index.ts');
 
             const token = await createToken('user');
-            const res = await app.request(`/api/${dummyPluginId}/hello`, {
+            const res = await app.request(`/api/${pluginId}/hello`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             expect(res.status).toBe(200);
         });
 
         it('4. DBクエリ例外時でもクラッシュせずフォールバック動作すること', async () => {
+            const pluginId = 'test-plugin-fallback';
+            const dummyApp = new Hono();
+            dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: dummyApp });
+
             const selectSpy = vi.spyOn(db, 'select').mockImplementationOnce(() => {
                 throw new Error('DB Connection Error');
             });
@@ -5533,7 +5751,7 @@ describe('hono-auto-loader', () => {
             await loadFeatureModules(app, 'features/*/src/index.ts');
 
             const token = await createToken('user');
-            const res = await app.request(`/api/${dummyPluginId}/hello`, {
+            const res = await app.request(`/api/${pluginId}/hello`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -5542,6 +5760,9 @@ describe('hono-auto-loader', () => {
         });
 
         it('5. routes 未定義のプラグインはエラーなくスキップされること', async () => {
+            const pluginId = 'test-ui-only-plugin';
+            PluginRegistry.register({ id: pluginId, name: 'UI専用プラグイン' });
+
             const app = createTestApp();
             await expect(loadFeatureModules(app, 'features/*/src/index.ts')).resolves.not.toThrow();
         });
@@ -5549,47 +5770,60 @@ describe('hono-auto-loader', () => {
 
     describe('認証・認可ミドルウェアの適用', () => {
         it('6. トークンなしの場合 401 Unauthorized になること', async () => {
+            const pluginId = 'test-plugin-auth';
+            const dummyApp = new Hono();
+            dummyApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: dummyApp });
+
             const app = createTestApp();
             await loadFeatureModules(app, 'features/*/src/index.ts');
 
-            const res = await app.request(`/api/${dummyPluginId}/hello`);
+            const res = await app.request(`/api/${pluginId}/hello`);
             expect(res.status).toBe(401);
         });
 
         it('7. requiredRole の認可が正しく機能すること (一般ユーザー: 403, 管理者: 200)', async () => {
+            const pluginId = 'test-rbac-plugin';
+            const rbacApp = new Hono();
+            rbacApp.get('/admin-only', (c) => c.json({ message: 'admin content' }));
+            PluginRegistry.register({
+                id: pluginId,
+                name: '権限テスト用プラグイン',
+                routes: rbacApp,
+                requiredRole: 'admin',
+            });
+
             const app = createTestApp();
             await loadFeatureModules(app, 'features/*/src/index.ts');
 
             // 一般ユーザー -> 403
             const userToken = await createToken('user');
-            const resUser = await app.request(`/api/${rbacPluginId}/admin-only`, {
+            const resUser = await app.request(`/api/${pluginId}/admin-only`, {
                 headers: { Authorization: `Bearer ${userToken}` },
             });
             expect(resUser.status).toBe(403);
 
             // 管理者 -> 200
             const adminToken = await createToken('admin');
-            const resAdmin = await app.request(`/api/${rbacPluginId}/admin-only`, {
+            const resAdmin = await app.request(`/api/${pluginId}/admin-only`, {
                 headers: { Authorization: `Bearer ${adminToken}` },
             });
             expect(resAdmin.status).toBe(200);
         });
     });
 });
-EOF_1787620617_30015
+EOF_1787723353_3438
 
 mkdir -p "apps/api/src/auto-loader"
 echo "作成: apps/api/src/auto-loader/hono-auto-loader.ts"
-cat << 'EOF_1787620617_4992' > "apps/api/src/auto-loader/hono-auto-loader.ts"
+cat << 'EOF_1787723353_23872' > "apps/api/src/auto-loader/hono-auto-loader.ts"
 import { Hono } from 'hono';
 import { glob } from 'glob';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { env } from '@shared/functions';
-import { PluginRegistry } from '@shared/functions';
-import { db } from '@shared/server';
-import { plugins as pluginsTable } from '@shared/schemas';
-import { getProjectRootDir } from '@shared/server/utils';
+import { getProjectRootDir } from '@shared/server';
+import { getActivePlugins } from '../utils/auto-loader-helper';
 import { authMiddleware } from '../middlewares/auth-middleware';
 import { rbacMiddleware } from '../middlewares/rbac-middleware';
 
@@ -5608,20 +5842,10 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
     }
 
     // 2. DB から登録済みプラグインの有効/無効ステータスを取得
-    let dbPluginsMap = new Map<string, boolean>();
-    try {
-        const dbPlugins = await db.select().from(pluginsTable);
-        dbPlugins.forEach((p: { id: string; enabled: boolean; }) => dbPluginsMap.set(p.id, p.enabled));
-    } catch (error) {
-        console.warn('[Auto-Loader] DB query failed or table not found. Defaulting all plugins to enabled.');
-    }
+    const pluginStatuses = await getActivePlugins();
 
     // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
-    for (const plugin of PluginRegistry.getAll()) {
-        const isEnabled = dbPluginsMap.has(plugin.id)
-            ? dbPluginsMap.get(plugin.id)
-            : true;
-
+    for (const { plugin, isEnabled } of pluginStatuses) {
         if (isEnabled) {
             if (plugin.routes !== undefined) {
                 const basePath = `/api/${plugin.id}`;
@@ -5643,11 +5867,11 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
         }
     }
 }
-EOF_1787620617_4992
+EOF_1787723353_23872
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1787620617_22695' > "apps/api/src/index.ts"
+cat << 'EOF_1787723353_29109' > "apps/api/src/index.ts"
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
@@ -5655,13 +5879,13 @@ import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { AppError, ProblemDetails, ValidationError } from '@shared/errors';
 import { env, isTest, formatEnvForLog } from '@shared/functions';
-import { AuthRegistry } from '@shared/functions';
+import { AuthPluginRegistry } from '@shared/functions';
 import { loadFeatureModules } from './auto-loader/hono-auto-loader';
 import { LocalAuthPlugin } from '@plugins/auth-local';
 import { ActiveDirectoryAuthPlugin } from '@plugins/auth-ad';
 import { authRouter } from './routes/auth';
 import { healthRouter } from './routes/health';
-import { systemRouter } from './routes/system';
+import { systemRouter } from './routes/plugin';
 import { loggerMiddleware } from './middlewares/logger';
 
 // コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
@@ -5670,8 +5894,8 @@ if (!isTest) {
 }
 
 // 3. プラグインの登録
-AuthRegistry.register(new LocalAuthPlugin());
-AuthRegistry.register(new ActiveDirectoryAuthPlugin());
+AuthPluginRegistry.register(new LocalAuthPlugin());
+AuthPluginRegistry.register(new ActiveDirectoryAuthPlugin());
 
 /**
  * アプリケーションのインスタンスを非同期で生成・初期化する関数
@@ -5811,11 +6035,11 @@ if (!isTest) {
 // デフォルトエクスポート（必要に応じて型や古いインポートとの互換用）
 const defaultApp = new Hono();
 export default defaultApp;
-EOF_1787620617_22695
+EOF_1787723353_29109
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1787620617_3961' > "apps/api/src/index.test.ts"
+cat << 'EOF_1787723354_28056' > "apps/api/src/index.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createApp } from './index';
 
@@ -5909,11 +6133,42 @@ describe('User Management Integration (Step 9)', () => {
         expect(res.status).toBe(401);
     });
 });
-EOF_1787620617_3961
+EOF_1787723354_28056
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/plugin.ts"
+cat << 'EOF_1787723354_27233' > "apps/api/src/routes/plugin.ts"
+import { Hono } from 'hono';
+import { getActivePlugins } from '../utils/auto-loader-helper';
+
+export const systemRouter = new Hono();
+
+/**
+ * GET /api/system/plugins
+ * 有効化（enabled: true）されているプラグインの一覧および
+ * フロントエンド表示に必要なナビゲーション（navItems）を返却するAPI
+ */
+systemRouter.get('/plugins', async (c) => {
+    const pluginStatuses = await getActivePlugins();
+
+    const activePlugins = pluginStatuses
+        .filter(({ isEnabled }) => isEnabled)
+        .map(({ plugin }) => ({
+            id: plugin.id,
+            name: plugin.name,
+            description: plugin.description,
+            navItems: plugin.navItems ?? [],
+        }));
+
+    return c.json({
+        plugins: activePlugins,
+    });
+});
+EOF_1787723354_27233
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.test.ts"
-cat << 'EOF_1787620617_20888' > "apps/api/src/routes/health.test.ts"
+cat << 'EOF_1787723354_7872' > "apps/api/src/routes/health.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createApp } from '../index';
 import { db } from '@shared/server';
@@ -5961,23 +6216,24 @@ describe('Health Check API (Step 6.1)', () => {
     });
 });
 
-EOF_1787620617_20888
+EOF_1787723354_7872
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1787620617_19040' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1787723354_30810' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { db, users } from '@shared/server';
 import { UnauthorizedError } from '@shared/errors';
-import { verifyPassword, signJwt } from '@plugins/auth-local';
+import { signJwt } from '@plugins/auth-local';
 import { authMiddleware } from '../middlewares/auth-middleware';
+import { getActiveAuthPlugin } from '../services/auth-service';
 
-// ログインリクエストのバリデーションスキーマ
 const loginSchema = z.object({
-    email: z.string().email(),
+    email: z.string().optional(),
+    username: z.string().optional(),
     password: z.string().min(1),
+}).refine((data) => data.email || data.username, {
+    message: 'メールアドレスまたはユーザー名が必要です。',
 });
 
 /**
@@ -5994,45 +6250,38 @@ export function authRouter(jwtSecret: string) {
         const result = loginSchema.safeParse(body);
 
         if (!result.success) {
-            throw new UnauthorizedError('Invalid email or password format.');
+            throw new UnauthorizedError('Invalid credentials format.');
         }
 
-        const { email, password } = result.data;
+        const authPlugin = getActiveAuthPlugin();
 
-        // DB からユーザーを検索
-        const user = await db.query.users.findFirst({
-            where: eq(users.email, email),
-        });
+        try {
+            const authUser = await authPlugin.authenticate({
+                email: result.data.email || result.data.username,
+                username: result.data.username || result.data.email,
+                password: result.data.password,
+            });
 
-        if (!user) {
-            // セキュリティ上「ユーザーが存在しない」メッセージは出さず 401 を返す
+            const token = await signJwt(
+                {
+                    userId: authUser.id,
+                    email: authUser.email || '',
+                    role: authUser.role || 'user',
+                },
+                jwtSecret
+            );
+
+            return c.json({
+                token,
+                user: {
+                    id: authUser.id,
+                    email: authUser.email || authUser.name,
+                    role: authUser.role || 'user',
+                },
+            });
+        } catch {
             throw new UnauthorizedError('Invalid credentials.');
         }
-
-        // パスワードの照合
-        const isPasswordValid = await verifyPassword(password, user.passwordHash);
-        if (!isPasswordValid) {
-            throw new UnauthorizedError('Invalid credentials.');
-        }
-
-        // JWT アクセストークンの発行
-        const token = await signJwt(
-            {
-                userId: user.id,
-                email: user.email,
-                role: user.role,
-            },
-            jwtSecret
-        );
-
-        return c.json({
-            token,
-            user: {
-                id: user.id,
-                email: user.email,
-                role: user.role,
-            },
-        });
     });
 
     // ----------------------------------------------------
@@ -6052,89 +6301,103 @@ export function authRouter(jwtSecret: string) {
 
     return app;
 }
-EOF_1787620617_19040
+
+
+// import { Hono } from 'hono';
+// import { z } from 'zod';
+// import { eq } from 'drizzle-orm';
+// import { db, users } from '@shared/server';
+// import { UnauthorizedError } from '@shared/errors';
+// import { verifyPassword, signJwt } from '@plugins/auth-local';
+// import { authMiddleware } from '../middlewares/auth-middleware';
+
+// // ログインリクエストのバリデーションスキーマ
+// const loginSchema = z.object({
+//     email: z.string().email(),
+//     password: z.string().min(1),
+// });
+
+// /**
+//  * 認証関連の API ルーター
+//  */
+// export function authRouter(jwtSecret: string) {
+//     const app = new Hono();
+
+//     // ----------------------------------------------------
+//     // 1. POST /login (ログイン & トークン発行)
+//     // ----------------------------------------------------
+//     app.post('/login', async (c) => {
+//         const body = await c.req.json();
+//         const result = loginSchema.safeParse(body);
+
+//         if (!result.success) {
+//             throw new UnauthorizedError('Invalid email or password format.');
+//         }
+
+//         const { email, password } = result.data;
+
+//         // DB からユーザーを検索
+//         const user = await db.query.users.findFirst({
+//             where: eq(users.email, email),
+//         });
+
+//         if (!user) {
+//             // セキュリティ上「ユーザーが存在しない」メッセージは出さず 401 を返す
+//             throw new UnauthorizedError('Invalid credentials.');
+//         }
+
+//         // パスワードの照合
+//         const isPasswordValid = await verifyPassword(password, user.passwordHash);
+//         if (!isPasswordValid) {
+//             throw new UnauthorizedError('Invalid credentials.');
+//         }
+
+//         // JWT アクセストークンの発行
+//         const token = await signJwt(
+//             {
+//                 userId: user.id,
+//                 email: user.email,
+//                 role: user.role,
+//             },
+//             jwtSecret
+//         );
+
+//         return c.json({
+//             token,
+//             user: {
+//                 id: user.id,
+//                 email: user.email,
+//                 role: user.role,
+//             },
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 2. GET /me (ログインユーザー情報取得)
+//     // ----------------------------------------------------
+//     app.get('/me', authMiddleware(jwtSecret), async (c) => {
+//         const currentUser = c.get('user');
+
+//         return c.json({
+//             user: {
+//                 id: currentUser.userId,
+//                 email: currentUser.email,
+//                 role: currentUser.role,
+//             },
+//         });
+//     });
+
+//     return app;
+// }
+EOF_1787723354_30810
 
 mkdir -p "apps/api/src/routes"
-echo "作成: apps/api/src/routes/system.ts"
-cat << 'EOF_1787620617_29439' > "apps/api/src/routes/system.ts"
-import { Hono } from 'hono';
-import { db, plugins } from '@shared/server';
-import { PluginRegistry } from '@shared/functions';
-
-export const systemRouter = new Hono();
-
-/**
- * GET /api/system/plugins
- * 有効化（enabled: true）されているプラグインの一覧および
- * フロントエンド表示に必要なナビゲーション（navItems）を返却するAPI
- */
-systemRouter.get('/plugins', async (c) => {
-    // 1. DBからプラグインの有効/無効ステータスを取得
-    let dbPluginsMap = new Map<string, boolean>();
-    try {
-        const dbPlugins = await db.select().from(plugins);
-        dbPlugins.forEach((p) => dbPluginsMap.set(p.id, p.enabled));
-    } catch (error) {
-        console.warn('[System API] Failed to fetch plugins table status.');
-    }
-
-    // 2. レジストリから全プラグイン情報を取得し、有効なもののみフィルタリング
-    const activePlugins = PluginRegistry.getAll()
-        .filter((plugin) => {
-            // DBに存在する場合はその値、存在しない場合はデフォルトで有効(true)とする
-            return dbPluginsMap.has(plugin.id) ? dbPluginsMap.get(plugin.id) : true;
-        })
-        .map((plugin) => ({
-            id: plugin.id,
-            name: plugin.name,
-            description: plugin.description,
-            navItems: plugin.navItems ?? [],
-        }));
-
-    return c.json({
-        plugins: activePlugins,
-    });
-});
-EOF_1787620617_29439
-
-mkdir -p "apps/api/src/routes"
-echo "作成: apps/api/src/routes/health.ts"
-cat << 'EOF_1787620617_11527' > "apps/api/src/routes/health.ts"
-import { Hono } from 'hono';
-import { db } from '@shared/server';
-import { AppError } from '@shared/errors';
-import { sql } from 'drizzle-orm';
-
-export const healthRouter = new Hono();
-
-healthRouter.get('/healthz', async (c) => {
-    try {
-        // DB導通テスト (SELECT 1)
-        await db.execute(sql`SELECT 1`);
-
-        return c.json({
-            status: 'ok',
-            db: 'connected',
-        });
-    } catch (error) {
-        // DB不通時は 503 エラーをスロー (status, code, title, message)
-        throw new AppError(
-            503,
-            'SERVICE_UNAVAILABLE',
-            'Service Unavailable',
-            'Database connection failed'
-        );
-    }
-});
-EOF_1787620617_11527
-
-mkdir -p "apps/api/src/routes"
-echo "作成: apps/api/src/routes/system.test.ts"
-cat << 'EOF_1787620617_14592' > "apps/api/src/routes/system.test.ts"
+echo "作成: apps/api/src/routes/plugin.test.ts"
+cat << 'EOF_1787723354_29367' > "apps/api/src/routes/plugin.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { PluginRegistry } from '@shared/functions';
-import { systemRouter } from './system';
+import { systemRouter } from './plugin';
 
 describe('GET /api/system/plugins', () => {
     beforeEach(() => {
@@ -6161,11 +6424,42 @@ describe('GET /api/system/plugins', () => {
 
     });
 });
-EOF_1787620617_14592
+EOF_1787723354_29367
+
+mkdir -p "apps/api/src/routes"
+echo "作成: apps/api/src/routes/health.ts"
+cat << 'EOF_1787723354_30396' > "apps/api/src/routes/health.ts"
+import { Hono } from 'hono';
+import { db } from '@shared/server';
+import { AppError } from '@shared/errors';
+import { sql } from 'drizzle-orm';
+
+export const healthRouter = new Hono();
+
+healthRouter.get('/healthz', async (c) => {
+    try {
+        // DB導通テスト (SELECT 1)
+        await db.execute(sql`SELECT 1`);
+
+        return c.json({
+            status: 'ok',
+            db: 'connected',
+        });
+    } catch (error) {
+        // DB不通時は 503 エラーをスロー (status, code, title, message)
+        throw new AppError(
+            503,
+            'SERVICE_UNAVAILABLE',
+            'Service Unavailable',
+            'Database connection failed'
+        );
+    }
+});
+EOF_1787723354_30396
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.test.ts"
-cat << 'EOF_1787620617_20940' > "apps/api/src/routes/auth.test.ts"
+cat << 'EOF_1787723354_5614' > "apps/api/src/routes/auth.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { authRouter } from './auth';
@@ -6305,11 +6599,62 @@ describe('Auth Routes (Step 4.3)', () => {
         });
     });
 });
-EOF_1787620617_20940
+EOF_1787723354_5614
+
+mkdir -p "apps/api/src/utils"
+echo "作成: apps/api/src/utils/auto-loader-helper.ts"
+cat << 'EOF_1787723354_31025' > "apps/api/src/utils/auto-loader-helper.ts"
+// apps/api/src/utils/plugin-helper.ts
+import { db, schema } from '@shared/server';
+import { PluginRegistry } from '@shared/functions';
+
+export async function getActivePlugins() {
+    const dbPluginsMap = new Map<string, boolean>();
+    try {
+        const dbPlugins = await db.select().from(schema.plugins);
+        dbPlugins.forEach((p: { id: string; enabled: any }) => {
+            dbPluginsMap.set(p.id, Boolean(p.enabled));
+        });
+    } catch (error) {
+        console.warn('[Plugin Helper] DB query failed or table not found. Defaulting all plugins to enabled.');
+    }
+
+    return PluginRegistry.getAll().map((plugin) => {
+        const isEnabled = dbPluginsMap.has(plugin.id)
+            ? dbPluginsMap.get(plugin.id)!
+            : true;
+
+        return {
+            plugin,
+            isEnabled,
+        };
+    });
+}
+EOF_1787723354_31025
+
+mkdir -p "apps/api/src/services"
+echo "作成: apps/api/src/services/auth-service.ts"
+cat << 'EOF_1787723354_14902' > "apps/api/src/services/auth-service.ts"
+import { env, AuthPlugin, AuthPluginRegistry } from '@shared/functions';
+import { LocalAuthPlugin } from '@plugins/auth-local';
+import { ActiveDirectoryAuthPlugin } from '@plugins/auth-ad';
+
+// プラグインの自動登録
+AuthPluginRegistry.register(new LocalAuthPlugin());
+AuthPluginRegistry.register(new ActiveDirectoryAuthPlugin());
+
+/**
+ * 環境変数に応じたアクティブな認証プラグインを取得する
+ */
+export function getActiveAuthPlugin(): AuthPlugin {
+    const providerName = env.AUTH_PROVIDER; // 'local' または 'ad'
+    return AuthPluginRegistry.get(providerName);
+}
+EOF_1787723354_14902
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.ts"
-cat << 'EOF_1787620617_23218' > "apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1787723354_1288' > "apps/api/src/middlewares/auth-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { verifyJwt } from '@plugins/auth-local';
 import { UnauthorizedError } from '@shared/errors';
@@ -6346,11 +6691,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
         await next();
     };
 }
-EOF_1787620617_23218
+EOF_1787723354_1288
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
-cat << 'EOF_1787620617_11566' > "apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1787723354_1667' > "apps/api/src/middlewares/auth-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
@@ -6436,11 +6781,11 @@ describe('Auth Middleware (Step 4.2)', () => {
         expect(body.user).toMatchObject(payload);
     });
 });
-EOF_1787620617_11566
+EOF_1787723354_1667
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.test.ts"
-cat << 'EOF_1787620617_31031' > "apps/api/src/middlewares/rbac-middleware.test.ts"
+cat << 'EOF_1787723354_26002' > "apps/api/src/middlewares/rbac-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
@@ -6509,11 +6854,11 @@ describe('RBAC Middleware (Step 4.3)', () => {
         expect(body.message).toBe('Admin Dashboard');
     });
 });
-EOF_1787620617_31031
+EOF_1787723354_26002
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.test.ts"
-cat << 'EOF_1787620617_21081' > "apps/api/src/middlewares/logger.test.ts"
+cat << 'EOF_1787723354_5001' > "apps/api/src/middlewares/logger.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
 import { loggerMiddleware } from './logger';
@@ -6625,11 +6970,11 @@ describe('Logger Middleware (Step 6.2)', () => {
         expect(typeof logOutput.error.stack).toBe('string');
     });
 });
-EOF_1787620617_21081
+EOF_1787723354_5001
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.ts"
-cat << 'EOF_1787620617_22398' > "apps/api/src/middlewares/rbac-middleware.ts"
+cat << 'EOF_1787723354_1264' > "apps/api/src/middlewares/rbac-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { ForbiddenError, UnauthorizedError } from '@shared/errors';
 
@@ -6654,11 +6999,11 @@ export function rbacMiddleware(allowedRoles: string[]): MiddlewareHandler {
         await next();
     };
 }
-EOF_1787620617_22398
+EOF_1787723354_1264
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.ts"
-cat << 'EOF_1787620617_20004' > "apps/api/src/middlewares/logger.ts"
+cat << 'EOF_1787723354_14233' > "apps/api/src/middlewares/logger.ts"
 import { MiddlewareHandler } from 'hono';
 
 function formatLocalISOString(date: Date): string {
@@ -6723,10 +7068,10 @@ export const loggerMiddleware: MiddlewareHandler = async (c, next) => {
 
     console.log(JSON.stringify(logPayload));
 };
-EOF_1787620617_20004
+EOF_1787723354_14233
 
 echo "作成: README.md"
-cat << 'EOF_1787620618_14805' > "README.md"
+cat << 'EOF_1787723354_31810' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.7
 
 ## 1. システム概要 (Overview)
@@ -7213,10 +7558,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1787620618_14805
+EOF_1787723354_31810
 
 echo "作成: .env"
-cat << 'EOF_1787620618_20158' > ".env"
+cat << 'EOF_1787723354_20946' > ".env"
 # バックエンド用
 PORT=3001
 API_BASE_URL=http://localhost:3001
@@ -7224,83 +7569,19 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db
 TEST_DATABASE_URL=postgresql://postgres:postgres@db:5432/app_db_test
 JWT_SECRET=your-super-secret-jwt-key-must-be-at-least-32-bytes-long
 TZ=Asia/Tokyo
-LDAP_URL=ldap://your-ad-server.local:389
-LDAP_DOMAIN=your-domain.local
+
+# 認証プロバイダ (local または ad)
+AUTH_PROVIDER=local
+
+# AUTH_PROVIDER=ad の場合 Active Directory (LDAP) サーバー設定
+LDAP_URL=ldap://your-dc-server.example.com:389
+LDAP_DOMAIN=example.com
 
 # フロントエンド用 (VITE_ プレフィックスを付ける)
 # /workspace/apps/web/src/env.ts と同期する
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1787620618_20158
-
-mkdir -p "vitest"
-echo "作成: vitest/setup.ts"
-cat << 'EOF_1787620618_19190' > "vitest/setup.ts"
-import { vi, beforeEach } from 'vitest';
-import { newDb } from 'pg-mem';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { applyIntegrationsToPool } from 'drizzle-pgmem';
-import * as actualSchema from '@shared/schemas'; // パスはプロジェクトに合わせて調整してください
-
-// 1. メモリDBインスタンスの作成
-const mem = newDb({
-  autoCreateForeignKeyIndices: true,
-});
-
-const { Pool } = mem.adapters.createPg();
-const pool = new Pool();
-
-applyIntegrationsToPool(pool);
-
-const memDb = drizzle(pool, { schema: actualSchema });
-
-// 2. 💡 テーブルの初期作成（ここはファイル読み込み時に一度だけ実行する。DROPは絶対に書かない）
-mem.public.none(`
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'user',
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW() NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS plugins (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-  );
-`);
-
-// 3. モックの設定
-vi.mock('@shared/server', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@shared/server')>();
-  return {
-    ...actual,
-    db: memDb,
-    activeQueryClient: pool,
-  };
-});
-
-// 4. 💡 各テスト実行前の処理（テーブル構造は壊さず、データとシーケンスだけをきれいにする）
-beforeEach(() => {
-  mem.public.none(`
-    DELETE FROM users;
-    DELETE FROM plugins;
-  `);
-
-  // SERIALのカウンターを1に戻す
-  try {
-    mem.public.none(`ALTER SEQUENCE users_id_seq RESTART WITH 1;`);
-  } catch (e) {
-    // 無視
-  }
-});
-EOF_1787620618_19190
+EOF_1787723354_20946
 
 echo -e "\n復元が完了しました！"

@@ -11,7 +11,7 @@ import { LocalAuthPlugin } from '@plugins/auth-local';
 import { ActiveDirectoryAuthPlugin } from '@plugins/auth-ad';
 import { authRouter } from './routes/auth';
 import { healthRouter } from './routes/health';
-import { systemRouter } from './routes/system';
+import { systemRouter } from './routes/plugin';
 import { loggerMiddleware } from './middlewares/logger';
 
 // コンソールに読み込まれた環境変数を綺麗に出力 (テスト時以外) 🚀
