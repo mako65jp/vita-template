@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface CreateUserModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: { name: string; email: string; role: 'user' | 'admin'; password?: string }) => Promise<void>;
+    onSubmit: (data: { name: string; email: string; password: string; role: 'user' | 'admin' }) => Promise<void>;
 }
 
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -25,8 +25,8 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
             await onSubmit({
                 name,
                 email,
+                password,
                 role,
-                ...(password ? { password } : {}),
             });
             setName('');
             setEmail('');
@@ -77,15 +77,13 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            パスワード <span className="text-xs text-gray-500 font-normal">（未入力時は自動生成）</span>
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">パスワード</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="8文字以上（空欄可）"
+                            placeholder="8文字以上"
                             minLength={8}
                         />
                     </div>

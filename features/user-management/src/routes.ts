@@ -34,6 +34,7 @@ userRoutes.get('/', async (c) => {
 const createUserSchema = z.object({
     name: z.string().min(1, '名前は必須です'),
     email: z.string().email('有効なメールアドレスを入力してください'),
+    password: z.string().min(8, 'パスワードは８文字以上です'),
     role: z.enum(['admin', 'user']),
 });
 
@@ -56,8 +57,8 @@ userRoutes.post(
             throw new BadRequestError('指定されたメールアドレスは既に登録されています');
         }
 
-        const defaultPassword = `InitPass_${Math.random().toString(36).slice(-8)}`;
-        const passwordHash = await hashPassword(defaultPassword);
+        const password = body.password;  //`InitPass_${Math.random().toString(36).slice(-8)}`;
+        const passwordHash = await hashPassword(password);
 
         const [newUser] = await db.insert(users).values({
             name: body.name,
@@ -71,8 +72,9 @@ userRoutes.post(
             email: users.email,
             role: users.role,
             isActive: users.isActive,
-            createdAt: users.createdAt,
+            createdAt: users.createdAt
         });
+        console.log('[debug]CreateUser\n' + newUser.email + '/' + password);
 
         return c.json({ user: newUser }, 201);
     }
