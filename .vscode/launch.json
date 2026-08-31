@@ -1,0 +1,71 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Hono APIのみをデバッグ起動 (環境変数クレンジング版)",
+            "runtimeExecutable": "npx",
+            "runtimeArgs": [
+                "tsx",
+                "--env-file=../../.env",
+                "src/main.ts"
+            ],
+            "cwd": "${workspaceFolder}/apps/api",
+            "autoAttachChildProcesses": false,
+            "env": {
+                "NODE_OPTIONS": "",
+                "VSCODE_INSPECTOR_OPTIONS": ""
+            },
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug: API (Backend)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
+            "cwd": "${workspaceFolder}/apps/api",
+            "console": "integratedTerminal",
+            "sourceMaps": true,
+            "localRoot": "${workspaceFolder}/apps/api",
+            "remoteRoot": "${workspaceFolder}/apps/api",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Debug: Web (Frontend)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
+            "cwd": "${workspaceFolder}/apps/web",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug: Both (API & Web)",
+            "configurations": [
+                "Debug: API (Backend)",
+                "Debug: Web (Frontend)"
+            ]
+        }
+    ]
+}

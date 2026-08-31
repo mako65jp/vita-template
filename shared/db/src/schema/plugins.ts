@@ -8,8 +8,3 @@ export const plugins = pgTable('plugins', {
     enabled: boolean('enabled').default(true).notNull(), // 有効/無効フラグ
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
-
-import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-
-export type Plugin = InferSelectModel<typeof plugins>;
-export type NewPlugin = InferInsertModel<typeof plugins>;

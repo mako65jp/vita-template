@@ -1,8 +1,8 @@
-// apps/api/src/utils/plugin-helper.ts
-import { db, schema } from '@shared/server';
+import { Database } from '@shared/db';
+import { schema } from '@shared/db';
 import { PluginRegistry } from '@shared/functions';
 
-export async function getActivePlugins() {
+export async function getActivePlugins(db: Database) {
     const dbPluginsMap = new Map<string, boolean>();
     try {
         const dbPlugins = await db.select().from(schema.plugins);

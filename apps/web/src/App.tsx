@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@shared/client';
 import { clientEnv } from '@shared/client';
-import { PluginRegistry } from '@shared/functions';
+import { PluginRegistry } from '@shared/client';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ForbiddenPage } from './components/ForbiddenPage';
@@ -13,9 +13,6 @@ registerUserManagementPlugin();
 const AppContent: React.FC = () => {
     const { user, logout } = useAuth();
     const [currentTab, setCurrentTab] = useState<string>('dashboard');
-
-    console.log('登録済みプラグイン:', PluginRegistry.getAll());
-    console.log('ログインユーザー情報:', user);
 
     const baseNavItems = [
         {

@@ -1,11 +1,11 @@
 {
-    "name": "@app/api",
+    "name": "@apps/api",
     "version": "1.0.0",
     "private": true,
     "type": "module",
     "scripts": {
         "build": "tsc",
-        "dev": "tsx watch --env-file=../../.env src/index.ts",
+        "dev": "tsx watch --env-file=../../.env src/main.ts",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {

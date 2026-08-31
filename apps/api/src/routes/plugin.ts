@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
+import { AppEnv } from '@shared/functions';
 import { getActivePlugins } from '../utils/auto-loader-helper';
 
-export const systemRouter = new Hono();
+export const systemRouter = new Hono<AppEnv>();
 
 /**
  * GET /api/system/plugins
@@ -9,7 +10,8 @@ export const systemRouter = new Hono();
  * フロントエンド表示に必要なナビゲーション（navItems）を返却するAPI
  */
 systemRouter.get('/plugins', async (c) => {
-    const pluginStatuses = await getActivePlugins();
+    const db = c.get('dbInstance');
+    const pluginStatuses = await getActivePlugins(db);
 
     const activePlugins = pluginStatuses
         .filter(({ isEnabled }) => isEnabled)

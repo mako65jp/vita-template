@@ -1,13 +1,14 @@
 import { Hono } from 'hono';
-import { db } from '@shared/server';
 import { AppError } from '@shared/errors';
 import { sql } from 'drizzle-orm';
+import { AppEnv } from '@shared/functions';
 
-export const healthRouter = new Hono();
+export const healthRouter = new Hono<AppEnv>();
 
 healthRouter.get('/healthz', async (c) => {
     try {
         // DB導通テスト (SELECT 1)
+        const db = c.get('dbInstance')
         await db.execute(sql`SELECT 1`);
 
         return c.json({

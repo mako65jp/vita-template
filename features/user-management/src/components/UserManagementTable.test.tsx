@@ -170,27 +170,29 @@ describe('UserManagementTable Component', () => {
         globalFetch.mockResolvedValueOnce({
             ok: true,
             json: async () => ({
-                user: { id: 2, name: '新規ユーザー', email: 'new@example.com', role: 'user', isActive: true },
-                initialPassword: 'password123',
+                user: { id: 2, name: '新規ユーザー', email: 'new@example.com', role: 'user', isActive: true }
             }),
         });
 
         fireEvent.change(screen.getByPlaceholderText('山田 太郎'), { target: { value: '新規ユーザー' } });
         fireEvent.change(screen.getByPlaceholderText('user@example.com'), { target: { value: 'new@example.com' } });
-        fireEvent.change(screen.getByPlaceholderText('8文字以上（空欄可）'), { target: { value: 'password123' } });
+        fireEvent.change(screen.getByPlaceholderText('8文字以上'), { target: { value: 'password123' } });
 
         fireEvent.click(screen.getByRole('button', { name: '追加する' }));
 
         await waitFor(() => {
-            expect(globalFetch).toHaveBeenCalledWith(
+            expect(globalFetch).toHaveBeenLastCalledWith(
                 '/api/user-management',
                 expect.objectContaining({
                     method: 'POST',
+                    "headers": {
+                        "Content-Type": "application/json",
+                    },
                     body: JSON.stringify({
                         name: '新規ユーザー',
                         email: 'new@example.com',
-                        role: 'user',
                         password: 'password123',
+                        role: 'user',
                     }),
                 })
             );

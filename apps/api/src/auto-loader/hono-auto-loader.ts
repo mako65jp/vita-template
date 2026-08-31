@@ -1,14 +1,15 @@
 import { Hono } from 'hono';
+import { AppEnv } from '@shared/functions';
+import { Database } from '@shared/db';
 import { glob } from 'glob';
-import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { env } from '@shared/functions';
-import { getProjectRootDir } from '@shared/server';
+import { getProjectRootDir, resolveFromProjectRoot } from '@shared/server-utils';
 import { getActivePlugins } from '../utils/auto-loader-helper';
 import { authMiddleware } from '../middlewares/auth-middleware';
 import { rbacMiddleware } from '../middlewares/rbac-middleware';
 
-export async function loadFeatureModules(app: Hono, pattern: string) {
+export async function loadFeatureModules(app: Hono<AppEnv>, pattern: string, db: Database) {
     // 💡 プロジェクトルートを環境に依存せず確実に取得
     const rootDir = getProjectRootDir();
 
@@ -17,13 +18,15 @@ export async function loadFeatureModules(app: Hono, pattern: string) {
 
     // 1. 各機能モジュールを動的インポート
     for (const file of files) {
-        const absolutePath = path.resolve(rootDir, file);
+        const paths = file.split('/')
+        const absolutePath = resolveFromProjectRoot(...paths);
+        // const absolutePath = path.resolve(rootDir, file);
         const moduleUrl = pathToFileURL(absolutePath).href;
         await import(moduleUrl);
     }
 
     // 2. DB から登録済みプラグインの有効/無効ステータスを取得
-    const pluginStatuses = await getActivePlugins();
+    const pluginStatuses = await getActivePlugins(db);
 
     // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
     for (const { plugin, isEnabled } of pluginStatuses) {

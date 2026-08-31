@@ -1,4 +1,4 @@
-import { PluginRegistry } from '@shared/functions';
+import { PluginRegistry } from '@shared/client';
 import { UserManagementTable } from './components/UserManagementTable';
 
 export { UserManagementTable };

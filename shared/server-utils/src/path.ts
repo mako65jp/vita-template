@@ -1,4 +1,3 @@
-// shared/core/src/utils/path.ts
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,3 +19,4 @@ export function getProjectRootDir(): string {
 export function resolveFromProjectRoot(...paths: string[]): string {
     return path.resolve(getProjectRootDir(), ...paths);
 }
+

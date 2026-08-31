@@ -17,13 +17,23 @@
         "moduleResolution": "bundler",
         "resolveJsonModule": true,
         "isolatedModules": true,
+        "sourceMap": true,
         "noEmit": true,
         "jsx": "react-jsx",
         /* ── パスエイリアス（新構造のフォルダ構成に対応） ── */
         "baseUrl": ".",
         "paths": {
-            "@apps/*": [
-                "apps/*"
+            "@apps/api": [
+                "apps/api/src/index"
+            ],
+            "@apps/api/*": [
+                "apps/api/src/*"
+            ],
+            "@apps/web": [
+                "apps/web/src/index"
+            ],
+            "@apps/web/*": [
+                "apps/web/src/*"
             ],
             "@features/*": [
                 "features/*"
@@ -52,21 +62,22 @@
             "@shared/functions/*": [
                 "shared/functions/src/*"
             ],
-            "@shared/schemas": [
-                "shared/schemas/index.ts"
+            "@shared/db": [
+                "shared/db/index.ts"
             ],
-            "@shared/schemas/*": [
-                "shared/schemas/src/*"
+            "@shared/db/*": [
+                "shared/db/src/*"
             ],
-            "@shared/server": [
-                "shared/server/index.ts"
+            "@shared/server-utils": [
+                "shared/server-utils/index.ts"
             ],
-            "@shared/server/*": [
-                "shared/server/*"
+            "@shared/server-utils/*": [
+                "shared/server-utils/*"
             ]
         }
     },
     "include": [
+        "*.ts",
         "apps/**/*",
         "features/**/*",
         "plugins/**/*",

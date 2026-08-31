@@ -10,6 +10,8 @@
     ],
     "scripts": {
         "build": "npm run build --workspaces --if-present",
+        "codegen": "npm run codegen --workspaces --if-present",
+        "codegen:watch": "npm run codegen:watch --workspaces --if-present",
         "coverage": "vitest run --coverage",
         "dev": "npm start",
         "dev:api": "npm --workspace=apps/api run dev",
@@ -34,6 +36,7 @@
         "vitest": "^4.1.11"
     },
     "dependencies": {
+        "@electric-sql/pglite": "^0.5.8",
         "pg": "^8.23.0"
     }
 }

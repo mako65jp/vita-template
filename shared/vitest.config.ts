@@ -6,7 +6,7 @@ export default defineConfig({
     },
     test: {
         globals: true,
-        // fileParallelism: false,                         // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['../vitest-clear.ts'],            // ② 各テスト実行前にテーブルデータを全消去
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        setupFiles: ['../vitest-clear.ts'],             // 各テスト実行前にテーブルデータを全消去
     },
 });

@@ -1,5 +1,5 @@
 {
-    "name": "@shared/server",
+    "name": "@shared/db",
     "version": "1.0.0",
     "private": true,
     "type": "module",
@@ -7,17 +7,18 @@
     "types": "./index.ts",
     "exports": {
         ".": "./index.ts",
-        "./auth": "./auth/*.ts",
-        "./db": "./db/*.ts",
-        "./utils": "./utils/*.ts"
+        "./schema": "./src/schema"
     },
     "scripts": {
         "build": "tsc",
+        "codegen": "tsx src/codegen.ts",
+        "codegen:watch": "tsx watch src/codegen.ts",
         "db:push": "drizzle-kit push",
-        "db:seed": "tsx db/seed.ts",
+        "db:seed": "tsx seed.ts",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
+        "@electric-sql/pglite": "^0.5.8",
         "bcryptjs": "^3.0.3",
         "drizzle-orm": "^0.45.2",
         "glob": "^13.0.6",
@@ -26,6 +27,8 @@
     },
     "devDependencies": {
         "@types/bcryptjs": "^2.4.6",
-        "drizzle-kit": "^0.31.10"
+        "@types/node": "^26.2.0",
+        "drizzle-kit": "^0.31.10",
+        "pg-mem": "^3.0.14"
     }
 }

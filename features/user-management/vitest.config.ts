@@ -6,6 +6,10 @@ export default defineConfig({
     resolve: {
         tsconfigPaths: true
     },
+    build: {
+        // ソースマップを有効化
+        sourcemap: true,
+    },
     test: {
         globals: true,
         environment: 'jsdom',

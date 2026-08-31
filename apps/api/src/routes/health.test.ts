@@ -1,19 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createApp } from '../index';
-import { db } from '@shared/server';
+import { createTestEnv } from '../../../../vitest-clear'; // 💡 作り直し関数をインポート
 
 describe('Health Check API (Step 6.1)', () => {
-    let app: Awaited<ReturnType<typeof createApp>>;
+    let app: any;
+    let db: any; // 検証用にdbも受け取れるように定義
 
     beforeEach(async () => {
-        vi.clearAllMocks();
-        vi.restoreAllMocks();
-        // 非同期でアプリの初期化（ルートのロード完了）を待つ
-        app = await createApp();
-    });
-
-    afterEach(() => {
-        vi.restoreAllMocks();
+        // 💡 完璧なアプローチ：テストごとに、DBごと app を丸ごと新しく作り直す！
+        const testEnv = await createTestEnv();
+        app = testEnv.app;
+        db = testEnv.db;
     });
 
     it('GET /healthz - DB導通が正常な場合、200 OK と status: ok を返すこと', async () => {

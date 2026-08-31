@@ -15,13 +15,13 @@ export interface AuthPlugin {
  * 認証プラグインのレジストリ管理
  */
 export class AuthPluginRegistry {
-    private static plugins = new Map<string, AuthPlugin>();
+    private plugins = new Map<string, AuthPlugin>();
 
-    static register(plugin: AuthPlugin) {
+    register(plugin: AuthPlugin) {
         this.plugins.set(plugin.name, plugin);
     }
 
-    static get(name: string): AuthPlugin {
+    get(name: string): AuthPlugin {
         const plugin = this.plugins.get(name);
         if (!plugin) {
             throw new Error(`認証プラグイン "${name}" が登録されていません。`);

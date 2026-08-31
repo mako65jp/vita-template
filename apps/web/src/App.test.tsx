@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/re
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { App } from './App';
-import { PluginRegistry } from '@shared/functions';
+import { PluginRegistry } from '@shared/client';
 
 // useAuth のモック設定
 const mockUseAuth = vi.fn();

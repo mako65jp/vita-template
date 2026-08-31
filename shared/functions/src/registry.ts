@@ -1,5 +1,6 @@
 // shared/core/src/plugins/registry.ts
 import { Hono } from 'hono';
+import type { AppEnv } from './types';
 
 export interface PluginNavItem {
     id: string;             // タブ選択等で識別するためのID (例: 'users')
@@ -10,12 +11,12 @@ export interface PluginNavItem {
 }
 
 export interface PluginManifest {
-    id: string;             // 一意キー (例: 'user-management')
-    name: string;           // 表示名
-    description?: string;   // 説明
-    routes?: Hono;          // プラグインが提供する Hono ルーター（UI専用登録時は省略可能）
+    id: string;                 // 一意キー (例: 'user-management')
+    name: string;               // 表示名
+    description?: string;       // 説明
+    routes?: Hono<AppEnv>;      // プラグインが提供する Hono ルーター（UI専用登録時は省略可能）
     navItems?: PluginNavItem[]; // フロントエンド表示用メニュー情報
-    requiredRole?: string;  // 💡 API 全体に適用するアクセス制限ロール (例: 'admin')
+    requiredRole?: string;      // 💡 API 全体に適用するアクセス制限ロール (例: 'admin')
 }
 
 export class PluginRegistry {

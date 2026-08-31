@@ -1,4 +1,4 @@
-import { PluginRegistry } from '@shared/functions';
+import { PluginRegistry } from '@shared/client';
 import { userRoutes } from './src/routes';
 
 export { UserManagementTable, registerUserManagementPlugin } from './src/ui';
