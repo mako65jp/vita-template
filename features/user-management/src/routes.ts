@@ -52,7 +52,7 @@ userRoutes.post(
     }),
     async (c) => {
         const db = c.get('dbInstance');
-        const body = c.req.valid('json');
+        const body = c.req.valid('json') as Record<string, any>;
 
         const [existingUser] = await db.select().from(users).where(eq(users.email, body.email));
         if (existingUser) {
@@ -93,7 +93,7 @@ userRoutes.patch(
         const db = c.get('dbInstance');
         const id = Number(c.req.param('id'));
         const currentUserId = getCurrentUserId(c);
-        const { role } = c.req.valid('json');
+        const { role } = c.req.valid('json') as Record<string, any>;
 
         if (currentUserId === id && role !== 'admin') {
             throw new BadRequestError('自分自身の管理者権限を変更することはできません');
@@ -130,8 +130,7 @@ userRoutes.patch(
     async (c) => {
         const db = c.get('dbInstance');
         const id = Number(c.req.param('id'));
-        const { isActive } = c.req.valid('json');
-        // const currentUserId = getCurrentUserId(c);
+        const { isActive } = c.req.valid('json') as Record<string, any>;
         const currentUserId = getCurrentUserId(c);
 
         if (currentUserId === id && isActive === false) {

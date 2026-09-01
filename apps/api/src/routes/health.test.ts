@@ -1,18 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestEnv } from '../../../../vitest-clear'; // 💡 作り直し関数をインポート
+import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
 
 describe('Health Check API (Step 6.1)', () => {
-    let app: any;
-    let db: any; // 検証用にdbも受け取れるように定義
 
     beforeEach(async () => {
-        // 💡 完璧なアプローチ：テストごとに、DBごと app を丸ごと新しく作り直す！
-        const testEnv = await createTestEnv();
-        app = testEnv.app;
-        db = testEnv.db;
     });
 
     it('GET /healthz - DB導通が正常な場合、200 OK と status: ok を返すこと', async () => {
+
+        // 1. クリーンなテスト環境を取得
+        const { app, db, pglite } = await createTestEnv();
+
         const res = await app.request('/healthz');
 
         expect(res.status).toBe(200);
@@ -21,9 +19,16 @@ describe('Health Check API (Step 6.1)', () => {
             status: 'ok',
             db: 'connected',
         });
+
+        // 必ず、PGliteをクローズする
+        await pglite.close();
     });
 
     it('GET /healthz - DB接続エラーが発生した場合、503 と RFC 9457 形式のエラーを返すこと', async () => {
+
+        // 1. クリーンなテスト環境を取得
+        const { app, db, pglite } = await createTestEnv();
+
         vi.spyOn(db, 'execute').mockRejectedValueOnce(new Error('Database connection failed'));
 
         const res = await app.request('/healthz');
@@ -38,6 +43,9 @@ describe('Health Check API (Step 6.1)', () => {
             detail: 'Database connection failed',
             instance: '/healthz',
         });
+
+        // 必ず、PGliteをクローズする
+        await pglite.close();
     });
 });
 
