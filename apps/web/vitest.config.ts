@@ -10,7 +10,9 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
+        // testTimeout: 10000,
+        maxWorkers: '60%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
-        setupFiles: ['./vitest-setup.ts'],      // 各テスト実行前にテーブルデータを全消去
+        setupFiles: ['./vitest-setup.ts'],
     },
 });

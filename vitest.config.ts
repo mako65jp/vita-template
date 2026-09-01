@@ -7,6 +7,9 @@ export default defineConfig({
     test: {
         globals: true,
         reporters: ['tree'],
+        environment: 'node',
+        // testTimeout: 10000,
+        maxWorkers: '60%',
 
         // ディレクトリではなく「vitest.config.ts を持つファイル」をワイルドカードで直接指定する
         projects: [

@@ -8,6 +8,8 @@ export default defineConfig({
     },
     test: {
         globals: true,
-        setupFiles: ['../../vitest-clear.ts'],               // ② 各テスト実行前にテーブルデータを全消去
+        environment: 'node',
+        // testTimeout: 10000,
+        maxWorkers: '60%',
     },
 });
