@@ -13,8 +13,8 @@ describe('path utils', () => {
     });
 
     it('resolveFromProjectRoot がルートからの相対パスを正しい絶対パスに変換すること', () => {
-        const resolvedPath = resolveFromProjectRoot('shared', 'core');
-        const expectedPath = path.resolve(getProjectRootDir(), 'shared/core');
+        const resolvedPath = resolveFromProjectRoot('shared', 'aaa');
+        const expectedPath = path.resolve(getProjectRootDir(), 'shared/aaa');
 
         expect(resolvedPath).toBe(expectedPath);
     });

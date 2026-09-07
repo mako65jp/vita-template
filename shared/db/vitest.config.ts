@@ -10,6 +10,6 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
     },
 });

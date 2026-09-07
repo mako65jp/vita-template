@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { clientEnv } from '@shared/client';
 
 describe('Web Environment Variables (Pattern A)', () => {
-    it('shared/core の clientEnv から正しく設定値および動的補完値が取得できること', () => {
+    it('shared の clientEnv から正しく設定値および動的補完値が取得できること', () => {
         // VITE_APP_TITLE の検証
         expect(clientEnv.VITE_APP_TITLE).toBeDefined();
         expect(typeof clientEnv.VITE_APP_TITLE).toBe('string');

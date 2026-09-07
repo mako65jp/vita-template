@@ -5,16 +5,26 @@
   "workspaceFolder": "/workspace",
   "customizations": {
     "vscode": {
+      // 1. コンテナ内に自動でインストールする拡張機能
+      "extensions": [
+        // "ms-vscode.vscode-typescript-next", // TSサポート（必要に応じて）
+        "dbaeumer.vscode-eslint", // Linter
+        "esbenp.prettier-vscode", // Formatter
+        "vitest.explorer"
+      ],
+      // 2. コンテナ内だけで有効にしたいVSCodeの設定（settings.jsonの内容）
       "settings": {
         "js/ts.tsdk.path": "node_modules/typescript/lib",
         "editor.formatOnSave": true,
-        "vitest.enable": true
-      },
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "vitest.explorer"
-      ]
+        "vitest.enable": true,
+        // コンテナ内のファイル監視負荷を下げ、スリープ復帰時のクラッシュを防ぐ
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/dist/**": true,
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true
+        }
+      }
     }
   },
   "forwardPorts": [

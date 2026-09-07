@@ -9,7 +9,7 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });

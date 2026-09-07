@@ -1,4 +1,10 @@
 {
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true
+    },
     "css.lint.unknownAtRules": "ignore",
     "eslint.workingDirectories": [
         {

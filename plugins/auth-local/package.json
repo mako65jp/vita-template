@@ -9,10 +9,10 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "bcryptjs": "^3.0.3",
+        "bcrypt": "^6.0.0",
         "jose": "^6.2.8"
     },
     "devDependencies": {
-        "@types/bcryptjs": "^2.4.6"
+        "@types/bcrypt": "^6.0.0"
     }
 }

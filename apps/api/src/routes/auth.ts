@@ -71,10 +71,11 @@ export function authRouter(jwtSecret: string, authRegistry: AuthPluginRegistry) 
     // ----------------------------------------------------
     app.get('/me', authMiddleware(jwtSecret), async (c) => {
         const currentUser = c.get('user');
+        if (currentUser == undefined) { return undefined; }
 
         return c.json({
             user: {
-                id: currentUser.userId,
+                id: currentUser.id,
                 email: currentUser.email,
                 role: currentUser.role,
             },

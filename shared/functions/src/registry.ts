@@ -1,4 +1,3 @@
-// shared/core/src/plugins/registry.ts
 import { Hono } from 'hono';
 import type { AppEnv } from './types';
 

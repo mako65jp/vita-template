@@ -12,11 +12,24 @@ import * as schema from './schema';
 export type Database = PgDatabase<any, typeof schema>;
 
 // =========================================================================
-// 本番/開発環境用の Drizzle インスタンスを作成
-export const createProductionDb = (connectionString: string): NodePgDatabase<typeof schema> => {
-    const pool = new Pool({
+export function createPool(connectionString: string,): Pool {
+    return new Pool({
         connectionString,
         max: 20,
-    })
-    return drizzleNodePg(pool, { schema })
+    });
 }
+
+// =========================================================================
+// 本番/開発環境用の Drizzle インスタンスを作成
+export function createProductionDb(pool: Pool,): NodePgDatabase<typeof schema> {
+    return drizzleNodePg(pool, { schema, });
+}
+
+
+// export const createProductionDb = (connectionString: string): NodePgDatabase<typeof schema> => {
+//     const pool = new Pool({
+//         connectionString,
+//         max: 20,
+//     })
+//     return drizzleNodePg(pool, { schema })
+// }

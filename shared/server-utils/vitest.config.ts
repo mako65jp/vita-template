@@ -1,6 +1,5 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 
 export default defineConfig({
     plugins: [react()],
@@ -12,5 +11,7 @@ export default defineConfig({
         environment: 'jsdom',
         // testTimeout: 10000,
         maxWorkers: '80%',
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        // setupFiles: ['./src/vitest-setup.ts'],  // 各テスト実行前にテーブルデータを全消去
     },
 });

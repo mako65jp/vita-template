@@ -1,12 +1,13 @@
 import { serve } from '@hono/node-server';
-import { createProductionDb } from '@shared/db';
+import { createPool, createProductionDb } from '@shared/db';
 import { env, isTest } from '@shared/functions';
-import { createApp } from './index'; // 💡 index.ts から関数をインポート
+import { createApp } from './create-app'; // 💡 index.ts から関数をインポート
 
-async function bootstrap() {
+export async function bootstrap() {
     try {
         // DBインスタンス（ミドルウェア）を注入(本番用のPoolクライアント等を生成して渡す)
-        const db = createProductionDb(env.DATABASE_URL);    //createDb('pg');
+        const pool = createPool(env.DATABASE_URL);
+        const db = createProductionDb(pool);
         const app = await createApp(db);
         const port = env.PORT || 3001;
 

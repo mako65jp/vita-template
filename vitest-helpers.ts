@@ -1,4 +1,4 @@
-import { createApp } from '@apps/api/index';
+import { createApp } from '@apps/api/create-app';
 import { drizzle as drizzlePglite } from 'drizzle-orm/pglite'
 import { PGlite } from '@electric-sql/pglite'
 import * as fs from 'fs';

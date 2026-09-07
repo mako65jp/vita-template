@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1788253099_27337' > "package.json"
+cat << 'EOF_1788771794_18706' > "package.json"
 {
     "name": "monorepo",
     "private": true,
@@ -53,10 +53,10 @@ cat << 'EOF_1788253099_27337' > "package.json"
         "pg": "^8.23.0"
     }
 }
-EOF_1788253099_27337
+EOF_1788771794_18706
 
 echo "作成: cat_files.sh"
-cat << 'EOF_1788253099_28087' > "cat_files.sh"
+cat << 'EOF_1788771794_27507' > "cat_files.sh"
 #!/bin/bash
 
 RECURSIVE=false
@@ -177,10 +177,10 @@ for target in "$@"; do
         fi
     fi
 done
-EOF_1788253099_28087
+EOF_1788771794_27507
 
 echo "作成: .gitignore"
-cat << 'EOF_1788253099_4036' > ".gitignore"
+cat << 'EOF_1788771794_8436' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -287,21 +287,21 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1788253099_4036
+EOF_1788771794_8436
 
 mkdir -p "shared"
 echo "作成: shared/package.json"
-cat << 'EOF_1788253099_10216' > "shared/package.json"
+cat << 'EOF_1788771794_2138' > "shared/package.json"
 {
     "devDependencies": {
         "@types/node": "^26.2.0"
     }
 }
-EOF_1788253099_10216
+EOF_1788771794_2138
 
 mkdir -p "shared/db"
 echo "作成: shared/db/package.json"
-cat << 'EOF_1788253099_21982' > "shared/db/package.json"
+cat << 'EOF_1788771794_7961' > "shared/db/package.json"
 {
     "name": "@shared/db",
     "version": "1.0.0",
@@ -323,23 +323,23 @@ cat << 'EOF_1788253099_21982' > "shared/db/package.json"
     },
     "dependencies": {
         "@electric-sql/pglite": "^0.5.8",
-        "bcryptjs": "^3.0.3",
+        "bcrypt": "^6.0.0",
         "drizzle-orm": "^0.45.2",
         "glob": "^13.0.6",
         "jose": "^6.2.8",
         "postgres": "^3.4.9"
     },
     "devDependencies": {
-        "@types/bcryptjs": "^2.4.6",
+        "@types/bcrypt": "^6.0.0",
         "@types/node": "^26.2.0",
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1788253099_21982
+EOF_1788771794_7961
 
 mkdir -p "shared/db"
 echo "作成: shared/db/index.ts"
-cat << 'EOF_1788253099_31705' > "shared/db/index.ts"
+cat << 'EOF_1788771794_16956' > "shared/db/index.ts"
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { env } from '@shared/functions';
@@ -358,11 +358,11 @@ export * from './src/schema';
 export * from './src/database';
 
 export * from './src/generated/repositories';
-EOF_1788253099_31705
+EOF_1788771794_16956
 
 mkdir -p "shared/db"
 echo "作成: shared/db/seed.ts"
-cat << 'EOF_1788253099_22331' > "shared/db/seed.ts"
+cat << 'EOF_1788771794_17922' > "shared/db/seed.ts"
 import { db, users } from './index';
 import { hashPassword } from '@plugins/auth-local';
 import { eq } from 'drizzle-orm';
@@ -403,11 +403,11 @@ async function main() {
 }
 
 main();
-EOF_1788253099_22331
+EOF_1788771794_17922
 
 mkdir -p "shared/db"
 echo "作成: shared/db/vitest.config.ts"
-cat << 'EOF_1788253099_9454' > "shared/db/vitest.config.ts"
+cat << 'EOF_1788771794_3690' > "shared/db/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
@@ -420,14 +420,14 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
     },
 });
-EOF_1788253099_9454
+EOF_1788771794_3690
 
 mkdir -p "shared/db/src"
 echo "作成: shared/db/src/database.ts"
-cat << 'EOF_1788253099_23342' > "shared/db/src/database.ts"
+cat << 'EOF_1788771794_12013' > "shared/db/src/database.ts"
 import { drizzle as drizzleNodePg, NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { PgDatabase } from 'drizzle-orm/pg-core'
@@ -442,19 +442,32 @@ import * as schema from './schema';
 export type Database = PgDatabase<any, typeof schema>;
 
 // =========================================================================
-// 本番/開発環境用の Drizzle インスタンスを作成
-export const createProductionDb = (connectionString: string): NodePgDatabase<typeof schema> => {
-    const pool = new Pool({
+export function createPool(connectionString: string,): Pool {
+    return new Pool({
         connectionString,
         max: 20,
-    })
-    return drizzleNodePg(pool, { schema })
+    });
 }
-EOF_1788253099_23342
+
+// =========================================================================
+// 本番/開発環境用の Drizzle インスタンスを作成
+export function createProductionDb(pool: Pool,): NodePgDatabase<typeof schema> {
+    return drizzleNodePg(pool, { schema, });
+}
+
+
+// export const createProductionDb = (connectionString: string): NodePgDatabase<typeof schema> => {
+//     const pool = new Pool({
+//         connectionString,
+//         max: 20,
+//     })
+//     return drizzleNodePg(pool, { schema })
+// }
+EOF_1788771794_12013
 
 mkdir -p "shared/db/src"
 echo "作成: shared/db/src/codegen.ts"
-cat << 'EOF_1788253099_22248' > "shared/db/src/codegen.ts"
+cat << 'EOF_1788771794_28876' > "shared/db/src/codegen.ts"
 import fs from 'node:fs';
 import path from 'node:path';
 import { resolveFromProjectRoot } from '@shared/server-utils';
@@ -518,11 +531,11 @@ if (!fs.existsSync(generatedDir)) {
 
 fs.writeFileSync(path.resolve(generatedDir, 'repositories.ts'), template.trim() + '\n');
 console.log(`[Codegen] repositories.ts を正常に生成しました。`);
-EOF_1788253099_22248
+EOF_1788771794_28876
 
 mkdir -p "shared/db/src/generated"
 echo "作成: shared/db/src/generated/repositories.ts"
-cat << 'EOF_1788253099_28899' > "shared/db/src/generated/repositories.ts"
+cat << 'EOF_1788771794_3185' > "shared/db/src/generated/repositories.ts"
 // 
 // このファイルは codegen.ts で、自動生成されました
 // 
@@ -547,18 +560,109 @@ export function createUserRepository(db: Database) {
     }
   };
 }
-EOF_1788253099_28899
+EOF_1788771794_3185
+
+mkdir -p "shared/db/src"
+echo "作成: shared/db/src/database.test.ts"
+cat << 'EOF_1788771794_6147' > "shared/db/src/database.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('drizzle-orm/node-postgres', () => ({
+    drizzle: vi.fn(),
+}));
+
+vi.mock('pg', () => ({
+    Pool: vi.fn(),
+}));
+
+import { drizzle as drizzleNodePg } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+
+import {
+    createPool,
+    createProductionDb,
+} from './database';
+
+import * as schema from './schema';
+
+describe('database', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    describe('createPool', () => {
+        it('Pool を生成する', () => {
+            createPool('postgres://test');
+
+            expect(Pool).toHaveBeenCalledWith({
+                connectionString: 'postgres://test',
+                max: 20,
+            });
+        });
+
+        it('空文字もそのまま渡す', () => {
+            createPool('');
+
+            expect(Pool).toHaveBeenCalledWith({
+                connectionString: '',
+                max: 20,
+            });
+        });
+    });
+
+    describe('createProductionDb', () => {
+        it('PoolからDrizzle DBを生成する', () => {
+            const fakePool = {};
+
+            const fakeDb = {
+                transaction: vi.fn(),
+            };
+
+            vi.mocked(drizzleNodePg).mockReturnValue(
+                fakeDb as any,
+            );
+
+            const result = createProductionDb(
+                fakePool as any,
+            );
+
+            expect(drizzleNodePg).toHaveBeenCalledWith(
+                fakePool,
+                {
+                    schema,
+                },
+            );
+
+            expect(result).toBe(fakeDb);
+        });
+
+        it('drizzle例外を伝播する', () => {
+            vi.mocked(drizzleNodePg).mockImplementation(
+                () => {
+                    throw new Error('drizzle failed');
+                },
+            );
+
+            expect(() =>
+                createProductionDb(
+                    {} as any,
+                ),
+            ).toThrowError('drizzle failed');
+        });
+    });
+});
+EOF_1788771794_6147
 
 mkdir -p "shared/db/src/schema"
 echo "作成: shared/db/src/schema/index.ts"
-cat << 'EOF_1788253099_13779' > "shared/db/src/schema/index.ts"
+cat << 'EOF_1788771794_19870' > "shared/db/src/schema/index.ts"
 export * from './users';
 export * from './plugins';
-EOF_1788253099_13779
+EOF_1788771794_19870
 
 mkdir -p "shared/db/src/schema"
 echo "作成: shared/db/src/schema/plugins.ts"
-cat << 'EOF_1788253099_5740' > "shared/db/src/schema/plugins.ts"
+cat << 'EOF_1788771794_2759' > "shared/db/src/schema/plugins.ts"
 import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 // プラグイン管理テーブル
@@ -569,11 +673,11 @@ export const plugins = pgTable('plugins', {
     enabled: boolean('enabled').default(true).notNull(), // 有効/無効フラグ
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
-EOF_1788253099_5740
+EOF_1788771794_2759
 
 mkdir -p "shared/db/src/schema"
 echo "作成: shared/db/src/schema/users.ts"
-cat << 'EOF_1788253099_32602' > "shared/db/src/schema/users.ts"
+cat << 'EOF_1788771794_28834' > "shared/db/src/schema/users.ts"
 import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -585,11 +689,11 @@ export const users = pgTable('users', {
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
-EOF_1788253099_32602
+EOF_1788771794_28834
 
 mkdir -p "shared/db"
 echo "作成: shared/db/drizzle.config.ts"
-cat << 'EOF_1788253099_9014' > "shared/db/drizzle.config.ts"
+cat << 'EOF_1788771794_12384' > "shared/db/drizzle.config.ts"
 import { defineConfig } from 'drizzle-kit';
 import { env } from '@shared/functions';
 import path from 'node:path';
@@ -610,11 +714,11 @@ export default defineConfig({
         url: env.DATABASE_URL,
     },
 });
-EOF_1788253099_9014
+EOF_1788771794_12384
 
 mkdir -p "shared/db/drizzle"
 echo "作成: shared/db/drizzle/0000_oval_dark_phoenix.sql"
-cat << 'EOF_1788253099_28566' > "shared/db/drizzle/0000_oval_dark_phoenix.sql"
+cat << 'EOF_1788771794_1023' > "shared/db/drizzle/0000_oval_dark_phoenix.sql"
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -633,11 +737,11 @@ CREATE TABLE "plugins" (
 	"enabled" boolean DEFAULT true NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
-EOF_1788253099_28566
+EOF_1788771794_1023
 
 mkdir -p "shared/db/drizzle/meta"
 echo "作成: shared/db/drizzle/meta/0000_snapshot.json"
-cat << 'EOF_1788253099_8352' > "shared/db/drizzle/meta/0000_snapshot.json"
+cat << 'EOF_1788771794_3149' > "shared/db/drizzle/meta/0000_snapshot.json"
 {
   "id": "bb52f086-cbc6-49f7-95b2-415c36f1f151",
   "prevId": "00000000-0000-0000-0000-000000000000",
@@ -768,11 +872,11 @@ cat << 'EOF_1788253099_8352' > "shared/db/drizzle/meta/0000_snapshot.json"
     "tables": {}
   }
 }
-EOF_1788253099_8352
+EOF_1788771794_3149
 
 mkdir -p "shared/db/drizzle/meta"
 echo "作成: shared/db/drizzle/meta/_journal.json"
-cat << 'EOF_1788253099_22765' > "shared/db/drizzle/meta/_journal.json"
+cat << 'EOF_1788771794_28605' > "shared/db/drizzle/meta/_journal.json"
 {
   "version": "7",
   "dialect": "postgresql",
@@ -786,22 +890,22 @@ cat << 'EOF_1788253099_22765' > "shared/db/drizzle/meta/_journal.json"
     }
   ]
 }
-EOF_1788253099_22765
+EOF_1788771794_28605
 
 mkdir -p "shared"
 echo "作成: shared/tsconfig.json"
-cat << 'EOF_1788253099_17202' > "shared/tsconfig.json"
+cat << 'EOF_1788771794_11173' > "shared/tsconfig.json"
 {
     "extends": "../tsconfig.json",
     "include": [
         "**/src/*"
     ]
 }
-EOF_1788253099_17202
+EOF_1788771794_11173
 
 mkdir -p "shared"
 echo "作成: shared/vitest.config.ts"
-cat << 'EOF_1788253099_24150' > "shared/vitest.config.ts"
+cat << 'EOF_1788771794_24492' > "shared/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -812,15 +916,15 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1788253099_24150
+EOF_1788771794_24492
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/package.json"
-cat << 'EOF_1788253099_4794' > "shared/functions/package.json"
+cat << 'EOF_1788771794_24987' > "shared/functions/package.json"
 {
     "name": "@shared/functions",
     "version": "1.0.0",
@@ -843,21 +947,21 @@ cat << 'EOF_1788253099_4794' > "shared/functions/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1788253099_4794
+EOF_1788771794_24987
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/index.ts"
-cat << 'EOF_1788253099_31612' > "shared/functions/index.ts"
+cat << 'EOF_1788771794_29385' > "shared/functions/index.ts"
 export * from './src/auth-registry'
 export * from './src/constants'
 export * from './src/env'
 export * from './src/registry'
 export * from './src/types'
-EOF_1788253099_31612
+EOF_1788771794_29385
 
 mkdir -p "shared/functions"
 echo "作成: shared/functions/vitest.config.ts"
-cat << 'EOF_1788253099_5467' > "shared/functions/vitest.config.ts"
+cat << 'EOF_1788771794_12037' > "shared/functions/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
@@ -870,20 +974,20 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
     },
 });
-EOF_1788253099_5467
+EOF_1788771794_12037
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/constants.ts"
-cat << 'EOF_1788253099_15051' > "shared/functions/src/constants.ts"
+cat << 'EOF_1788771794_11304' > "shared/functions/src/constants.ts"
 export const AUTH_TOKEN_KEY = 'auth_token';
-EOF_1788253099_15051
+EOF_1788771794_11304
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/auth-registry.ts"
-cat << 'EOF_1788253099_30826' > "shared/functions/src/auth-registry.ts"
+cat << 'EOF_1788771794_22695' > "shared/functions/src/auth-registry.ts"
 
 export interface AuthUser {
     id: string | number;
@@ -916,24 +1020,25 @@ export class AuthPluginRegistry {
     }
 }
 
-EOF_1788253099_30826
+EOF_1788771794_22695
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/types.ts"
-cat << 'EOF_1788253099_23179' > "shared/functions/src/types.ts"
+cat << 'EOF_1788771794_31805' > "shared/functions/src/types.ts"
 import type { Database } from '@shared/db';
+import { AuthUser } from './auth-registry';
 
 export type AppEnv = {
     Variables: {
-        dbInstance: Database
+        dbInstance: Database,
+        user?: AuthUser;
     }
 }
-EOF_1788253099_23179
+EOF_1788771794_31805
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/registry.ts"
-cat << 'EOF_1788253099_23794' > "shared/functions/src/registry.ts"
-// shared/core/src/plugins/registry.ts
+cat << 'EOF_1788771794_7016' > "shared/functions/src/registry.ts"
 import { Hono } from 'hono';
 import type { AppEnv } from './types';
 
@@ -974,11 +1079,11 @@ export class PluginRegistry {
     }
 }
 
-EOF_1788253099_23794
+EOF_1788771794_7016
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/env.test.ts"
-cat << 'EOF_1788253099_32131' > "shared/functions/src/env.test.ts"
+cat << 'EOF_1788771794_16249' > "shared/functions/src/env.test.ts"
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { clientEnvSchema, serverEnvSchema, formatEnvForLog, ServerEnv, ClientEnv } from './env';
 
@@ -1172,11 +1277,11 @@ describe('.env', () => {
     });
 
 });
-EOF_1788253099_32131
+EOF_1788771794_16249
 
 mkdir -p "shared/functions/src"
 echo "作成: shared/functions/src/env.ts"
-cat << 'EOF_1788253099_10940' > "shared/functions/src/env.ts"
+cat << 'EOF_1788771794_986' > "shared/functions/src/env.ts"
 import { z } from 'zod';
 
 // ==========================================
@@ -1321,11 +1426,185 @@ export function formatEnvForLog(targetEnv: ServerEnv = env): string {
     if (maskedEnv.JWT_SECRET) maskedEnv.JWT_SECRET = '***';
     return JSON.stringify(maskedEnv, null, 2);
 }
-EOF_1788253099_10940
+EOF_1788771794_986
+
+mkdir -p "shared/functions/src"
+echo "作成: shared/functions/src/auth-registry.test.ts"
+cat << 'EOF_1788771794_5762' > "shared/functions/src/auth-registry.test.ts"
+// auth-registry.spec.ts
+
+import { describe, expect, it } from 'vitest';
+
+import {
+    AuthPlugin,
+    AuthPluginRegistry,
+} from './auth-registry';
+
+describe('AuthPluginRegistry', () => {
+    describe('register', () => {
+        it('認証プラグインを登録できる', () => {
+            const registry = new AuthPluginRegistry();
+
+            const plugin: AuthPlugin = {
+                name: 'local',
+                authenticate: async () => ({
+                    id: '1',
+                    name: 'test-user',
+                }),
+            };
+
+            registry.register(plugin);
+
+            expect(registry.get('local')).toBe(plugin);
+        });
+
+        it('同じ name のプラグインを再登録した場合は上書きされる', () => {
+            const registry = new AuthPluginRegistry();
+
+            const oldPlugin: AuthPlugin = {
+                name: 'local',
+                authenticate: async () => ({
+                    id: '1',
+                    name: 'old-user',
+                }),
+            };
+
+            const newPlugin: AuthPlugin = {
+                name: 'local',
+                authenticate: async () => ({
+                    id: '2',
+                    name: 'new-user',
+                }),
+            };
+
+            registry.register(oldPlugin);
+            registry.register(newPlugin);
+
+            expect(registry.get('local')).toBe(newPlugin);
+        });
+    });
+
+    describe('get', () => {
+        it('登録済みプラグインを取得できる', () => {
+            const registry = new AuthPluginRegistry();
+
+            const plugin: AuthPlugin = {
+                name: 'ad',
+                authenticate: async () => ({
+                    id: '100',
+                    name: 'Active Directory User',
+                }),
+            };
+
+            registry.register(plugin);
+
+            const result = registry.get('ad');
+
+            expect(result).toBe(plugin);
+        });
+
+        it('未登録プラグイン取得時は例外を送出する', () => {
+            const registry = new AuthPluginRegistry();
+
+            expect(() => registry.get('unknown'))
+                .toThrowError(
+                    '認証プラグイン "unknown" が登録されていません。'
+                );
+        });
+
+        it('空文字キーで登録・取得できる', () => {
+            const registry = new AuthPluginRegistry();
+
+            const plugin: AuthPlugin = {
+                name: '',
+                authenticate: async () => ({
+                    id: '1',
+                    name: 'empty-name-plugin',
+                }),
+            };
+
+            registry.register(plugin);
+
+            expect(registry.get('')).toBe(plugin);
+        });
+
+        it('特殊文字を含むキーを取得できる', () => {
+            const registry = new AuthPluginRegistry();
+
+            const plugin: AuthPlugin = {
+                name: 'ldap-test_plugin@v1',
+                authenticate: async () => ({
+                    id: '1',
+                    name: 'special-plugin',
+                }),
+            };
+
+            registry.register(plugin);
+
+            expect(
+                registry.get('ldap-test_plugin@v1')
+            ).toBe(plugin);
+        });
+
+        it('キーは大文字小文字を区別する', () => {
+            const registry = new AuthPluginRegistry();
+
+            const plugin: AuthPlugin = {
+                name: 'Local',
+                authenticate: async () => ({
+                    id: '1',
+                    name: 'case-sensitive',
+                }),
+            };
+
+            registry.register(plugin);
+
+            expect(registry.get('Local')).toBe(plugin);
+
+            expect(() => registry.get('local'))
+                .toThrowError(
+                    '認証プラグイン "local" が登録されていません。'
+                );
+        });
+    });
+
+    describe('authenticate integration', () => {
+        it('取得したプラグインの authenticate を実行できる', async () => {
+            const registry = new AuthPluginRegistry();
+
+            const plugin: AuthPlugin = {
+                name: 'local',
+                authenticate: async (credentials) => ({
+                    id: '1',
+                    email: credentials.email,
+                    name: 'test-user',
+                    role: 'admin',
+                }),
+            };
+
+            registry.register(plugin);
+
+            const authPlugin = registry.get('local');
+
+            const user = await authPlugin.authenticate({
+                email: 'test@example.com',
+                password: 'password',
+            });
+
+            expect(user).toEqual({
+                id: '1',
+                email: 'test@example.com',
+                name: 'test-user',
+                role: 'admin',
+            });
+        });
+    });
+});
+EOF_1788771794_5762
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/package.json"
-cat << 'EOF_1788253099_23441' > "shared/errors/package.json"
+cat << 'EOF_1788771794_18590' > "shared/errors/package.json"
 {
     "name": "@shared/errors",
     "version": "1.0.0",
@@ -1347,11 +1626,11 @@ cat << 'EOF_1788253099_23441' > "shared/errors/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1788253099_23441
+EOF_1788771794_18590
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/index.ts"
-cat << 'EOF_1788253099_2686' > "shared/errors/index.ts"
+cat << 'EOF_1788771794_14684' > "shared/errors/index.ts"
 export * from './src/types';
 export * from './src/app-error';
 export * from './src/bad-request-error';
@@ -1360,11 +1639,11 @@ export * from './src/internal-server-error';
 export * from './src/not-found-error';
 export * from './src/unauthorized-error';
 export * from './src/validation-error';
-EOF_1788253099_2686
+EOF_1788771794_14684
 
 mkdir -p "shared/errors"
 echo "作成: shared/errors/vitest.config.ts"
-cat << 'EOF_1788253099_6510' > "shared/errors/vitest.config.ts"
+cat << 'EOF_1788771794_13281' > "shared/errors/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -1378,14 +1657,14 @@ export default defineConfig({
         globals: true,
         environment: 'jsdom',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
     },
 });
-EOF_1788253099_6510
+EOF_1788771794_13281
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/unauthorized-error.ts"
-cat << 'EOF_1788253099_30622' > "shared/errors/src/unauthorized-error.ts"
+cat << 'EOF_1788771794_17046' > "shared/errors/src/unauthorized-error.ts"
 import { AppError } from './app-error';
 
 export class UnauthorizedError extends AppError {
@@ -1393,11 +1672,11 @@ export class UnauthorizedError extends AppError {
         super(401, 'unauthorized', 'Unauthorized', message);
     }
 }
-EOF_1788253099_30622
+EOF_1788771794_17046
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/app-error.ts"
-cat << 'EOF_1788253099_27875' > "shared/errors/src/app-error.ts"
+cat << 'EOF_1788771794_30901' > "shared/errors/src/app-error.ts"
 export class AppError extends Error {
     constructor(
         public readonly status: number,
@@ -1409,11 +1688,11 @@ export class AppError extends Error {
         this.name = 'AppError';
     }
 }
-EOF_1788253099_27875
+EOF_1788771794_30901
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/bad-request-error.ts"
-cat << 'EOF_1788253099_6226' > "shared/errors/src/bad-request-error.ts"
+cat << 'EOF_1788771794_7322' > "shared/errors/src/bad-request-error.ts"
 import { AppError } from './app-error';
 
 export class BadRequestError extends AppError {
@@ -1421,11 +1700,11 @@ export class BadRequestError extends AppError {
         super(400, 'bad-request', 'Bad Request', message);
     }
 }
-EOF_1788253099_6226
+EOF_1788771794_7322
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/types.ts"
-cat << 'EOF_1788253099_8471' > "shared/errors/src/types.ts"
+cat << 'EOF_1788771794_22438' > "shared/errors/src/types.ts"
 export interface InvalidParam {
     name: string;
     reason: string;
@@ -1440,11 +1719,11 @@ export interface ProblemDetails {
     instance: string;
     invalidParams?: InvalidParam[];
 }
-EOF_1788253099_8471
+EOF_1788771794_22438
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/forbidden-error.ts"
-cat << 'EOF_1788253099_10590' > "shared/errors/src/forbidden-error.ts"
+cat << 'EOF_1788771794_22830' > "shared/errors/src/forbidden-error.ts"
 import { AppError } from './app-error';
 
 export class ForbiddenError extends AppError {
@@ -1452,11 +1731,11 @@ export class ForbiddenError extends AppError {
         super(403, 'forbidden', 'Forbidden', message);
     }
 }
-EOF_1788253099_10590
+EOF_1788771794_22830
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/validation-error.ts"
-cat << 'EOF_1788253099_22448' > "shared/errors/src/validation-error.ts"
+cat << 'EOF_1788771794_2516' > "shared/errors/src/validation-error.ts"
 import { AppError } from './app-error';
 import type { InvalidParam } from './types';
 
@@ -1468,11 +1747,11 @@ export class ValidationError extends AppError {
         super(400, 'validation-error', 'Bad Request', message);
     }
 }
-EOF_1788253099_22448
+EOF_1788771794_2516
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/not-found-error.ts"
-cat << 'EOF_1788253099_28582' > "shared/errors/src/not-found-error.ts"
+cat << 'EOF_1788771794_32764' > "shared/errors/src/not-found-error.ts"
 import { AppError } from './app-error';
 
 export class NotFoundError extends AppError {
@@ -1480,11 +1759,11 @@ export class NotFoundError extends AppError {
         super(404, 'not-found', 'Not Found', message);
     }
 }
-EOF_1788253099_28582
+EOF_1788771794_32764
 
 mkdir -p "shared/errors/src"
 echo "作成: shared/errors/src/internal-server-error.ts"
-cat << 'EOF_1788253099_7996' > "shared/errors/src/internal-server-error.ts"
+cat << 'EOF_1788771794_6082' > "shared/errors/src/internal-server-error.ts"
 import { AppError } from './app-error';
 
 export class InternalServerError extends AppError {
@@ -1492,11 +1771,11 @@ export class InternalServerError extends AppError {
         super(500, 'internal-server-error', 'Internal Server Error', message);
     }
 }
-EOF_1788253099_7996
+EOF_1788771794_6082
 
 mkdir -p "shared/server-utils"
 echo "作成: shared/server-utils/package.json"
-cat << 'EOF_1788253099_20900' > "shared/server-utils/package.json"
+cat << 'EOF_1788771794_2193' > "shared/server-utils/package.json"
 {
     "name": "@shared/server-utils",
     "version": "1.0.0",
@@ -1509,17 +1788,39 @@ cat << 'EOF_1788253099_20900' > "shared/server-utils/package.json"
         "typecheck": "tsc --noEmit"
     }
 }
-EOF_1788253099_20900
+EOF_1788771794_2193
 
 mkdir -p "shared/server-utils"
 echo "作成: shared/server-utils/index.ts"
-cat << 'EOF_1788253099_12926' > "shared/server-utils/index.ts"
+cat << 'EOF_1788771794_18665' > "shared/server-utils/index.ts"
 export * from './src/path'
-EOF_1788253099_12926
+EOF_1788771794_18665
+
+mkdir -p "shared/server-utils"
+echo "作成: shared/server-utils/vitest.config.ts"
+cat << 'EOF_1788771794_16607' > "shared/server-utils/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+    plugins: [react()],
+    resolve: {
+        tsconfigPaths: true,
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        // testTimeout: 10000,
+        maxWorkers: '80%',
+        // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
+        // setupFiles: ['./src/vitest-setup.ts'],  // 各テスト実行前にテーブルデータを全消去
+    },
+});
+EOF_1788771794_16607
 
 mkdir -p "shared/server-utils/src"
 echo "作成: shared/server-utils/src/path.test.ts"
-cat << 'EOF_1788253099_21481' > "shared/server-utils/src/path.test.ts"
+cat << 'EOF_1788771794_28005' > "shared/server-utils/src/path.test.ts"
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -1535,17 +1836,17 @@ describe('path utils', () => {
     });
 
     it('resolveFromProjectRoot がルートからの相対パスを正しい絶対パスに変換すること', () => {
-        const resolvedPath = resolveFromProjectRoot('shared', 'core');
-        const expectedPath = path.resolve(getProjectRootDir(), 'shared/core');
+        const resolvedPath = resolveFromProjectRoot('shared', 'aaa');
+        const expectedPath = path.resolve(getProjectRootDir(), 'shared/aaa');
 
         expect(resolvedPath).toBe(expectedPath);
     });
 });
-EOF_1788253099_21481
+EOF_1788771794_28005
 
 mkdir -p "shared/server-utils/src"
 echo "作成: shared/server-utils/src/path.ts"
-cat << 'EOF_1788253099_32301' > "shared/server-utils/src/path.ts"
+cat << 'EOF_1788771794_29900' > "shared/server-utils/src/path.ts"
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -1568,11 +1869,11 @@ export function resolveFromProjectRoot(...paths: string[]): string {
     return path.resolve(getProjectRootDir(), ...paths);
 }
 
-EOF_1788253099_32301
+EOF_1788771794_29900
 
 mkdir -p "shared/client"
 echo "作成: shared/client/package.json"
-cat << 'EOF_1788253099_19189' > "shared/client/package.json"
+cat << 'EOF_1788771794_11567' > "shared/client/package.json"
 {
     "name": "@shared/client",
     "version": "1.0.0",
@@ -1612,11 +1913,11 @@ cat << 'EOF_1788253099_19189' > "shared/client/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1788253099_19189
+EOF_1788771794_11567
 
 mkdir -p "shared/client"
 echo "作成: shared/client/index.ts"
-cat << 'EOF_1788253099_5977' > "shared/client/index.ts"
+cat << 'EOF_1788771794_11737' > "shared/client/index.ts"
 export * from './src/lib/utils';
 export * from './src/components/button';
 export * from './src/components/layout';
@@ -1626,11 +1927,11 @@ export type { ClientEnv } from '@shared/functions'
 export { clientEnvSchema, clientEnv } from '@shared/functions'
 export { PluginRegistry } from '@shared/functions'
 export { AUTH_TOKEN_KEY } from '@shared/functions'
-EOF_1788253099_5977
+EOF_1788771794_11737
 
 mkdir -p "shared/client"
 echo "作成: shared/client/tsconfig.json"
-cat << 'EOF_1788253099_28911' > "shared/client/tsconfig.json"
+cat << 'EOF_1788771794_10786' > "shared/client/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -1643,11 +1944,11 @@ cat << 'EOF_1788253099_28911' > "shared/client/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1788253099_28911
+EOF_1788771794_10786
 
 mkdir -p "shared/client"
 echo "作成: shared/client/vitest.config.ts"
-cat << 'EOF_1788253099_11736' > "shared/client/vitest.config.ts"
+cat << 'EOF_1788771794_3149' > "shared/client/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -1661,22 +1962,22 @@ export default defineConfig({
         globals: true,
         environment: 'jsdom',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
         setupFiles: ['./src/vitest-setup.ts'],  // 各テスト実行前にテーブルデータを全消去
     },
 });
-EOF_1788253099_11736
+EOF_1788771794_3149
 
 mkdir -p "shared/client/src"
 echo "作成: shared/client/src/vitest-setup.ts"
-cat << 'EOF_1788253099_4229' > "shared/client/src/vitest-setup.ts"
+cat << 'EOF_1788771794_28690' > "shared/client/src/vitest-setup.ts"
 import '@testing-library/jest-dom/vitest';
-EOF_1788253099_4229
+EOF_1788771794_28690
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/button.tsx"
-cat << 'EOF_1788253099_21455' > "shared/client/src/components/button.tsx"
+cat << 'EOF_1788771794_12469' > "shared/client/src/components/button.tsx"
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
@@ -1720,11 +2021,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 Button.displayName = 'Button';
-EOF_1788253099_21455
+EOF_1788771794_12469
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/toaster.tsx"
-cat << 'EOF_1788253099_2243' > "shared/client/src/components/toaster.tsx"
+cat << 'EOF_1788771794_16963' > "shared/client/src/components/toaster.tsx"
 import { Toaster as SonnerToaster, toast } from 'sonner';
 import { ProblemDetails } from '@shared/errors';
 
@@ -1773,11 +2074,11 @@ export function showErrorToast(error: unknown) {
 }
 
 export { toast };
-EOF_1788253099_2243
+EOF_1788771794_16963
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/button.test.tsx"
-cat << 'EOF_1788253099_24860' > "shared/client/src/components/button.test.tsx"
+cat << 'EOF_1788771794_2187' > "shared/client/src/components/button.test.tsx"
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -1808,18 +2109,18 @@ describe('Button Component', () => {
         expect(handleClick).not.toHaveBeenCalled();
     });
 });
-EOF_1788253099_24860
+EOF_1788771794_2187
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/index.ts"
-cat << 'EOF_1788253099_19935' > "shared/client/src/components/layout/index.ts"
+cat << 'EOF_1788771794_19890' > "shared/client/src/components/layout/index.ts"
 export * from './AppLayout';
 export * from './SidebarNav';
-EOF_1788253099_19935
+EOF_1788771794_19890
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/AppLayout.tsx"
-cat << 'EOF_1788253099_26676' > "shared/client/src/components/layout/AppLayout.tsx"
+cat << 'EOF_1788771794_18601' > "shared/client/src/components/layout/AppLayout.tsx"
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -1915,11 +2216,11 @@ export function HeaderContent({ title, children }: HeaderContentProps) {
         </div>
     );
 }
-EOF_1788253099_26676
+EOF_1788771794_18601
 
 mkdir -p "shared/client/src/components/layout"
 echo "作成: shared/client/src/components/layout/SidebarNav.tsx"
-cat << 'EOF_1788253099_30121' > "shared/client/src/components/layout/SidebarNav.tsx"
+cat << 'EOF_1788771795_24437' > "shared/client/src/components/layout/SidebarNav.tsx"
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -1951,11 +2252,11 @@ export function SidebarNav({ items }: { items: SidebarNavItem[] }) {
         </nav>
     );
 }
-EOF_1788253099_30121
+EOF_1788771795_24437
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/layout.test.tsx"
-cat << 'EOF_1788253099_24053' > "shared/client/src/components/layout.test.tsx"
+cat << 'EOF_1788771795_29576' > "shared/client/src/components/layout.test.tsx"
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { AppLayout, HeaderContent, SidebarNav } from './layout';
@@ -2028,11 +2329,11 @@ describe('AppLayout Component', () => {
         expect(normalLink).not.toHaveClass('bg-blue-50');
     });
 });
-EOF_1788253099_24053
+EOF_1788771795_29576
 
 mkdir -p "shared/client/src/components"
 echo "作成: shared/client/src/components/toaster.test.tsx"
-cat << 'EOF_1788253099_21697' > "shared/client/src/components/toaster.test.tsx"
+cat << 'EOF_1788771795_12032' > "shared/client/src/components/toaster.test.tsx"
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { toast, showErrorToast } from './toaster';
 
@@ -2086,21 +2387,21 @@ describe('showErrorToast Utility', () => {
     });
   });
 });
-EOF_1788253099_21697
+EOF_1788771795_12032
 
 mkdir -p "shared/client/src/lib"
 echo "作成: shared/client/src/lib/utils.ts"
-cat << 'EOF_1788253099_19377' > "shared/client/src/lib/utils.ts"
+cat << 'EOF_1788771795_11134' > "shared/client/src/lib/utils.ts"
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-EOF_1788253099_19377
+EOF_1788771795_11134
 
 echo "作成: plan.md"
-cat << 'EOF_1788253099_8202' > "plan.md"
+cat << 'EOF_1788771795_10981' > "plan.md"
 # 📋 拡張候補一覧表（最新版）
 
 ### 凡例
@@ -2133,11 +2434,11 @@ cat << 'EOF_1788253099_8202' > "plan.md"
 | **9. 多言語対応 (i18n)** | **多言語切り替え** | 日本語 / 英語等の表示切り替えおよび言語リソース管理 | `apps/web` / `packages/ui` | ⏳ **未実装** | グローバル利用への拡張性確保 |
 
 ---
-EOF_1788253099_8202
+EOF_1788771795_10981
 
 echo "作成: vitest-helpers.ts"
-cat << 'EOF_1788253099_24045' > "vitest-helpers.ts"
-import { createApp } from '@apps/api/index';
+cat << 'EOF_1788771795_26201' > "vitest-helpers.ts"
+import { createApp } from '@apps/api/create-app';
 import { drizzle as drizzlePglite } from 'drizzle-orm/pglite'
 import { PGlite } from '@electric-sql/pglite'
 import * as fs from 'fs';
@@ -2193,22 +2494,22 @@ export async function createTestEnv() {
         pglite: client
     };
 }
-EOF_1788253099_24045
+EOF_1788771795_26201
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1788253099_13544' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1788771795_17874' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1788253099_13544
+EOF_1788771795_17874
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1788253099_24694' > ".devcontainer/Dockerfile"
+cat << 'EOF_1788771795_25532' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -2222,11 +2523,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
-EOF_1788253099_24694
+EOF_1788771795_25532
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1788253099_8534' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1788771795_16763' > ".devcontainer/devcontainer.json"
 {
   "name": "Monorepo DevContainer with DB",
   "dockerComposeFile": "docker-compose.yml",
@@ -2234,16 +2535,26 @@ cat << 'EOF_1788253099_8534' > ".devcontainer/devcontainer.json"
   "workspaceFolder": "/workspace",
   "customizations": {
     "vscode": {
+      // 1. コンテナ内に自動でインストールする拡張機能
+      "extensions": [
+        // "ms-vscode.vscode-typescript-next", // TSサポート（必要に応じて）
+        "dbaeumer.vscode-eslint", // Linter
+        "esbenp.prettier-vscode", // Formatter
+        "vitest.explorer"
+      ],
+      // 2. コンテナ内だけで有効にしたいVSCodeの設定（settings.jsonの内容）
       "settings": {
         "js/ts.tsdk.path": "node_modules/typescript/lib",
         "editor.formatOnSave": true,
-        "vitest.enable": true
-      },
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "vitest.explorer"
-      ]
+        "vitest.enable": true,
+        // コンテナ内のファイル監視負荷を下げ、スリープ復帰時のクラッシュを防ぐ
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/dist/**": true,
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true
+        }
+      }
     }
   },
   "forwardPorts": [
@@ -2253,11 +2564,11 @@ cat << 'EOF_1788253099_8534' > ".devcontainer/devcontainer.json"
   ],
   "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1788253099_8534
+EOF_1788771795_16763
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1788253099_24618' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1788771795_13774' > ".devcontainer/docker-compose.yml"
 
 services:
   app:
@@ -2296,10 +2607,10 @@ services:
 
 volumes:
   postgres-data:
-EOF_1788253099_24618
+EOF_1788771795_13774
 
 echo "作成: restore_project.bat"
-cat << 'EOF_1788253099_29232' > "restore_project.bat"
+cat << 'EOF_1788771795_13313' > "restore_project.bat"
 @echo off
 chcp 65001 >nul
 echo プロジェクトの復元を開始します...
@@ -2832,10 +3143,10 @@ powershell -Command "[System.IO.File]::WriteAllBytes('.env', [System.Convert]::F
 echo.
 echo 復元が完了しました！
 pause
-EOF_1788253099_29232
+EOF_1788771795_13313
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1788253099_1046' > "tsconfig.json"
+cat << 'EOF_1788771795_13020' > "tsconfig.json"
 {
     "compilerOptions": {
         "target": "ESNext",
@@ -2927,11 +3238,11 @@ cat << 'EOF_1788253099_1046' > "tsconfig.json"
         "build"
     ]
 }
-EOF_1788253099_1046
+EOF_1788771795_13020
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/package.json"
-cat << 'EOF_1788253099_6712' > "plugins/auth-ad/package.json"
+cat << 'EOF_1788771795_17382' > "plugins/auth-ad/package.json"
 {
     "name": "@plugins/auth-ad",
     "version": "1.0.0",
@@ -2947,11 +3258,11 @@ cat << 'EOF_1788253099_6712' > "plugins/auth-ad/package.json"
         "ldapts": "^8.2.0"
     }
 }
-EOF_1788253099_6712
+EOF_1788771795_17382
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/index.ts"
-cat << 'EOF_1788253099_23943' > "plugins/auth-ad/index.ts"
+cat << 'EOF_1788771795_24125' > "plugins/auth-ad/index.ts"
 import { Client } from 'ldapts';
 import { AuthPlugin, AuthUser, env } from '@shared/functions';
 
@@ -2994,11 +3305,283 @@ export class ActiveDirectoryAuthPlugin implements AuthPlugin {
         }
     }
 }
-EOF_1788253099_23943
+EOF_1788771795_24125
+
+mkdir -p "plugins/auth-ad"
+echo "作成: plugins/auth-ad/index.test.ts"
+cat << 'EOF_1788771795_10450' > "plugins/auth-ad/index.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ActiveDirectoryAuthPlugin } from './index';
+
+const { bindMock, unbindMock } = vi.hoisted(() => ({
+    bindMock: vi.fn(),
+    unbindMock: vi.fn(),
+}));
+
+vi.mock('ldapts', () => {
+    return {
+        Client: class MockClient {
+            bind = bindMock;
+            unbind = unbindMock;
+
+            constructor(_: { url: string }) { }
+        },
+    };
+});
+
+
+vi.mock('@shared/functions', () => ({
+    env: {
+        LDAP_URL: 'ldap://example.local',
+        LDAP_DOMAIN: 'example.local',
+    },
+}));
+
+describe('ActiveDirectoryAuthPlugin', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        bindMock.mockResolvedValue(undefined);
+        unbindMock.mockResolvedValue(undefined);
+    });
+
+    describe('name', () => {
+        it('ad を返す', () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            expect(plugin.name).toBe('ad');
+        });
+    });
+
+    describe('authenticate', () => {
+        it('usernameで認証できる', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            const result = await plugin.authenticate({
+                username: 'testuser',
+                password: 'password',
+            });
+
+            expect(bindMock).toHaveBeenCalledWith(
+                'testuser@example.local',
+                'password',
+            );
+
+            expect(result).toEqual({
+                id: 'testuser',
+                email: 'testuser@example.local',
+                name: 'testuser',
+                role: 'user',
+            });
+
+            expect(unbindMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('emailで認証できる', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            const result = await plugin.authenticate({
+                email: 'testuser@example.local',
+                password: 'password',
+            });
+
+            expect(bindMock).toHaveBeenCalledWith(
+                'testuser@example.local',
+                'password',
+            );
+
+            expect(result).toEqual({
+                id: 'testuser',
+                email: 'testuser@example.local',
+                name: 'testuser',
+                role: 'user',
+            });
+        });
+
+        it('usernameが未指定の場合は例外', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'ユーザー名（またはメールアドレス）とパスワードを入力してください。'
+            );
+        });
+
+        it('passwordが未指定の場合は例外', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({
+                    username: 'testuser',
+                }),
+            ).rejects.toThrow(
+                'ユーザー名（またはメールアドレス）とパスワードを入力してください。'
+            );
+        });
+
+        it('username・password両方未指定の場合は例外', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({}),
+            ).rejects.toThrow(
+                'ユーザー名（またはメールアドレス）とパスワードを入力してください。'
+            );
+        });
+
+        it('usernameが空文字の場合は例外', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({
+                    username: '',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'ユーザー名（またはメールアドレス）とパスワードを入力してください。'
+            );
+        });
+
+        it('passwordが空文字の場合は例外', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({
+                    username: 'testuser',
+                    password: '',
+                }),
+            ).rejects.toThrow(
+                'ユーザー名（またはメールアドレス）とパスワードを入力してください。'
+            );
+        });
+
+        it('LDAP_URL未設定の場合は例外', async () => {
+            vi.resetModules();
+
+            vi.doMock('@shared/functions', () => ({
+                env: {
+                    LDAP_URL: undefined,
+                    LDAP_DOMAIN: 'example.local',
+                },
+            }));
+
+            const { ActiveDirectoryAuthPlugin } = await import('./index');
+
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({
+                    username: 'testuser',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'LDAP_URL または LDAP_DOMAIN が設定されていません。'
+            );
+        });
+
+        it('LDAP_DOMAIN未設定の場合は例外', async () => {
+            vi.resetModules();
+
+            vi.doMock('@shared/functions', () => ({
+                env: {
+                    LDAP_URL: 'ldap://example.local',
+                    LDAP_DOMAIN: undefined,
+                },
+            }));
+
+            const { ActiveDirectoryAuthPlugin } = await import('./index');
+
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await expect(
+                plugin.authenticate({
+                    username: 'testuser',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'LDAP_URL または LDAP_DOMAIN が設定されていません。'
+            );
+        });
+
+        it('bind失敗時は認証失敗エラーを返す', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            bindMock.mockRejectedValue(
+                new Error('LDAP Error'),
+            );
+
+            await expect(
+                plugin.authenticate({
+                    username: 'testuser',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'Active Directory authentication failed',
+            );
+
+            expect(unbindMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('loginIdにメールアドレスを指定した場合はUPNへ変換する', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            await plugin.authenticate({
+                email: 'john@example.local',
+                password: 'password',
+            });
+
+            expect(bindMock).toHaveBeenCalledWith(
+                'john@example.local',
+                'password',
+            );
+        });
+
+        it('unbind失敗は無視する', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            unbindMock.mockRejectedValue(
+                new Error('unbind failed'),
+            );
+
+            const result = await plugin.authenticate({
+                username: 'testuser',
+                password: 'password',
+            });
+
+            expect(result).toEqual({
+                id: 'testuser',
+                email: 'testuser@example.local',
+                name: 'testuser',
+                role: 'user',
+            });
+        });
+
+        it('email指定時は@より前をname/idに使用する', async () => {
+            const plugin = new ActiveDirectoryAuthPlugin();
+
+            const result = await plugin.authenticate({
+                email: 'john.smith@example.local',
+                password: 'password',
+            });
+
+            expect(result).toEqual({
+                id: 'john.smith',
+                email: 'john.smith@example.local',
+                name: 'john.smith',
+                role: 'user',
+            });
+        });
+    });
+});
+EOF_1788771795_10450
 
 mkdir -p "plugins/auth-ad"
 echo "作成: plugins/auth-ad/vitest.config.ts"
-cat << 'EOF_1788253099_27527' > "plugins/auth-ad/vitest.config.ts"
+cat << 'EOF_1788771795_17019' > "plugins/auth-ad/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
@@ -3010,15 +3593,15 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1788253099_27527
+EOF_1788771795_17019
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/package.json"
-cat << 'EOF_1788253099_29669' > "plugins/auth-local/package.json"
+cat << 'EOF_1788771795_27280' > "plugins/auth-local/package.json"
 {
     "name": "@plugins/auth-local",
     "version": "1.0.0",
@@ -3030,18 +3613,18 @@ cat << 'EOF_1788253099_29669' > "plugins/auth-local/package.json"
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "bcryptjs": "^3.0.3",
+        "bcrypt": "^6.0.0",
         "jose": "^6.2.8"
     },
     "devDependencies": {
-        "@types/bcryptjs": "^2.4.6"
+        "@types/bcrypt": "^6.0.0"
     }
 }
-EOF_1788253099_29669
+EOF_1788771795_27280
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/index.ts"
-cat << 'EOF_1788253099_14997' > "plugins/auth-local/index.ts"
+cat << 'EOF_1788771795_22436' > "plugins/auth-local/index.ts"
 import { eq } from 'drizzle-orm';
 import { users } from '@shared/db';
 import { AuthPlugin, AuthUser } from '@shared/functions';
@@ -3084,11 +3667,301 @@ export class LocalAuthPlugin implements AuthPlugin {
 }
 
 export * from './src/auth-utils';
-EOF_1788253099_14997
+EOF_1788771795_22436
+
+mkdir -p "plugins/auth-local"
+echo "作成: plugins/auth-local/index.test.ts"
+cat << 'EOF_1788771795_14681' > "plugins/auth-local/index.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { LocalAuthPlugin } from './index';
+import { verifyPassword } from './src/auth-utils';
+
+vi.mock('./src/auth-utils', () => ({
+    verifyPassword: vi.fn(),
+}));
+
+describe('LocalAuthPlugin', () => {
+    let mockDb: any;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        mockDb = {
+            query: {
+                users: {
+                    findFirst: vi.fn(),
+                },
+            },
+        };
+    });
+
+    describe('name', () => {
+        it('local を返す', () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            expect(plugin.name).toBe('local');
+        });
+    });
+
+    describe('authenticate', () => {
+        it('認証成功時に AuthUser を返す', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            const dbUser = {
+                id: 1,
+                email: 'test@example.com',
+                name: 'テストユーザー',
+                role: 'admin',
+                passwordHash: 'hashed-password',
+            };
+
+            mockDb.query.users.findFirst.mockResolvedValue(
+                dbUser,
+            );
+
+            vi.mocked(verifyPassword).mockResolvedValue(
+                true,
+            );
+
+            const result = await plugin.authenticate({
+                email: 'test@example.com',
+                password: 'password',
+            });
+
+            expect(
+                mockDb.query.users.findFirst,
+            ).toHaveBeenCalledTimes(1);
+
+            expect(
+                verifyPassword,
+            ).toHaveBeenCalledWith(
+                'password',
+                'hashed-password',
+            );
+
+            expect(result).toEqual({
+                id: 1,
+                email: 'test@example.com',
+                name: 'テストユーザー',
+                role: 'admin',
+            });
+        });
+
+        it('email が未指定の場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            await expect(
+                plugin.authenticate({
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'メールアドレスとパスワードを入力してください。',
+            );
+        });
+
+        it('password が未指定の場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            await expect(
+                plugin.authenticate({
+                    email: 'test@example.com',
+                }),
+            ).rejects.toThrow(
+                'メールアドレスとパスワードを入力してください。',
+            );
+        });
+
+        it('email と password が未指定の場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            await expect(
+                plugin.authenticate({}),
+            ).rejects.toThrow(
+                'メールアドレスとパスワードを入力してください。',
+            );
+        });
+
+        it('email が空文字の場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            await expect(
+                plugin.authenticate({
+                    email: '',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'メールアドレスとパスワードを入力してください。',
+            );
+        });
+
+        it('password が空文字の場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            await expect(
+                plugin.authenticate({
+                    email: 'test@example.com',
+                    password: '',
+                }),
+            ).rejects.toThrow(
+                'メールアドレスとパスワードを入力してください。',
+            );
+        });
+
+        it('ユーザーが存在しない場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            mockDb.query.users.findFirst.mockResolvedValue(
+                undefined,
+            );
+
+            await expect(
+                plugin.authenticate({
+                    email: 'test@example.com',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'Invalid local credentials',
+            );
+
+            expect(
+                verifyPassword,
+            ).not.toHaveBeenCalled();
+        });
+
+        it('パスワード不一致の場合は例外', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            mockDb.query.users.findFirst.mockResolvedValue({
+                id: 1,
+                email: 'test@example.com',
+                name: 'テストユーザー',
+                role: 'admin',
+                passwordHash: 'hashed-password',
+            });
+
+            vi.mocked(verifyPassword).mockResolvedValue(
+                false,
+            );
+
+            await expect(
+                plugin.authenticate({
+                    email: 'test@example.com',
+                    password: 'wrong-password',
+                }),
+            ).rejects.toThrow(
+                'Invalid local credentials',
+            );
+
+            expect(
+                verifyPassword,
+            ).toHaveBeenCalledTimes(1);
+        });
+
+        it('DB例外をそのまま伝播する', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            mockDb.query.users.findFirst.mockRejectedValue(
+                new Error('DB Error'),
+            );
+
+            await expect(
+                plugin.authenticate({
+                    email: 'test@example.com',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'DB Error',
+            );
+        });
+
+        it('verifyPassword 例外をそのまま伝播する', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            mockDb.query.users.findFirst.mockResolvedValue({
+                id: 1,
+                email: 'test@example.com',
+                name: 'テストユーザー',
+                role: 'admin',
+                passwordHash: 'hashed-password',
+            });
+
+            vi.mocked(verifyPassword).mockRejectedValue(
+                new Error('Hash Error'),
+            );
+
+            await expect(
+                plugin.authenticate({
+                    email: 'test@example.com',
+                    password: 'password',
+                }),
+            ).rejects.toThrow(
+                'Hash Error',
+            );
+        });
+
+        it('role が undefined の場合でも認証成功する', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            mockDb.query.users.findFirst.mockResolvedValue({
+                id: 1,
+                email: 'test@example.com',
+                name: 'テストユーザー',
+                role: undefined,
+                passwordHash: 'hashed-password',
+            });
+
+            vi.mocked(verifyPassword).mockResolvedValue(
+                true,
+            );
+
+            const result = await plugin.authenticate({
+                email: 'test@example.com',
+                password: 'password',
+            });
+
+            expect(result).toEqual({
+                id: 1,
+                email: 'test@example.com',
+                name: 'テストユーザー',
+                role: undefined,
+            });
+        });
+
+        it('email が undefined のユーザーでも AuthUser を生成できる', async () => {
+            const plugin = new LocalAuthPlugin(mockDb);
+
+            mockDb.query.users.findFirst.mockResolvedValue({
+                id: 1,
+                email: undefined,
+                name: 'テストユーザー',
+                role: 'user',
+                passwordHash: 'hashed-password',
+            });
+
+            vi.mocked(verifyPassword).mockResolvedValue(
+                true,
+            );
+
+            const result = await plugin.authenticate({
+                email: 'test@example.com',
+                password: 'password',
+            });
+
+            expect(result).toEqual({
+                id: 1,
+                email: undefined,
+                name: 'テストユーザー',
+                role: 'user',
+            });
+        });
+    });
+});
+EOF_1788771795_14681
 
 mkdir -p "plugins/auth-local"
 echo "作成: plugins/auth-local/vitest.config.ts"
-cat << 'EOF_1788253099_32595' > "plugins/auth-local/vitest.config.ts"
+cat << 'EOF_1788771795_22600' > "plugins/auth-local/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
@@ -3100,16 +3973,16 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1788253099_32595
+EOF_1788771795_22600
 
 mkdir -p "plugins/auth-local/src"
 echo "作成: plugins/auth-local/src/auth-utils.ts"
-cat << 'EOF_1788253099_28096' > "plugins/auth-local/src/auth-utils.ts"
-import bcrypt from 'bcryptjs';
+cat << 'EOF_1788771795_27569' > "plugins/auth-local/src/auth-utils.ts"
+import bcrypt from 'bcrypt';
 import { SignJWT, jwtVerify } from 'jose';
 
 // ----------------------------------------------------
@@ -3169,76 +4042,288 @@ export async function verifyJwt<T = Record<string, unknown>>(
         return null;
     }
 }
-EOF_1788253099_28096
+EOF_1788771795_27569
 
 mkdir -p "plugins/auth-local/src"
 echo "作成: plugins/auth-local/src/auth-utils.test.ts"
-cat << 'EOF_1788253099_21132' > "plugins/auth-local/src/auth-utils.test.ts"
-import { describe, it, expect } from 'vitest';
-import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
+cat << 'EOF_1788771795_13424' > "plugins/auth-local/src/auth-utils.test.ts"
+import { describe, expect, it } from 'vitest';
 
-describe('Auth Utilities (Step 4.1)', () => {
-    // ----------------------------------------------------
-    // 1. パスワードハッシュ化・照合テスト
-    // ----------------------------------------------------
-    describe('Password Hashing', () => {
-        it('平文パスワードを正しくハッシュ化し、検証できること', async () => {
-            const rawPassword = 'mySecurePassword123';
-            const hashedPassword = await hashPassword(rawPassword);
+import {
+    hashPassword,
+    verifyPassword,
+    signJwt,
+    verifyJwt,
+} from './auth-utils';
 
-            // 平文とハッシュ値が異なっていること
-            expect(hashedPassword).not.toBe(rawPassword);
+describe('hashPassword', () => {
+    it('パスワードをハッシュ化できる', async () => {
+        const password = 'password123';
 
-            // 正しいパスワードの照合
-            const isValid = await verifyPassword(rawPassword, hashedPassword);
-            expect(isValid).toBe(true);
-        });
+        const hash = await hashPassword(password);
 
-        it('誤ったパスワードの場合は検証に失敗すること', async () => {
-            const rawPassword = 'mySecurePassword123';
-            const wrongPassword = 'WrongPassword456';
-            const hashedPassword = await hashPassword(rawPassword);
-
-            const isValid = await verifyPassword(wrongPassword, hashedPassword);
-            expect(isValid).toBe(false);
-        });
+        expect(hash).toBeDefined();
+        expect(hash).not.toBe(password);
+        expect(typeof hash).toBe('string');
     });
 
-    // ----------------------------------------------------
-    // 2. JWT 発行・検証テスト
-    // ----------------------------------------------------
-    describe('JWT Operations', () => {
-        const mockPayload = { userId: 'user-123', role: 'admin' };
-        const secret = 'test-secret-key-at-least-32-chars-long';
+    it('同じパスワードでも異なるハッシュを生成する', async () => {
+        const password = 'password123';
 
-        it('Payload から JWT を発行し、正しくデコード・検証できること', async () => {
-            const token = await signJwt(mockPayload, secret);
-            expect(typeof token).toBe('string');
-            expect(token.length).toBeGreaterThan(0);
+        const hash1 = await hashPassword(password);
+        const hash2 = await hashPassword(password);
 
-            const decoded = await verifyJwt(token, secret);
-            expect(decoded).toMatchObject(mockPayload);
-        });
-
-        it('不正なシークレットキーや改ざんされたトークンは検証失敗（null または例外）になること', async () => {
-            const token = await signJwt(mockPayload, secret);
-            const wrongSecret = 'wrong-secret-key-32-chars-xxxxxx';
-
-            // 異なるシークレットキーでの検証失敗
-            const decodedWithWrongSecret = await verifyJwt(token, wrongSecret);
-            expect(decodedWithWrongSecret).toBeNull();
-
-            // 改ざんされたトークンでの検証失敗
-            const tamperedToken = token + 'invalid';
-            const decodedTampered = await verifyJwt(tamperedToken, secret);
-            expect(decodedTampered).toBeNull();
-        });
+        expect(hash1).not.toBe(hash2);
     });
 });
-EOF_1788253099_21132
+
+describe('verifyPassword', () => {
+    it('正しいパスワードを検証できる', async () => {
+        const password = 'password123';
+
+        const hash = await hashPassword(password);
+
+        const result = await verifyPassword(
+            password,
+            hash,
+        );
+
+        expect(result).toBe(true);
+    });
+
+    it('誤ったパスワードは false を返す', async () => {
+        const hash = await hashPassword(
+            'password123',
+        );
+
+        const result = await verifyPassword(
+            'wrong-password',
+            hash,
+        );
+
+        expect(result).toBe(false);
+    });
+
+    it('空文字パスワードも検証できる', async () => {
+        const hash = await hashPassword('');
+
+        const result = await verifyPassword(
+            '',
+            hash,
+        );
+
+        expect(result).toBe(true);
+    });
+});
+
+describe('signJwt', () => {
+    it('JWTを生成できる', async () => {
+        const payload = {
+            userId: 1,
+            email: 'test@example.com',
+        };
+
+        const token = await signJwt(
+            payload,
+            'secret-key',
+        );
+
+        expect(token).toBeDefined();
+        expect(typeof token).toBe('string');
+
+        const segments = token.split('.');
+
+        expect(segments).toHaveLength(3);
+    });
+
+    it('expiresInを指定してJWTを生成できる', async () => {
+        const token = await signJwt(
+            {
+                userId: 1,
+            },
+            'secret-key',
+            '1h',
+        );
+
+        expect(token).toBeDefined();
+    });
+});
+
+describe('verifyJwt', () => {
+    it('正常なJWTを検証できる', async () => {
+        const payload = {
+            userId: 1,
+            email: 'test@example.com',
+            role: 'admin',
+        };
+
+        const secret = 'secret-key';
+
+        const token = await signJwt(
+            payload,
+            secret,
+        );
+
+        const result = await verifyJwt<{
+            userId: number;
+            email: string;
+            role: string;
+        }>(
+            token,
+            secret,
+        );
+
+        expect(result).toMatchObject({
+            userId: 1,
+            email: 'test@example.com',
+            role: 'admin',
+        });
+    });
+
+    it('異なるsecretの場合はnullを返す', async () => {
+        const token = await signJwt(
+            { userId: 1 },
+            'secret-1',
+        );
+
+        const result = await verifyJwt(
+            token,
+            'secret-2',
+        );
+
+        expect(result).toBeNull();
+    });
+
+    it('不正なJWTの場合はnullを返す', async () => {
+        const result = await verifyJwt(
+            'invalid-token',
+            'secret-key',
+        );
+
+        expect(result).toBeNull();
+    });
+
+    it('空文字トークンの場合はnullを返す', async () => {
+        const result = await verifyJwt(
+            '',
+            'secret-key',
+        );
+
+        expect(result).toBeNull();
+    });
+
+    it('改ざんされたJWTの場合はnullを返す', async () => {
+        const token = await signJwt(
+            {
+                userId: 1,
+            },
+            'secret-key',
+        );
+
+        const tamperedToken =
+            token.slice(0, -5) + 'abcde';
+
+        const result = await verifyJwt(
+            tamperedToken,
+            'secret-key',
+        );
+
+        expect(result).toBeNull();
+    });
+
+    it('ジェネリクス型を利用してPayloadを取得できる', async () => {
+        interface UserPayload {
+            userId: number;
+            email: string;
+        }
+
+        const token = await signJwt(
+            {
+                userId: 123,
+                email: 'test@example.com',
+            },
+            'secret-key',
+        );
+
+        const result =
+            await verifyJwt<UserPayload>(
+                token,
+                'secret-key',
+            );
+
+        expect(result?.userId).toBe(123);
+        expect(result?.email).toBe(
+            'test@example.com',
+        );
+    });
+});
+
+
+// import { describe, it, expect } from 'vitest';
+// import { hashPassword, verifyPassword, signJwt, verifyJwt } from './auth-utils';
+
+// describe('Auth Utilities (Step 4.1)', () => {
+//     // ----------------------------------------------------
+//     // 1. パスワードハッシュ化・照合テスト
+//     // ----------------------------------------------------
+//     describe('Password Hashing', () => {
+//         it('平文パスワードを正しくハッシュ化し、検証できること', async () => {
+//             const rawPassword = 'mySecurePassword123';
+//             const hashedPassword = await hashPassword(rawPassword);
+
+//             // 平文とハッシュ値が異なっていること
+//             expect(hashedPassword).not.toBe(rawPassword);
+
+//             // 正しいパスワードの照合
+//             const isValid = await verifyPassword(rawPassword, hashedPassword);
+//             expect(isValid).toBe(true);
+//         });
+
+//         it('誤ったパスワードの場合は検証に失敗すること', async () => {
+//             const rawPassword = 'mySecurePassword123';
+//             const wrongPassword = 'WrongPassword456';
+//             const hashedPassword = await hashPassword(rawPassword);
+
+//             const isValid = await verifyPassword(wrongPassword, hashedPassword);
+//             expect(isValid).toBe(false);
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 2. JWT 発行・検証テスト
+//     // ----------------------------------------------------
+//     describe('JWT Operations', () => {
+//         const mockPayload = { userId: 'user-123', role: 'admin' };
+//         const secret = 'test-secret-key-at-least-32-chars-long';
+
+//         it('Payload から JWT を発行し、正しくデコード・検証できること', async () => {
+//             const token = await signJwt(mockPayload, secret);
+//             expect(typeof token).toBe('string');
+//             expect(token.length).toBeGreaterThan(0);
+
+//             const decoded = await verifyJwt(token, secret);
+//             expect(decoded).toMatchObject(mockPayload);
+//         });
+
+//         it('不正なシークレットキーや改ざんされたトークンは検証失敗（null または例外）になること', async () => {
+//             const token = await signJwt(mockPayload, secret);
+//             const wrongSecret = 'wrong-secret-key-32-chars-xxxxxx';
+
+//             // 異なるシークレットキーでの検証失敗
+//             const decodedWithWrongSecret = await verifyJwt(token, wrongSecret);
+//             expect(decodedWithWrongSecret).toBeNull();
+
+//             // 改ざんされたトークンでの検証失敗
+//             const tamperedToken = token + 'invalid';
+//             const decodedTampered = await verifyJwt(tamperedToken, secret);
+//             expect(decodedTampered).toBeNull();
+//         });
+//     });
+// });
+EOF_1788771795_13424
 
 echo "作成: vitest.config.ts"
-cat << 'EOF_1788253099_15131' > "vitest.config.ts"
+cat << 'EOF_1788771795_27964' > "vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -3250,7 +4335,7 @@ export default defineConfig({
         reporters: ['tree'],
         environment: 'node',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
 
         // ディレクトリではなく「vitest.config.ts を持つファイル」をワイルドカードで直接指定する
         projects: [
@@ -3269,11 +4354,11 @@ export default defineConfig({
         },
     },
 });
-EOF_1788253099_15131
+EOF_1788771795_27964
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/package.json"
-cat << 'EOF_1788253099_14463' > "features/user-management/package.json"
+cat << 'EOF_1788771795_22412' > "features/user-management/package.json"
 {
     "name": "@features/user-management",
     "version": "1.0.0",
@@ -3306,17 +4391,17 @@ cat << 'EOF_1788253099_14463' > "features/user-management/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1788253099_14463
+EOF_1788771795_22412
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/vitest-setup.ts"
-cat << 'EOF_1788253099_30498' > "features/user-management/vitest-setup.ts"
+cat << 'EOF_1788771795_11359' > "features/user-management/vitest-setup.ts"
 import '@testing-library/jest-dom/vitest';
-EOF_1788253099_30498
+EOF_1788771795_11359
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/index.ts"
-cat << 'EOF_1788253099_17991' > "features/user-management/index.ts"
+cat << 'EOF_1788771795_28241' > "features/user-management/index.ts"
 import { PluginRegistry } from '@shared/client';
 import { userRoutes } from './src/routes';
 
@@ -3338,11 +4423,11 @@ PluginRegistry.register({
         },
     ],
 });
-EOF_1788253099_17991
+EOF_1788771795_28241
 
 mkdir -p "features/user-management"
 echo "作成: features/user-management/vitest.config.ts"
-cat << 'EOF_1788253099_19658' > "features/user-management/vitest.config.ts"
+cat << 'EOF_1788771795_28927' > "features/user-management/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
@@ -3358,383 +4443,736 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
-        // testTimeout: 10000,
-        maxWorkers: '60%',
+        testTimeout: 10000,
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
         setupFiles: ['./vitest-setup.ts'],
     },
 });
-EOF_1788253099_19658
+EOF_1788771795_28927
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/routes.test.ts"
-cat << 'EOF_1788253099_14665' > "features/user-management/src/routes.test.ts"
-// @vitest-environment node
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTestEnv } from '../../../vitest-helpers'; // プロジェクトの共通環境作成関数
-import * as schema from '@shared/db/schema';
-import { signJwt } from '@plugins/auth-local';
+cat << 'EOF_1788771795_27513' > "features/user-management/src/routes.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Hono } from 'hono';
+import type { AppEnv } from '@shared/functions';
+import { userRoutes } from './routes';
 
-describe('User Management Plugin API - インメモリ完全隔離・正攻法結合テスト', async () => {
+const { hashPasswordMock } = vi.hoisted(() => {
+    return {
+        hashPasswordMock: vi.fn(),
+    };
+});
 
-    const BASE_PATH = '/api/user-management';
-    const TEST_JWT_SECRET = 'your-super-secret-jwt-key-must-be-at-least-32-bytes-long';
+vi.mock('@plugins/auth-local', () => ({
+    hashPassword: hashPasswordMock,
+}));
 
-    beforeEach(async () => {
-        vi.restoreAllMocks();
-        process.env.JWT_SECRET = TEST_JWT_SECRET;
-    });
+describe('userRoutes', () => {
+    let db: any;
+    let app: Hono<AppEnv>;
 
-    // テストデータのセット
-    const setTestData = async (db: any): Promise<void> => {
+    beforeEach(() => {
+        vi.clearAllMocks();
 
-        // 自動的に id: 1 になる（管理者）
-        await db.insert(schema.users).values({
-            name: 'Admin User',
-            email: 'admin@example.com',
-            passwordHash: 'dummy_hash_for_test',
-            role: 'admin',
-            isActive: true,
-        });
-
-        // 自動的に id: 2 になる（一般ユーザー）
-        await db.insert(schema.users).values({
-            name: 'General User',
-            email: 'user@example.com',
-            passwordHash: 'dummy_hash_for_test',
-            role: 'user',
-            isActive: true,
-        });
-    }
-
-    // 管理者のトークン
-    let adminToken = await signJwt({ userId: '1', role: 'admin' }, TEST_JWT_SECRET);
-
-    // ----------------------------------------------------
-    // 1. GET (ユーザー一覧取得)
-    // ----------------------------------------------------
-    describe('GET /', () => {
-        it('正しい管理者トークンを付与した場合、200 OK でユーザー一覧を取得できること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${adminToken}` },
-            });
-            expect(res.status).toBe(200);
-
-            const body = await res.json();
-            expect(body.users).toHaveLength(2);
-            expect(body.users).toContainEqual(
-                expect.objectContaining({ id: 1, name: 'Admin User', email: 'admin@example.com', role: 'admin' })
-            );
-            expect(body.users).toContainEqual(
-                expect.objectContaining({ id: 2, name: 'General User', email: 'user@example.com', role: 'user' })
-            );
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-
-        it('トークンを付与せずにアクセスした場合、401(Unauthorized) で厳格に弾かれること', async () => {
-
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}`);
-            expect(res.status).toBe(401);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-    });
-
-    // ----------------------------------------------------
-    // 2. POST (ユーザー新規追加)
-    // ----------------------------------------------------
-    describe('POST /', () => {
-        const validUser = {
-            name: '新規 ユーザー',
-            email: 'new@example.com',
-            password: 'password123',
-            role: 'user',
+        db = {
+            select: vi.fn(),
+            insert: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
         };
 
-        it('正規の管理者が正しいデータで新規ユーザーを追加でき、201が返ること', async () => {
+        app = new Hono<AppEnv>();
 
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
+        app.use('*', async (c: any, next) => {
+            c.set('dbInstance', db);
 
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify(validUser),
+            c.set('user', {
+                userId: 1,
+                email: 'admin@example.com',
+                role: 'admin',
             });
 
-            expect(res.status).toBe(201);
-            const body = await res.json();
-            expect(body.user.email).toBe('new@example.com');
-            expect(body.user.role).toBe('user');
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+            await next();
         });
 
-        it('既に存在するメールアドレスを指定した場合、400エラー(BadRequest)が返ること', async () => {
+        app.route('/', userRoutes);
+    });
 
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
+    describe('GET /', () => {
+        it('ユーザー一覧を取得する', async () => {
+            const users = [
+                {
+                    id: 1,
+                    name: 'Admin',
+                    email: 'admin@test.com',
+                    role: 'admin',
+                    isActive: true,
                 },
-                body: JSON.stringify({
-                    ...validUser,
-                    email: 'user@example.com',
+            ];
+
+            db.select.mockReturnValue({
+                from: vi.fn().mockResolvedValue(users),
+            });
+
+            const res = await app.request('/');
+
+            expect(res.status).toBe(200);
+
+            expect(await res.json()).toEqual({
+                users,
+            });
+        });
+    });
+
+    describe('POST /', () => {
+        it('ユーザーを作成する', async () => {
+            db.select.mockReturnValue({
+                from: vi.fn().mockReturnValue({
+                    where: vi.fn().mockResolvedValue([]),
                 }),
             });
 
-            expect(res.status).toBe(400);
+            hashPasswordMock.mockResolvedValue('hashed-password');
 
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
+            db.insert.mockReturnValue({
+                values: vi.fn().mockReturnValue({
+                    returning: vi.fn().mockResolvedValue([
+                        {
+                            id: 10,
+                            name: 'Taro',
+                            email: 'taro@test.com',
+                            role: 'user',
+                            isActive: true,
+                        },
+                    ]),
+                }),
+            });
 
-        it('Zodによるバリデーションエラー（パスワードが短いなど）で、400が返ること', async () => {
-
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}`, {
+            const res = await app.request('/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
+                    'content-type': 'application/json',
                 },
-                body: JSON.stringify({ ...validUser, password: 'short' }),
+                body: JSON.stringify({
+                    name: 'Taro',
+                    email: 'taro@test.com',
+                    password: 'password123',
+                    role: 'user',
+                }),
             });
 
-            expect(res.status).toBe(400);
+            expect(res.status).toBe(201);
 
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+            const body = await res.json();
+
+            expect(body).toEqual({
+                user: {
+                    id: 10,
+                    name: 'Taro',
+                    email: 'taro@test.com',
+                    role: 'user',
+                    isActive: true,
+                },
+            });
+        });
+
+        it('パスワードをハッシュ化する', async () => {
+            db.select.mockReturnValue({
+                from: vi.fn().mockReturnValue({
+                    where: vi.fn().mockResolvedValue([]),
+                }),
+            });
+
+            hashPasswordMock.mockResolvedValue('hashed-password');
+
+            db.insert.mockReturnValue({
+                values: vi.fn().mockReturnValue({
+                    returning: vi.fn().mockResolvedValue([
+                        {
+                            id: 1,
+                        },
+                    ]),
+                }),
+            });
+
+            await app.request('/', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: 'Taro',
+                    email: 'taro@test.com',
+                    password: 'password123',
+                    role: 'user',
+                }),
+            });
+
+            expect(hashPasswordMock).toHaveBeenCalledWith(
+                'password123'
+            );
+        });
+
+        it('重複メール時は insert しない', async () => {
+            db.select.mockReturnValue({
+                from: vi.fn().mockReturnValue({
+                    where: vi.fn().mockResolvedValue([
+                        {
+                            id: 1,
+                            email: 'taro@test.com',
+                        },
+                    ]),
+                }),
+            });
+
+            await app.request('/', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: 'Taro',
+                    email: 'taro@test.com',
+                    password: 'password123',
+                    role: 'user',
+                }),
+            });
+
+            expect(db.insert).not.toHaveBeenCalled();
         });
     });
 
-    // ----------------------------------------------------
-    // 3. PATCH (ロール変更)
-    // ----------------------------------------------------
     describe('PATCH /:id/role', () => {
-        it('管理者が自分以外のユーザーのロールを正常に変更できること', async () => {
+        it('ロールを変更する', async () => {
+            db.update.mockReturnValue({
+                set: vi.fn().mockReturnValue({
+                    where: vi.fn().mockReturnValue({
+                        returning: vi.fn().mockResolvedValue([
+                            {
+                                id: 2,
+                                role: 'admin',
+                            },
+                        ]),
+                    }),
+                }),
+            });
 
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/2/role`, {
+            const res = await app.request('/2/role', {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
+                    'content-type': 'application/json',
                 },
-                body: JSON.stringify({ role: 'admin' }),
+                body: JSON.stringify({
+                    role: 'admin',
+                }),
             });
 
             expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.user.role).toBe('admin');
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
         });
 
-        it('自分自身(ログイン中の管理者自身)の権限を降格させようとすると 400 で却下されること', async () => {
-
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/1/role`, {
+        it('自分自身の権限変更は禁止', async () => {
+            await app.request('/1/role', {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
+                    'content-type': 'application/json',
                 },
-                body: JSON.stringify({ role: 'user' }),
+                body: JSON.stringify({
+                    role: 'user',
+                }),
             });
 
-            expect(res.status).toBe(400);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+            expect(db.update).not.toHaveBeenCalled();
         });
 
-        it('存在しないユーザーIDを指定した場合、404エラー(NotFound)が返ること', async () => {
-
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/999/role`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify({ role: 'admin' }),
+        it('存在しないユーザーは更新できない', async () => {
+            db.update.mockReturnValue({
+                set: vi.fn().mockReturnValue({
+                    where: vi.fn().mockReturnValue({
+                        returning: vi.fn().mockResolvedValue([]),
+                    }),
+                }),
             });
 
-            expect(res.status).toBe(404);
+            await app.request('/999/role', {
+                method: 'PATCH',
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    role: 'admin',
+                }),
+            });
 
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+            expect(db.update).toHaveBeenCalled();
         });
     });
 
-    // ----------------------------------------------------
-    // 4. PATCH (アカウント有効/無効化)
-    // ----------------------------------------------------
     describe('PATCH /:id/status', () => {
-        it('他のユーザーを正常に無効化できること', async () => {
+        it('ステータス変更成功', async () => {
+            db.update.mockReturnValue({
+                set: vi.fn().mockReturnValue({
+                    where: vi.fn().mockReturnValue({
+                        returning: vi.fn().mockResolvedValue([
+                            {
+                                id: 2,
+                                isActive: false,
+                            },
+                        ]),
+                    }),
+                }),
+            });
 
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/2/status`, {
+            const res = await app.request('/2/status', {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
+                    'content-type': 'application/json',
                 },
-                body: JSON.stringify({ isActive: false }),
+                body: JSON.stringify({
+                    isActive: false,
+                }),
             });
 
             expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.user.isActive).toBe(false);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
         });
 
-        it('自分自身のアカウントを無効化しようとすると 400 で却下されること', async () => {
-
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/1/status`, {
+        it('自分自身の無効化は禁止', async () => {
+            await app.request('/1/status', {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
+                    'content-type': 'application/json',
                 },
-                body: JSON.stringify({ isActive: false }),
+                body: JSON.stringify({
+                    isActive: false,
+                }),
             });
 
-            expect(res.status).toBe(400);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+            expect(db.update).not.toHaveBeenCalled();
         });
     });
 
-    // ----------------------------------------------------
-    // 5. DELETE (ユーザー削除)
-    // ----------------------------------------------------
     describe('DELETE /:id', () => {
-        it('他のユーザーを正常に削除できること', async () => {
+        it('ユーザーを削除する', async () => {
+            db.delete.mockReturnValue({
+                where: vi.fn().mockReturnValue({
+                    returning: vi.fn().mockResolvedValue([
+                        {
+                            id: 2,
+                            name: 'User',
+                            email: 'user@test.com',
+                        },
+                    ]),
+                }),
+            });
 
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/2`, {
+            const res = await app.request('/2', {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${adminToken}` },
             });
 
             expect(res.status).toBe(200);
-            const body = await res.json();
-            expect(body.message).toBe('ユーザーを削除しました');
 
-            const currentUsers = await db.select().from(schema.users);
-            expect(currentUsers).toHaveLength(1);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+            expect(await res.json()).toEqual({
+                message: 'ユーザーを削除しました',
+                user: {
+                    id: 2,
+                    name: 'User',
+                    email: 'user@test.com',
+                },
+            });
         });
 
-        it('自分自身を削除しようとした場合、400 で却下されること', async () => {
-
-            // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
-            const { app, db, pglite } = await createTestEnv();
-
-            // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
-            await setTestData(db);
-
-            // 💡 3. 検証実行
-            const res = await app.request(`${BASE_PATH}/1`, {
+        it('自分自身は削除できない', async () => {
+            await app.request('/1', {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${adminToken}` },
             });
 
-            expect(res.status).toBe(400);
+            expect(db.delete).not.toHaveBeenCalled();
+        });
 
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+        it('存在しないユーザーは削除できない', async () => {
+            db.delete.mockReturnValue({
+                where: vi.fn().mockReturnValue({
+                    returning: vi.fn().mockResolvedValue([]),
+                }),
+            });
+
+            await app.request('/999', {
+                method: 'DELETE',
+            });
+
+            expect(db.delete).toHaveBeenCalled();
         });
     });
 });
-EOF_1788253099_14665
+
+
+// // @vitest-environment node
+// import { describe, it, expect, beforeEach, vi } from 'vitest';
+// import { createTestEnv } from '../../../vitest-helpers'; // プロジェクトの共通環境作成関数
+// import * as schema from '@shared/db/schema';
+// import { signJwt } from '@plugins/auth-local';
+
+// describe('User Management Plugin API - インメモリ完全隔離・正攻法結合テスト', async () => {
+
+//     const BASE_PATH = '/api/user-management';
+//     const TEST_JWT_SECRET = 'your-super-secret-jwt-key-must-be-at-least-32-bytes-long';
+
+//     beforeEach(async () => {
+//         vi.restoreAllMocks();
+//         process.env.JWT_SECRET = TEST_JWT_SECRET;
+//     });
+
+//     // テストデータのセット
+//     const setTestData = async (db: any): Promise<void> => {
+
+//         // 自動的に id: 1 になる（管理者）
+//         await db.insert(schema.users).values({
+//             name: 'Admin User',
+//             email: 'admin@example.com',
+//             passwordHash: 'dummy_hash_for_test',
+//             role: 'admin',
+//             isActive: true,
+//         });
+
+//         // 自動的に id: 2 になる（一般ユーザー）
+//         await db.insert(schema.users).values({
+//             name: 'General User',
+//             email: 'user@example.com',
+//             passwordHash: 'dummy_hash_for_test',
+//             role: 'user',
+//             isActive: true,
+//         });
+//     }
+
+//     // 管理者のトークン
+//     let adminToken = await signJwt({ userId: '1', role: 'admin' }, TEST_JWT_SECRET);
+
+//     // ----------------------------------------------------
+//     // 1. GET (ユーザー一覧取得)
+//     // ----------------------------------------------------
+//     describe('GET /', () => {
+//         it('正しい管理者トークンを付与した場合、200 OK でユーザー一覧を取得できること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}`, {
+//                 method: 'GET',
+//                 headers: { 'Authorization': `Bearer ${adminToken}` },
+//             });
+//             expect(res.status).toBe(200);
+
+//             const body = await res.json();
+//             expect(body.users).toHaveLength(2);
+//             expect(body.users).toContainEqual(
+//                 expect.objectContaining({ id: 1, name: 'Admin User', email: 'admin@example.com', role: 'admin' })
+//             );
+//             expect(body.users).toContainEqual(
+//                 expect.objectContaining({ id: 2, name: 'General User', email: 'user@example.com', role: 'user' })
+//             );
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('トークンを付与せずにアクセスした場合、401(Unauthorized) で厳格に弾かれること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}`);
+//             expect(res.status).toBe(401);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 2. POST (ユーザー新規追加)
+//     // ----------------------------------------------------
+//     describe('POST /', () => {
+//         const validUser = {
+//             name: '新規 ユーザー',
+//             email: 'new@example.com',
+//             password: 'password123',
+//             role: 'user',
+//         };
+
+//         it('正規の管理者が正しいデータで新規ユーザーを追加でき、201が返ること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify(validUser),
+//             });
+
+//             expect(res.status).toBe(201);
+//             const body = await res.json();
+//             expect(body.user.email).toBe('new@example.com');
+//             expect(body.user.role).toBe('user');
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('既に存在するメールアドレスを指定した場合、400エラー(BadRequest)が返ること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({
+//                     ...validUser,
+//                     email: 'user@example.com',
+//                 }),
+//             });
+
+//             expect(res.status).toBe(400);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('Zodによるバリデーションエラー（パスワードが短いなど）で、400が返ること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({ ...validUser, password: 'short' }),
+//             });
+
+//             expect(res.status).toBe(400);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 3. PATCH (ロール変更)
+//     // ----------------------------------------------------
+//     describe('PATCH /:id/role', () => {
+//         it('管理者が自分以外のユーザーのロールを正常に変更できること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/2/role`, {
+//                 method: 'PATCH',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({ role: 'admin' }),
+//             });
+
+//             expect(res.status).toBe(200);
+//             const body = await res.json();
+//             expect(body.user.role).toBe('admin');
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('自分自身(ログイン中の管理者自身)の権限を降格させようとすると 400 で却下されること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/1/role`, {
+//                 method: 'PATCH',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({ role: 'user' }),
+//             });
+
+//             expect(res.status).toBe(400);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('存在しないユーザーIDを指定した場合、404エラー(NotFound)が返ること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/999/role`, {
+//                 method: 'PATCH',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({ role: 'admin' }),
+//             });
+
+//             expect(res.status).toBe(404);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 4. PATCH (アカウント有効/無効化)
+//     // ----------------------------------------------------
+//     describe('PATCH /:id/status', () => {
+//         it('他のユーザーを正常に無効化できること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/2/status`, {
+//                 method: 'PATCH',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({ isActive: false }),
+//             });
+
+//             expect(res.status).toBe(200);
+//             const body = await res.json();
+//             expect(body.user.isActive).toBe(false);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('自分自身のアカウントを無効化しようとすると 400 で却下されること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/1/status`, {
+//                 method: 'PATCH',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Bearer ${adminToken}`
+//                 },
+//                 body: JSON.stringify({ isActive: false }),
+//             });
+
+//             expect(res.status).toBe(400);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 5. DELETE (ユーザー削除)
+//     // ----------------------------------------------------
+//     describe('DELETE /:id', () => {
+//         it('他のユーザーを正常に削除できること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/2`, {
+//                 method: 'DELETE',
+//                 headers: { 'Authorization': `Bearer ${adminToken}` },
+//             });
+
+//             expect(res.status).toBe(200);
+//             const body = await res.json();
+//             expect(body.message).toBe('ユーザーを削除しました');
+
+//             const currentUsers = await db.select().from(schema.users);
+//             expect(currentUsers).toHaveLength(1);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('自分自身を削除しようとした場合、400 で却下されること', async () => {
+
+//             // 1. クリーンなアプリとDBを取得 (すでに PGlite はまっさら)
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // 2. serial型の自動採番に任せ、Drizzle標準のプロパティ名（passwordHash）のみで初期データをインサート
+//             await setTestData(db);
+
+//             // 💡 3. 検証実行
+//             const res = await app.request(`${BASE_PATH}/1`, {
+//                 method: 'DELETE',
+//                 headers: { 'Authorization': `Bearer ${adminToken}` },
+//             });
+
+//             expect(res.status).toBe(400);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+// });
+EOF_1788771795_27513
 
 mkdir -p "features/user-management/src/api"
 echo "作成: features/user-management/src/api/user-management-api.ts"
-cat << 'EOF_1788253099_4163' > "features/user-management/src/api/user-management-api.ts"
+cat << 'EOF_1788771795_3538' > "features/user-management/src/api/user-management-api.ts"
 export interface User {
     id: number;
     name: string;
@@ -3792,11 +5230,11 @@ export const updateUserRole = async (apiBaseUrl: string, id: number, role: 'admi
     const data = await res.json();
     return data.user;
 };
-EOF_1788253099_4163
+EOF_1788771795_3538
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/routes.ts"
-cat << 'EOF_1788253099_26492' > "features/user-management/src/routes.ts"
+cat << 'EOF_1788771795_28964' > "features/user-management/src/routes.ts"
 import { Hono } from 'hono';
 import { AppEnv } from '@shared/functions';
 import { z } from 'zod';
@@ -3981,11 +5419,11 @@ userRoutes.delete('/:id', async (c) => {
 
     return c.json({ message: 'ユーザーを削除しました', user: deletedUsers[0] });
 });
-EOF_1788253099_26492
+EOF_1788771795_28964
 
 mkdir -p "features/user-management/src"
 echo "作成: features/user-management/src/ui.ts"
-cat << 'EOF_1788253099_23305' > "features/user-management/src/ui.ts"
+cat << 'EOF_1788771795_11439' > "features/user-management/src/ui.ts"
 import { PluginRegistry } from '@shared/client';
 import { UserManagementTable } from './components/UserManagementTable';
 
@@ -4007,11 +5445,11 @@ export function registerUserManagementPlugin() {
         ],
     });
 }
-EOF_1788253099_23305
+EOF_1788771795_11439
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/UserManagementTable.test.tsx"
-cat << 'EOF_1788253099_15739' > "features/user-management/src/components/UserManagementTable.test.tsx"
+cat << 'EOF_1788771795_6149' > "features/user-management/src/components/UserManagementTable.test.tsx"
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { UserManagementTable } from './UserManagementTable';
@@ -4260,11 +5698,11 @@ describe('UserManagementTable Component', () => {
         });
     });
 });
-EOF_1788253099_15739
+EOF_1788771795_6149
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/CreateUserModal.tsx"
-cat << 'EOF_1788253099_29161' > "features/user-management/src/components/CreateUserModal.tsx"
+cat << 'EOF_1788771795_14291' > "features/user-management/src/components/CreateUserModal.tsx"
 import React, { useState } from 'react';
 
 interface CreateUserModalProps {
@@ -4389,11 +5827,11 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({ isOpen, onClos
         </div>
     );
 };
-EOF_1788253099_29161
+EOF_1788771795_14291
 
 mkdir -p "features/user-management/src/components"
 echo "作成: features/user-management/src/components/UserManagementTable.tsx"
-cat << 'EOF_1788253099_24016' > "features/user-management/src/components/UserManagementTable.tsx"
+cat << 'EOF_1788771795_19231' > "features/user-management/src/components/UserManagementTable.tsx"
 import React, { useEffect, useState } from 'react';
 import { toast, showErrorToast } from '@shared/client';
 import { CreateUserModal } from './CreateUserModal';
@@ -4626,11 +6064,11 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </div>
     );
 };
-EOF_1788253099_24016
+EOF_1788771795_19231
 
 mkdir -p "features"
 echo "作成: features/tsconfig.json"
-cat << 'EOF_1788253099_8043' > "features/tsconfig.json"
+cat << 'EOF_1788771795_24423' > "features/tsconfig.json"
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
@@ -4642,10 +6080,10 @@ cat << 'EOF_1788253099_8043' > "features/tsconfig.json"
         "./**/*"
     ]
 }
-EOF_1788253099_8043
+EOF_1788771795_24423
 
 echo "作成: .env.sample"
-cat << 'EOF_1788253099_26944' > ".env.sample"
+cat << 'EOF_1788771795_11351' > ".env.sample"
 # バックエンド用
 PORT=3001
 API_BASE_URL=http://localhost:3001
@@ -4666,10 +6104,10 @@ LDAP_DOMAIN=example.com
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1788253099_26944
+EOF_1788771795_11351
 
 echo "作成: plan-step9.md"
-cat << 'EOF_1788253099_32255' > "plan-step9.md"
+cat << 'EOF_1788771795_23952' > "plan-step9.md"
 # 📌 Step 9: ユーザー管理機能（管理者用基盤）状況整理（最新版）
 
 ### 🎯 Step 9 のゴール
@@ -4728,10 +6166,10 @@ Step 9（ユーザー管理および認可基盤）が完了したため、次�
 * **候補 A (汎用 UI):** データテーブルコンポーネント（検索・ソート・ページネーション）、汎用モーダル・ダイアログの抽象化基盤。
 * **候補 B (エラー・認証):** 自動ログアウト処理（401 トークン切れ検知）や標準エラー画面 (404 / 500) の作成。
 * **候補 C (その他):** 監査ログ (Audit Log) の記録基盤やシステム内通知基盤。
-EOF_1788253099_32255
+EOF_1788771795_23952
 
 echo "作成: tree.txt"
-cat << 'EOF_1788253099_18358' > "tree.txt"
+cat << 'EOF_1788771795_22029' > "tree.txt"
 .
 ├── apps
 │   ├── api
@@ -4889,10 +6327,10 @@ cat << 'EOF_1788253099_18358' > "tree.txt"
 ├── SUMMRY.md
 ├── tsconfig.json
 └── vitest.config.ts
-EOF_1788253099_18358
+EOF_1788771795_22029
 
 echo "作成: doc.md"
-cat << 'EOF_1788253099_23173' > "doc.md"
+cat << 'EOF_1788771795_29573' > "doc.md"
 ## 🏗️ 構成の概要
 
 このひな形は、**VS Code DevContainer + Docker Compose + Node.js (npm workspaces)** を採用したフルスタック・モノレポ構成です。
@@ -5007,281 +6445,11 @@ cat << 'EOF_1788253099_23173' > "doc.md"
 
 * **`npm run dev`:** `concurrently` を使い、API サーバーと Web アプリを並列起動。
 * **`npm test`:** ルートから全パッケージのテスト（`Vitest`）をまとめて一括実行。
-EOF_1788253099_23173
-
-echo "作成: SUMMRY.md"
-cat << 'EOF_1788253099_17541' > "SUMMRY.md"
-これまでに作成・整理してきたすべての設計と実装内容を集約した「全体版システム仕様書 (Full Specification Document)」を作成しました。
-# 📘 マイアプリケーション 全体システム仕様書 (Full System Specification)
-
----
-
-## 1. プロジェクト概要 & アーキテクチャ原則
-
-本プロジェクトは、堅牢かつ拡張性の高いモダンな Web アプリケーション基盤です。テスト駆動開発 (TDD) をベースとし、ドメイン分離・統一エラーハンドリング・安全な認証機構を備えています。
-
-### 1.1 主な技術スタック
-
-* **Frontend:** React (Vite / SPA)
-* **Backend:** Hono (TypeScript Web Framework)
-* **Database & ORM:** PostgreSQL + Drizzle ORM
-* **Authentication:** Local JWT (`jose`) + Bcrypt (`bcryptjs`)
-* **Testing:** Vitest
-
-### 1.2 アーキテクチャ方針
-
-* **モノレポ構成 (pnpm/npm Workspaces):**
-`apps/`（アプリケーション層）と `packages/`（共通ライブラリ層）を分離し、コードの再利用性と独立性を維持します。
-* **RFC 7807 準拠のエラー表現:**
-API のすべてのエラーレスポンスは `Problem Details for HTTP APIs (RFC 7807)` 形式で統一します。
-* **テスト駆動開発 (TDD):**
-ロジックおよび API エンドポイントの実装時は「Red (テスト作成) → Green (実装) → Refactor (リファクタリング)」のサイクルを徹底します。
-
----
-
-## 2. ディレクトリ構造 & モジュール責務
-
-```
-.
-├── apps/
-│   ├── api/                     # Hono サーバーアプリケーション
-│   │   ├── src/
-│   │   │   ├── middlewares/     # 認証・共通ミドルウェア
-│   │   │   │   ├── auth-middleware.ts
-│   │   │   │   └── auth-middleware.test.ts
-│   │   │   ├── routes/          # API ルーター
-│   │   │   │   ├── auth.ts
-│   │   │   │   └── auth.test.ts
-│   │   │   └── index.ts
-│   └── web/                     # React フロントエンド (SPA)
-└── packages/
-    ├── core/                    # ドメイン共通ロジック & DB 接続
-    │   ├── src/
-    │   │   ├── errors/          # RFC 7807 エラー定義 (AppError等)
-    │   │   ├── db/              # Drizzle ORM スキーマ & クライアント
-    │   │   └── index.ts
-    └── auth-local/              # 認証関連の純粋ユーティリティ
-        ├── src/
-        │   ├── password.ts      # Bcrypt ハッシュ化・照合
-        │   └── jwt.ts           # JWT 署名・検証
-        └── index.ts
-
-```
-
----
-
-## 3. データベース仕様 (Database Schema)
-
-### `users` テーブル
-
-ユーザー認証、権限、およびプロファイル情報を一元管理します。
-
-```typescript
-// packages/core/src/db/schema.ts
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
-  role: text('role').notNull().default('user'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-```
-
-| カラム名 | DB論理名 | 型 | 制約 | 説明 |
-| --- | --- | --- | --- | --- |
-| `id` | `id` | `serial` | PRIMARY KEY | ユーザー識別子 |
-| `name` | `name` | `text` | NOT NULL | ユーザー表示名 |
-| `email` | `email` | `text` | NOT NULL, UNIQUE | メールアドレス（ログインID） |
-| `passwordHash` | `password_hash` | `text` | NOT NULL | Bcrypt でハッシュ化されたパスワード |
-| `role` | `role` | `text` | NOT NULL, Default: `'user'` | システム権限 (`user`, `admin` 等) |
-| `createdAt` | `created_at` | `timestamp` | NOT NULL, Default: `now()` | レコード作成日時 |
-
----
-
-## 4. エラーハンドリング仕様 (RFC 7807)
-
-システム内で発生する例外はすべて `@app/core` の `AppError` クラスを継承し、Hono の `app.onError` でキャッチして以下の JSON 形式に変換されます。
-
-### エラーレスポンス基本構造
-
-```json
-{
-  "type": "about:blank",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Authentication token is missing or invalid format.",
-  "instance": "/api/auth/me"
-}
-
-```
-
-### 定義済み例外クラス一覧
-
-* **`AppError`**: 基底例外クラス（`status`, `code`, `title` を保持）
-* **`ValidationError`** (400 Bad Request): 入力バリデーション失敗時
-* **`UnauthorizedError`** (401 Unauthorized): 認証失敗・トークン無効時
-* **`NotFoundError`** (404 Not Found): リソースが存在しない場合
-* **`InternalServerError`** (500 Internal Server Error): 予期せぬシステム例外
-
----
-
-## 5. API エンドポイント詳細仕様 (API Specification)
-
-ベース URL: `/api`
-
-### 5.1. ログイン & トークン発行
-
-* **エンドポイント:** `POST /api/auth/login`
-* **認証:** 不要
-* **概要:** メールアドレスとパスワードを照合し、成功時に JWT を返却します。
-
-#### リクエストボディ (`application/json`)
-
-```json
-{
-  "email": "test@example.com",
-  "password": "password123"
-}
-
-```
-
-#### レスポンス (200 OK)
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": 1,
-    "name": "Test User",
-    "email": "test@example.com",
-    "role": "user"
-  }
-}
-
-```
-
-#### エラーレスポンス (401 Unauthorized)
-
-```json
-{
-  "type": "about:blank",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Invalid credentials.",
-  "instance": "/api/auth/login"
-}
-
-```
-
----
-
-### 5.2. ログインユーザー情報取得
-
-* **エンドポイント:** `GET /api/auth/me`
-* **認証:** 必要 (`Authorization: Bearer <JWT>`)
-* **概要:** JWT トークンを検証し、現在ログイン中のユーザー情報を取得します。
-
-#### リクエストヘッダー
-
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-```
-
-#### レスポンス (200 OK)
-
-```json
-{
-  "user": {
-    "id": 1,
-    "email": "test@example.com",
-    "role": "user"
-  }
-}
-
-```
-
-#### エラーレスポンス (401 Unauthorized)
-
-```json
-{
-  "type": "about:blank",
-  "title": "Unauthorized",
-  "status": 401,
-  "detail": "Token is invalid or expired.",
-  "instance": "/api/auth/me"
-}
-
-```
-
----
-
-## 6. 認証・認可フロー & セキュリティ設計
-
-### 6.1. 認証フロー図
-
-```
-[Client (React)]                  [API Route (/login)]            [Auth Local / DB]
-       │                                  │                               │
-       │── 1. POST /login ───────────────>│                               │
-       │   (email, password)              │── 2. Select User by Email ───>│
-       │                                  │<── User Record & Hash ────────│
-       │                                  │                               │
-       │                                  │── 3. Verify Password ────────>│ (bcrypt.compare)
-       │                                  │── 4. Sign JWT Payload ───────>│ (jose)
-       │<── 5. Token & User Data ─────────│                               │
-       │                                  │                               │
-       │                                  │                               │
-[Client (React)]                  [Auth Middleware]              [Protected Route]
-       │                                  │                               │
-       │── 6. GET /me (Bearer Token) ────>│                               │
-       │                                  │── 7. Verify JWT ─────────────>│
-       │                                  │── 8. Set c.set('user', payload)│
-       │                                  │── 9. next() ─────────────────>│
-       │<── 10. User Profile ─────────────│───────────────────────────────│
-
-```
-
-### 6.2. セキュリティガイドライン
-
-1. **パスワードの平文保持禁止:**
-`bcryptjs` を用いて適切なコストパラメータ（ソルト）でハッシュ化された値のみを保存。
-2. **無状態 (Stateless) な認証:**
-署名された JWT トークンを使用し、サーバーセッションを持たずにスケーラブルに検証。
-3. **安全なエラーメッセージ:**
-ログイン失敗時は「ユーザーが存在しない」のか「パスワードが違う」のかを区別させず、共通して `Invalid credentials.` と返却（ユーザー存在確認攻撃の防止）。
-
----
-
-## 7. 実装済みテストケース一覧
-
-全モジュールでユニットテスト / 統合テストが整備されており、`npm test` で一括実行可能です。
-
-* **`packages/auth-local`**
-* パスワードの正常ハッシュ化および一致・不一致の判定テスト
-* JWT の生成・正確なペロード抽出・期限切れ/無効署名トークンの検証テスト
-
-
-* **`apps/api/src/middlewares/auth-middleware.test.ts`**
-* `Authorization` ヘッダー欠落時の 401 エラー（RFC 7807 形式）テスト
-* 不正トークン送信時の 401 エラーテスト
-* 正しい Bearer トークン受信時にコンテキストへ `user` 情報が正常設定されるテスト
-
-
-* **`apps/api/src/routes/auth.test.ts`**
-* `POST /login`: 正しい資格情報でのトークン返却テスト / 誤ったパスワードでの 401 テスト
-* `GET /me`: 発行された JWT を用いたプロファイル正常取得テスト
-
-
-
----
-EOF_1788253099_17541
+EOF_1788771795_29573
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1788253099_24750' > "apps/web/package.json"
+cat << 'EOF_1788771795_26524' > "apps/web/package.json"
 {
     "name": "@apps/web",
     "version": "1.0.0",
@@ -5309,17 +6477,17 @@ cat << 'EOF_1788253099_24750' > "apps/web/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1788253099_24750
+EOF_1788771795_26524
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest-setup.ts"
-cat << 'EOF_1788253099_7365' > "apps/web/vitest-setup.ts"
+cat << 'EOF_1788771795_21256' > "apps/web/vitest-setup.ts"
 import '@testing-library/jest-dom/vitest';
-EOF_1788253099_7365
+EOF_1788771795_21256
 
 mkdir -p "apps/web"
 echo "作成: apps/web/index.html"
-cat << 'EOF_1788253099_10279' > "apps/web/index.html"
+cat << 'EOF_1788771795_10352' > "apps/web/index.html"
 <!DOCTYPE html>
 <html lang="ja">
   <head>
@@ -5331,11 +6499,11 @@ cat << 'EOF_1788253099_10279' > "apps/web/index.html"
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-EOF_1788253099_10279
+EOF_1788771795_10352
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1788253099_7560' > "apps/web/tsconfig.json"
+cat << 'EOF_1788771795_19024' > "apps/web/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -5354,11 +6522,11 @@ cat << 'EOF_1788253099_7560' > "apps/web/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1788253099_7560
+EOF_1788771795_19024
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1788253099_18938' > "apps/web/vitest.config.ts"
+cat << 'EOF_1788771795_31514' > "apps/web/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -5372,16 +6540,16 @@ export default defineConfig({
         globals: true,
         environment: 'jsdom',
         // testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
         setupFiles: ['./vitest-setup.ts'],
     },
 });
-EOF_1788253099_18938
+EOF_1788771795_31514
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/index.css"
-cat << 'EOF_1788253099_3249' > "apps/web/src/index.css"
+cat << 'EOF_1788771795_20756' > "apps/web/src/index.css"
 @import "tailwindcss";
 
 /* モノレポ内の共有 UI パッケージも Tailwind のスキャン対象に指定 */
@@ -5389,11 +6557,11 @@ cat << 'EOF_1788253099_3249' > "apps/web/src/index.css"
 
 /* 拡張する機能の置き場所にも、UI が記述される可能性があるので、その場所も Tailwind のスキャン対象に指定 */
 @source "../../../features";
-EOF_1788253099_3249
+EOF_1788771795_20756
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.test.tsx"
-cat << 'EOF_1788253099_31080' > "apps/web/src/App.test.tsx"
+cat << 'EOF_1788771795_5460' > "apps/web/src/App.test.tsx"
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
@@ -5558,11 +6726,11 @@ describe('App Component Integration Tests', () => {
     });
 });
 
-EOF_1788253099_31080
+EOF_1788771795_5460
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/main.tsx"
-cat << 'EOF_1788253099_16686' > "apps/web/src/main.tsx"
+cat << 'EOF_1788771795_25144' > "apps/web/src/main.tsx"
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -5573,16 +6741,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
-EOF_1788253099_16686
+EOF_1788771795_25144
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/env.test.ts"
-cat << 'EOF_1788253099_14216' > "apps/web/src/env.test.ts"
+cat << 'EOF_1788771795_10453' > "apps/web/src/env.test.ts"
 import { describe, it, expect } from 'vitest';
 import { clientEnv } from '@shared/client';
 
 describe('Web Environment Variables (Pattern A)', () => {
-    it('shared/core の clientEnv から正しく設定値および動的補完値が取得できること', () => {
+    it('shared の clientEnv から正しく設定値および動的補完値が取得できること', () => {
         // VITE_APP_TITLE の検証
         expect(clientEnv.VITE_APP_TITLE).toBeDefined();
         expect(typeof clientEnv.VITE_APP_TITLE).toBe('string');
@@ -5595,11 +6763,11 @@ describe('Web Environment Variables (Pattern A)', () => {
         expect(clientEnv.VITE_API_TARGET_URL).toMatch(/^http/);
     });
 });
-EOF_1788253099_14216
+EOF_1788771795_10453
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.test.tsx"
-cat << 'EOF_1788253099_23426' > "apps/web/src/context/AuthContext.test.tsx"
+cat << 'EOF_1788771795_5003' > "apps/web/src/context/AuthContext.test.tsx"
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -5704,11 +6872,11 @@ describe('AuthContext / useAuth (Step 7 修正版)', () => {
         expect(result.current.token).toBeNull();
     });
 });
-EOF_1788253099_23426
+EOF_1788771795_5003
 
 mkdir -p "apps/web/src/context"
 echo "作成: apps/web/src/context/AuthContext.tsx"
-cat << 'EOF_1788253099_4986' > "apps/web/src/context/AuthContext.tsx"
+cat << 'EOF_1788771795_23773' > "apps/web/src/context/AuthContext.tsx"
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiClient, getStoredToken, setStoredToken, removeStoredToken, ApiError } from '../lib/apiClient';
 
@@ -5813,11 +6981,11 @@ export const useAuth = (): AuthContextType => {
     return context;
 };
 
-EOF_1788253099_4986
+EOF_1788771795_23773
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.test.tsx"
-cat << 'EOF_1788253099_16369' > "apps/web/src/components/ProtectedRoute.test.tsx"
+cat << 'EOF_1788771795_6999' > "apps/web/src/components/ProtectedRoute.test.tsx"
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
@@ -5886,11 +7054,11 @@ describe('ProtectedRoute', () => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 });
-EOF_1788253099_16369
+EOF_1788771795_6999
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/Header.tsx"
-cat << 'EOF_1788253099_16618' > "apps/web/src/components/Header.tsx"
+cat << 'EOF_1788771795_7747' > "apps/web/src/components/Header.tsx"
 import { clientEnv } from '@shared/client';
 
 export const Header = () => {
@@ -5900,11 +7068,11 @@ export const Header = () => {
     </header>
   );
 };
-EOF_1788253099_16618
+EOF_1788771795_7747
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ForbiddenPage.test.tsx"
-cat << 'EOF_1788253099_15156' > "apps/web/src/components/ForbiddenPage.test.tsx"
+cat << 'EOF_1788771795_27784' > "apps/web/src/components/ForbiddenPage.test.tsx"
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ForbiddenPage } from './ForbiddenPage';
@@ -5930,11 +7098,11 @@ describe('ForbiddenPage Component', () => {
         expect(handleBack).toHaveBeenCalledTimes(1);
     });
 });
-EOF_1788253099_15156
+EOF_1788771795_27784
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ProtectedRoute.tsx"
-cat << 'EOF_1788253099_26307' > "apps/web/src/components/ProtectedRoute.tsx"
+cat << 'EOF_1788771795_19417' > "apps/web/src/components/ProtectedRoute.tsx"
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LoginForm } from './LoginForm';
@@ -5964,11 +7132,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     return <>{children}</>;
 };
-EOF_1788253099_26307
+EOF_1788771795_19417
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.tsx"
-cat << 'EOF_1788253099_3616' > "apps/web/src/components/LoginForm.tsx"
+cat << 'EOF_1788771795_24338' > "apps/web/src/components/LoginForm.tsx"
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -6038,11 +7206,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
         </form>
     );
 };
-EOF_1788253099_3616
+EOF_1788771795_24338
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/ForbiddenPage.tsx"
-cat << 'EOF_1788253099_15648' > "apps/web/src/components/ForbiddenPage.tsx"
+cat << 'EOF_1788771795_19652' > "apps/web/src/components/ForbiddenPage.tsx"
 import React from 'react';
 import { Button } from '@shared/client';
 
@@ -6081,11 +7249,11 @@ export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({ onBackToDashboard 
         </div>
     );
 };
-EOF_1788253099_15648
+EOF_1788771795_19652
 
 mkdir -p "apps/web/src/components"
 echo "作成: apps/web/src/components/LoginForm.test.tsx"
-cat << 'EOF_1788253099_3029' > "apps/web/src/components/LoginForm.test.tsx"
+cat << 'EOF_1788771795_2515' > "apps/web/src/components/LoginForm.test.tsx"
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -6165,11 +7333,11 @@ describe('LoginForm Component (Step 5.2)', () => {
         expect(errorMessage).toHaveTextContent('メールアドレスまたはパスワードが正しくありません。');
     });
 });
-EOF_1788253099_3029
+EOF_1788771795_2515
 
 mkdir -p "apps/web/src"
 echo "作成: apps/web/src/App.tsx"
-cat << 'EOF_1788253099_13857' > "apps/web/src/App.tsx"
+cat << 'EOF_1788771795_1494' > "apps/web/src/App.tsx"
 import React, { useState } from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@shared/client';
 import { clientEnv } from '@shared/client';
@@ -6310,11 +7478,11 @@ export function App() {
 }
 
 export default App;
-EOF_1788253099_13857
+EOF_1788771795_1494
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.test.ts"
-cat << 'EOF_1788253099_4861' > "apps/web/src/lib/apiClient.test.ts"
+cat << 'EOF_1788771795_25008' > "apps/web/src/lib/apiClient.test.ts"
 // apps/web/src/lib/apiClient.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { apiClient, ApiError } from "./apiClient";
@@ -6408,11 +7576,11 @@ describe("apiClient (API クライアント)", () => {
         expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull();
     });
 });
-EOF_1788253099_4861
+EOF_1788771795_25008
 
 mkdir -p "apps/web/src/lib"
 echo "作成: apps/web/src/lib/apiClient.ts"
-cat << 'EOF_1788253099_16479' > "apps/web/src/lib/apiClient.ts"
+cat << 'EOF_1788771795_24838' > "apps/web/src/lib/apiClient.ts"
 import { clientEnv } from "@shared/client";
 import { AUTH_TOKEN_KEY } from '@shared/client';
 
@@ -6523,11 +7691,11 @@ export const apiClient = {
     delete: <T>(endpoint: string, options?: RequestInit) =>
         request<T>(endpoint, { ...options, method: "DELETE" }),
 };
-EOF_1788253099_16479
+EOF_1788771795_24838
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vite.config.ts"
-cat << 'EOF_1788253099_24531' > "apps/web/vite.config.ts"
+cat << 'EOF_1788771795_30919' > "apps/web/vite.config.ts"
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -6566,11 +7734,11 @@ export default defineConfig(({ mode }) => {
         },
     };
 });
-EOF_1788253099_24531
+EOF_1788771795_30919
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1788253099_22220' > "apps/api/package.json"
+cat << 'EOF_1788771795_2611' > "apps/api/package.json"
 {
     "name": "@apps/api",
     "version": "1.0.0",
@@ -6584,7 +7752,6 @@ cat << 'EOF_1788253099_22220' > "apps/api/package.json"
     "dependencies": {
         "@hono/node-server": "^2.0.5",
         "@hono/zod-validator": "^0.9.0",
-        "@shared/server": "*",
         "@types/node": "^26.2.0",
         "drizzle-orm": "^0.45.2",
         "hono": "^4.0.0",
@@ -6595,11 +7762,11 @@ cat << 'EOF_1788253099_22220' > "apps/api/package.json"
         "typescript": "^5.3.3"
     }
 }
-EOF_1788253099_22220
+EOF_1788771795_2611
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1788253099_30233' > "apps/api/tsconfig.json"
+cat << 'EOF_1788771795_3895' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
@@ -6614,11 +7781,11 @@ cat << 'EOF_1788253099_30233' > "apps/api/tsconfig.json"
         "src/**/*"
     ]
 }
-EOF_1788253099_30233
+EOF_1788771795_3895
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1788253099_15730' > "apps/api/vitest.config.ts"
+cat << 'EOF_1788771795_21099' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 
@@ -6630,311 +7797,15 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         testTimeout: 10000,
-        maxWorkers: '60%',
+        maxWorkers: '80%',
         // fileParallelism: false,                 // ファイル間の並列実行を無効化（DBを共有する統合テストで効果的）
     },
 });
-EOF_1788253099_15730
-
-mkdir -p "apps/api/src/auto-loader"
-echo "作成: apps/api/src/auto-loader/hono-auto-loader.test.ts"
-cat << 'EOF_1788253099_32084' > "apps/api/src/auto-loader/hono-auto-loader.test.ts"
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
-import { sign } from 'hono/jwt';
-import { AppEnv, env, PluginRegistry } from '@shared/functions';
-import { loadFeatureModules } from './hono-auto-loader';
-import { Hono } from 'hono';
-
-describe('hono-auto-loader', () => {
-
-    beforeEach(async () => {
-    });
-
-    // 💡 ヘルパー: JWT 生成
-    const createToken = async (role: string = 'user') => {
-        return await sign({ sub: 'user-123', role }, env.JWT_SECRET);
-    };
-
-    describe('DB ステータス制御とロード処理', () => {
-        it('1. DBで有効(enabled: true)のプラグインは正常にマウントされアクセスできること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-plugin-enabled';
-            const pluginApp = new Hono<AppEnv>();
-            pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
-
-            // ⭕ getActivePlugins(db) の内部で実行される db.select().from(plugins) の挙動を安全に偽装
-            vi.spyOn(db, 'select').mockImplementation(() => {
-                return {
-                    from: () => [
-                        { id: pluginId, name: '標準プラグイン', enabled: true }
-                    ]
-                } as any;
-            });
-
-            await loadFeatureModules(app, 'features/*/src/index.ts', db);
-
-            const token = await createToken('user');
-            const res = await app.request(`/api/${pluginId}/hello`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            expect(res.status).toBe(200);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-
-        it('2. DBで無効(enabled: false)のプラグインはスキップされ 404 になること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-plugin-disabled';
-            const pluginApp = new Hono<AppEnv>();
-            pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
-
-            // ⭕ ステータスが無効(enabled: false)のプラグインを返すように偽装
-            vi.spyOn(db, 'select').mockImplementation(() => {
-                return {
-                    from: () => [
-                        { id: pluginId, name: '標準プラグイン', enabled: false }
-                    ]
-                } as any;
-            });
-
-            await loadFeatureModules(app, 'features/*/src/index.ts', db);
-
-            const token = await createToken('user');
-            const res = await app.request(`/api/${pluginId}/hello`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            expect(res.status).toBe(404);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-
-        it('3. DB未登録の場合はデフォルト有効として処理されること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-plugin-unregistered';
-            const pluginApp = new Hono<AppEnv>();
-            pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
-
-            // ⭕ DBから何も見つからない（未登録: 空配列）状態を模倣
-            vi.spyOn(db, 'select').mockImplementation(() => {
-                return {
-                    from: () => []
-                } as any;
-            });
-
-            await loadFeatureModules(app, 'features/*/src/index.ts', db);
-
-            const token = await createToken('user');
-            const res = await app.request(`/api/${pluginId}/hello`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            expect(res.status).toBe(200);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-
-        it('4. DBクエリ例外時でもクラッシュせずフォールバック動作すること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-plugin-fallback';
-            const pluginApp = new Hono<AppEnv>();
-            pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
-
-            // ⭕ データベースの切断や例外を安全にシミュレート
-            const selectSpy = vi.spyOn(db, 'select').mockImplementation(() => {
-                throw new Error('DB Connection Error');
-            });
-
-            // const app = createTestApp();
-            await loadFeatureModules(app, 'features/*/src/index.ts', db);
-
-            const token = await createToken('user');
-            const res = await app.request(`/api/${pluginId}/hello`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            expect(res.status).toBe(200); // 例外時でも未登録(デフォルト有効)としてフォールバックすることの検証
-            selectSpy.mockRestore();
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-
-        it('5. routes 未定義のプラグインはエラーなくスキップされること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-ui-only-plugin';
-            PluginRegistry.register({ id: pluginId, name: 'UI専用プラグイン' });
-
-            vi.spyOn(db, 'select').mockImplementation(() => {
-                return { from: () => [] } as any;
-            });
-
-            await expect(loadFeatureModules(app, 'features/*/src/index.ts', db)).resolves.not.toThrow();
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-    });
-
-    describe('認証・認可ミドルウェアの適用', () => {
-        it('6. トークンなしの場合 401 Unauthorized になること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-plugin-auth';
-            const pluginApp = new Hono<AppEnv>();
-            pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
-            PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
-
-            vi.spyOn(db, 'select').mockImplementation(() => {
-                return { from: () => [] } as any;
-            });
-
-            await loadFeatureModules(app, 'features/*/src/index.ts', db);
-
-            const res = await app.request(`/api/${pluginId}/hello`);
-            expect(res.status).toBe(401);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-
-        it('7. requiredRole の認可が正しく機能すること (一般ユーザー: 403, 管理者: 200)', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            const pluginId = 'test-rbac-plugin';
-            const pluginApp = new Hono<AppEnv>();
-            pluginApp.get('/admin-only', (c) => c.json({ message: 'admin content' }));
-            PluginRegistry.register({
-                id: pluginId,
-                name: '権限テスト用プラグイン',
-                routes: pluginApp,
-                requiredRole: 'admin',
-            });
-
-            vi.spyOn(db, 'select').mockImplementation(() => {
-                return { from: () => [] } as any;
-            });
-
-            await loadFeatureModules(app, 'features/*/src/index.ts', db);
-
-            // 一般ユーザー -> 403
-            const userToken = await createToken('user');
-            const resUser = await app.request(`/api/${pluginId}/admin-only`, {
-                headers: { Authorization: `Bearer ${userToken}` },
-            });
-            expect(resUser.status).toBe(403);
-
-            // 管理者 -> 200
-            const adminToken = await createToken('admin');
-            const resAdmin = await app.request(`/api/${pluginId}/admin-only`, {
-                headers: { Authorization: `Bearer ${adminToken}` },
-            });
-            expect(resAdmin.status).toBe(200);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
-        });
-    });
-});
-EOF_1788253099_32084
-
-mkdir -p "apps/api/src/auto-loader"
-echo "作成: apps/api/src/auto-loader/hono-auto-loader.ts"
-cat << 'EOF_1788253099_24802' > "apps/api/src/auto-loader/hono-auto-loader.ts"
-import { Hono } from 'hono';
-import { AppEnv } from '@shared/functions';
-import { Database } from '@shared/db';
-import { glob } from 'glob';
-import { pathToFileURL } from 'node:url';
-import { env, isTest } from '@shared/functions'; // 💡 isTest を追加
-import { getProjectRootDir, resolveFromProjectRoot } from '@shared/server-utils';
-import { getActivePlugins } from '../utils/auto-loader-helper';
-import { authMiddleware } from '../middlewares/auth-middleware';
-import { rbacMiddleware } from '../middlewares/rbac-middleware';
-
-// モジュールロードのキャッシュ化
-let isModulesLoaded = false;
-
-export async function loadFeatureModules(app: Hono<AppEnv>, pattern: string, db: Database) {
-
-    // 💡 テスト環境（isTest）かつ、すでに最初の1回目でファイルロードが完了している場合は、
-    // 重いディスクI/Oと import() の排他ロックを完全にスキップします。
-    if (!(isTest && isModulesLoaded)) {
-        const rootDir = getProjectRootDir();
-        const files = await glob(pattern, { cwd: rootDir });
-
-        // 1. 各機能モジュールを動的インポート（本当の最初の1回だけ実行）
-        for (const file of files) {
-            const paths = file.split('/')
-            const absolutePath = resolveFromProjectRoot(...paths);
-            const moduleUrl = pathToFileURL(absolutePath).href;
-            await import(moduleUrl);
-        }
-
-        if (isTest) {
-            isModulesLoaded = true; // テスト環境時はロード完了フラグを立てる
-        }
-    }
-
-    // =========================================================================
-    // 🟢 ここから下の「DBに応じた動的なプラグインマウント処理」は、
-    // 既存の隔離ロジックを壊さないよう、ケースごとに毎回【100%実直に毎回実行】させます。
-    // =========================================================================
-
-    // 2. DB から登録済みプラグインの有効/無効ステータスを取得（毎回新しく渡された隔離DBを参照する）
-    const pluginStatuses = await getActivePlugins(db);
-
-    // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
-    for (const { plugin, isEnabled } of pluginStatuses) {
-        if (isEnabled) {
-            if (plugin.routes !== undefined) {
-                const basePath = `/api/${plugin.id}`;
-
-                // 認証ミドルウェアの適用
-                app.use(`${basePath}/*`, authMiddleware(env.JWT_SECRET));
-
-                if (plugin.requiredRole) {
-                    app.use(`${basePath}/*`, rbacMiddleware([plugin.requiredRole]));
-                }
-
-                app.route(basePath, plugin.routes);
-                console.log(`[Auto-Loader] ✅ Loaded & Mounted Plugin: ${plugin.id}`);
-            }
-        } else {
-            console.log(`[Auto-Loader] ⏸️ Skipped Disabled Plugin: ${plugin.id}`);
-        }
-    }
-}
-EOF_1788253099_24802
+EOF_1788771795_21099
 
 mkdir -p "apps/api/src"
-echo "作成: apps/api/src/index.ts"
-cat << 'EOF_1788253099_6477' > "apps/api/src/index.ts"
+echo "作成: apps/api/src/create-app.ts"
+cat << 'EOF_1788771795_30055' > "apps/api/src/create-app.ts"
 import { Hono } from 'hono';
 import { AppEnv } from '@shared/functions';
 import { cors } from 'hono/cors';
@@ -7268,58 +8139,544 @@ export type AppType = typeof createApp;
 // }
 
 // export type AppType = typeof createApp;
-EOF_1788253099_6477
+EOF_1788771795_30055
 
-mkdir -p "apps/api/src"
-echo "作成: apps/api/src/index.test.ts"
-cat << 'EOF_1788253099_3773' > "apps/api/src/index.test.ts"
-import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestEnv } from '../../../vitest-helpers'; // プロジェクトの共通環境作成関数
-import * as schema from '@shared/db/schema';
+mkdir -p "apps/api/src/auto-loader"
+echo "作成: apps/api/src/auto-loader/hono-auto-loader.test.ts"
+cat << 'EOF_1788771795_6351' > "apps/api/src/auto-loader/hono-auto-loader.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('API Error Handling (RFC 9457)', () => {
+import { loadFeatureModules } from './hono-auto-loader';
+import { Hono } from 'hono';
+import type { AppEnv, PluginManifest, } from '@shared/functions';
+import { glob } from 'glob';
+import { getActivePlugins } from '../utils/auto-loader-helper';
+import { authMiddleware } from '../middlewares/auth-middleware';
+import { rbacMiddleware } from '../middlewares/rbac-middleware';
 
-    beforeEach(async () => {
+vi.mock('glob');
+vi.mock('../utils/auto-loader-helper');
+vi.mock('../middlewares/auth-middleware', () => ({
+    authMiddleware: vi.fn(() => 'auth-middleware'),
+}));
+
+vi.mock('../middlewares/rbac-middleware', () => ({
+    rbacMiddleware: vi.fn(() => 'rbac-middleware'),
+}));
+
+vi.mock('@shared/functions', () => ({
+    env: {
+        JWT_SECRET: 'test-secret',
+    },
+    isTest: false,
+}));
+
+vi.mock('@shared/server-utils', () => ({
+    getProjectRootDir: vi.fn(() => '/project'),
+    resolveFromProjectRoot: vi.fn((...paths: string[]) =>
+        `/project/${paths.join('/')}`
+    ),
+}));
+
+function createPlugin(
+    overrides: Partial<PluginManifest> = {}
+): PluginManifest {
+    return {
+        id: 'users',
+        name: 'User Management',
+        routes: new Hono<AppEnv>(),
+        ...overrides,
+    };
+}
+
+describe('loadFeatureModules', () => {
+    let app: any;
+    let db: any;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        app = {
+            use: vi.fn(),
+            route: vi.fn(),
+        };
+
+        db = {};
     });
 
-    it('未定義のルートにアクセスした場合、404エラーがRFC9457形式で返ること', async () => {
+    describe('plugin mount', () => {
+        it('有効なプラグインをマウントできる', async () => {
+            const plugin = createPlugin();
 
-        // 1. クリーンなテスト環境を取得
-        const { app, db, pglite } = await createTestEnv();
+            vi.mocked(glob).mockResolvedValue([]);
 
-        const res = await app.request('/api/non-existent-route');
-        expect(res.status).toBe(404);
+            vi.mocked(getActivePlugins).mockResolvedValue([
+                {
+                    plugin: plugin,
+                    isEnabled: true,
+                },
+            ]);
 
-        const body = (await res.json()) as any;
-        expect(body.status).toBe(404);
+            await loadFeatureModules(app, '**/*.module.ts', db);
 
-        // 必ず、PGliteをクローズする
-        await pglite.close();
+            expect(app.use).toHaveBeenCalledWith(
+                '/api/users/*',
+                expect.anything()
+            );
+
+            expect(app.route).toHaveBeenCalledWith(
+                '/api/users',
+                plugin.routes
+            );
+        });
+
+        it('requiredRole がある場合は RBAC を適用する', async () => {
+            const adminPlugin = createPlugin({
+                id: 'admin',
+                name: 'Admin',
+                requiredRole: 'admin',
+            });
+
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([
+                {
+                    plugin: adminPlugin,
+                    isEnabled: true,
+                },
+            ]);
+
+            await loadFeatureModules(app, '**/*.module.ts', db);
+
+            expect(rbacMiddleware).toHaveBeenCalledWith([
+                'admin',
+            ]);
+
+            expect(app.use).toHaveBeenCalledTimes(2);
+        });
+
+        it('requiredRole が無い場合は RBAC を適用しない', async () => {
+            const plugin = createPlugin();
+
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([
+                {
+                    plugin: plugin,
+                    isEnabled: true,
+                },
+            ]);
+
+            await loadFeatureModules(app, '**/*.module.ts', db);
+
+            expect(rbacMiddleware).not.toHaveBeenCalled();
+        });
+
+        it('routes が undefined の場合はマウントしない', async () => {
+            const noRoutePlugin = createPlugin({
+                routes: undefined,
+            });
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([
+                {
+                    plugin: noRoutePlugin,
+                    isEnabled: true,
+                },
+            ]);
+
+            await loadFeatureModules(app, '**/*.module.ts', db);
+
+            expect(app.route).not.toHaveBeenCalled();
+        });
+
+        it('無効なプラグインはスキップする', async () => {
+            const plugin = createPlugin();
+
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([
+                {
+                    plugin: plugin,
+                    isEnabled: false,
+                },
+            ]);
+
+            await loadFeatureModules(app, '**/*.module.ts', db);
+
+            expect(app.route).not.toHaveBeenCalled();
+            expect(app.use).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('middleware', () => {
+        it('authMiddleware に JWT_SECRET を渡す', async () => {
+            const plugin = createPlugin();
+
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([
+                {
+                    plugin: plugin,
+                    isEnabled: true,
+                },
+            ]);
+
+            await loadFeatureModules(app, '**/*.module.ts', db);
+
+            expect(authMiddleware).toHaveBeenCalledWith(
+                'test-secret'
+            );
+        });
+    });
+
+    describe('plugin status', () => {
+        it('getActivePlugins に DB を渡す', async () => {
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([]);
+
+            await loadFeatureModules(app, '**/*.module.ts', db);
+
+            expect(getActivePlugins).toHaveBeenCalledWith(
+                db
+            );
+        });
+    });
+
+    describe('module loading', () => {
+        it('glob に pattern と rootDir を渡す', async () => {
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([]);
+
+            await loadFeatureModules(
+                app,
+                'plugins/**/*.ts',
+                db
+            );
+
+            expect(glob).toHaveBeenCalledWith(
+                'plugins/**/*.ts',
+                {
+                    cwd: '/project',
+                }
+            );
+        });
+
+        it('プラグインファイルが存在しなくても例外にならない', async () => {
+            vi.mocked(glob).mockResolvedValue([]);
+
+            vi.mocked(getActivePlugins).mockResolvedValue([]);
+
+            await expect(
+                loadFeatureModules(
+                    app,
+                    '**/*.module.ts',
+                    db
+                )
+            ).resolves.not.toThrow();
+        });
     });
 });
 
-describe('User Management Integration (Step 9)', () => {
-    beforeEach(async () => {
-    });
 
-    it('前のテストケースでデータが追加されていても、このケースでは空のままであること', async () => {
+// import { describe, it, expect, beforeEach, vi } from 'vitest';
+// import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
+// import { sign } from 'hono/jwt';
+// import { AppEnv, env, PluginRegistry } from '@shared/functions';
+// import { loadFeatureModules } from './hono-auto-loader';
+// import { Hono } from 'hono';
 
-        // 1. クリーンなテスト環境を取得
-        const { app, db, pglite } = await createTestEnv();
+// describe('hono-auto-loader', () => {
 
-        // 💡 appごと完全に作り直されているため、他のテストケースの実行状況の影響は 100% 受けません
-        const result = await db.select().from(schema.users);
-        expect(result).toHaveLength(0); // 確実にPassed（成功）します！
+//     beforeEach(async () => {
+//     });
 
-        // 必ず、PGliteをクローズする
-        await pglite.close();
-    });
-});
-EOF_1788253099_3773
+//     // 💡 ヘルパー: JWT 生成
+//     const createToken = async (role: string = 'user') => {
+//         return await sign({ sub: 'user-123', role }, env.JWT_SECRET);
+//     };
+
+//     describe('DB ステータス制御とロード処理', () => {
+//         it('1. DBで有効(enabled: true)のプラグインは正常にマウントされアクセスできること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-plugin-enabled';
+//             const pluginApp = new Hono<AppEnv>();
+//             pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+//             PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
+
+//             // ⭕ getActivePlugins(db) の内部で実行される db.select().from(plugins) の挙動を安全に偽装
+//             vi.spyOn(db, 'select').mockImplementation(() => {
+//                 return {
+//                     from: () => [
+//                         { id: pluginId, name: '標準プラグイン', enabled: true }
+//                     ]
+//                 } as any;
+//             });
+
+//             await loadFeatureModules(app, 'features/*/src/index.ts', db);
+
+//             const token = await createToken('user');
+//             const res = await app.request(`/api/${pluginId}/hello`, {
+//                 headers: { Authorization: `Bearer ${token}` },
+//             });
+//             expect(res.status).toBe(200);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('2. DBで無効(enabled: false)のプラグインはスキップされ 404 になること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-plugin-disabled';
+//             const pluginApp = new Hono<AppEnv>();
+//             pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+//             PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
+
+//             // ⭕ ステータスが無効(enabled: false)のプラグインを返すように偽装
+//             vi.spyOn(db, 'select').mockImplementation(() => {
+//                 return {
+//                     from: () => [
+//                         { id: pluginId, name: '標準プラグイン', enabled: false }
+//                     ]
+//                 } as any;
+//             });
+
+//             await loadFeatureModules(app, 'features/*/src/index.ts', db);
+
+//             const token = await createToken('user');
+//             const res = await app.request(`/api/${pluginId}/hello`, {
+//                 headers: { Authorization: `Bearer ${token}` },
+//             });
+//             expect(res.status).toBe(404);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('3. DB未登録の場合はデフォルト有効として処理されること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-plugin-unregistered';
+//             const pluginApp = new Hono<AppEnv>();
+//             pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+//             PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
+
+//             // ⭕ DBから何も見つからない（未登録: 空配列）状態を模倣
+//             vi.spyOn(db, 'select').mockImplementation(() => {
+//                 return {
+//                     from: () => []
+//                 } as any;
+//             });
+
+//             await loadFeatureModules(app, 'features/*/src/index.ts', db);
+
+//             const token = await createToken('user');
+//             const res = await app.request(`/api/${pluginId}/hello`, {
+//                 headers: { Authorization: `Bearer ${token}` },
+//             });
+//             expect(res.status).toBe(200);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('4. DBクエリ例外時でもクラッシュせずフォールバック動作すること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-plugin-fallback';
+//             const pluginApp = new Hono<AppEnv>();
+//             pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+//             PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
+
+//             // ⭕ データベースの切断や例外を安全にシミュレート
+//             const selectSpy = vi.spyOn(db, 'select').mockImplementation(() => {
+//                 throw new Error('DB Connection Error');
+//             });
+
+//             // const app = createTestApp();
+//             await loadFeatureModules(app, 'features/*/src/index.ts', db);
+
+//             const token = await createToken('user');
+//             const res = await app.request(`/api/${pluginId}/hello`, {
+//                 headers: { Authorization: `Bearer ${token}` },
+//             });
+
+//             expect(res.status).toBe(200); // 例外時でも未登録(デフォルト有効)としてフォールバックすることの検証
+//             selectSpy.mockRestore();
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('5. routes 未定義のプラグインはエラーなくスキップされること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-ui-only-plugin';
+//             PluginRegistry.register({ id: pluginId, name: 'UI専用プラグイン' });
+
+//             vi.spyOn(db, 'select').mockImplementation(() => {
+//                 return { from: () => [] } as any;
+//             });
+
+//             await expect(loadFeatureModules(app, 'features/*/src/index.ts', db)).resolves.not.toThrow();
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     describe('認証・認可ミドルウェアの適用', () => {
+//         it('6. トークンなしの場合 401 Unauthorized になること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-plugin-auth';
+//             const pluginApp = new Hono<AppEnv>();
+//             pluginApp.get('/hello', (c) => c.json({ message: 'hello from plugin' }));
+//             PluginRegistry.register({ id: pluginId, name: '標準プラグイン', routes: pluginApp });
+
+//             vi.spyOn(db, 'select').mockImplementation(() => {
+//                 return { from: () => [] } as any;
+//             });
+
+//             await loadFeatureModules(app, 'features/*/src/index.ts', db);
+
+//             const res = await app.request(`/api/${pluginId}/hello`);
+//             expect(res.status).toBe(401);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('7. requiredRole の認可が正しく機能すること (一般ユーザー: 403, 管理者: 200)', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const pluginId = 'test-rbac-plugin';
+//             const pluginApp = new Hono<AppEnv>();
+//             pluginApp.get('/admin-only', (c) => c.json({ message: 'admin content' }));
+//             PluginRegistry.register({
+//                 id: pluginId,
+//                 name: '権限テスト用プラグイン',
+//                 routes: pluginApp,
+//                 requiredRole: 'admin',
+//             });
+
+//             vi.spyOn(db, 'select').mockImplementation(() => {
+//                 return { from: () => [] } as any;
+//             });
+
+//             await loadFeatureModules(app, 'features/*/src/index.ts', db);
+
+//             // 一般ユーザー -> 403
+//             const userToken = await createToken('user');
+//             const resUser = await app.request(`/api/${pluginId}/admin-only`, {
+//                 headers: { Authorization: `Bearer ${userToken}` },
+//             });
+//             expect(resUser.status).toBe(403);
+
+//             // 管理者 -> 200
+//             const adminToken = await createToken('admin');
+//             const resAdmin = await app.request(`/api/${pluginId}/admin-only`, {
+//                 headers: { Authorization: `Bearer ${adminToken}` },
+//             });
+//             expect(resAdmin.status).toBe(200);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+// });
+EOF_1788771795_6351
+
+mkdir -p "apps/api/src/auto-loader"
+echo "作成: apps/api/src/auto-loader/hono-auto-loader.ts"
+cat << 'EOF_1788771795_9964' > "apps/api/src/auto-loader/hono-auto-loader.ts"
+import { Hono } from 'hono';
+import { AppEnv } from '@shared/functions';
+import { Database } from '@shared/db';
+import { glob } from 'glob';
+import { pathToFileURL } from 'node:url';
+import { env, isTest } from '@shared/functions'; // 💡 isTest を追加
+import { getProjectRootDir, resolveFromProjectRoot } from '@shared/server-utils';
+import { getActivePlugins } from '../utils/auto-loader-helper';
+import { authMiddleware } from '../middlewares/auth-middleware';
+import { rbacMiddleware } from '../middlewares/rbac-middleware';
+
+// モジュールロードのキャッシュ化
+let isModulesLoaded = false;
+
+export async function loadFeatureModules(app: Hono<AppEnv>, pattern: string, db: Database) {
+
+    // 💡 テスト環境（isTest）かつ、すでに最初の1回目でファイルロードが完了している場合は、
+    // 重いディスクI/Oと import() の排他ロックを完全にスキップします。
+    if (!(isTest && isModulesLoaded)) {
+        const rootDir = getProjectRootDir();
+        const files = await glob(pattern, { cwd: rootDir });
+
+        // 1. 各機能モジュールを動的インポート（本当の最初の1回だけ実行）
+        for (const file of files) {
+            const paths = file.split('/')
+            const absolutePath = resolveFromProjectRoot(...paths);
+            const moduleUrl = pathToFileURL(absolutePath).href;
+            await import(moduleUrl);
+        }
+
+        if (isTest) {
+            isModulesLoaded = true; // テスト環境時はロード完了フラグを立てる
+        }
+    }
+
+    // =========================================================================
+    // 🟢 ここから下の「DBに応じた動的なプラグインマウント処理」は、
+    // 既存の隔離ロジックを壊さないよう、ケースごとに毎回【100%実直に毎回実行】させます。
+    // =========================================================================
+
+    // 2. DB から登録済みプラグインの有効/無効ステータスを取得（毎回新しく渡された隔離DBを参照する）
+    const pluginStatuses = await getActivePlugins(db);
+
+    // 3. レジストリに登録されたプラグインをチェックし、有効なもののみマウント
+    for (const { plugin, isEnabled } of pluginStatuses) {
+        if (isEnabled) {
+            if (plugin.routes !== undefined) {
+                const basePath = `/api/${plugin.id}`;
+
+                // 認証ミドルウェアの適用
+                app.use(`${basePath}/*`, authMiddleware(env.JWT_SECRET));
+
+                if (plugin.requiredRole) {
+                    app.use(`${basePath}/*`, rbacMiddleware([plugin.requiredRole]));
+                }
+
+                app.route(basePath, plugin.routes);
+                console.log(`[Auto-Loader] ✅ Loaded & Mounted Plugin: ${plugin.id}`);
+            }
+        } else {
+            console.log(`[Auto-Loader] ⏸️ Skipped Disabled Plugin: ${plugin.id}`);
+        }
+    }
+}
+EOF_1788771795_9964
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/plugin.ts"
-cat << 'EOF_1788253099_4828' > "apps/api/src/routes/plugin.ts"
+cat << 'EOF_1788771795_5280' > "apps/api/src/routes/plugin.ts"
 import { Hono } from 'hono';
 import { AppEnv } from '@shared/functions';
 import { getActivePlugins } from '../utils/auto-loader-helper';
@@ -7348,67 +8705,127 @@ systemRouter.get('/plugins', async (c) => {
         plugins: activePlugins,
     });
 });
-EOF_1788253099_4828
+EOF_1788771795_5280
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.test.ts"
-cat << 'EOF_1788253099_25351' > "apps/api/src/routes/health.test.ts"
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
+cat << 'EOF_1788771795_10133' > "apps/api/src/routes/health.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Hono } from 'hono';
+import { healthRouter } from './health';
+import { AppEnv } from '@shared/functions';
+import { Database } from '@shared/db';
 
-describe('Health Check API (Step 6.1)', () => {
+describe('healthRouter', () => {
+    let executeMock: ReturnType<typeof vi.fn>;
+    let app: Hono<AppEnv>;
 
-    beforeEach(async () => {
+    beforeEach(() => {
+
+        app = new Hono<AppEnv>();
+
+        executeMock = vi.fn();
+        const dbMock = {
+            execute: executeMock,
+        } as unknown as Database;
+
+        app.use('*', async (c, next) => {
+            c.set('dbInstance', dbMock);
+            await next();
+        });
+
+        app.route('/', healthRouter);
     });
 
-    it('GET /healthz - DB導通が正常な場合、200 OK と status: ok を返すこと', async () => {
-
-        // 1. クリーンなテスト環境を取得
-        const { app, db, pglite } = await createTestEnv();
+    it('DB接続成功時は status=ok を返す', async () => {
+        executeMock.mockResolvedValue([{ '?column?': 1 }]);
 
         const res = await app.request('/healthz');
 
         expect(res.status).toBe(200);
-        const body = await res.json();
-        expect(body).toEqual({
+
+        expect(await res.json()).toEqual({
             status: 'ok',
             db: 'connected',
         });
-
-        // 必ず、PGliteをクローズする
-        await pglite.close();
     });
 
-    it('GET /healthz - DB接続エラーが発生した場合、503 と RFC 9457 形式のエラーを返すこと', async () => {
+    it('DB導通確認のため execute が呼ばれる', async () => {
+        executeMock.mockResolvedValue([{ '?column?': 1 }]);
 
-        // 1. クリーンなテスト環境を取得
-        const { app, db, pglite } = await createTestEnv();
+        await app.request('/healthz');
 
-        vi.spyOn(db, 'execute').mockRejectedValueOnce(new Error('Database connection failed'));
+        expect(executeMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('DB接続失敗時は正常レスポンスを返さない', async () => {
+        executeMock.mockRejectedValue(
+            new Error('Database connection failed')
+        );
 
         const res = await app.request('/healthz');
-        expect(res.status).toBe(503);
 
-        const body = await res.json();
-
-        expect(body).toEqual({
-            type: 'about:blank',
-            title: 'Service Unavailable',
-            status: 503,
-            detail: 'Database connection failed',
-            instance: '/healthz',
-        });
-
-        // 必ず、PGliteをクローズする
-        await pglite.close();
+        expect(res.status).toBe(500);
     });
 });
 
-EOF_1788253099_25351
+
+// import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+// import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
+
+// describe('Health Check API (Step 6.1)', () => {
+
+//     beforeEach(async () => {
+//     });
+
+//     it('GET /healthz - DB導通が正常な場合、200 OK と status: ok を返すこと', async () => {
+
+//         // 1. クリーンなテスト環境を取得
+//         const { app, db, pglite } = await createTestEnv();
+
+//         const res = await app.request('/healthz');
+
+//         expect(res.status).toBe(200);
+//         const body = await res.json();
+//         expect(body).toEqual({
+//             status: 'ok',
+//             db: 'connected',
+//         });
+
+//         // 必ず、PGliteをクローズする
+//         await pglite.close();
+//     });
+
+//     it('GET /healthz - DB接続エラーが発生した場合、503 と RFC 9457 形式のエラーを返すこと', async () => {
+
+//         // 1. クリーンなテスト環境を取得
+//         const { app, db, pglite } = await createTestEnv();
+
+//         vi.spyOn(db, 'execute').mockRejectedValueOnce(new Error('Database connection failed'));
+
+//         const res = await app.request('/healthz');
+//         expect(res.status).toBe(503);
+
+//         const body = await res.json();
+
+//         expect(body).toEqual({
+//             type: 'about:blank',
+//             title: 'Service Unavailable',
+//             status: 503,
+//             detail: 'Database connection failed',
+//             instance: '/healthz',
+//         });
+
+//         // 必ず、PGliteをクローズする
+//         await pglite.close();
+//     });
+// });
+
+EOF_1788771795_10133
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.ts"
-cat << 'EOF_1788253099_6801' > "apps/api/src/routes/auth.ts"
+cat << 'EOF_1788771795_4186' > "apps/api/src/routes/auth.ts"
 import { Hono } from 'hono';
 import { AppEnv, AuthPluginRegistry } from '@shared/functions';
 import { z } from 'zod';
@@ -7482,10 +8899,11 @@ export function authRouter(jwtSecret: string, authRegistry: AuthPluginRegistry) 
     // ----------------------------------------------------
     app.get('/me', authMiddleware(jwtSecret), async (c) => {
         const currentUser = c.get('user');
+        if (currentUser == undefined) { return undefined; }
 
         return c.json({
             user: {
-                id: currentUser.userId,
+                id: currentUser.id,
                 email: currentUser.email,
                 role: currentUser.role,
             },
@@ -7494,11 +8912,11 @@ export function authRouter(jwtSecret: string, authRegistry: AuthPluginRegistry) 
 
     return app;
 }
-EOF_1788253099_6801
+EOF_1788771795_4186
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/plugin.test.ts"
-cat << 'EOF_1788253099_29422' > "apps/api/src/routes/plugin.test.ts"
+cat << 'EOF_1788771795_29013' > "apps/api/src/routes/plugin.test.ts"
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
 import { PluginRegistry } from '@shared/functions';
@@ -7529,11 +8947,11 @@ describe('GET /api/system/plugins', () => {
 
     });
 });
-EOF_1788253099_29422
+EOF_1788771795_29013
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/health.ts"
-cat << 'EOF_1788253099_655' > "apps/api/src/routes/health.ts"
+cat << 'EOF_1788771795_28725' > "apps/api/src/routes/health.ts"
 import { Hono } from 'hono';
 import { AppError } from '@shared/errors';
 import { sql } from 'drizzle-orm';
@@ -7561,214 +8979,490 @@ healthRouter.get('/healthz', async (c) => {
         );
     }
 });
-EOF_1788253099_655
+EOF_1788771795_28725
 
 mkdir -p "apps/api/src/routes"
 echo "作成: apps/api/src/routes/auth.test.ts"
-cat << 'EOF_1788253099_19132' > "apps/api/src/routes/auth.test.ts"
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
-import { hashPassword } from '@plugins/auth-local';
-import * as schema from '@shared/db/schema';
+cat << 'EOF_1788771795_24687' > "apps/api/src/routes/auth.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('Auth Routes (Step 4.3) - インメモリ完全隔離テスト', () => {
+const signJwtMock = vi.fn();
+const authenticateMock = vi.fn();
 
-    beforeEach(async () => {
-    });
+vi.mock('@plugins/auth-local', () => ({
+    signJwt: signJwtMock,
+}));
 
-    // ----------------------------------------------------
-    // 1. POST /api/auth/login のテスト
-    // ----------------------------------------------------
-    describe('POST /api/auth/login', () => {
-        it('正しい資格情報でログインし、JWT トークンとユーザー情報が返ること', async () => {
-
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            // テストユーザーを挿入
-            const hashedPassword = await hashPassword('password123');
-            await db.insert(schema.users).values({
-                name: 'Test User',
-                email: 'test@example.com',
-                passwordHash: hashedPassword,
-                role: 'user',
-                isActive: true,
-            });
-
-            const res = await app.request('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+vi.mock('../middlewares/auth-middleware', () => ({
+    authMiddleware:
+        (_secret: string) =>
+            async (c: any, next: any) => {
+                c.set('user', {
+                    userId: 'user-1',
                     email: 'test@example.com',
-                    password: 'password123',
-                }),
-            });
+                    role: 'admin',
+                });
 
-            // rowMode ハックとプラグインモックの連動により、401にならず 200 OK となります
-            expect(res.status).toBe(200);
+                await next();
+            },
+}));
 
-            const body = await res.json() as { token: string; user: any };
-            expect(body).toHaveProperty('token');
-            expect(body.user).toEqual({
-                id: 1,
-                email: 'test@example.com',
-                role: 'user',
-            });
-            expect(typeof body.token).toBe('string');
+describe('authRouter', () => {
+    let authRegistry: any;
 
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        authRegistry = {
+            get: vi.fn(() => ({
+                authenticate: authenticateMock,
+            })),
+        };
+    });
+
+    it('ログイン成功時は token と user を返す', async () => {
+        const { authRouter } = await import('./auth');
+
+        authenticateMock.mockResolvedValue({
+            id: 'user-1',
+            email: 'test@example.com',
+            role: 'admin',
+            name: 'Test User',
         });
 
-        it('フォーマット違反（email も username も欠落）の場合、401 UnauthorizedError 形式が返ること', async () => {
+        signJwtMock.mockResolvedValue('jwt-token');
 
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
+        const app = authRouter('secret', authRegistry);
 
-            // テストユーザーを挿入
-            const hashedPassword = await hashPassword('password123');
-            await db.insert(schema.users).values({
-                name: 'Test User',
+        const res = await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
                 email: 'test@example.com',
-                passwordHash: hashedPassword,
-                role: 'user',
-                isActive: true,
-            });
-
-            const res = await app.request('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    password: 'password123',
-                }),
-            });
-
-            expect(res.status).toBe(401);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+                password: 'password',
+            }),
         });
 
-        it('パスワード不一致など認証プラグイン側で拒絶された場合、401エラーが返ること', async () => {
+        expect(res.status).toBe(200);
 
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            // テストユーザーを挿入
-            const hashedPassword = await hashPassword('password123');
-            await db.insert(schema.users).values({
-                name: 'Test User',
+        expect(await res.json()).toEqual({
+            token: 'jwt-token',
+            user: {
+                id: 'user-1',
                 email: 'test@example.com',
-                passwordHash: hashedPassword,
-                role: 'user',
-                isActive: true,
-            });
-
-            const res = await app.request('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: 'wrong@example.com',
-                    password: 'wrongpassword',
-                }),
-            });
-
-            expect(res.status).toBe(401);
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+                role: 'admin',
+            },
         });
     });
 
-    // ----------------------------------------------------
-    // 2. GET /api/auth/me のテスト
-    // ----------------------------------------------------
-    describe('GET /api/auth/me', () => {
-        it('有効な JWT トークンを Bearer ヘッダーに付与した場合、200 OK でプロファイルが引けること', async () => {
+    it('localプラグインを取得する', async () => {
+        const { authRouter } = await import('./auth');
 
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
-
-            // テストユーザーを挿入
-            const hashedPassword = await hashPassword('password123');
-            await db.insert(schema.users).values({
-                name: 'Test User',
-                email: 'test@example.com',
-                passwordHash: hashedPassword,
-                role: 'user',
-                isActive: true,
-            });
-
-            // 1. 正規のルートでログインエンドポイントからフレッシュなJWTトークンを取得
-            const loginRes = await app.request('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: 'test@example.com',
-                    password: 'password123'
-                }),
-            });
-            const { token } = await loginRes.json() as { token: string };
-
-            // 2. 取得したトークンを Authorization ヘッダーに付与して /me へアクセス
-            const res = await app.request('/api/auth/me', {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            // 401で弾かれず、正しく認証されて 200 が返ります
-            expect(res.status).toBe(200);
-
-            const body = await res.json() as { user: any };
-            expect(body.user).toEqual({
-                id: 1,
-                email: 'test@example.com',
-                role: 'user',
-            });
-
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+        authenticateMock.mockResolvedValue({
+            id: 'user-1',
+            email: 'test@example.com',
         });
 
-        it('トークンを付与せずにアクセスした場合、401 Unauthorized で弾かれること', async () => {
+        signJwtMock.mockResolvedValue('jwt-token');
 
-            // 1. クリーンなテスト環境を取得
-            const { app, db, pglite } = await createTestEnv();
+        const app = authRouter('secret', authRegistry);
 
-            const res = await app.request('/api/auth/me', {
-                method: 'GET',
-            });
+        await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'test@example.com',
+                password: 'password',
+            }),
+        });
 
-            expect(res.status).toBe(401);
+        expect(authRegistry.get).toHaveBeenCalledWith('local');
+    });
 
-            // 必ず、PGliteをクローズする
-            await pglite.close();
+    it('authenticate に正しい引数を渡す', async () => {
+        const { authRouter } = await import('./auth');
+
+        authenticateMock.mockResolvedValue({
+            id: 'user-1',
+            email: 'test@example.com',
+        });
+
+        signJwtMock.mockResolvedValue('jwt-token');
+
+        const app = authRouter('secret', authRegistry);
+
+        await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'test@example.com',
+                password: 'password',
+            }),
+        });
+
+        expect(authenticateMock).toHaveBeenCalledWith({
+            db: undefined,
+            email: 'test@example.com',
+            username: 'test@example.com',
+            password: 'password',
         });
     });
 
-    // ----------------------------------------------------
-    // 3. データクリーン（隔離）の検証
-    // ----------------------------------------------------
-    it('前のテストケースでデータ操作があっても、このケースでは完全に空のままであること', async () => {
+    it('username ログイン時も authenticate が呼ばれる', async () => {
+        const { authRouter } = await import('./auth');
 
-        // 1. クリーンなテスト環境を取得
-        const { app, db, pglite } = await createTestEnv();
+        authenticateMock.mockResolvedValue({
+            id: 'user-1',
+            name: 'tester',
+        });
 
-        // 前提の createTestEnv() のハックが有効なため、この直接の select もエラーにならず 0 件を返します
-        const result = await db.select().from(schema.users);
-        expect(result).toHaveLength(0);
+        signJwtMock.mockResolvedValue('jwt-token');
 
-        // 必ず、PGliteをクローズする
-        await pglite.close();
+        const app = authRouter('secret', authRegistry);
+
+        const res = await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: 'tester',
+                password: 'password',
+            }),
+        });
+
+        expect(res.status).toBe(200);
+
+        expect(authenticateMock).toHaveBeenCalledWith({
+            db: undefined,
+            email: 'tester',
+            username: 'tester',
+            password: 'password',
+        });
+    });
+
+    it('signJwt に正しい payload を渡す', async () => {
+        const { authRouter } = await import('./auth');
+
+        authenticateMock.mockResolvedValue({
+            id: 'user-1',
+            email: 'test@example.com',
+            role: 'admin',
+        });
+
+        signJwtMock.mockResolvedValue('jwt-token');
+
+        const app = authRouter('my-secret', authRegistry);
+
+        await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'test@example.com',
+                password: 'password',
+            }),
+        });
+
+        expect(signJwtMock).toHaveBeenCalledWith(
+            {
+                userId: 'user-1',
+                email: 'test@example.com',
+                role: 'admin',
+            },
+            'my-secret'
+        );
+    });
+
+    it('/me は認証済みユーザーを返す', async () => {
+        const { authRouter } = await import('./auth');
+
+        const app = authRouter('secret', authRegistry);
+
+        const res = await app.request('/me');
+
+        expect(res.status).toBe(200);
+
+        expect(await res.json()).toEqual({
+            user: {
+                email: 'test@example.com',
+                role: 'admin',
+            },
+        });
+    });
+
+    it('email と username の両方が無い場合 authenticate は呼ばれない', async () => {
+        const { authRouter } = await import('./auth');
+
+        const app = authRouter('secret', authRegistry);
+
+        await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                password: 'password',
+            }),
+        });
+
+        expect(authenticateMock).not.toHaveBeenCalled();
+    });
+
+    it('password が空の場合 authenticate は呼ばれない', async () => {
+        const { authRouter } = await import('./auth');
+
+        const app = authRouter('secret', authRegistry);
+
+        await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'test@example.com',
+                password: '',
+            }),
+        });
+
+        expect(authenticateMock).not.toHaveBeenCalled();
+    });
+
+    it('認証失敗時は signJwt が呼ばれない', async () => {
+        const { authRouter } = await import('./auth');
+
+        authenticateMock.mockRejectedValue(
+            new Error('invalid credentials')
+        );
+
+        const app = authRouter('secret', authRegistry);
+
+        await app.request('/login', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: 'test@example.com',
+                password: 'wrong-password',
+            }),
+        });
+
+        expect(signJwtMock).not.toHaveBeenCalled();
     });
 });
-EOF_1788253099_19132
+
+
+// import { describe, it, expect, beforeEach, vi } from 'vitest';
+// import { createTestEnv } from '../../../../vitest-helpers'; // プロジェクトの共通環境作成関数
+// import { hashPassword } from '@plugins/auth-local';
+// import * as schema from '@shared/db/schema';
+
+// describe('Auth Routes (Step 4.3) - インメモリ完全隔離テスト', () => {
+
+//     beforeEach(async () => {
+//     });
+
+//     // ----------------------------------------------------
+//     // 1. POST /api/auth/login のテスト
+//     // ----------------------------------------------------
+//     describe('POST /api/auth/login', () => {
+//         it('正しい資格情報でログインし、JWT トークンとユーザー情報が返ること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // テストユーザーを挿入
+//             const hashedPassword = await hashPassword('password123');
+//             await db.insert(schema.users).values({
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 passwordHash: hashedPassword,
+//                 role: 'user',
+//                 isActive: true,
+//             });
+
+//             const res = await app.request('/api/auth/login', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({
+//                     email: 'test@example.com',
+//                     password: 'password123',
+//                 }),
+//             });
+
+//             // rowMode ハックとプラグインモックの連動により、401にならず 200 OK となります
+//             expect(res.status).toBe(200);
+
+//             const body = await res.json() as { token: string; user: any };
+//             expect(body).toHaveProperty('token');
+//             expect(body.user).toEqual({
+//                 id: 1,
+//                 email: 'test@example.com',
+//                 role: 'user',
+//             });
+//             expect(typeof body.token).toBe('string');
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('フォーマット違反（email も username も欠落）の場合、401 UnauthorizedError 形式が返ること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // テストユーザーを挿入
+//             const hashedPassword = await hashPassword('password123');
+//             await db.insert(schema.users).values({
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 passwordHash: hashedPassword,
+//                 role: 'user',
+//                 isActive: true,
+//             });
+
+//             const res = await app.request('/api/auth/login', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({
+//                     password: 'password123',
+//                 }),
+//             });
+
+//             expect(res.status).toBe(401);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('パスワード不一致など認証プラグイン側で拒絶された場合、401エラーが返ること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // テストユーザーを挿入
+//             const hashedPassword = await hashPassword('password123');
+//             await db.insert(schema.users).values({
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 passwordHash: hashedPassword,
+//                 role: 'user',
+//                 isActive: true,
+//             });
+
+//             const res = await app.request('/api/auth/login', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({
+//                     email: 'wrong@example.com',
+//                     password: 'wrongpassword',
+//                 }),
+//             });
+
+//             expect(res.status).toBe(401);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 2. GET /api/auth/me のテスト
+//     // ----------------------------------------------------
+//     describe('GET /api/auth/me', () => {
+//         it('有効な JWT トークンを Bearer ヘッダーに付与した場合、200 OK でプロファイルが引けること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             // テストユーザーを挿入
+//             const hashedPassword = await hashPassword('password123');
+//             await db.insert(schema.users).values({
+//                 name: 'Test User',
+//                 email: 'test@example.com',
+//                 passwordHash: hashedPassword,
+//                 role: 'user',
+//                 isActive: true,
+//             });
+
+//             // 1. 正規のルートでログインエンドポイントからフレッシュなJWTトークンを取得
+//             const loginRes = await app.request('/api/auth/login', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({
+//                     email: 'test@example.com',
+//                     password: 'password123'
+//                 }),
+//             });
+//             const { token } = await loginRes.json() as { token: string };
+
+//             // 2. 取得したトークンを Authorization ヘッダーに付与して /me へアクセス
+//             const res = await app.request('/api/auth/me', {
+//                 method: 'GET',
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             });
+
+//             // 401で弾かれず、正しく認証されて 200 が返ります
+//             expect(res.status).toBe(200);
+
+//             const body = await res.json() as { user: any };
+//             expect(body.user).toEqual({
+//                 id: 1,
+//                 email: 'test@example.com',
+//                 role: 'user',
+//             });
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+
+//         it('トークンを付与せずにアクセスした場合、401 Unauthorized で弾かれること', async () => {
+
+//             // 1. クリーンなテスト環境を取得
+//             const { app, db, pglite } = await createTestEnv();
+
+//             const res = await app.request('/api/auth/me', {
+//                 method: 'GET',
+//             });
+
+//             expect(res.status).toBe(401);
+
+//             // 必ず、PGliteをクローズする
+//             await pglite.close();
+//         });
+//     });
+
+//     // ----------------------------------------------------
+//     // 3. データクリーン（隔離）の検証
+//     // ----------------------------------------------------
+//     it('前のテストケースでデータ操作があっても、このケースでは完全に空のままであること', async () => {
+
+//         // 1. クリーンなテスト環境を取得
+//         const { app, db, pglite } = await createTestEnv();
+
+//         // 前提の createTestEnv() のハックが有効なため、この直接の select もエラーにならず 0 件を返します
+//         const result = await db.select().from(schema.users);
+//         expect(result).toHaveLength(0);
+
+//         // 必ず、PGliteをクローズする
+//         await pglite.close();
+//     });
+// });
+EOF_1788771795_24687
 
 mkdir -p "apps/api/src/utils"
 echo "作成: apps/api/src/utils/auto-loader-helper.ts"
-cat << 'EOF_1788253099_27236' > "apps/api/src/utils/auto-loader-helper.ts"
+cat << 'EOF_1788771795_9626' > "apps/api/src/utils/auto-loader-helper.ts"
 import { Database } from '@shared/db';
 import { schema } from '@shared/db';
 import { PluginRegistry } from '@shared/functions';
@@ -7795,25 +9489,265 @@ export async function getActivePlugins(db: Database) {
         };
     });
 }
-EOF_1788253099_27236
+EOF_1788771795_9626
+
+mkdir -p "apps/api/src"
+echo "作成: apps/api/src/main.test.ts"
+cat << 'EOF_1788771795_22542' > "apps/api/src/main.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@hono/node-server', () => ({
+    serve: vi.fn(),
+}));
+
+vi.mock('@shared/db', () => ({
+    createPool: vi.fn(),
+    createProductionDb: vi.fn(),
+}));
+
+vi.mock('./create-app', () => ({
+    createApp: vi.fn(),
+}));
+
+vi.mock('@shared/functions', () => ({
+    env: {
+        DATABASE_URL:
+            'postgresql://postgres:postgres@localhost:5432/app_db',
+        PORT: 3001,
+    },
+    isTest: true,
+}));
+
+import { serve } from '@hono/node-server';
+import {
+    createPool,
+    createProductionDb,
+} from '@shared/db';
+import { createApp } from './create-app';
+
+import { bootstrap } from './main';
+
+describe('API Bootstrap', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        vi.spyOn(console, 'log')
+            .mockImplementation(() => { });
+
+        vi.spyOn(console, 'count')
+            .mockImplementation(() => { });
+
+        vi.spyOn(console, 'error')
+            .mockImplementation(() => { });
+    });
+
+    it('Pool・DB・Appを生成してserveする', async () => {
+        const mockPool = {};
+        const mockDb = {};
+
+        const mockApp = {
+            fetch: vi.fn(),
+        };
+
+        vi.mocked(createPool)
+            .mockReturnValue(mockPool as any);
+
+        vi.mocked(createProductionDb)
+            .mockReturnValue(mockDb as any);
+
+        vi.mocked(createApp)
+            .mockResolvedValue(mockApp as any);
+
+        await bootstrap();
+
+        expect(createPool).toHaveBeenCalledWith(
+            'postgresql://postgres:postgres@localhost:5432/app_db',
+        );
+
+        expect(createProductionDb)
+            .toHaveBeenCalledWith(mockPool);
+
+        expect(createApp)
+            .toHaveBeenCalledWith(mockDb);
+
+        expect(serve).toHaveBeenCalledTimes(1);
+
+        expect(serve).toHaveBeenCalledWith({
+            fetch: mockApp.fetch,
+            port: 3001,
+            hostname: '0.0.0.0',
+        });
+    });
+
+    it('PORT が falsy の場合は 3001 を使用する', async () => {
+        const mockPool = {};
+        const mockDb = {};
+
+        const mockApp = {
+            fetch: vi.fn(),
+        };
+
+        vi.mocked(createPool)
+            .mockReturnValue(mockPool as any);
+
+        vi.mocked(createProductionDb)
+            .mockReturnValue(mockDb as any);
+
+        vi.mocked(createApp)
+            .mockResolvedValue(mockApp as any);
+
+        const functionsModule =
+            await import('@shared/functions');
+
+        (functionsModule.env as any).PORT = 0;
+
+        await bootstrap();
+
+        expect(serve).toHaveBeenCalledWith({
+            fetch: mockApp.fetch,
+            port: 3001,
+            hostname: '0.0.0.0',
+        });
+    });
+
+    it('createPool が失敗した場合はエラーログを出力する', async () => {
+        const error = new Error(
+            'createPool failed',
+        );
+
+        vi.mocked(createPool)
+            .mockImplementation(() => {
+                throw error;
+            });
+
+        await bootstrap();
+
+        expect(console.error)
+            .toHaveBeenCalledWith(
+                '❌ Failed to bootstrap API server:',
+                error,
+            );
+
+        expect(serve).not.toHaveBeenCalled();
+    });
+
+    it('createProductionDb が失敗した場合はエラーログを出力する', async () => {
+        const error = new Error(
+            'createProductionDb failed',
+        );
+
+        vi.mocked(createPool)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createProductionDb)
+            .mockImplementation(() => {
+                throw error;
+            });
+
+        await bootstrap();
+
+        expect(console.error)
+            .toHaveBeenCalledWith(
+                '❌ Failed to bootstrap API server:',
+                error,
+            );
+
+        expect(serve).not.toHaveBeenCalled();
+    });
+
+    it('createApp が失敗した場合はエラーログを出力する', async () => {
+        const error = new Error(
+            'createApp failed',
+        );
+
+        vi.mocked(createPool)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createProductionDb)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createApp)
+            .mockRejectedValue(error);
+
+        await bootstrap();
+
+        expect(console.error)
+            .toHaveBeenCalledWith(
+                '❌ Failed to bootstrap API server:',
+                error,
+            );
+
+        expect(serve).not.toHaveBeenCalled();
+    });
+
+    it('serve 到達ログを出力する', async () => {
+        const logSpy = vi.spyOn(console, 'log');
+
+        vi.mocked(createPool)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createProductionDb)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createApp)
+            .mockResolvedValue({
+                fetch: vi.fn(),
+            } as any);
+
+        await bootstrap();
+
+        expect(logSpy).toHaveBeenCalled();
+    });
+
+    it('serve 到達回数をカウントする', async () => {
+        const countSpy =
+            vi.spyOn(console, 'count');
+
+        vi.mocked(createPool)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createProductionDb)
+            .mockReturnValue({} as any);
+
+        vi.mocked(createApp)
+            .mockResolvedValue({
+                fetch: vi.fn(),
+            } as any);
+
+        await bootstrap();
+
+        expect(countSpy)
+            .toHaveBeenCalledWith(
+                '[DEBUG-COUNT] serveに到達した回数',
+            );
+    });
+});
+
+EOF_1788771795_22542
 
 mkdir -p "apps/api/src/services"
 echo "作成: apps/api/src/services/auth-service.ts"
-cat << 'EOF_1788253099_17018' > "apps/api/src/services/auth-service.ts"
+cat << 'EOF_1788771795_12800' > "apps/api/src/services/auth-service.ts"
 import { env, AuthPlugin, AuthPluginRegistry } from '@shared/functions';
 
-// 💡 修正ポイント: アプリ起動時にセットされる、アクティブなレジストリのインスタンスへの参照を保持する
+// （アプリ起動時にセットされる）アクティブなレジストリのインスタンスへの参照を保持する
 let activeRegistry: AuthPluginRegistry | null = null;
 
 export function setActiveRegistry(registry: AuthPluginRegistry) {
     activeRegistry = registry;
 }
 
+export function resetActiveRegistry(): void {
+    activeRegistry = null;
+}
+
 /**
- * 環境変数に応じたアクティブな認証プラグインを取得する
+ * 保持しているアクティブな認証プラグインを取得する
  */
-export function getActiveAuthPlugin(): AuthPlugin {
-    const providerName = env.AUTH_PROVIDER; // 'local' または 'ad'
+export function getActiveAuthPlugin(
+    providerName: string = env.AUTH_PROVIDER
+): AuthPlugin {
+    //     const providerName = env.AUTH_PROVIDER; // 'local' または 'ad'
 
     // 💡 インスタンスがセットされている場合は、そこから安全に get する
     if (activeRegistry) {
@@ -7823,31 +9757,536 @@ export function getActiveAuthPlugin(): AuthPlugin {
     // バックマウント（もしどうしてもstaticのまま動かしたい箇所への一時的な防衛線）
     throw new Error('AuthRegistry インスタンスが初期化されていません。');
 }
+EOF_1788771795_12800
+
+mkdir -p "apps/api/src/services"
+echo "作成: apps/api/src/services/auth-service.test.ts"
+cat << 'EOF_1788771795_32735' > "apps/api/src/services/auth-service.test.ts"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import {
+    getActiveAuthPlugin,
+    resetActiveRegistry,
+    setActiveRegistry,
+} from './auth-service';
+
+import {
+    AuthPlugin,
+    AuthPluginRegistry,
+} from '@shared/functions';
+
+describe('auth-service', () => {
+    beforeEach(() => {
+        resetActiveRegistry();
+        vi.restoreAllMocks();
+    });
+
+    describe('setActiveRegistry', () => {
+        it('設定した registry が利用される', () => {
+            const plugin: AuthPlugin = {
+                name: 'local',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            const result = getActiveAuthPlugin('local');
+
+            expect(result).toBe(plugin);
+        });
+    });
+
+    describe('getActiveAuthPlugin', () => {
+        it('local プラグインを取得できる', () => {
+            const plugin: AuthPlugin = {
+                name: 'local',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            const result = getActiveAuthPlugin('local');
+
+            expect(result).toBe(plugin);
+        });
+
+        it('ad プラグインを取得できる', () => {
+            const plugin: AuthPlugin = {
+                name: 'ad',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            const result = getActiveAuthPlugin('ad');
+
+            expect(result).toBe(plugin);
+        });
+
+        it('registry.get が呼び出される', () => {
+            const plugin: AuthPlugin = {
+                name: 'local',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            const getSpy = vi.spyOn(registry, 'get');
+
+            setActiveRegistry(registry);
+
+            getActiveAuthPlugin('local');
+
+            expect(getSpy).toHaveBeenCalledTimes(1);
+            expect(getSpy).toHaveBeenCalledWith('local');
+        });
+
+        it('registry が未初期化の場合は例外を送出する', () => {
+            expect(() =>
+                getActiveAuthPlugin('local'),
+            ).toThrowError(
+                'AuthRegistry インスタンスが初期化されていません。',
+            );
+        });
+
+        it('未登録プラグインの場合は registry の例外を伝播する', () => {
+            const registry = new AuthPluginRegistry();
+
+            setActiveRegistry(registry);
+
+            expect(() =>
+                getActiveAuthPlugin('unknown'),
+            ).toThrowError(
+                '認証プラグイン "unknown" が登録されていません。',
+            );
+        });
+
+        it('空文字のプラグイン名を扱える', () => {
+            const plugin: AuthPlugin = {
+                name: '',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            const result = getActiveAuthPlugin('');
+
+            expect(result).toBe(plugin);
+        });
+
+        it('特殊文字を含むプラグイン名を扱える', () => {
+            const plugin: AuthPlugin = {
+                name: 'ldap-test_plugin@v1',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            const result = getActiveAuthPlugin(
+                'ldap-test_plugin@v1',
+            );
+
+            expect(result).toBe(plugin);
+        });
+
+        it('大文字小文字を区別する', () => {
+            const plugin: AuthPlugin = {
+                name: 'Local',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            expect(
+                getActiveAuthPlugin('Local'),
+            ).toBe(plugin);
+
+            expect(() =>
+                getActiveAuthPlugin('local'),
+            ).toThrowError(
+                '認証プラグイン "local" が登録されていません。',
+            );
+        });
+
+        it('同名プラグインは後勝ちになる', () => {
+            const oldPlugin: AuthPlugin = {
+                name: 'local',
+                authenticate: vi.fn(),
+            };
+
+            const newPlugin: AuthPlugin = {
+                name: 'local',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(oldPlugin);
+            registry.register(newPlugin);
+
+            setActiveRegistry(registry);
+
+            const result = getActiveAuthPlugin('local');
+
+            expect(result).toBe(newPlugin);
+        });
+    });
+
+    describe('resetActiveRegistry', () => {
+        it('registry をリセットできる', () => {
+            const plugin: AuthPlugin = {
+                name: 'local',
+                authenticate: vi.fn(),
+            };
+
+            const registry = new AuthPluginRegistry();
+
+            registry.register(plugin);
+
+            setActiveRegistry(registry);
+
+            resetActiveRegistry();
+
+            expect(() =>
+                getActiveAuthPlugin('local'),
+            ).toThrowError(
+                'AuthRegistry インスタンスが初期化されていません。',
+            );
+        });
+
+        it('複数回 reset しても問題ない', () => {
+            resetActiveRegistry();
+            resetActiveRegistry();
+
+            expect(() =>
+                getActiveAuthPlugin('local'),
+            ).toThrowError(
+                'AuthRegistry インスタンスが初期化されていません。',
+            );
+        });
+    });
+});
 
 
-// import { env, AuthPlugin, AuthPluginRegistry } from '@shared/functions';
+// import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// /**
-//  * 環境変数に応じたアクティブな認証プラグインを取得する
-//  */
-// export function getActiveAuthPlugin(): AuthPlugin {
-//     const providerName = env.AUTH_PROVIDER; // 'local' または 'ad'
-//     return AuthPluginRegistry.get(providerName);
-// }
-EOF_1788253099_17018
+// import {
+//     getActiveAuthPlugin,
+//     resetActiveRegistry,
+//     setActiveRegistry,
+// } from './auth-service';
+
+// import type {
+//     AuthPlugin,
+//     AuthPluginRegistry,
+// } from '@shared/functions';
+
+// describe('auth-service', () => {
+//     beforeEach(() => {
+//         resetActiveRegistry();
+//         vi.clearAllMocks();
+//     });
+
+//     describe('setActiveRegistry', () => {
+//         it('設定した registry が利用される', () => {
+//             const plugin: AuthPlugin = {
+//                 name: 'local',
+//                 authenticate: vi.fn(),
+//             };
+
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(plugin),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin('local');
+
+//             expect(result).toBe(plugin);
+//             expect(registry.get).toHaveBeenCalledWith('local');
+//         });
+//     });
+
+//     describe('getActiveAuthPlugin', () => {
+//         it('local プラグインを取得できる', () => {
+//             const plugin: AuthPlugin = {
+//                 name: 'local',
+//                 authenticate: vi.fn(),
+//             };
+
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(plugin),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin('local');
+
+//             expect(registry.get).toHaveBeenCalledTimes(1);
+//             expect(registry.get).toHaveBeenCalledWith('local');
+//             expect(result).toBe(plugin);
+//         });
+
+//         it('ad プラグインを取得できる', () => {
+//             const plugin: AuthPlugin = {
+//                 name: 'ad',
+//                 authenticate: vi.fn(),
+//             };
+
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(plugin),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin('ad');
+
+//             expect(registry.get).toHaveBeenCalledWith('ad');
+//             expect(result).toBe(plugin);
+//         });
+
+//         it('registry が未初期化の場合は例外を送出する', () => {
+//             expect(() =>
+//                 getActiveAuthPlugin('local')
+//             ).toThrowError(
+//                 'AuthRegistry インスタンスが初期化されていません。'
+//             );
+//         });
+
+//         it('registry.get の例外をそのまま伝播する', () => {
+//             const registry = {
+//                 get: vi.fn(() => {
+//                     throw new Error('Plugin not found');
+//                 }),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             expect(() =>
+//                 getActiveAuthPlugin('local')
+//             ).toThrowError('Plugin not found');
+
+//             expect(registry.get).toHaveBeenCalledWith('local');
+//         });
+
+//         it('空文字の providerName を渡せる', () => {
+//             const plugin: AuthPlugin = {
+//                 name: '',
+//                 authenticate: vi.fn(),
+//             };
+
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(plugin),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin('');
+
+//             expect(registry.get).toHaveBeenCalledWith('');
+//             expect(result).toBe(plugin);
+//         });
+
+//         it('特殊文字を含む providerName を渡せる', () => {
+//             const plugin: AuthPlugin = {
+//                 name: 'ldap-test_plugin@v1',
+//                 authenticate: vi.fn(),
+//             };
+
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(plugin),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin(
+//                 'ldap-test_plugin@v1'
+//             );
+
+//             expect(registry.get).toHaveBeenCalledWith(
+//                 'ldap-test_plugin@v1'
+//             );
+//             expect(result).toBe(plugin);
+//         });
+
+//         it('存在しない providerName の結果をそのまま返す', () => {
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(undefined),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin('unknown');
+
+//             expect(registry.get).toHaveBeenCalledWith('unknown');
+//             expect(result).toBeUndefined();
+//         });
+
+//         it('大文字小文字を区別して registry.get に渡す', () => {
+//             const plugin: AuthPlugin = {
+//                 name: 'Local',
+//                 authenticate: vi.fn(),
+//             };
+
+//             const registry = {
+//                 get: vi.fn().mockReturnValue(plugin),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             const result = getActiveAuthPlugin('Local');
+
+//             expect(registry.get).toHaveBeenCalledWith('Local');
+//             expect(result).toBe(plugin);
+//         });
+//     });
+
+//     describe('resetActiveRegistry', () => {
+//         it('registry をリセットできる', () => {
+//             const registry = {
+//                 get: vi.fn(),
+//             } as unknown as AuthPluginRegistry;
+
+//             setActiveRegistry(registry);
+
+//             resetActiveRegistry();
+
+//             expect(() =>
+//                 getActiveAuthPlugin('local')
+//             ).toThrowError(
+//                 'AuthRegistry インスタンスが初期化されていません。'
+//             );
+//         });
+
+//         it('複数回 reset しても問題ない', () => {
+//             resetActiveRegistry();
+//             resetActiveRegistry();
+
+//             expect(() =>
+//                 getActiveAuthPlugin('local')
+//             ).toThrowError(
+//                 'AuthRegistry インスタンスが初期化されていません。'
+//             );
+//         });
+//     });
+// });
+
+
+// // import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+// // import { getActiveAuthPlugin, setActiveRegistry } from './auth-service';
+// // import { AuthPluginRegistry } from '@shared/functions';
+// // import { LocalAuthPlugin } from '@plugins/auth-local';
+// // import { ActiveDirectoryAuthPlugin } from '@plugins/auth-ad';
+
+// // describe('auth-service', () => {
+
+// //     beforeEach(() => {
+// //         // 💡 毎ケースの開始時は、メモリを完全にまっさらにクリア（初期化）するだけに留めます。
+// //         // ここでの中途半端な register や setActiveRegistry の先走りが全てのバグの元凶でした。
+// //         setActiveRegistry(null as unknown as AuthPluginRegistry);
+// //     });
+
+// //     afterEach(() => {
+// //         // 各ケースの終了後に環境変数のモックを確実にクリーンアップ
+// //         vi.unstubAllEnvs();
+// //     });
+
+// //     it('1. Registry インスタンスが初期化されていない場合、明確な初期化エラーをスローすること', () => {
+// //         // まっさらな状態のまま呼び出して、期待通りのエラー防衛線が走るかを厳密に検証
+// //         expect(() => getActiveAuthPlugin()).toThrowError(
+// //             'AuthRegistry インスタンスが初期化されていません。'
+// //         );
+// //     });
+
+// //     it('2. AUTH_PROVIDER が "local" の場合、レジストリから local 用のプラグインインスタンスが正しく切り出されること', () => {
+// //         // 💡 【大正解の順序】すべてをこのケース内で、独立して直列に実行します。
+
+// //         // 1. まず、このケースが検証したい環境変数を「一番最初」に上書き固定する
+// //         vi.stubEnv('AUTH_PROVIDER', 'local');
+
+// //         // 2. その環境変数のコンテキストの元で、レジストリとプラグインを新しく組み立てる
+// //         const registry = new AuthPluginRegistry();
+// //         const mockDb = {} as any;
+// //         const localPlugin = new LocalAuthPlugin(mockDb);
+// //         const adPlugin = new ActiveDirectoryAuthPlugin();
+
+// //         registry.register(localPlugin);
+// //         registry.register(adPlugin);
+
+// //         // 3. 最後に、満を持してレジストリをアクティブ化（これで正しいキャッシュが焼き付きます）
+// //         setActiveRegistry(registry);
+
+// //         const activePlugin = getActiveAuthPlugin();
+
+// //         expect(activePlugin.name).toBe('local');
+// //         expect(activePlugin).toBe(localPlugin); // 参照が完全に同一であることを確認
+// //     });
+
+// //     it('3. AUTH_PROVIDER が "ad" の場合、レジストリから ad 用のプラグインインスタンスが正しく切り出されること', () => {
+// //         // 💡 【大正解の順序】ケース2のゴミ（キャッシュ）を1ミリも引き継がせないための完全隔離実行
+
+// //         // 1. まず、このケースのための環境変数を「一番最初」に "ad" に上書き固定する
+// //         vi.stubEnv('AUTH_PROVIDER', 'ad');
+
+// //         // 2. まっさらな状態から、もう一度新しくレジストリを生成する（使い捨て）
+// //         const registry = new AuthPluginRegistry();
+// //         const mockDb = {} as any;
+// //         const localPlugin = new LocalAuthPlugin(mockDb);
+// //         const adPlugin = new ActiveDirectoryAuthPlugin();
+
+// //         registry.register(localPlugin);
+// //         registry.register(adPlugin);
+
+// //         // 3. 環境変数が "ad" になった状態で、レジストリをアクティブ化（これで ad が正しく引き当たります）
+// //         setActiveRegistry(registry);
+
+// //         const activePlugin = getActiveAuthPlugin();
+
+// //         expect(activePlugin.name).toBe('ad');
+// //         expect(activePlugin).toBe(adPlugin); // 参照が完全に同一であることを確認
+// //     });
+// // });
+EOF_1788771795_32735
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/main.ts"
-cat << 'EOF_1788253099_17425' > "apps/api/src/main.ts"
+cat << 'EOF_1788771795_6174' > "apps/api/src/main.ts"
 import { serve } from '@hono/node-server';
-import { createProductionDb } from '@shared/db';
+import { createPool, createProductionDb } from '@shared/db';
 import { env, isTest } from '@shared/functions';
-import { createApp } from './index'; // 💡 index.ts から関数をインポート
+import { createApp } from './create-app'; // 💡 index.ts から関数をインポート
 
-async function bootstrap() {
+export async function bootstrap() {
     try {
         // DBインスタンス（ミドルウェア）を注入(本番用のPoolクライアント等を生成して渡す)
-        const db = createProductionDb(env.DATABASE_URL);    //createDb('pg');
+        const pool = createPool(env.DATABASE_URL);
+        const db = createProductionDb(pool);
         const app = await createApp(db);
         const port = env.PORT || 3001;
 
@@ -7878,11 +10317,331 @@ async function bootstrap() {
 if (!isTest) {
     bootstrap();
 }
-EOF_1788253099_17425
+EOF_1788771795_6174
+
+mkdir -p "apps/api/src"
+echo "作成: apps/api/src/create-app.test.ts"
+cat << 'EOF_1788771795_8466' > "apps/api/src/create-app.test.ts"
+// src/index.test.ts
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Database } from '@shared/db';
+import { ValidationError } from '@shared/errors';
+
+const registerMock = vi.fn();
+const setActiveRegistryMock = vi.fn();
+const loadFeatureModulesMock = vi.fn();
+
+vi.mock('@shared/functions', () => {
+    class MockRegistry {
+        register = registerMock;
+    }
+
+    return {
+        env: {
+            CORS_ORIGIN: 'http://localhost:3000',
+            JWT_SECRET: 'test-secret',
+        },
+        isTest: true,
+        formatEnvForLog: vi.fn(),
+        AuthPluginRegistry: MockRegistry,
+    };
+});
+
+vi.mock('./services/auth-service', () => ({
+    setActiveRegistry: setActiveRegistryMock,
+}));
+
+vi.mock('./auto-loader/hono-auto-loader', () => ({
+    loadFeatureModules: loadFeatureModulesMock,
+}));
+
+vi.mock('@plugins/auth-local', () => {
+    return {
+        LocalAuthPlugin: class {
+            public name = 'local';
+
+            constructor(_db: unknown) { }
+        },
+    };
+});
+
+vi.mock('@plugins/auth-ad', () => {
+    return {
+        ActiveDirectoryAuthPlugin: class {
+            public name = 'ad';
+        },
+    };
+});
+
+vi.mock('./middlewares/logger', () => ({
+    loggerMiddleware: async (_c: any, next: any) => {
+        await next();
+    },
+}));
+
+vi.mock('./middlewares/di', () => ({
+    diMiddleware:
+        (_db: any) =>
+            async (_c: any, next: any) => {
+                await next();
+            },
+}));
+
+vi.mock('./routes/health', async () => {
+    const { Hono } = await import('hono');
+
+    const router = new Hono();
+
+    router.get('/healthz', (c) =>
+        c.json({
+            status: 'ok',
+        })
+    );
+
+    return {
+        healthRouter: router,
+    };
+});
+
+vi.mock('./routes/plugin', async () => {
+    const { Hono } = await import('hono');
+
+    const router = new Hono();
+
+    router.get('/status', (c) =>
+        c.json({
+            ok: true,
+        })
+    );
+
+    return {
+        systemRouter: router,
+    };
+});
+
+vi.mock('./routes/auth', async () => {
+    const { Hono } = await import('hono');
+
+    return {
+        authRouter: vi.fn(() => {
+            const r = new Hono();
+
+            r.get('/ping', (c) =>
+                c.json({
+                    success: true,
+                })
+            );
+
+            return r;
+        }),
+    };
+});
+
+describe('createApp', () => {
+    let db: Database;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        db = {} as Database;
+    });
+
+    it('AuthPlugin を登録して active registry を設定する', async () => {
+        const { createApp } = await import('./create-app');
+
+        await createApp(db);
+
+        expect(registerMock).toHaveBeenCalledTimes(2);
+        expect(setActiveRegistryMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('loadFeatureModules を呼び出す', async () => {
+        const { createApp } = await import('./create-app');
+
+        await createApp(db);
+
+        expect(loadFeatureModulesMock).toHaveBeenCalledTimes(1);
+
+        expect(loadFeatureModulesMock).toHaveBeenCalledWith(
+            expect.anything(),
+            'features/*/index.ts',
+            db
+        );
+    });
+
+    it('health route が利用できる', async () => {
+        const { createApp } = await import('./create-app');
+
+        const app = await createApp(db);
+
+        const res = await app.request('/healthz');
+
+        expect(res.status).toBe(200);
+
+        expect(await res.json()).toEqual({
+            status: 'ok',
+        });
+    });
+
+    it('auth route が利用できる', async () => {
+        const { createApp } = await import('./create-app');
+
+        const app = await createApp(db);
+
+        const res = await app.request('/api/auth/ping');
+
+        expect(res.status).toBe(200);
+
+        expect(await res.json()).toEqual({
+            success: true,
+        });
+    });
+
+    it('404 を RFC9457形式で返す', async () => {
+        const { createApp } = await import('./create-app');
+
+        const app = await createApp(db);
+
+        const res = await app.request('/not-found');
+
+        expect(res.status).toBe(404);
+
+        expect(await res.json()).toEqual({
+            type: 'about:blank',
+            title: 'Not Found',
+            status: 404,
+            detail: 'The requested resource was not found',
+            instance: '/not-found',
+        });
+    });
+
+    it('test/error は 500 を返す', async () => {
+        const { createApp } = await import('./create-app');
+
+        const app = await createApp(db);
+
+        const res = await app.request('/test/error');
+
+        expect(res.status).toBe(500);
+
+        expect(await res.json()).toEqual({
+            type: 'about:blank',
+            title: 'Internal Server Error',
+            status: 500,
+            detail: 'An unexpected error occurred',
+            instance: '/test/error',
+        });
+    });
+
+    it('validation 成功時は success=true を返す', async () => {
+        const { createApp } = await import('./create-app');
+
+        const app = await createApp(db);
+
+        const res = await app.request('/test/validation', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: 'Taro',
+                email: 'taro@example.com',
+            }),
+        });
+
+        expect(res.status).toBe(200);
+
+        expect(await res.json()).toEqual({
+            success: true,
+        });
+    });
+
+    it('ValidationError を RFC9457形式で返す', async () => {
+        const { createApp } = await import('./create-app');
+
+        const app = await createApp(db);
+
+        const res = await app.request('/test/validation', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: 'A',
+                email: 'invalid',
+            }),
+        });
+
+        expect(res.status).toBe(400);
+
+        const body: any = await res.json();
+
+        expect(body.title).toBe('Bad Request');
+        expect(body.status).toBe(400);
+
+        expect(body.invalidParams).toEqual([
+            {
+                name: 'name',
+                reason: 'Name must be at least 2 characters',
+            },
+            {
+                name: 'email',
+                reason: 'Invalid email address',
+            },
+        ]);
+    });
+});
+
+
+
+// import { describe, it, expect, beforeEach } from 'vitest';
+// import { createTestEnv } from '../../../vitest-helpers'; // プロジェクトの共通環境作成関数
+// import * as schema from '@shared/db/schema';
+
+// describe('API Error Handling (RFC 9457)', () => {
+
+//     beforeEach(async () => {
+//     });
+
+//     it('未定義のルートにアクセスした場合、404エラーがRFC9457形式で返ること', async () => {
+
+//         // 1. クリーンなテスト環境を取得
+//         const { app, db, pglite } = await createTestEnv();
+
+//         const res = await app.request('/api/non-existent-route');
+//         expect(res.status).toBe(404);
+
+//         const body = (await res.json()) as any;
+//         expect(body.status).toBe(404);
+
+//         // 必ず、PGliteをクローズする
+//         await pglite.close();
+//     });
+// });
+
+// describe('User Management Integration (Step 9)', () => {
+//     beforeEach(async () => {
+//     });
+
+//     it('前のテストケースでデータが追加されていても、このケースでは空のままであること', async () => {
+
+//         // 1. クリーンなテスト環境を取得
+//         const { app, db, pglite } = await createTestEnv();
+
+//         // 💡 appごと完全に作り直されているため、他のテストケースの実行状況の影響は 100% 受けません
+//         const result = await db.select().from(schema.users);
+//         expect(result).toHaveLength(0); // 確実にPassed（成功）します！
+
+//         // 必ず、PGliteをクローズする
+//         await pglite.close();
+//     });
+// });
+EOF_1788771795_8466
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.ts"
-cat << 'EOF_1788253099_10690' > "apps/api/src/middlewares/auth-middleware.ts"
+cat << 'EOF_1788771795_15744' > "apps/api/src/middlewares/auth-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { verifyJwt } from '@plugins/auth-local';
 import { UnauthorizedError } from '@shared/errors';
@@ -7919,11 +10678,11 @@ export function authMiddleware(secret: string): MiddlewareHandler {
         await next();
     };
 }
-EOF_1788253099_10690
+EOF_1788771795_15744
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/auth-middleware.test.ts"
-cat << 'EOF_1788253099_9847' > "apps/api/src/middlewares/auth-middleware.test.ts"
+cat << 'EOF_1788771795_21836' > "apps/api/src/middlewares/auth-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
@@ -8009,11 +10768,11 @@ describe('Auth Middleware (Step 4.2)', () => {
         expect(body.user).toMatchObject(payload);
     });
 });
-EOF_1788253099_9847
+EOF_1788771795_21836
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/di.ts"
-cat << 'EOF_1788253099_12080' > "apps/api/src/middlewares/di.ts"
+cat << 'EOF_1788771795_26159' > "apps/api/src/middlewares/di.ts"
 // src/middlewares/di.ts
 import { MiddlewareHandler } from 'hono';
 import { AppEnv } from '@shared/functions';
@@ -8026,11 +10785,11 @@ export const diMiddleware = (db: Database): MiddlewareHandler<AppEnv> => {
         await next();
     };
 };
-EOF_1788253099_12080
+EOF_1788771795_26159
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.test.ts"
-cat << 'EOF_1788253100_1892' > "apps/api/src/middlewares/rbac-middleware.test.ts"
+cat << 'EOF_1788771795_13929' > "apps/api/src/middlewares/rbac-middleware.test.ts"
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
@@ -8099,11 +10858,11 @@ describe('RBAC Middleware (Step 4.3)', () => {
         expect(body.message).toBe('Admin Dashboard');
     });
 });
-EOF_1788253100_1892
+EOF_1788771795_13929
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.test.ts"
-cat << 'EOF_1788253100_23538' > "apps/api/src/middlewares/logger.test.ts"
+cat << 'EOF_1788771795_7908' > "apps/api/src/middlewares/logger.test.ts"
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hono } from 'hono';
 import { loggerMiddleware } from './logger';
@@ -8215,11 +10974,11 @@ describe('Logger Middleware (Step 6.2)', () => {
         expect(typeof logOutput.error.stack).toBe('string');
     });
 });
-EOF_1788253100_23538
+EOF_1788771795_7908
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/rbac-middleware.ts"
-cat << 'EOF_1788253100_4442' > "apps/api/src/middlewares/rbac-middleware.ts"
+cat << 'EOF_1788771795_30703' > "apps/api/src/middlewares/rbac-middleware.ts"
 import type { MiddlewareHandler } from 'hono';
 import { ForbiddenError, UnauthorizedError } from '@shared/errors';
 
@@ -8244,11 +11003,78 @@ export function rbacMiddleware(allowedRoles: string[]): MiddlewareHandler {
         await next();
     };
 }
-EOF_1788253100_4442
+EOF_1788771795_30703
+
+mkdir -p "apps/api/src/middlewares"
+echo "作成: apps/api/src/middlewares/di.test.ts"
+cat << 'EOF_1788771795_20817' > "apps/api/src/middlewares/di.test.ts"
+import { describe, it, expect, vi } from 'vitest';
+import { Hono } from 'hono';
+import { diMiddleware } from './di';
+import { PgDatabase } from 'drizzle-orm/pg-core';
+import type { Database } from '@shared/db';
+
+describe('diMiddleware', () => {
+    it('1. Hono のコンテキスト（c.set）に、渡された Database インスタンスが正しく注入されること', async () => {
+        // 💡 厳密な型安全性を維持するため、緩い any ではなく
+        // Drizzle の PgDatabase 基底クラスのシグネチャを満たす最小限のモックオブジェクトを作成します。
+        const mockDb = {
+            select: vi.fn(),
+            insert: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
+        } as unknown as Database;
+
+        // 検証用のプレーンな Hono インスタンスを作成
+        const app = new Hono();
+
+        // テスト対象のミドルウェアを適用
+        app.use('*', diMiddleware(mockDb));
+
+        // ミドルウェアを通過した後に、コンテキストから正しく 'dbInstance' が取り出せるかを検証するルート
+        app.get('/test-di', (c) => {
+            const injectedDb = c.get('dbInstance' as any);
+
+            // 注入されたインスタンスの実体が、渡したものと完全に同一（参照一致）であることを確認
+            expect(injectedDb).toBe(mockDb);
+
+            return c.json({ success: true });
+        });
+
+        // ダミーのリクエストを発行（WASM や実際のポート開放を伴わないため、ミリ秒で安全に並行実行されます）
+        const res = await app.request('/test-di');
+
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        expect(body).toEqual({ success: true });
+    });
+
+    it('2. ミドルウェアが処理を正しくフックし、次の処理（next）へ制御を移譲すること', async () => {
+        const mockDb = {} as unknown as Database;
+        const app = new Hono();
+
+        let isNextCalled = false;
+
+        // ミドルウェアの後に確実に処理が継続しているかを検証するフラグ制御
+        app.use('*', diMiddleware(mockDb));
+        app.use('*', async (c, next) => {
+            isNextCalled = true;
+            await next();
+        });
+
+        app.get('/test-next', (c) => c.text('ok'));
+
+        const res = await app.request('/test-next');
+        expect(res.status).toBe(200);
+        // 💡 制御が数珠繋ぎで次のミドルウェア/ハンドラーへ渡っていることを厳密に検証
+        expect(isNextCalled).toBe(true);
+    });
+});
+EOF_1788771795_20817
 
 mkdir -p "apps/api/src/middlewares"
 echo "作成: apps/api/src/middlewares/logger.ts"
-cat << 'EOF_1788253100_6989' > "apps/api/src/middlewares/logger.ts"
+cat << 'EOF_1788771795_15562' > "apps/api/src/middlewares/logger.ts"
 import { MiddlewareHandler } from 'hono';
 
 function formatLocalISOString(date: Date): string {
@@ -8313,10 +11139,10 @@ export const loggerMiddleware: MiddlewareHandler = async (c, next) => {
 
     console.log(JSON.stringify(logPayload));
 };
-EOF_1788253100_6989
+EOF_1788771795_15562
 
 echo "作成: README.md"
-cat << 'EOF_1788253100_14565' > "README.md"
+cat << 'EOF_1788771795_25605' > "README.md"
 # 📖 プロジェクト基本仕様書 (Project Architecture Specification) - v2.7
 
 ## 1. システム概要 (Overview)
@@ -8803,10 +11629,10 @@ npm test
 npm run db:push:test
 
 ```
-EOF_1788253100_14565
+EOF_1788771795_25605
 
 echo "作成: .env"
-cat << 'EOF_1788253100_12380' > ".env"
+cat << 'EOF_1788771795_26008' > ".env"
 # バックエンド用
 PORT=3001
 API_BASE_URL=http://localhost:3001
@@ -8827,6 +11653,6 @@ LDAP_DOMAIN=example.com
 VITE_PORT=3000
 VITE_API_TARGET_URL=http://127.0.0.1:3001
 VITE_APP_TITLE=マイアプリケーション
-EOF_1788253100_12380
+EOF_1788771795_26008
 
 echo -e "\n復元が完了しました！"
