@@ -5,6 +5,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as schema from '@shared/db/schema';
 import { Database } from '@shared/db';
+import { AppServices } from '@apps/api/types';
+import { PluginRegistry } from '@shared/plugin';
+import { AuthPluginRegistry } from '@shared/functions';
 
 // 💡 1本に結合された巨大な全マイグレーションSQL文字列をキャッシュする
 let pgliteMegaSql: string | null = null;
@@ -31,6 +34,15 @@ const getCombinedMigrationSql = (): string => {
  * 💡 【真の並行安全・極限インメモリスピード】テスト環境切り出しファクトリ関数
  */
 export async function createTestEnv() {
+
+    function createServices(mockDb: Database): AppServices {
+        return {
+            pluginRegistry: new PluginRegistry(),
+            authRegistry: new AuthPluginRegistry(),
+            dbInstance: mockDb,
+        };
+    }
+
     const client = new PGlite({
         relaxedDurability: true, // WASM内の同期ディスクI/Oを完全にオフにします
     });
@@ -45,7 +57,7 @@ export async function createTestEnv() {
 
     // 3. この環境専用に完全にロックされた Drizzle と使い捨て App を構築して返却
     const testDb: Database = drizzlePglite(client, { schema });
-    const testApp = await createApp(testDb);
+    const testApp = await createApp(createServices(testDb));
     // const close = async (): Promise<void> => { await client.close(); }
 
     return {

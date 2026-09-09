@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
 import { healthRouter } from './health';
-import { AppEnv } from '@shared/functions';
+import type { AppEnv } from '../types';
 import { Database } from '@shared/db';
 
 describe('healthRouter', () => {

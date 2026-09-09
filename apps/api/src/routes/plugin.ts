@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { AppEnv } from '@shared/functions';
+import type { AppEnv } from '../types';
 import { getActivePlugins } from '../utils/auto-loader-helper';
 
 export const systemRouter = new Hono<AppEnv>();

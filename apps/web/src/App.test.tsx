@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/re
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { App } from './App';
-import { PluginRegistry } from '@shared/client';
+import { pluginRegistry } from '@shared/plugin';
 
 // useAuth のモック設定
 const mockUseAuth = vi.fn();
@@ -46,10 +46,10 @@ const globalFetch = vi.fn();
 describe('App Component Integration Tests', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        PluginRegistry.clear();
+        pluginRegistry.clear();
 
         // ユーザー管理プラグインの初期登録
-        PluginRegistry.register({
+        pluginRegistry.register({
             id: 'user-management',
             name: 'ユーザー管理',
             navItems: [
@@ -65,7 +65,17 @@ describe('App Component Integration Tests', () => {
         // デフォルトの fetch 成功レスポンスを設定
         globalFetch.mockResolvedValue({
             ok: true,
-            json: async () => [],
+            json: async () => ({
+                users: [
+                    {
+                        id: 1,
+                        name: 'test',
+                        email: 'test@example.com',
+                        role: 'admin',
+                        isActive: true,
+                    },
+                ],
+            })
         });
     });
 
@@ -104,7 +114,11 @@ describe('App Component Integration Tests', () => {
 
         // 画面切り替えの確認
         await waitFor(() => {
-            expect(screen.getByTestId('user-management-table')).toBeDefined();
+            expect(
+                screen.getByRole('heading', {
+                    name: 'ユーザー管理',
+                })
+            ).toBeInTheDocument();
         });
     });
 

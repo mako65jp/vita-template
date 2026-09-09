@@ -8851,7 +8851,7 @@ export function authRouter(jwtSecret: string, authRegistry: AuthPluginRegistry) 
     // ----------------------------------------------------
     // 1. POST /login (ログイン & トークン発行)
     // ----------------------------------------------------
-    app.post('/login', async (c) => {
+    app.post(ROUTES.LOGIN, async (c) => {
         const db = c.get('dbInstance');
         const body = await c.req.json();
         const result = loginSchema.safeParse(body);
@@ -9034,7 +9034,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        const res = await app.request('/login', {
+        const res = await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9069,7 +9069,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9095,7 +9095,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9126,7 +9126,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        const res = await app.request('/login', {
+        const res = await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9160,7 +9160,7 @@ describe('authRouter', () => {
 
         const app = authRouter('my-secret', authRegistry);
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9203,7 +9203,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9221,7 +9221,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -9244,7 +9244,7 @@ describe('authRouter', () => {
 
         const app = authRouter('secret', authRegistry);
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -10900,9 +10900,9 @@ describe('Logger Middleware (Step 6.2)', () => {
     it('Authorization ヘッダー等の機密情報がログに含まれる場合、マスク処理されること', async () => {
         const app = new Hono();
         app.use('*', loggerMiddleware);
-        app.post('/login', (c) => c.text('OK', 200));
+        app.post(ROUTES.LOGIN, (c) => c.text('OK', 200));
 
-        await app.request('/login', {
+        await app.request(ROUTES.LOGIN, {
             method: 'POST',
             headers: {
                 Authorization: 'Bearer secret-token-123',

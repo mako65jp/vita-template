@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast, showErrorToast } from '@shared/client';
 import { CreateUserModal } from './CreateUserModal';
-import { AUTH_TOKEN_KEY } from '@shared/client';
+import { AUTH_TOKEN_KEY } from '@shared/config';
 
 export interface User {
     id: number;

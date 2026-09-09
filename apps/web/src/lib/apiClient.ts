@@ -1,5 +1,5 @@
 import { clientEnv } from "@shared/client";
-import { AUTH_TOKEN_KEY } from '@shared/client';
+import { AUTH_TOKEN_KEY } from '@shared/config';
 
 export interface InvalidParam {
     name: string;

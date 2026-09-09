@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-import { AppEnv } from '@shared/functions';
+import type { AppEnv } from '../types';
 import { Database } from '@shared/db';
 import { glob } from 'glob';
 import { pathToFileURL } from 'node:url';
-import { env, isTest } from '@shared/functions'; // 💡 isTest を追加
+import { env, isTest } from '@shared/functions';
 import { getProjectRootDir, resolveFromProjectRoot } from '@shared/server-utils';
 import { getActivePlugins } from '../utils/auto-loader-helper';
 import { authMiddleware } from '../middlewares/auth-middleware';

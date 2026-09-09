@@ -9,10 +9,16 @@ vi.mock('@shared/db', () => ({
     createProductionDb: vi.fn(),
 }));
 
+const { createAppMock } = vi.hoisted(() => ({
+    createAppMock: vi.fn(),
+}));
 vi.mock('./create-app', () => ({
-    createApp: vi.fn(),
+    createApp: createAppMock,
 }));
 
+const { registerMock } = vi.hoisted(() => ({
+    registerMock: vi.fn(),
+}));
 vi.mock('@shared/functions', () => ({
     env: {
         DATABASE_URL:
@@ -20,7 +26,12 @@ vi.mock('@shared/functions', () => ({
         PORT: 3001,
     },
     isTest: true,
+
+    AuthPluginRegistry: class {
+        register = registerMock;
+    },
 }));
+
 
 import { serve } from '@hono/node-server';
 import {
@@ -71,8 +82,15 @@ describe('API Bootstrap', () => {
         expect(createProductionDb)
             .toHaveBeenCalledWith(mockPool);
 
-        expect(createApp)
-            .toHaveBeenCalledWith(mockDb);
+        // expect(createApp)
+        //     .toHaveBeenCalledWith(mockDb);
+
+        expect(createApp).toHaveBeenCalledWith(
+            expect.objectContaining({
+                dbInstance: mockDb,
+            }),
+        );
+
 
         expect(serve).toHaveBeenCalledTimes(1);
 

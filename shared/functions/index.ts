@@ -1,5 +1,4 @@
-export * from './src/auth-registry'
-export * from './src/constants'
-export * from './src/env'
-export * from './src/registry'
-export * from './src/types'
+
+export * from './src/auth-registry';
+export * from './src/constants';
+export * from './src/env';

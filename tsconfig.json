@@ -50,6 +50,18 @@
             "@shared/client/*": [
                 "shared/client/src/*"
             ],
+            "@shared/config": [
+                "shared/config/index.ts"
+            ],
+            "@shared/config/*": [
+                "shared/config/src/*"
+            ],
+            "@shared/db": [
+                "shared/db/index.ts"
+            ],
+            "@shared/db/*": [
+                "shared/db/src/*"
+            ],
             "@shared/errors": [
                 "shared/errors/index.ts"
             ],
@@ -62,11 +74,11 @@
             "@shared/functions/*": [
                 "shared/functions/src/*"
             ],
-            "@shared/db": [
-                "shared/db/index.ts"
+            "@shared/plugin": [
+                "shared/plugin/index.ts"
             ],
-            "@shared/db/*": [
-                "shared/db/src/*"
+            "@shared/plugin/*": [
+                "shared/plugin/src/*"
             ],
             "@shared/server-utils": [
                 "shared/server-utils/index.ts"

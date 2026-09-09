@@ -3,8 +3,19 @@ import { Hono } from 'hono';
 import { diMiddleware } from './di';
 import { PgDatabase } from 'drizzle-orm/pg-core';
 import type { Database } from '@shared/db';
+import { PluginRegistry } from '@shared/plugin';
+import { AuthPluginRegistry } from '@shared/functions';
+import { AppServices } from '../types';
 
 describe('diMiddleware', () => {
+    function createServices(mockDb: Database): AppServices {
+        return {
+            pluginRegistry: new PluginRegistry(),
+            authRegistry: new AuthPluginRegistry(),
+            dbInstance: mockDb,
+        };
+    }
+
     it('1. Hono のコンテキスト（c.set）に、渡された Database インスタンスが正しく注入されること', async () => {
         // 💡 厳密な型安全性を維持するため、緩い any ではなく
         // Drizzle の PgDatabase 基底クラスのシグネチャを満たす最小限のモックオブジェクトを作成します。
@@ -19,7 +30,7 @@ describe('diMiddleware', () => {
         const app = new Hono();
 
         // テスト対象のミドルウェアを適用
-        app.use('*', diMiddleware(mockDb));
+        app.use('*', diMiddleware(createServices(mockDb)));
 
         // ミドルウェアを通過した後に、コンテキストから正しく 'dbInstance' が取り出せるかを検証するルート
         app.get('/test-di', (c) => {
@@ -46,7 +57,7 @@ describe('diMiddleware', () => {
         let isNextCalled = false;
 
         // ミドルウェアの後に確実に処理が継続しているかを検証するフラグ制御
-        app.use('*', diMiddleware(mockDb));
+        app.use('*', diMiddleware(createServices(mockDb)));
         app.use('*', async (c, next) => {
             isNextCalled = true;
             await next();

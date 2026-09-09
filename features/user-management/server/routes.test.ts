@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Hono } from 'hono';
-import type { AppEnv } from '@shared/functions';
+import type { AppEnv } from '@apps/api/types';
 import { userRoutes } from './routes';
 
 const { hashPasswordMock } = vi.hoisted(() => {

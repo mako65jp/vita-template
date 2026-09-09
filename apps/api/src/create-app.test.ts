@@ -2,7 +2,9 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Database } from '@shared/db';
-import { ValidationError } from '@shared/errors';
+import { AuthPluginRegistry } from '@shared/functions';
+import { AppServices } from './types';
+import { PluginRegistry } from '@shared/plugin';
 
 const registerMock = vi.fn();
 const setActiveRegistryMock = vi.fn();
@@ -114,28 +116,36 @@ vi.mock('./routes/auth', async () => {
     };
 });
 
+
 describe('createApp', () => {
     let db: Database;
+    let services: AppServices;
 
     beforeEach(() => {
         vi.clearAllMocks();
 
         db = {} as Database;
+        services = {
+            pluginRegistry: new PluginRegistry(),
+            authRegistry: new AuthPluginRegistry(),
+            dbInstance: db,
+        };
     });
 
     it('AuthPlugin を登録して active registry を設定する', async () => {
         const { createApp } = await import('./create-app');
 
-        await createApp(db);
+        await createApp(services);
 
-        expect(registerMock).toHaveBeenCalledTimes(2);
-        expect(setActiveRegistryMock).toHaveBeenCalledTimes(1);
+        expect(setActiveRegistryMock).toHaveBeenCalledWith(
+            services.authRegistry
+        );
     });
 
     it('loadFeatureModules を呼び出す', async () => {
         const { createApp } = await import('./create-app');
 
-        await createApp(db);
+        await createApp(services);
 
         expect(loadFeatureModulesMock).toHaveBeenCalledTimes(1);
 
@@ -149,7 +159,7 @@ describe('createApp', () => {
     it('health route が利用できる', async () => {
         const { createApp } = await import('./create-app');
 
-        const app = await createApp(db);
+        const app = await createApp(services);
 
         const res = await app.request('/healthz');
 
@@ -163,7 +173,7 @@ describe('createApp', () => {
     it('auth route が利用できる', async () => {
         const { createApp } = await import('./create-app');
 
-        const app = await createApp(db);
+        const app = await createApp(services);
 
         const res = await app.request('/api/auth/ping');
 
@@ -177,7 +187,7 @@ describe('createApp', () => {
     it('404 を RFC9457形式で返す', async () => {
         const { createApp } = await import('./create-app');
 
-        const app = await createApp(db);
+        const app = await createApp(services);
 
         const res = await app.request('/not-found');
 
@@ -195,7 +205,7 @@ describe('createApp', () => {
     it('test/error は 500 を返す', async () => {
         const { createApp } = await import('./create-app');
 
-        const app = await createApp(db);
+        const app = await createApp(services);
 
         const res = await app.request('/test/error');
 
@@ -213,7 +223,7 @@ describe('createApp', () => {
     it('validation 成功時は success=true を返す', async () => {
         const { createApp } = await import('./create-app');
 
-        const app = await createApp(db);
+        const app = await createApp(services);
 
         const res = await app.request('/test/validation', {
             method: 'POST',
@@ -236,7 +246,7 @@ describe('createApp', () => {
     it('ValidationError を RFC9457形式で返す', async () => {
         const { createApp } = await import('./create-app');
 
-        const app = await createApp(db);
+        const app = await createApp(services);
 
         const res = await app.request('/test/validation', {
             method: 'POST',

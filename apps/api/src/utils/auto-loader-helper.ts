@@ -1,6 +1,6 @@
 import { Database } from '@shared/db';
 import { schema } from '@shared/db';
-import { PluginRegistry } from '@shared/functions';
+import { pluginRegistry, ServerPluginManifest } from '@shared/plugin';
 
 export async function getActivePlugins(db: Database) {
     const dbPluginsMap = new Map<string, boolean>();
@@ -13,7 +13,7 @@ export async function getActivePlugins(db: Database) {
         console.warn('[Plugin Helper] DB query failed or table not found. Defaulting all plugins to enabled.');
     }
 
-    return PluginRegistry.getAll().map((plugin) => {
+    return pluginRegistry.getAll().map((plugin: ServerPluginManifest) => {
         const isEnabled = dbPluginsMap.has(plugin.id)
             ? dbPluginsMap.get(plugin.id)!
             : true;

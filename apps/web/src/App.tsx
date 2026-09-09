@@ -1,32 +1,27 @@
 import React, { useState } from 'react';
 import { AppLayout, HeaderContent, SidebarNav, Button, Toaster, toast, showErrorToast } from '@shared/client';
 import { clientEnv } from '@shared/client';
-import { PluginRegistry } from '@shared/client';
+import { pluginRegistry } from '@shared/plugin';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ForbiddenPage } from './components/ForbiddenPage';
-
-import { UserManagementTable, registerUserManagementPlugin } from '@features/user-management/src/ui';
-
-registerUserManagementPlugin();
+import { UserManagementTable } from '@features/user-management/client';
 
 const AppContent: React.FC = () => {
     const { user, logout } = useAuth();
     const [currentTab, setCurrentTab] = useState<string>('dashboard');
 
-    const baseNavItems = [
-        {
-            label: 'ダッシュボード',
-            href: '#',
-            active: currentTab === 'dashboard',
-            onClick: (e: React.MouseEvent) => {
-                e.preventDefault();
-                setCurrentTab('dashboard');
-            },
+    const baseNavItems = [{
+        label: 'ダッシュボード',
+        href: '#',
+        active: currentTab === 'dashboard',
+        onClick: (e: React.MouseEvent) => {
+            e.preventDefault();
+            setCurrentTab('dashboard');
         },
-    ];
+    }];
 
-    const pluginNavItems = PluginRegistry.getAll().flatMap((plugin) => {
+    const pluginNavItems = pluginRegistry.getAll().flatMap((plugin) => {
         if (!plugin.navItems) return [];
 
         return plugin.navItems

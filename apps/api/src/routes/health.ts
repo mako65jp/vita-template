@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { AppError } from '@shared/errors';
 import { sql } from 'drizzle-orm';
-import { AppEnv } from '@shared/functions';
+import type { AppEnv } from '../types';
 
 export const healthRouter = new Hono<AppEnv>();
 

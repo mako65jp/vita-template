@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
-import { AppEnv, AuthPluginRegistry } from '@shared/functions';
-import { z } from 'zod';
+import { AuthPluginRegistry } from '@shared/functions';
+import type { AppEnv } from '../types';
 import { UnauthorizedError } from '@shared/errors';
-import { signJwt } from '@plugins/auth-local';
 import { authMiddleware } from '../middlewares/auth-middleware';
+import { signJwt } from '@plugins/auth-local';
+import { z } from 'zod';
 
 const loginSchema = z.object({
     email: z.string().optional(),

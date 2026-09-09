@@ -1,20 +1,26 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Hono } from 'hono';
-import { PluginRegistry } from '@shared/functions';
+import type { ServerPluginManifest } from '@shared/plugin';
+import type { AppEnv } from '../types';
 import { systemRouter } from './plugin';
+import { pluginRegistry } from '@shared/plugin';
 
 describe('GET /api/system/plugins', () => {
     beforeEach(() => {
-        PluginRegistry.register({
+        pluginRegistry.register({
             id: 'sample-plugin',
-            name: 'サンプル',
-            routes: new Hono(),
-            navItems: [{ id: 'sample-plugin', label: 'サンプル画面', path: '/sample' }],
+            name: 'sample',
+            navItems: [
+                {
+                    id: 'sample',
+                    label: 'sample',
+                    path: '/sample',
+                },
+            ],
         });
     });
-
     it('有効なプラグイン一覧と navItems を返却すること', async () => {
-        const app = new Hono();
+        const app = new Hono<AppEnv>();
         app.route('/api/system', systemRouter);
 
         const res = await app.request('/api/system/plugins');

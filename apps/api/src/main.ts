@@ -1,14 +1,15 @@
 import { serve } from '@hono/node-server';
 import { createPool, createProductionDb } from '@shared/db';
-import { env, isTest } from '@shared/functions';
-import { createApp } from './create-app'; // 💡 index.ts から関数をインポート
+import { AuthPluginRegistry, env, isTest } from '@shared/functions';
+import type { AppServices } from './types';
+import { pluginRegistry } from '@shared/plugin';
+import { createApp } from './create-app';
+import { ActiveDirectoryAuthPlugin } from '@plugins/auth-ad';
+import { LocalAuthPlugin } from '@plugins/auth-local';
 
 export async function bootstrap() {
     try {
         // DBインスタンス（ミドルウェア）を注入(本番用のPoolクライアント等を生成して渡す)
-        const pool = createPool(env.DATABASE_URL);
-        const db = createProductionDb(pool);
-        const app = await createApp(db);
         const port = env.PORT || 3001;
 
         console.log(`[API] Server running inside DevContainer on http://0.0.0.0:${port}`);
@@ -24,6 +25,26 @@ export async function bootstrap() {
             console.log("🚨 [CRITICAL] 2回目の起動を検知しました！犯人の経路は以下です：", new Error().stack);
         }
 
+        const pool = createPool(env.DATABASE_URL);
+        const dbInstance = createProductionDb(pool);
+
+        // const pluginRegistry = new PluginRegistry();
+        // pluginRegistry.register(userPlugin);
+        // pluginRegistry.register(customerPlugin);
+
+        // プラグインの登録
+        const authRegistry = new AuthPluginRegistry();
+        authRegistry.register(new LocalAuthPlugin(dbInstance));
+        authRegistry.register(new ActiveDirectoryAuthPlugin());
+
+        const services: AppServices = {
+            pluginRegistry,
+            authRegistry,
+            dbInstance,
+        };
+        const app = await createApp(services);
+
+        // サーバー起動
         serve({
             fetch: app.fetch,
             port,

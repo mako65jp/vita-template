@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { clientEnvSchema, serverEnvSchema, formatEnvForLog, ServerEnv, ClientEnv } from './env';
+import { clientEnvSchema, ClientEnv } from '@shared/client';
+import { serverEnvSchema, formatEnvForLog, ServerEnv } from '@shared/functions';
 
 // 💡 テスト専用の検証用ヘルパー関数
 function parseServerEnv(targetEnv: Record<string, string | undefined>): ServerEnv {

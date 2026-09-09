@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { AppEnv } from '@shared/functions';
+import type { AppEnv } from '@apps/api/types';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { users } from '@shared/db';

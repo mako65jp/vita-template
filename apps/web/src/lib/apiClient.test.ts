@@ -1,7 +1,7 @@
 // apps/web/src/lib/apiClient.test.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { apiClient, ApiError } from "./apiClient";
-import { AUTH_TOKEN_KEY } from '@shared/client';
+import { AUTH_TOKEN_KEY } from '@shared/config';
 
 describe("apiClient (API クライアント)", () => {
     const originalFetch = globalThis.fetch;
