@@ -15,8 +15,9 @@ export default defineConfig({
         projects: [
             'apps/*/vitest.config.ts',
             'features/*/vitest.config.ts',
-            'shared/*/vitest.config.ts',
-            'plugins/*/vitest.config.ts'
+            'platform/*/vitest.config.ts',
+            'plugins/*/vitest.config.ts',
+            'shared/*/vitest.config.ts'
         ],
 
         exclude: ['node_modules', 'dist', '.next', 'coverage'],

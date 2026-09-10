@@ -1,0 +1,5 @@
+platform:
+  database: postgres
+  auth: local
+  authorization: local
+  frontend: react

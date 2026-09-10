@@ -1,0 +1,13 @@
+{
+    "name": "@apps/bootstrap",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "tsc",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "yaml": "^2.9.0"
+    }
+}

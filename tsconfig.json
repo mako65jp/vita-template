@@ -29,6 +29,12 @@
             "@apps/api/*": [
                 "apps/api/src/*"
             ],
+            "@apps/bootstrap": [
+                "apps/bootstrap/index"
+            ],
+            "@apps/bootstrap/*": [
+                "apps/bootstrap/*"
+            ],
             "@apps/web": [
                 "apps/web/src/index"
             ],
@@ -37,6 +43,9 @@
             ],
             "@features/*": [
                 "features/*"
+            ],
+            "@platform/*": [
+                "platform/*"
             ],
             "@plugins/*": [
                 "plugins/*"
