@@ -1,8 +1,8 @@
 import type { Repository } from './Repository';
 
-export class FindAllEntity<TEntity> {
+export class FindAll<TEntity> {
     constructor(
-        private readonly repository: Repository<TEntity>,
+        private readonly repository: Repository,
     ) { }
 
     execute(): TEntity[] {

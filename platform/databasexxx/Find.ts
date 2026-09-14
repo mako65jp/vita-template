@@ -1,8 +1,8 @@
 import type { Repository } from './Repository';
 
-export class FindEntity<TEntity> {
+export class Find<TEntity> {
     constructor(
-        private readonly repository: Repository<TEntity>,
+        private readonly repository: Repository,
     ) { }
 
     execute(id: string,): TEntity | null {

@@ -37,9 +37,13 @@ describe('InMemoryRepository', () => {
     it('saves entity', () => {
         const repository = new InMemoryRepository<{ id: string }>([]);
 
-        repository.save({ id: '1' });
+        repository.save(
+            { id: '1' }
+        );
 
-        expect(repository.findById('1')).toEqual({ id: '1' });
+        expect(repository.findById('1')).toEqual(
+            { id: '1' }
+        );
     });
 
 });

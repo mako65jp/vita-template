@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryRepository } from './InMemoryRepository';
-import { FindAllEntity } from './FindAllEntity';
+import { FindAll } from './FindAll';
 
-describe('FindAllEntity', () => {
+describe('FindAll', () => {
 
     it('returns all entities', () => {
 
@@ -11,7 +11,7 @@ describe('FindAllEntity', () => {
             { id: '2' },
         ]);
 
-        const useCase = new FindAllEntity(repository);
+        const useCase = new FindAll(repository);
 
         expect(useCase.execute()).toEqual([
             { id: '1' },
@@ -22,7 +22,7 @@ describe('FindAllEntity', () => {
     it('returns empty array when repository is empty', () => {
         const repository = new InMemoryRepository<{ id: string }>([]);
 
-        const useCase = new FindAllEntity(repository);
+        const useCase = new FindAll(repository);
 
         expect(useCase.execute()).toEqual([]);
     });

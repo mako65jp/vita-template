@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryRepository } from './InMemoryRepository';
-import { SaveEntity } from './SaveEntity';
+import { Save } from './Save';
 
-describe('SaveEntity', () => {
+describe('Save', () => {
 
     it('saves entity', () => {
         const repository = new InMemoryRepository<{ id: string }>([]);
 
-        const saveEntity = new SaveEntity(repository);
+        const saveEntity = new Save(repository);
 
         saveEntity.execute({ id: '1' });
 
@@ -17,7 +17,7 @@ describe('SaveEntity', () => {
     it('saves multiple entities', () => {
         const repository = new InMemoryRepository<{ id: string }>([]);
 
-        const saveEntity = new SaveEntity(repository);
+        const saveEntity = new Save(repository);
 
         saveEntity.execute({ id: '1' });
 
