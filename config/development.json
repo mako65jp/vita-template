@@ -1,0 +1,22 @@
+{
+    "database": {
+        "type": "postgres",
+        "connectionString": "postgresql://postgres:postgres@db:5432/app_db"
+    },
+    "authentication": {
+        "type": "jwt",
+        "secret": "change-this-secret"
+    },
+    "administration": {
+        "enabled": true,
+        "authentication": {
+            "type": "local"
+        }
+    },
+    "features": {
+        "user": true
+    },
+    "frontend": {
+        "type": "react"
+    }
+}

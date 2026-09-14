@@ -6,20 +6,14 @@
             "request": "launch",
             "name": "Hono APIのみをデバッグ起動 (環境変数クレンジング版)",
             "runtimeExecutable": "npx",
-            "runtimeArgs": [
-                "tsx",
-                "--env-file=../../.env",
-                "src/main.ts"
-            ],
+            "runtimeArgs": ["tsx", "--env-file=../../.env", "src/main.ts"],
             "cwd": "${workspaceFolder}/apps/api",
             "autoAttachChildProcesses": false,
             "env": {
                 "NODE_OPTIONS": "",
                 "VSCODE_INSPECTOR_OPTIONS": ""
             },
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
+            "skipFiles": ["<node_internals>/**"],
             "console": "integratedTerminal"
         },
         {
@@ -27,22 +21,14 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "run",
-                "dev"
-            ],
+            "runtimeArgs": ["run", "dev"],
             "cwd": "${workspaceFolder}/apps/api",
             "console": "integratedTerminal",
             "sourceMaps": true,
             "localRoot": "${workspaceFolder}/apps/api",
             "remoteRoot": "${workspaceFolder}/apps/api",
-            "resolveSourceMapLocations": [
-                "${workspaceFolder}/**",
-                "!**/node_modules/**"
-            ],
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
+            "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+            "skipFiles": ["<node_internals>/**"],
             "internalConsoleOptions": "neverOpen"
         },
         {
@@ -50,10 +36,7 @@
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "run",
-                "dev"
-            ],
+            "runtimeArgs": ["run", "dev"],
             "cwd": "${workspaceFolder}/apps/web",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
@@ -62,10 +45,7 @@
     "compounds": [
         {
             "name": "Debug: Both (API & Web)",
-            "configurations": [
-                "Debug: API (Backend)",
-                "Debug: Web (Frontend)"
-            ]
+            "configurations": ["Debug: API (Backend)", "Debug: Web (Frontend)"]
         }
     ]
 }

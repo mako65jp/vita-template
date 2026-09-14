@@ -1,7 +1,0 @@
-@import "tailwindcss";
-
-/* モノレポ内の共有 UI パッケージも Tailwind のスキャン対象に指定 */
-@source "../../../shared/client/src";
-
-/* 拡張する機能の置き場所にも、UI が記述される可能性があるので、その場所も Tailwind のスキャン対象に指定 */
-@source "../../../features";

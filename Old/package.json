@@ -1,0 +1,40 @@
+{
+    "name": "monorepo",
+    "private": true,
+    "type": "module",
+    "workspaces": [
+        "apps/*",
+        "shared/*",
+        "plugins/*",
+        "features/*"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces --if-present",
+        "codegen": "npm run codegen --workspaces --if-present",
+        "codegen:watch": "npm run codegen:watch --workspaces --if-present",
+        "coverage": "vitest run --coverage",
+        "dev": "npm start",
+        "dev:api": "npm --workspace=apps/api run dev",
+        "dev:web": "npm --workspace=apps/web run dev",
+        "db:push": "npm run db:push --workspaces --if-present",
+        "db:seed": "npm run db:seed --workspaces --if-present",
+        "pkg:lint": "npx manypkg check",
+        "pkg:fix": "npx manypkg fix && npm install",
+        "start": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+        "test": "vitest run --watch --no-cache",
+        "typecheck": "npm run typecheck --workspaces --if-present"
+    },
+    "devDependencies": {
+        "@manypkg/cli": "^0.25.1",
+        "@types/node": "^26.2.0",
+        "@types/pg": "^8.23.1",
+        "@vitest/coverage-v8": "^4.1.10",
+        "concurrently": "^8.2.2",
+        "vite": "^8.2.0",
+        "vitest": "^4.1.11"
+    },
+    "dependencies": {
+        "@electric-sql/pglite": "^0.5.8",
+        "pg": "^8.23.0"
+    }
+}

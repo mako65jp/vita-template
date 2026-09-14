@@ -1,0 +1,47 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
+        "allowJs": false,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "sourceMap": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        /* ── パスエイリアス（新構造のフォルダ構成に対応） ── */
+        "baseUrl": ".",
+        "paths": {
+            "@apps/api": ["apps/api/src/index"],
+            "@apps/api/*": ["apps/api/src/*"],
+            "@apps/web": ["apps/web/src/index"],
+            "@apps/web/*": ["apps/web/src/*"],
+            "@features/*": ["features/*"],
+            "@plugins/*": ["plugins/*"],
+            "@shared/*": ["shared/*"],
+            "@shared/client": ["shared/client/index.ts"],
+            "@shared/client/*": ["shared/client/src/*"],
+            "@shared/config": ["shared/config/index.ts"],
+            "@shared/config/*": ["shared/config/src/*"],
+            "@shared/db": ["shared/db/index.ts"],
+            "@shared/db/*": ["shared/db/src/*"],
+            "@shared/errors": ["shared/errors/index.ts"],
+            "@shared/errors/*": ["shared/errors/src/*"],
+            "@shared/functions": ["shared/functions/index.ts"],
+            "@shared/functions/*": ["shared/functions/src/*"],
+            "@shared/plugin": ["shared/plugin/index.ts"],
+            "@shared/plugin/*": ["shared/plugin/src/*"],
+            "@shared/server-utils": ["shared/server-utils/index.ts"],
+            "@shared/server-utils/*": ["shared/server-utils/*"]
+        }
+    },
+    "include": ["*.ts", "apps/**/*", "features/**/*", "plugins/**/*", "shared/**/*"],
+    "exclude": ["node_modules", "dist", "build"]
+}

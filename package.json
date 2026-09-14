@@ -1,40 +1,29 @@
 {
-    "name": "monorepo",
+    "name": "generated-project",
     "private": true,
     "type": "module",
-    "workspaces": [
-        "apps/*",
-        "shared/*",
-        "plugins/*",
-        "features/*"
-    ],
     "scripts": {
-        "build": "npm run build --workspaces --if-present",
-        "codegen": "npm run codegen --workspaces --if-present",
-        "codegen:watch": "npm run codegen:watch --workspaces --if-present",
-        "coverage": "vitest run --coverage",
-        "dev": "npm start",
-        "dev:api": "npm --workspace=apps/api run dev",
-        "dev:web": "npm --workspace=apps/web run dev",
-        "db:push": "npm run db:push --workspaces --if-present",
-        "db:seed": "npm run db:seed --workspaces --if-present",
-        "pkg:lint": "npx manypkg check",
-        "pkg:fix": "npx manypkg fix && npm install",
-        "start": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
-        "test": "vitest run --watch --no-cache",
-        "typecheck": "npm run typecheck --workspaces --if-present"
-    },
-    "devDependencies": {
-        "@manypkg/cli": "^0.25.1",
-        "@types/node": "^26.2.0",
-        "@types/pg": "^8.23.1",
-        "@vitest/coverage-v8": "^4.1.10",
-        "concurrently": "^8.2.2",
-        "vite": "^8.2.0",
-        "vitest": "^4.1.11"
+        "dev": "tsx apps/api/src/main.ts",
+        "check": "tsc --noEmit",
+        "build": "tsc",
+        "format": "prettier --write ."
     },
     "dependencies": {
-        "@electric-sql/pglite": "^0.5.8",
+        "@hono/node-server": "^1.19.0",
+        "bcrypt": "^6.0.0",
+        "drizzle-orm": "^0.45.2",
+        "hono": "^4.9.6",
+        "jsonwebtoken": "^9.0.3",
         "pg": "^8.23.0"
+    },
+    "devDependencies": {
+        "@types/bcrypt": "^6.0.0",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/node": "^24.4.0",
+        "@types/pg": "^8.23.1",
+        "drizzle-kit": "^0.31.10",
+        "prettier": "^3.9.6",
+        "tsx": "^4.20.5",
+        "typescript": "^5.9.2"
     }
 }
