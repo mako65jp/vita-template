@@ -15,7 +15,19 @@
             // 2. コンテナ内だけで有効にしたいVSCodeの設定（settings.jsonの内容）
             "settings": {
                 "js/ts.tsdk.path": "node_modules/typescript/lib",
+                // デフォルトのフォーマッターを Prettier に指定
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                // ファイル保存時に自動でフォーマットを実行
                 "editor.formatOnSave": true,
+                // [オプション] 保存時にインポート文の整理や未使用コードの削除も同時に行う場合
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "explicit"
+                },
+                "eslint.workingDirectories": [
+                    {
+                        "mode": "auto"
+                    }
+                ],
                 "vitest.enable": true,
                 // コンテナ内のファイル監視負荷を下げ、スリープ復帰時のクラッシュを防ぐ
                 "files.watcherExclude": {

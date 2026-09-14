@@ -1,15 +1,23 @@
 {
-    "files.watcherExclude": {
-        "**/node_modules/**": true,
-        "**/dist/**": true,
-        "**/.git/objects/**": true,
-        "**/.git/subtree-cache/**": true
+    // デフォルトのフォーマッターを Prettier に指定
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    // ファイル保存時に自動でフォーマットを実行
+    "editor.formatOnSave": true,
+    // [オプション] 保存時にインポート文の整理や未使用コードの削除も同時に行う場合
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
     },
-    "css.lint.unknownAtRules": "ignore",
     "eslint.workingDirectories": [
         {
             "mode": "auto"
         }
     ],
-    "vitest.root": "."
+    "vitest.root": ".",
+    "css.lint.unknownAtRules": "ignore",
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true
+    }
 }

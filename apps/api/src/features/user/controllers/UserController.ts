@@ -1,14 +1,70 @@
-import { Hono } from 'hono';
 import bcrypt from 'bcrypt';
+import { Hono } from 'hono';
 
 import { User } from '../domain/User';
-import { UserService } from '../services/UserService';
 import { UserMapper } from '../mappers/UserMapper';
+import { UserService } from '../services/UserService';
 
 import { authorize } from '../../authentication/middleware/authorize';
 
+import { authorizeSelfOrAdmin } from '../../authentication/middleware/authorizeSelfOrAdmin';
+
 export function createUserController(service: UserService) {
     const router = new Hono();
+
+    router.get('/me', authorize('admin', 'user'), async (c) => {
+        const jwt = c.get('jwt');
+
+        const user = await service.findById(String(jwt.sub));
+
+        if (!user) {
+            return c.notFound();
+        }
+
+        return c.json(UserMapper.toDto(user));
+    });
+
+    router.put('/me', authorize('admin', 'user'), async (c) => {
+        const jwt = c.get('jwt');
+
+        const current = await service.findById(String(jwt.sub));
+
+        if (!current) {
+            return c.notFound();
+        }
+
+        const body = await c.req.json();
+
+        const user = new User(
+            current.id,
+            body.name,
+            body.email,
+            current.passwordHash,
+            current.role,
+            current.isActive,
+            current.createdAt,
+        );
+
+        await service.update(user);
+
+        return c.json({
+            message: 'updated',
+        });
+    });
+
+    router.put('/me/password', authorize('admin', 'user'), async (c) => {
+        const jwt = c.get('jwt');
+
+        const body = await c.req.json();
+
+        const passwordHash = await bcrypt.hash(body.password, 10);
+
+        await service.changePassword(String(jwt.sub), passwordHash);
+
+        return c.json({
+            message: 'password updated',
+        });
+    });
 
     router.get('/', authorize('admin'), async (c) => {
         const users = await service.findAll();
@@ -16,7 +72,7 @@ export function createUserController(service: UserService) {
         return c.json(users.map((user) => UserMapper.toDto(user)));
     });
 
-    router.get('/:id', authorize('admin', 'user'), async (c) => {
+    router.get('/:id', authorizeSelfOrAdmin(), async (c) => {
         const user = await service.findById(c.req.param('id'));
 
         if (!user) {
@@ -86,6 +142,26 @@ export function createUserController(service: UserService) {
 
         return c.json({
             message: 'password updated',
+        });
+    });
+
+    router.put('/:id/role', authorize('admin'), async (c) => {
+        const body = await c.req.json();
+
+        await service.changeRole(c.req.param('id'), body.role);
+
+        return c.json({
+            message: 'role updated',
+        });
+    });
+
+    router.put('/:id/active', authorize('admin'), async (c) => {
+        const body = await c.req.json();
+
+        await service.changeActive(c.req.param('id'), body.isActive);
+
+        return c.json({
+            message: 'active updated',
         });
     });
 

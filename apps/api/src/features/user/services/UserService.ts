@@ -28,6 +28,14 @@ export class UserService {
         await this.users.updatePassword(id, passwordHash);
     }
 
+    async changeRole(id: string, role: string) {
+        await this.users.updateRole(id, role);
+    }
+
+    async changeActive(id: string, isActive: boolean) {
+        await this.users.updateActive(id, isActive);
+    }
+
     async delete(id: string) {
         await this.users.remove(id);
     }

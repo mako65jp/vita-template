@@ -71,12 +71,7 @@ export class UserRepositoryImpl implements UserRepository {
         password_hash,
         role
       )
-      values (
-        $1,
-        $2,
-        $3,
-        $4
-      )
+      values ($1,$2,$3,$4)
       `,
             [user.name, user.email, user.passwordHash, user.role],
         );
@@ -105,6 +100,28 @@ export class UserRepositoryImpl implements UserRepository {
       where id = $1
       `,
             [Number(id), passwordHash],
+        );
+    }
+
+    async updateRole(id: string, role: string) {
+        await this.db.execute(
+            `
+      update public.users
+      set role = $2
+      where id = $1
+      `,
+            [Number(id), role],
+        );
+    }
+
+    async updateActive(id: string, isActive: boolean) {
+        await this.db.execute(
+            `
+      update public.users
+      set is_active = $2
+      where id = $1
+      `,
+            [Number(id), isActive],
         );
     }
 
