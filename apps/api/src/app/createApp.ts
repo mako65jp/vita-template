@@ -15,7 +15,7 @@ export function createApp(container: DependencyContainer) {
 
     app.route('/auth', createAuthenticationController(container.authenticationService));
 
-    app.use('/users/*', jwtAuthentication('change-this-secret'));
+    app.use('/users/*', jwtAuthentication('change-this-secret', container.userRepository));
 
     app.route('/users', createUserController(container.userService));
 

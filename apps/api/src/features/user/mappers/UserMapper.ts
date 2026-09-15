@@ -1,6 +1,6 @@
 import { User } from '../domain/User';
 
-import { UserDto } from '../../../../../packages/types/user/UserDto';
+import { UserDto } from '../../../../../../packages/types/user/UserDto';
 
 export class UserMapper {
     static toDto(user: User): UserDto {

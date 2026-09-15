@@ -1,7 +1,8 @@
 import { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
+import { UserRepository } from "../../user/repositories/UserRepository";
 
-export function jwtAuthentication(secret: string) {
+export function jwtAuthentication(secret: string, userRepository: UserRepository) {
     return async (c: Context, next: Next) => {
         const authorization = c.req.header('Authorization');
 
@@ -18,6 +19,17 @@ export function jwtAuthentication(secret: string) {
 
         try {
             const payload = jwt.verify(token, secret);
+
+            const user = await userRepository.findById(String((payload as any).sub));
+
+            if (!user || !user.isActive) {
+                return c.json(
+                    {
+                        message: 'Account disabled',
+                    },
+                    403,
+                );
+            }
 
             c.set('jwt', payload);
 

@@ -7,10 +7,10 @@
         "vscode": {
             // 1. コンテナ内に自動でインストールする拡張機能
             "extensions": [
-                // "ms-vscode.vscode-typescript-next", // TSサポート（必要に応じて）
-                "dbaeumer.vscode-eslint", // Linter
-                "esbenp.prettier-vscode", // Formatter
-                "vitest.explorer"
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "vitest.explorer",
+                "humao.rest-client"
             ],
             // 2. コンテナ内だけで有効にしたいVSCodeの設定（settings.jsonの内容）
             "settings": {
@@ -23,6 +23,7 @@
                 "editor.codeActionsOnSave": {
                     "source.organizeImports": "explicit"
                 },
+                "editor.tabSize": 4,
                 "eslint.workingDirectories": [
                     {
                         "mode": "auto"
@@ -39,6 +40,10 @@
             }
         }
     },
-    "forwardPorts": [3000, 3001, 5432],
+    "forwardPorts": [
+        3000,
+        3001,
+        5432
+    ],
     "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }

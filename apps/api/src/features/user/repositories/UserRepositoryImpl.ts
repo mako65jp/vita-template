@@ -62,6 +62,19 @@ export class UserRepositoryImpl implements UserRepository {
         );
     }
 
+    async countAdmins() {
+        const rows = await this.db.query<{ count: string }>(
+            `
+      select count(*)::text as count
+      from public.users
+      where role = 'admin'
+      and is_active = true
+      `,
+        );
+
+        return Number(rows[0]?.count ?? 0);
+    }
+
     async create(user: User) {
         await this.db.execute(
             `

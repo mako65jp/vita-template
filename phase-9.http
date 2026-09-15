@@ -1,0 +1,119 @@
+
+@host = http://localhost:3000
+
+### 管理者ログイン
+# @name loginRequestAdmin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "new-password"
+}
+
+### 管理者トークンを変数に代入
+@authTokenAdmin = {{loginRequestAdmin.response.body.accessToken}}
+
+### 管理者の情報取得
+# @name infoAdmin
+GET {{host}}/users/me
+Authorization: Bearer {{authTokenAdmin}}
+
+@itAdmin = {{infoAdmin.response.body.id}}
+
+### 自分自身を無効化："message": "Cannot disable yourself"
+PUT {{host}}/users/{{itAdmin}}/active
+Authorization: Bearer {{authTokenAdmin}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### 自分自身を user に変更："message": "Cannot change your own role"
+PUT {{host}}/users/{{itAdmin}}/role
+Authorization: Bearer {{authTokenAdmin}}
+Content-Type: application/json
+
+{
+  "role": "user"
+}
+
+
+
+
+
+
+
+
+
+### 一般利用者ログイン
+# @name loginRequestUser
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user1@example.com",
+  "password": "new-password"
+}
+
+### 一般利用者トークンを変数に代入
+@authTokenUser = {{loginRequestUser.response.body.accessToken}}
+
+### 自分の情報取得
+# @name infoUser
+GET {{host}}/users/me
+Authorization: Bearer {{authTokenUser}}
+
+@itUser = {{infoUser.response.body.id}}
+
+
+### 自分の情報更新
+PUT {{host}}/users/me
+Authorization: Bearer {{authTokenUser}}
+Content-Type: application/json
+
+{
+  "name": "テストユーザー",
+  "email": "user1@example.com"
+}
+
+### 自分自身を admin に変更："message": "Forbidden"
+PUT {{host}}/users/me/role
+Authorization: Bearer {{authTokenUser}}
+Content-Type: application/json
+
+{
+  "role": "admin"
+}
+
+### 自分自身を無効化："message": "Forbidden"
+PUT {{host}}/users/me/active
+Authorization: Bearer {{authTokenUser}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+
+### 自分のパスワード変更
+PUT {{host}}/users/me/password
+Authorization: Bearer {{authTokenUser}}
+Content-Type: application/json
+
+{
+  "password": "new-password-2"
+}
+
+### 自分のパスワード戻す
+PUT {{host}}/users/me/password
+Authorization: Bearer {{authTokenUser}}
+Content-Type: application/json
+
+{
+  "password": "new-password"
+}
+
+
+

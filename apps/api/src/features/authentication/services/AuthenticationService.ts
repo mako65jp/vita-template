@@ -15,6 +15,10 @@ export class AuthenticationService {
             return undefined;
         }
 
+        if (!user.isActive) {
+            return undefined;
+        }
+
         const matched = await bcrypt.compare(password, user.passwordHash);
 
         if (!matched) {

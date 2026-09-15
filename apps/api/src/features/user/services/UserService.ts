@@ -2,7 +2,7 @@ import { User } from '../domain/User';
 import { UserRepository } from '../repositories/UserRepository';
 
 export class UserService {
-    constructor(private readonly users: UserRepository) {}
+    constructor(private readonly users: UserRepository) { }
 
     async findById(id: string) {
         return this.users.findById(id);
@@ -28,15 +28,59 @@ export class UserService {
         await this.users.updatePassword(id, passwordHash);
     }
 
-    async changeRole(id: string, role: string) {
-        await this.users.updateRole(id, role);
+    async changeRole(currentUserId: string, targetUserId: string, role: string) {
+        if (currentUserId === targetUserId) {
+            throw new Error('Cannot change your own role');
+        }
+
+        const target = await this.users.findById(targetUserId);
+
+        if (target?.role === 'admin' && role !== 'admin') {
+            const adminCount = await this.users.countAdmins();
+
+            if (adminCount <= 1) {
+                throw new Error('Cannot demote last admin');
+            }
+        }
+
+        await this.users.updateRole(targetUserId, role);
     }
 
-    async changeActive(id: string, isActive: boolean) {
-        await this.users.updateActive(id, isActive);
+    async changeActive(currentUserId: string, targetUserId: string, isActive: boolean) {
+        if (currentUserId === targetUserId) {
+            throw new Error('Cannot disable yourself');
+        }
+
+        const target = await this.users.findById(targetUserId);
+
+        if (target?.role === 'admin' && !isActive) {
+            const adminCount = await this.users.countAdmins();
+
+            if (adminCount <= 1) {
+                throw new Error('Cannot disable last admin');
+            }
+        }
+
+        await this.users.updateActive(targetUserId, isActive);
     }
 
-    async delete(id: string) {
+    async delete(currentUserId: string, targetUserId?: string) {
+        const id = targetUserId ?? currentUserId;
+
+        if (currentUserId === id) {
+            throw new Error('Cannot delete yourself');
+        }
+
+        const target = await this.users.findById(id);
+
+        if (target?.role === 'admin') {
+            const adminCount = await this.users.countAdmins();
+
+            if (adminCount <= 1) {
+                throw new Error('Cannot delete last admin');
+            }
+        }
+
         await this.users.remove(id);
     }
 }
