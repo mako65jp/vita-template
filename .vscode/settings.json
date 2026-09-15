@@ -20,5 +20,5 @@
         "**/dist/**": true,
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true
-    },
+    }
 }

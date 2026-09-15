@@ -2,7 +2,7 @@ import { User } from '../domain/User';
 import { UserRepository } from '../repositories/UserRepository';
 
 export class UserService {
-    constructor(private readonly users: UserRepository) { }
+    constructor(private readonly users: UserRepository) {}
 
     async findById(id: string) {
         return this.users.findById(id);

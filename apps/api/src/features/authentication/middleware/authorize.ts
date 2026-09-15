@@ -1,34 +1,20 @@
-import { Context, Next } from "hono";
-import { JwtPayload } from "jsonwebtoken";
+import { Context, Next } from 'hono';
 
-export function authorize(
-  ...roles: string[]
-) {
+export function authorize(...roles: string[]) {
+    return async (c: Context, next: Next) => {
+        const payload = c.get('jwt');
 
-  return async (
-    c: Context,
-    next: Next,
-  ) => {
+        const role = payload?.role;
 
-    const payload = c.get("jwt" as never) as JwtPayload;
+        if (!role || !roles.includes(role)) {
+            return c.json(
+                {
+                    message: 'Forbidden',
+                },
+                403,
+            );
+        }
 
-    const role =
-      payload?.role;
-
-    if (
-      !role ||
-      !roles.includes(role)
-    ) {
-
-      return c.json(
-        {
-          message:
-            "Forbidden",
-        },
-        403,
-      );
-    }
-
-    await next();
-  };
+        await next();
+    };
 }

@@ -40,10 +40,6 @@
             }
         }
     },
-    "forwardPorts": [
-        3000,
-        3001,
-        5432
-    ],
+    "forwardPorts": [3000, 3001, 5432],
     "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }

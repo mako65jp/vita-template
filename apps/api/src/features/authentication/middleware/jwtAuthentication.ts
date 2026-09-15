@@ -1,6 +1,7 @@
 import { Context, Next } from 'hono';
 import jwt from 'jsonwebtoken';
-import { UserRepository } from "../../user/repositories/UserRepository";
+import { UserRepository } from '../../user/repositories/UserRepository';
+import { AppJwtPayload } from '../AppJwtPayload';
 
 export function jwtAuthentication(secret: string, userRepository: UserRepository) {
     return async (c: Context, next: Next) => {
@@ -18,9 +19,9 @@ export function jwtAuthentication(secret: string, userRepository: UserRepository
         const token = authorization.substring(7);
 
         try {
-            const payload = jwt.verify(token, secret);
+            const payload = jwt.verify(token, secret) as unknown as AppJwtPayload;
 
-            const user = await userRepository.findById(String((payload as any).sub));
+            const user = await userRepository.findById(String(payload.sub));
 
             if (!user || !user.isActive) {
                 return c.json(

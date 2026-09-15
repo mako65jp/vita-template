@@ -8,18 +8,14 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         // "useDefineForClassFields": true,
-        "lib": [
-            "DOM",
-            "DOM.Iterable",
-            "ESNext"
-        ],
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "allowJs": false,
         // "allowSyntheticDefaultImports": true,
         // "resolveJsonModule": true,
         // "isolatedModules": true,
         // "sourceMap": true,
-        // "noEmit": true,    
+        // "noEmit": true,
         "jsx": "react-jsx",
-        "outDir": "dist",
+        "outDir": "dist"
     }
 }

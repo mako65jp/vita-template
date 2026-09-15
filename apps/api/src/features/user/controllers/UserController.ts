@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Hono } from 'hono';
 import { AppVariables } from '../../authentication/AppVariables';
-import { JwtPayload } from '../../authentication/JwtPayload';
 
 import { User } from '../domain/User';
 import { UserMapper } from '../mappers/UserMapper';
@@ -16,7 +15,7 @@ export function createUserController(service: UserService) {
     }>();
 
     router.get('/me', authorize('admin', 'user'), async (c) => {
-        const jwt = c.get('jwt' as never) as JwtPayload;
+        const jwt = c.get('jwt');
         const user = await service.findById(String(jwt.sub));
 
         if (!user) {
@@ -27,7 +26,7 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/me', authorize('admin', 'user'), async (c) => {
-        const jwt = c.get('jwt' as never) as JwtPayload;
+        const jwt = c.get('jwt');
 
         const current = await service.findById(String(jwt.sub));
 
@@ -55,7 +54,7 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/me/password', authorize('admin', 'user'), async (c) => {
-        const jwt = c.get('jwt' as never) as JwtPayload;
+        const jwt = c.get('jwt');
 
         const body = await c.req.json();
 
@@ -148,28 +147,20 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/:id/role', authorize('admin'), async (c) => {
-        const jwt = c.get('jwt' as never) as JwtPayload;
+        const jwt = c.get('jwt');
 
         const body = await c.req.json();
 
         try {
-
-            await service.changeRole(
-                String(jwt.sub),
-                c.req.param('id')!,
-                body.role,
-            );
+            await service.changeRole(String(jwt.sub), c.req.param('id')!, body.role);
 
             return c.json({
                 message: 'role updated',
             });
-
         } catch (error) {
-
             return c.json(
                 {
-                    message:
-                        error instanceof Error ? error.message : 'Role update failed',
+                    message: error instanceof Error ? error.message : 'Role update failed',
                 },
                 400,
             );
@@ -177,28 +168,20 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/:id/active', authorize('admin'), async (c) => {
-        const jwt = c.get('jwt' as never) as JwtPayload;
+        const jwt = c.get('jwt');
 
         const body = await c.req.json();
 
         try {
-
-            await service.changeActive(
-                String(jwt.sub),
-                c.req.param('id')!,
-                body.isActive,
-            );
+            await service.changeActive(String(jwt.sub), c.req.param('id')!, body.isActive);
 
             return c.json({
                 message: 'active updated',
             });
-
         } catch (error) {
-
             return c.json(
                 {
-                    message:
-                        error instanceof Error ? error.message : 'Active update failed',
+                    message: error instanceof Error ? error.message : 'Active update failed',
                 },
                 400,
             );
@@ -206,26 +189,16 @@ export function createUserController(service: UserService) {
     });
 
     router.delete('/:id', authorize('admin'), async (c) => {
-        const jwt = c.get('jwt' as never) as JwtPayload;
+        const jwt = c.get('jwt');
 
         try {
+            await service.delete(String(jwt.sub), c.req.param('id'));
 
-            await service.delete(
-                String(jwt.sub),
-                c.req.param('id'),
-            );
-
-            return c.body(
-                null,
-                204,
-            );
-
+            return c.body(null, 204);
         } catch (error) {
-
             return c.json(
                 {
-                    message:
-                        error instanceof Error ? error.message : 'Delete failed',
+                    message: error instanceof Error ? error.message : 'Delete failed',
                 },
                 400,
             );

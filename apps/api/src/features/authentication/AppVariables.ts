@@ -1,6 +1,5 @@
-import { JwtPayload }
-  from "./JwtPayload";
+import { AppJwtPayload } from './AppJwtPayload';
 
 export interface AppVariables {
-  jwt: JwtPayload;
+    jwt: AppJwtPayload;
 }
