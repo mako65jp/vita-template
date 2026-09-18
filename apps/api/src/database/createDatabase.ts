@@ -1,10 +1,7 @@
-import { Database } from './Database';
-
 import { DatabaseConfig } from '../config/Config';
-
-import { InMemoryDatabase } from './InMemoryDatabase';
-
+import { Database } from './Database';
 import { DrizzleDatabase } from './DrizzleDatabase';
+import { InMemoryDatabase } from './InMemoryDatabase';
 
 export async function createDatabase(config: DatabaseConfig): Promise<Database> {
     switch (config.type) {
@@ -18,9 +15,6 @@ export async function createDatabase(config: DatabaseConfig): Promise<Database> 
             throw new Error('SQL Server not implemented');
 
         default:
-            throw new Error(
-                `Unknown database type:
-          ${config.type}`,
-            );
+            throw new Error(`Unknown database type: ${config.type}`);
     }
 }

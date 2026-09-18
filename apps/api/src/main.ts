@@ -1,10 +1,7 @@
 import { serve } from '@hono/node-server';
-
-import { loadConfig } from './config/loadConfig';
-
-import { createContainer } from './app/createContainer';
-
 import { createApp } from './app/createApp';
+import { createContainer } from './app/createContainer';
+import { loadConfig } from './config/loadConfig';
 
 const config = await loadConfig();
 
