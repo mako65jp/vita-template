@@ -5,8 +5,8 @@ import { JwtService } from './JwtService';
 export class AuthenticationService {
     constructor(
         private readonly users: UserService,
-        private readonly jwt: JwtService,
-    ) {}
+        private readonly jwtService: JwtService,
+    ) { }
 
     async login(email: string, password: string) {
         const user = await this.users.findByEmail(email);
@@ -26,7 +26,7 @@ export class AuthenticationService {
         }
 
         return {
-            accessToken: this.jwt.createAccessToken(user.id, user.email, user.role),
+            accessToken: this.jwtService.createAccessToken(user.id, user.email, user.role),
             expiresIn: 3600,
         };
     }

@@ -1,0 +1,112 @@
+.
+├── apps
+│   ├── api
+│   │   ├── node_modules
+│   │   └── src
+│   │       ├── app
+│   │       │   ├── AppContext.ts
+│   │       │   ├── createApp.ts
+│   │       │   ├── createContainer.ts
+│   │       │   └── DependencyContainer.ts
+│   │       ├── common
+│   │       │   ├── errors
+│   │       │   ├── middleware
+│   │       │   └── repositories
+│   │       ├── config
+│   │       │   ├── Config.ts
+│   │       │   ├── loadConfig.ts
+│   │       │   └── saveConfig.ts
+│   │       ├── database
+│   │       │   ├── createDatabase.ts
+│   │       │   ├── Database.ts
+│   │       │   ├── DrizzleDatabase.ts
+│   │       │   ├── InMemoryDatabase.ts
+│   │       │   ├── PostgreSqlDatabase.ts
+│   │       │   └── SqlServerDatabase.ts
+│   │       ├── drizzle
+│   │       │   ├── db.ts
+│   │       │   ├── index.ts
+│   │       │   └── schema.ts
+│   │       ├── features
+│   │       │   ├── administration
+│   │       │   ├── authentication
+│   │       │   ├── authorization
+│   │       │   └── user
+│   │       └── main.ts
+│   └── web
+│       ├── ApplicationConfiguration.ts
+│       ├── Application.ts
+│       ├── FrontendConfigurationService.ts
+│       ├── node_modules
+│       ├── package.json
+│       ├── react
+│       │   ├── index.html
+│       │   ├── node_modules
+│       │   ├── package.json
+│       │   ├── src
+│       │   │   ├── app
+│       │   │   ├── components
+│       │   │   ├── config
+│       │   │   ├── features
+│       │   │   └── main.tsx
+│       │   ├── tsconfig.json
+│       │   ├── vite.config.ts
+│       │   └── vitest.config.ts
+│       ├── RuntimeConfigurationProvider.ts
+│       ├── tsconfig.json
+│       ├── vitest.config.ts
+│       └── vue
+│           └── src
+│               ├── app
+│               ├── components
+│               ├── features
+│               └── main.ts
+├── config
+│   ├── development.json
+│   ├── production.json
+│   └── staging.json
+├── package.json
+├── package-lock.json
+├── packages
+│   ├── api-client
+│   │   ├── administration
+│   │   │   └── ConfigurationApi.ts
+│   │   ├── authentication
+│   │   │   └── AuthenticationApi.ts
+│   │   ├── http
+│   │   │   ├── FetchHttpClient.ts
+│   │   │   └── HttpClient.ts
+│   │   └── user
+│   │       └── UserApi.ts
+│   ├── shared
+│   │   ├── collections
+│   │   ├── constants
+│   │   ├── errors
+│   │   └── utilities
+│   ├── types
+│   │   ├── administration
+│   │   │   ├── ConfigurationDto.ts
+│   │   │   └── FeatureFlagDto.ts
+│   │   ├── authentication
+│   │   │   ├── LoginRequest.ts
+│   │   │   └── LoginResponse.ts
+│   │   ├── authorization
+│   │   │   ├── PermissionDto.ts
+│   │   │   └── RoleDto.ts
+│   │   ├── common
+│   │   ├── Config.ts
+│   │   └── user
+│   │       ├── CreateUserRequest.ts
+│   │       ├── UpdateUserRequest.ts
+│   │       └── UserDto.ts
+│   └── validation
+│       ├── administration
+│       ├── authentication
+│       │   └── LoginSchema.ts
+│       ├── common
+│       └── user
+│           ├── CreateUserSchema.ts
+│           └── UpdateUserSchema.ts
+├── README.md
+├── tsconfig.base.json
+└── tsconfig.json

@@ -1,0 +1,28 @@
+Phase 1 現状把握
+
+TASK-001 設定一覧作成
+TASK-002 database.type 利用状況確認
+TASK-003 authentication.type 利用状況確認
+TASK-004 frontend.type 利用状況確認
+TASK-005 administration.enabled 利用状況確認
+TASK-006 features.user 利用状況確認
+
+
+
+
+TypeScriptモノレポのWebアプリケーション基盤です。
+設定駆動アーキテクチャ完成のための作業を進めます。
+以下のWBSに従って進めてください。
+まずは Phase 1 の TASK-002 database.type 利用状況確認から始めます。
+対象:
+apps/api/src/database/createDatabase.ts
+apps/api/src/database/*
+コードを提示するので、
+・何をしているか
+・database.type がどこで使われているか
+・設定駆動化の完成度
+・次に確認すべき箇所
+を整理してください。
+
+
+

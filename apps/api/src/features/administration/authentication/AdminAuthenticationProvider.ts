@@ -1,3 +1,3 @@
 export interface AdminAuthenticationProvider {
-    authenticate(userName: string, password: string): Promise<boolean>;
+    authenticate(email: string, password: string): Promise<boolean>;
 }

@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "tsx apps/api/src/main.ts",
-        "dev:web": "cd apps/web-react && vite --host 0.0.0.0",
+        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
         "check": "tsc --noEmit",
         "build": "tsc",
         "format": "prettier --write ."
