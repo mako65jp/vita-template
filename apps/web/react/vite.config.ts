@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'node:fs';
 import { defineConfig } from 'vite';
@@ -7,6 +8,7 @@ const configuration = JSON.parse(fs.readFileSync('../../../config/development.js
 export default defineConfig({
     plugins: [
         react(),
+        tailwindcss(),
         {
             name: 'application-configuration',
 

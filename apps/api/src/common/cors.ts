@@ -30,5 +30,4 @@ function cors(config: Config) {
     });
 }
 
-
 export default cors;

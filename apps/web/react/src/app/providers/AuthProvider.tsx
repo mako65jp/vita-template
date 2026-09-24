@@ -2,9 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 
 interface AuthContextValue {
     accessToken: string | null;
-
     signIn(accessToken: string): void;
-
     signOut(): void;
 }
 
@@ -21,13 +19,11 @@ export function AuthProvider(props: any) {
 
             signIn(token: string) {
                 localStorage.setItem('accessToken', token);
-
                 setAccessToken(token);
             },
 
             signOut() {
                 localStorage.removeItem('accessToken');
-
                 setAccessToken(null);
             },
         }),

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { LoginPage } from './LoginPage';
+import { LoginPage } from './pages/LoginPage';
 
 export const routes = [
     {

@@ -6,7 +6,3 @@ export interface ApplicationConfiguration {
         readonly applicationRoot: string;
     };
 }
-
-// export interface ApplicationConfiguration {
-//     readonly apiBaseUrl: string;
-// }
