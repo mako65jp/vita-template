@@ -2,9 +2,9 @@ import { Context, Next } from 'hono';
 
 export function authorizeSelfOrAdmin() {
     return async (c: Context, next: Next) => {
-        const jwt = c.get('jwt');
+        const principal = c.get('principal');
 
-        if (!jwt) {
+        if (!principal) {
             return c.json(
                 {
                     message: 'Unauthorized',
@@ -13,14 +13,14 @@ export function authorizeSelfOrAdmin() {
             );
         }
 
-        if (jwt.role === 'admin') {
+        if (principal.role === 'admin') {
             await next();
             return;
         }
 
         const id = c.req.param('id');
 
-        if (String(jwt.sub) !== id) {
+        if (principal.userId !== id) {
             return c.json(
                 {
                     message: 'Forbidden',

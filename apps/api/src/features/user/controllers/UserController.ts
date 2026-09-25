@@ -15,9 +15,9 @@ export function createUserController(service: UserService) {
     }>();
 
     router.get('/me', authorize('admin', 'user'), async (c) => {
-        const jwt = c.get('jwt');
-        const user = await service.findById(String(jwt.sub));
+        const principal = c.get('principal');
 
+        const user = await service.findById(principal.userId);
         if (!user) {
             return c.notFound();
         }
@@ -26,10 +26,9 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/me', authorize('admin', 'user'), async (c) => {
-        const jwt = c.get('jwt');
+        const principal = c.get('principal');
 
-        const current = await service.findById(String(jwt.sub));
-
+        const current = await service.findById(principal.userId);
         if (!current) {
             return c.notFound();
         }
@@ -54,13 +53,13 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/me/password', authorize('admin', 'user'), async (c) => {
-        const jwt = c.get('jwt');
 
+        const principal = c.get('principal');
         const body = await c.req.json();
 
         const passwordHash = await bcrypt.hash(body.password, 10);
 
-        await service.changePassword(String(jwt.sub), passwordHash);
+        await service.changePassword(principal.userId, passwordHash);
 
         return c.json({
             message: 'password updated',
@@ -110,7 +109,6 @@ export function createUserController(service: UserService) {
 
     router.put('/:id', authorize('admin'), async (c) => {
         const current = await service.findById(c.req.param('id')!);
-
         if (!current) {
             return c.notFound();
         }
@@ -147,12 +145,11 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/:id/role', authorize('admin'), async (c) => {
-        const jwt = c.get('jwt');
-
+        const principal = c.get('principal');
         const body = await c.req.json();
 
         try {
-            await service.changeRole(String(jwt.sub), c.req.param('id')!, body.role);
+            await service.changeRole(principal.userId, c.req.param('id')!, body.role);
 
             return c.json({
                 message: 'role updated',
@@ -168,12 +165,11 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/:id/active', authorize('admin'), async (c) => {
-        const jwt = c.get('jwt');
-
+        const principal = c.get('principal');
         const body = await c.req.json();
 
         try {
-            await service.changeActive(String(jwt.sub), c.req.param('id')!, body.isActive);
+            await service.changeActive(principal.userId, c.req.param('id')!, body.isActive);
 
             return c.json({
                 message: 'active updated',
@@ -189,10 +185,10 @@ export function createUserController(service: UserService) {
     });
 
     router.delete('/:id', authorize('admin'), async (c) => {
-        const jwt = c.get('jwt');
+        const principal = c.get('principal');
 
         try {
-            await service.delete(String(jwt.sub), c.req.param('id'));
+            await service.delete(principal.userId, c.req.param('id'));
 
             return c.body(null, 204);
         } catch (error) {

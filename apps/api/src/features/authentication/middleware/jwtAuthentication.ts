@@ -1,47 +1,33 @@
 import { Context, Next } from 'hono';
-import jwt from 'jsonwebtoken';
-import { UserRepository } from '../../user/repositories/UserRepository';
-import { AppJwtPayload } from '../AppJwtPayload';
+import { JwtService } from '../services/JwtService';
 
-export function jwtAuthentication(secret: string, userRepository: UserRepository) {
+export function jwtAuthentication(jwtService: JwtService) {
+
     return async (c: Context, next: Next) => {
+
         const authorization = c.req.header('Authorization');
 
         if (!authorization || !authorization.startsWith('Bearer ')) {
             return c.json(
-                {
-                    message: 'Unauthorized',
-                },
+                { message: 'Unauthorized', },
                 401,
             );
         }
 
-        const token = authorization.substring(7);
-
         try {
-            const payload = jwt.verify(token, secret) as unknown as AppJwtPayload;
+            const token = authorization.substring(7);
+            const principal = jwtService.verify(token);
 
-            const user = await userRepository.findById(String(payload.sub));
-
-            if (!user || !user.isActive) {
-                return c.json(
-                    {
-                        message: 'Account disabled',
-                    },
-                    403,
-                );
-            }
-
-            c.set('jwt', payload);
+            c.set('principal', principal);
 
             await next();
+
         } catch {
             return c.json(
-                {
-                    message: 'Unauthorized',
-                },
+                { message: 'Unauthorized', },
                 401,
             );
         }
     };
 }
+

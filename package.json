@@ -2,6 +2,11 @@
     "name": "generated-project",
     "private": true,
     "type": "module",
+    "workspaces": [
+        "apps/api",
+        "apps/web/react",
+        "apps/web/vue"
+    ],
     "scripts": {
         "dev": "tsx apps/api/src/main.ts",
         "dev:web": "cd apps/web/react && vite --host 0.0.0.0",

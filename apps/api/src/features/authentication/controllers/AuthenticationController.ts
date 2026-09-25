@@ -1,19 +1,18 @@
 import { Hono } from 'hono';
+import { LoginRequest } from '../../../../../../packages/types/authentication/LoginRequest';
 import { AuthenticationService } from '../services/AuthenticationService';
 
 export function createAuthenticationController(service: AuthenticationService) {
     const router = new Hono();
 
     router.post('/auth/login', async (c) => {
-        const body = await c.req.json();
+        const body = await c.req.json<LoginRequest>();
 
         const result = await service.login(body.email, body.password);
 
         if (!result) {
             return c.json(
-                {
-                    message: 'Invalid credentials',
-                },
+                { message: 'Invalid credentials' },
                 401,
             );
         }

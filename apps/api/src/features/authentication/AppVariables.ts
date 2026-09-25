@@ -1,5 +1,5 @@
-import { AppJwtPayload } from './AppJwtPayload';
+import { UserPrincipal } from './domain/UserPrincipal';
 
 export interface AppVariables {
-    jwt: AppJwtPayload;
+    principal: UserPrincipal;
 }

@@ -2,15 +2,19 @@ import { Context, Next } from 'hono';
 
 export function authorize(...roles: string[]) {
     return async (c: Context, next: Next) => {
-        const payload = c.get('jwt');
 
-        const role = payload?.role;
+        const principal = c.get('principal');
 
-        if (!role || !roles.includes(role)) {
+        if (!principal) {
             return c.json(
-                {
-                    message: 'Forbidden',
-                },
+                { message: 'Unauthorized' },
+                401,
+            );
+        }
+
+        if (!roles.includes(principal.role)) {
+            return c.json(
+                { message: 'Forbidden' },
                 403,
             );
         }

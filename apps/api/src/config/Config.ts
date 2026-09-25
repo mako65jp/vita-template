@@ -11,7 +11,7 @@ export interface DatabaseConfig {
 }
 
 export interface AuthenticationConfig {
-    type: 'none' | 'jwt' | 'oidc' | 'ldap';
+    type: 'none' | 'local' | 'oidc' | 'ldap';
     secret?: string;
 }
 

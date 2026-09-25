@@ -8,6 +8,7 @@ import cors from "../common/cors.js";
 import csrf from "../common/csrf.js";
 import error from "../common/error.js";
 import logger from "../common/logger.js";
+import { jwtAuthentication } from '../features/authentication/middleware/jwtAuthentication';
 // import notFound from "./handlers/not-found.js";
 // import authApp from "./routes/auth/app.js";
 // import notesApp from "./routes/notes/app.js";
@@ -24,7 +25,8 @@ export function createApp(container: DependencyContainer) {
         .get('/', (c) => c.text('Backend running.'))
 
         .route(`${apiRoot}`, createAuthenticationController(container.authenticationService))
-        .route(`${apiRoot}/users`, createUserController(container.userService));
+        .use(`${apiRoot}/users/*`, jwtAuthentication(container.jwtService))
+        .route(`${apiRoot}/users/*`, createUserController(container.userService));
 
     // app.get('/', (c) => c.text('Hello World'));
     // app.route('/auth', createAuthenticationController(container.authenticationService));
