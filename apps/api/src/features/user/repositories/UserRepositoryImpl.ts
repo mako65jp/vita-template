@@ -1,4 +1,4 @@
-import { Database } from '../../../database/Database';
+import { Database } from '@apps/api/database/Database';
 import { User } from '../domain/User';
 import { UserRepository } from './UserRepository';
 

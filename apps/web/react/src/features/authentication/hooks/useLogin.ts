@@ -1,4 +1,4 @@
-import { useAuth } from '../../../app/providers/AuthProvider';
+import { useAuth } from '@apps/web/react/src/app/providers/AuthProvider';
 import { login } from '../api/login';
 
 export function useLogin() {

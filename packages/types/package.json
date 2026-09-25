@@ -1,0 +1,9 @@
+{
+    "name": "@packages/types",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./authentication/*": "./authentication/*",
+        "./user/*": "./user/*"
+    }
+}

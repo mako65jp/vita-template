@@ -1,6 +1,6 @@
-import { LoginRequest } from '../../../../../../../packages/types/authentication/LoginRequest';
-import { LoginResponse } from '../../../../../../../packages/types/authentication/LoginResponse';
-import { Application } from '../../../../../Application';
+import { Application } from '@apps/web/Application';
+import { LoginRequest } from '@packages/types/authentication/LoginRequest';
+import { LoginResponse } from '@packages/types/authentication/LoginResponse';
 
 const application = new Application();
 

@@ -3,7 +3,6 @@ import { AppJwtPayload } from '../AppJwtPayload';
 import { UserPrincipal } from '../domain/UserPrincipal';
 
 function isAppJwtPayload(value: unknown): value is AppJwtPayload {
-
     if (typeof value !== 'object' || value === null) {
         return false;
     }
@@ -18,34 +17,26 @@ function isAppJwtPayload(value: unknown): value is AppJwtPayload {
 }
 
 export class JwtService {
-
     expiresInSeconds = 3600;
 
-    constructor(
-        private readonly secret: string
-    ) { }
+    constructor(private readonly secret: string) {}
 
     createAccessToken(principal: UserPrincipal): string {
-
         return jwt.sign(
             {
                 sub: principal.userId,
                 email: principal.email,
-                role: principal.role
+                role: principal.role,
             },
             this.secret,
             {
-                expiresIn: `${this.expiresInSeconds}SECONDS`
+                expiresIn: `${this.expiresInSeconds}SECONDS`,
             },
         );
     }
 
     verify(token: string): UserPrincipal {
-
-        const payload = jwt.verify(
-            token,
-            this.secret
-        );
+        const payload = jwt.verify(token, this.secret);
 
         if (!isAppJwtPayload(payload)) {
             throw new Error('Invalid JWT payload.');
@@ -54,7 +45,7 @@ export class JwtService {
         return {
             userId: payload.sub,
             email: payload.email,
-            role: payload.role
+            role: payload.role,
         };
     }
 }
@@ -149,7 +140,6 @@ export class JwtService {
 // //         };
 // //     }
 // // }
-
 
 // // // import jwt from 'jsonwebtoken';
 

@@ -4,22 +4,11 @@ import { UserService } from '../../user/services/UserService';
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
-export class LocalAuthenticationProvider
-    implements AuthenticationProvider {
+export class LocalAuthenticationProvider implements AuthenticationProvider {
+    constructor(private readonly userService: UserService) {}
 
-    constructor(
-        private readonly userService: UserService,
-    ) { }
-
-    async authenticate(
-        username: string,
-        password: string,
-    ): Promise<UserPrincipal | null> {
-
-        const user =
-            await this.userService.findByEmail(
-                username,
-            );
+    async authenticate(username: string, password: string): Promise<UserPrincipal | null> {
+        const user = await this.userService.findByEmail(username);
 
         if (!user) {
             return null;
@@ -29,11 +18,7 @@ export class LocalAuthenticationProvider
             return null;
         }
 
-        const matched =
-            await bcrypt.compare(
-                password,
-                user.passwordHash,
-            );
+        const matched = await bcrypt.compare(password, user.passwordHash);
 
         if (!matched) {
             return null;

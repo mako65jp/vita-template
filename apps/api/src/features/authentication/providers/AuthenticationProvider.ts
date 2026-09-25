@@ -1,10 +1,7 @@
-import { UserPrincipal } from "../domain/UserPrincipal";
+import { UserPrincipal } from '../domain/UserPrincipal';
 
 export interface AuthenticationProvider {
-    authenticate(
-        username: string,
-        password: string,
-    ): Promise<UserPrincipal | null>;
+    authenticate(username: string, password: string): Promise<UserPrincipal | null>;
 }
 
 // import { UserPrincipal } from '../domain/UserPrincipal';

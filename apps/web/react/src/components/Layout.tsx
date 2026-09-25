@@ -6,8 +6,6 @@ export function Layout() {
     const handleLogout = () => {
         // TODO: 実際のログアウトAPI（Hono）との連携処理をここに記述
 
-
-
         navigate('/login');
     };
 
@@ -21,7 +19,9 @@ export function Layout() {
                         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                             M
                         </div>
-                        <h2 className="text-xl font-bold text-gray-800 tracking-tight">マイアプリ</h2>
+                        <h2 className="text-xl font-bold text-gray-800 tracking-tight">
+                            マイアプリ
+                        </h2>
                     </div>
 
                     <nav className="flex flex-col gap-1">

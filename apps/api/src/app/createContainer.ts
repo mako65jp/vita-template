@@ -7,35 +7,20 @@ import { UserRepositoryImpl } from '../features/user/repositories/UserRepository
 import { UserService } from '../features/user/services/UserService';
 import { DependencyContainer } from './DependencyContainer';
 
-export async function createContainer(
-    config: Config
-): Promise<DependencyContainer> {
+export async function createContainer(config: Config): Promise<DependencyContainer> {
+    const database = await createDatabase(config.database);
 
-    const database = await createDatabase(
-        config.database,
-    );
+    const userRepository = new UserRepositoryImpl(database);
 
-    const userRepository = new UserRepositoryImpl(
-        database
-    );
+    const userService = new UserService(userRepository);
 
-    const userService = new UserService(
-        userRepository
-    );
+    const jwtService = new JwtService(config.authentication.secret!);
 
-    const jwtService = new JwtService(
-        config.authentication.secret!
-    );
+    const authenticationProvider = createAuthenticationProvider(config.authentication, {
+        userService,
+    });
 
-    const authenticationProvider = createAuthenticationProvider(
-        config.authentication,
-        { userService }
-    );
-
-    const authenticationService = new AuthenticationService(
-        authenticationProvider,
-        jwtService
-    );
+    const authenticationService = new AuthenticationService(authenticationProvider, jwtService);
 
     return new DependencyContainer(
         config,
@@ -43,10 +28,9 @@ export async function createContainer(
         userRepository,
         userService,
         jwtService,
-        authenticationService
+        authenticationService,
     );
 }
-
 
 // import { Config } from '../config/Config';
 // import { createDatabase } from '../database/createDatabase';

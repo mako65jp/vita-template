@@ -1,4 +1,4 @@
-import { AuthenticationConfig } from '../../../config/Config';
+import { AuthenticationConfig } from '@apps/api/config/Config';
 import { UserService } from '../../user/services/UserService';
 import { AuthenticationProvider } from './AuthenticationProvider';
 import { LdapAuthenticationProvider } from './LdapAuthenticationProvider';
@@ -12,13 +12,9 @@ export function createAuthenticationProvider(
         userService: UserService;
     },
 ): AuthenticationProvider {
-
     switch (config.type) {
-
         case 'local':
-            return new LocalAuthenticationProvider(
-                services.userService,
-            );
+            return new LocalAuthenticationProvider(services.userService);
 
         case 'ldap':
             return new LdapAuthenticationProvider();
@@ -30,8 +26,6 @@ export function createAuthenticationProvider(
             return new NoAuthenticationProvider();
 
         default:
-            throw new Error(
-                `Unsupported authentication type: ${config.type}`,
-            );
+            throw new Error(`Unsupported authentication type: ${config.type}`);
     }
 }

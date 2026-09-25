@@ -2,37 +2,24 @@ import { AuthenticationProvider } from '../providers/AuthenticationProvider';
 import { JwtService } from './JwtService';
 
 export class AuthenticationService {
-
     constructor(
         private readonly provider: AuthenticationProvider,
         private readonly jwtService: JwtService,
-    ) { }
+    ) {}
 
-    async login(
-        username: string,
-        password: string,
-    ) {
-
-        const principal =
-            await this.provider.authenticate(
-                username,
-                password,
-            );
+    async login(username: string, password: string) {
+        const principal = await this.provider.authenticate(username, password);
 
         if (!principal) {
             return undefined;
         }
 
         return {
-            accessToken:
-                this.jwtService.createAccessToken(
-                    principal,
-                ),
+            accessToken: this.jwtService.createAccessToken(principal),
             expiresIn: this.jwtService.expiresInSeconds,
         };
     }
 }
-
 
 // import bcrypt from 'bcrypt';
 // import { UserService } from '../../user/services/UserService';

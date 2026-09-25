@@ -1,5 +1,5 @@
-import { csrf as honoCsrf } from "hono/csrf";
-import { Config } from "../config/Config";
+import { csrf as honoCsrf } from 'hono/csrf';
+import { Config } from '../config/Config';
 
 function csrf(config: Config) {
     /*
@@ -16,7 +16,7 @@ function csrf(config: Config) {
             } catch {
                 return false;
             }
-        }
+        },
     });
 }
 

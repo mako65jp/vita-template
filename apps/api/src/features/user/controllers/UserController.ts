@@ -53,7 +53,6 @@ export function createUserController(service: UserService) {
     });
 
     router.put('/me/password', authorize('admin', 'user'), async (c) => {
-
         const principal = c.get('principal');
         const body = await c.req.json();
 

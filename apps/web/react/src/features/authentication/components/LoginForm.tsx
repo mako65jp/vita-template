@@ -28,8 +28,12 @@ export function LoginForm() {
                 <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl mb-4">
                     M
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">アカウントにログイン</h1>
-                <p className="text-sm text-gray-500 mt-1">管理画面にアクセスするための資格情報を入力してください</p>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                    アカウントにログイン
+                </h1>
+                <p className="text-sm text-gray-500 mt-1">
+                    管理画面にアクセスするための資格情報を入力してください
+                </p>
             </div>
             {error && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600 font-medium解">
@@ -38,9 +42,7 @@ export function LoginForm() {
             )}
             <form onSubmit={submit} className="flex flex-col gap-5">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email
-                    </label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
                     <input
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}

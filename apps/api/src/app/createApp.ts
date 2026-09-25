@@ -4,10 +4,10 @@ import { createAuthenticationController } from '../features/authentication/contr
 import { createUserController } from '../features/user/controllers/UserController';
 import { DependencyContainer } from './DependencyContainer';
 
-import cors from "../common/cors.js";
-import csrf from "../common/csrf.js";
-import error from "../common/error.js";
-import logger from "../common/logger.js";
+import cors from '../common/cors.js';
+import csrf from '../common/csrf.js';
+import error from '../common/error.js';
+import logger from '../common/logger.js';
 import { jwtAuthentication } from '../features/authentication/middleware/jwtAuthentication';
 // import notFound from "./handlers/not-found.js";
 // import authApp from "./routes/auth/app.js";

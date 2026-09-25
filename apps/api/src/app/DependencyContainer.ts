@@ -13,5 +13,5 @@ export class DependencyContainer {
         public readonly userService: UserService,
         public readonly jwtService: JwtService,
         public readonly authenticationService: AuthenticationService,
-    ) { }
+    ) {}
 }

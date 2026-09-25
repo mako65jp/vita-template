@@ -9,7 +9,9 @@ export function SettingsPage() {
             {/* 上部ヘッダー */}
             <div>
                 <h1 className="text-2xl font-bold text-gray-900 tracking-tight">システム設定</h1>
-                <p className="text-sm text-gray-500 mt-1">アプリケーションのグローバルな動作環境を設定します。</p>
+                <p className="text-sm text-gray-500 mt-1">
+                    アプリケーションのグローバルな動作環境を設定します。
+                </p>
             </div>
 
             {/* 設定フォーム */}
@@ -31,7 +33,9 @@ export function SettingsPage() {
                         <label className="text-sm font-semibold text-gray-700 block">
                             メンテナンスモード
                         </label>
-                        <span className="text-xs text-gray-500">有効にすると管理者以外のアクセスが制限されます。</span>
+                        <span className="text-xs text-gray-500">
+                            有効にすると管理者以外のアクセスが制限されます。
+                        </span>
                     </div>
                     <input
                         type="checkbox"

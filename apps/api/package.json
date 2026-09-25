@@ -1,0 +1,25 @@
+{
+    "name": "@apps/api",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "tsx src/main.ts",
+        "build": "tsc -p ../../tsconfig.json",
+        "test": "vitest"
+    },
+    "dependencies": {
+        "@hono/node-server": "^1.19.0",
+        "bcrypt": "^6.0.0",
+        "drizzle-orm": "^0.45.2",
+        "hono": "^4.9.6",
+        "jsonwebtoken": "^9.0.3",
+        "pg": "^8.23.0"
+    },
+    "devDependencies": {
+        "@types/bcrypt": "^6.0.0",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/node": "^24.4.0",
+        "@types/pg": "^8.23.1",
+        "drizzle-kit": "^0.31.10"
+    }
+}

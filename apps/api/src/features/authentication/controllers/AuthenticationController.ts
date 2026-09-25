@@ -1,5 +1,5 @@
+import { LoginRequest } from '@packages/types/authentication/LoginRequest';
 import { Hono } from 'hono';
-import { LoginRequest } from '../../../../../../packages/types/authentication/LoginRequest';
 import { AuthenticationService } from '../services/AuthenticationService';
 
 export function createAuthenticationController(service: AuthenticationService) {
@@ -11,10 +11,7 @@ export function createAuthenticationController(service: AuthenticationService) {
         const result = await service.login(body.email, body.password);
 
         if (!result) {
-            return c.json(
-                { message: 'Invalid credentials' },
-                401,
-            );
+            return c.json({ message: 'Invalid credentials' }, 401);
         }
 
         return c.json(result);

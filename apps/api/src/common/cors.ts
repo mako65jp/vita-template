@@ -1,5 +1,5 @@
-import { cors as honoCors } from "hono/cors";
-import { Config } from "../config/Config";
+import { cors as honoCors } from 'hono/cors';
+import { Config } from '../config/Config';
 
 function cors(config: Config) {
     /*
@@ -22,8 +22,8 @@ function cors(config: Config) {
             return 'http://' + 'localhost';
         },
 
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-        allowHeaders: ["Accept", "Content-Type", 'Authorization'],
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowHeaders: ['Accept', 'Content-Type', 'Authorization'],
         exposeHeaders: [],
         credentials: false,
         maxAge: 0,

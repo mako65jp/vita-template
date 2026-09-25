@@ -1,8 +1,8 @@
 export interface BackendConfig {
-    protocol?: string;          //"http";
-    host?: string;              //"localhost";
-    port?: string;              //3000;
-    applicationRoot?: string;   //"/api";
+    protocol?: string; //"http";
+    host?: string; //"localhost";
+    port?: string; //3000;
+    applicationRoot?: string; //"/api";
 }
 
 export interface DatabaseConfig {
@@ -17,7 +17,7 @@ export interface AuthenticationConfig {
 
 export interface FrontendConfig {
     type: 'react' | 'vue';
-    host?: string;              //"localhost";
+    host?: string; //"localhost";
 }
 
 export interface Config {

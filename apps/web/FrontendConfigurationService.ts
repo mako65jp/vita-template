@@ -1,7 +1,7 @@
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 
 export class FrontendConfigurationService {
-    constructor(private readonly configuration: ApplicationConfiguration) { }
+    constructor(private readonly configuration: ApplicationConfiguration) {}
 
     public getApiBaseUrl(): string {
         const backend = this.configuration.backend;

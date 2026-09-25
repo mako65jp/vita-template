@@ -4,40 +4,26 @@
     "type": "module",
     "workspaces": [
         "apps/api",
+        "apps/web",
         "apps/web/react",
-        "apps/web/vue"
+        "apps/web/vue",
+        "packages/*"
     ],
     "scripts": {
-        "dev": "tsx apps/api/src/main.ts",
-        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
+        "dev": "npm run dev -w @apps/api",
+        "dev:api": "npm run dev -w @apps/api",
+        "dev:web": "npm run dev -w @apps/web-react",
         "check": "tsc --noEmit",
-        "build": "tsc",
+        "build": "npm run build:api && npm run build:web",
+        "build:api": "npm run build -w @apps/api",
+        "build:web": "npm run build -w @apps/web-react",
+        "test": "npm run test --workspaces --if-present",
         "format": "prettier --write ."
     },
-    "dependencies": {
-        "@hono/node-server": "^1.19.0",
-        "bcrypt": "^6.0.0",
-        "drizzle-orm": "^0.45.2",
-        "hono": "^4.9.6",
-        "jsonwebtoken": "^9.0.3",
-        "pg": "^8.23.0",
-        "react": "^19.3.0",
-        "react-dom": "^19.3.0",
-        "react-router-dom": "^7.18.3"
-    },
     "devDependencies": {
-        "@types/bcrypt": "^6.0.0",
-        "@types/jsonwebtoken": "^9.0.10",
-        "@types/node": "^24.4.0",
-        "@types/pg": "^8.23.1",
-        "@types/react": "^19.3.0",
-        "@types/react-dom": "^19.3.0",
-        "@vitejs/plugin-react": "^6.1.1",
-        "drizzle-kit": "^0.31.10",
         "prettier": "^3.9.6",
         "tsx": "^4.20.5",
         "typescript": "^5.9.2",
-        "vite": "^8.3.0",
         "vitest": "^4.1.11"
     }
 }

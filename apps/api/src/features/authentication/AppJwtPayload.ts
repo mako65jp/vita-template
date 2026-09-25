@@ -1,5 +1,4 @@
 export interface AppJwtPayload {
-
     /**
      * UserPrincipal.userId
      */
