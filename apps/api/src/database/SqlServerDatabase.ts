@@ -1,21 +1,8 @@
-import { Database } from './Database';
+import { DrizzleDatabase } from './DrizzleDatabase';
 
-export class SqlServerDatabase implements Database {
-    constructor() {
+export class SqlServerDatabase extends DrizzleDatabase {
+    constructor(type: string, connectionString: string) {
+        super(type, connectionString ?? '');
         console.log('SQL Server selected');
     }
-
-    async query<T>() {
-        return [] as T[];
-    }
-
-    async execute() {
-        return 0;
-    }
-
-    async beginTransaction() {}
-
-    async commit() {}
-
-    async rollback() {}
 }

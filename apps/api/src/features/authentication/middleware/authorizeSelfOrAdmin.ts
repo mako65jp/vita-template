@@ -5,12 +5,7 @@ export function authorizeSelfOrAdmin() {
         const principal = c.get('principal');
 
         if (!principal) {
-            return c.json(
-                {
-                    message: 'Unauthorized',
-                },
-                401,
-            );
+            return c.json({ message: 'Unauthorized' }, 401);
         }
 
         if (principal.role === 'admin') {
@@ -19,14 +14,8 @@ export function authorizeSelfOrAdmin() {
         }
 
         const id = c.req.param('id');
-
         if (principal.userId !== id) {
-            return c.json(
-                {
-                    message: 'Forbidden',
-                },
-                403,
-            );
+            return c.json({ message: 'Forbidden' }, 403);
         }
 
         await next();

@@ -11,9 +11,10 @@ export function LoginForm() {
 
     async function submit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
-        setLoading(true);
-        setError('');
+
         try {
+            setLoading(true);
+            setError('');
             await login(email, password);
         } catch {
             setError('Login failed');
@@ -32,7 +33,7 @@ export function LoginForm() {
                     アカウントにログイン
                 </h1>
                 <p className="text-sm text-gray-500 mt-1">
-                    管理画面にアクセスするための資格情報を入力してください
+                    画面にアクセスするための資格情報を入力してください
                 </p>
             </div>
             {error && (

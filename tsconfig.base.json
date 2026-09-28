@@ -8,11 +8,7 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         // "useDefineForClassFields": true,
-        "lib": [
-            "DOM",
-            "DOM.Iterable",
-            "ESNext"
-        ],
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "allowJs": false,
         // "allowSyntheticDefaultImports": true,
         // "resolveJsonModule": true,
@@ -23,20 +19,10 @@
         "outDir": "dist",
         "baseUrl": ".",
         "paths": {
-            "@apps/api/*": [
-                "apps/api/src/*"
-            ],
-            "@apps/web/*": [
-                "apps/web/*"
-            ],
-            "@packages/types/*": [
-                "packages/types/*"
-            ]
+            "@apps/api/*": ["apps/api/src/*"],
+            "@apps/web/*": ["apps/web/react/src/*"],
+            "@packages/types/*": ["packages/types/*"]
         }
     },
-    "exclude": [
-        "node_modules",
-        "dist",
-        "build"
-    ]
+    "exclude": ["node_modules", "dist", "build"]
 }

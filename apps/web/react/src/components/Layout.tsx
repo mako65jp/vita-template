@@ -1,12 +1,16 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { menus } from '../app/features';
+import { useAuth } from '../app/providers/AuthProvider';
 
 export function Layout() {
     const navigate = useNavigate();
+    const auth = useAuth();
 
     const handleLogout = () => {
-        // TODO: 実際のログアウトAPI（Hono）との連携処理をここに記述
-
-        navigate('/login');
+        auth.signOut();
+        navigate('/login', {
+            replace: true,
+        });
     };
 
     return (
@@ -25,20 +29,15 @@ export function Layout() {
                     </div>
 
                     <nav className="flex flex-col gap-1">
-                        <Link
-                            to="/"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition-colors font-medium"
-                        >
-                            <span className="text-lg">🏠</span>
-                            <span>ホーム</span>
-                        </Link>
-                        <Link
-                            to="/settings"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition-colors font-medium"
-                        >
-                            <span className="text-lg">⚙️</span>
-                            <span>設定</span>
-                        </Link>
+                        {menus.map((menu) => (
+                            <Link
+                                key={menu.id}
+                                to={menu.menu!.path}
+                                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-xl transition-colors font-medium"
+                            >
+                                {menu.menu!.title}
+                            </Link>
+                        ))}
                     </nav>
                 </div>
 

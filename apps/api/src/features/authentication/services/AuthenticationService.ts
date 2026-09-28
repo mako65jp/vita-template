@@ -11,46 +11,18 @@ export class AuthenticationService {
         const principal = await this.provider.authenticate(username, password);
 
         if (!principal) {
+            console.log(`AuthenticationService:`);
+            console.log(`  username:${username}`);
+            console.log(`  password:${password}`);
+            console.log(`  provider:${this.provider !== null}`);
             return undefined;
         }
 
+        const accessToken = this.jwtService.createAccessToken(principal);
+        const expiresIn = this.jwtService.expiresInSeconds;
         return {
-            accessToken: this.jwtService.createAccessToken(principal),
-            expiresIn: this.jwtService.expiresInSeconds,
+            accessToken: accessToken,
+            expiresIn: expiresIn,
         };
     }
 }
-
-// import bcrypt from 'bcrypt';
-// import { UserService } from '../../user/services/UserService';
-// import { JwtService } from './JwtService';
-
-// export class AuthenticationService {
-//     constructor(
-//         private readonly users: UserService,
-//         private readonly jwtService: JwtService,
-//     ) { }
-
-//     async login(email: string, password: string) {
-//         const user = await this.users.findByEmail(email);
-
-//         if (!user) {
-//             return undefined;
-//         }
-
-//         if (!user.isActive) {
-//             return undefined;
-//         }
-
-//         const matched = await bcrypt.compare(password, user.passwordHash);
-
-//         if (!matched) {
-//             return undefined;
-//         }
-
-//         return {
-//             accessToken: this.jwtService.createAccessToken(user.id, user.email, user.role),
-//             expiresIn: 3600,
-//         };
-//     }
-// }

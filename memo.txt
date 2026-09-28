@@ -22,3 +22,44 @@ packages/types/package.json \
 
 tree -I 'node_modules|dist|build' > tree2.txt
 
+./cat.sh \
+apps/web/react/src/app/features.ts \
+apps/web/react/src/app/router.tsx \
+packages/features/authentication/Feature.tsx \
+packages/features/authentication/routes.tsx \
+apps/web/react/src/app/FeatureDefinition.ts \
+apps/web/react/src/components/Layout.tsx
+
+
+いまの段階で、優先順位順に確認すべきファイルはこれです。
+
+./cat.sh \
+apps/web/react/src/app/router.tsx \
+apps/web/react/src/app/providers/AuthProvider.tsx \
+apps/web/react/src/app/App.tsx \
+apps/web/react/src/main.tsx \
+packages/features/authentication/hooks/useLogin.ts \
+packages/features/authentication/api/login.ts \
+packages/features/authentication/api/login.ts \
+apps/web/react/src/app/router.tsx \
+apps/web/react/src/app/providers/AuthProvider.tsx \
+packages/features/authentication/hooks/useLogin.ts \
+packages/features/authentication/api/login.ts \
+packages/features/authentication/api/login.ts
+
+
+./cat.sh \
+apps/web/react/src/app/features.ts \
+packages/features/authentication/Feature.tsx \
+packages/features/settings/Feature.tsx
+
+
+./cat.sh \
+packages/features/settings/pages/SettingsPage.tsx \
+apps/api/src/features/administration/domain/SystemConfiguration.ts \
+apps/api/src/features/administration/controllers/ConfigurationController.ts \
+packages/api-client/administration/ConfigurationApi.ts
+
+./cat.sh \
+packages/features/authentication/providers/createAuthenticationProvider.ts \
+packages/features/user/repositories/UserRepositoryImpl.ts

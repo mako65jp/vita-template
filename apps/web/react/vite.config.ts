@@ -6,6 +6,9 @@ import { defineConfig } from 'vite';
 const configuration = JSON.parse(fs.readFileSync('../../../config/development.json', 'utf-8'));
 
 export default defineConfig({
+    resolve: {
+        tsconfigPaths: true,
+    },
     plugins: [
         react(),
         tailwindcss(),

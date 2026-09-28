@@ -6,6 +6,8 @@ export class FrontendConfigurationService {
     public getApiBaseUrl(): string {
         const backend = this.configuration.backend;
 
+        console.log('  getApiBaseUrl()', backend);
+
         return (
             `${backend.protocol}://` +
             `${backend.host}:` +

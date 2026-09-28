@@ -11,12 +11,3 @@ export const routes = [
         element: <LoginPage />,
     },
 ];
-
-// import { LoginPage } from './LoginPage';
-
-// export const routes = [
-//     {
-//         path: '/login',
-//         element: <LoginPage />,
-//     },
-// ];

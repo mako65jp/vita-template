@@ -1,11 +1,12 @@
 import { Pool } from 'pg';
-
 import { Database } from './Database';
 
 export class DrizzleDatabase implements Database {
+    type: string;
     private readonly pool: Pool;
 
-    constructor(connectionString: string) {
+    constructor(type: string, connectionString: string) {
+        this.type = type;
         this.pool = new Pool({
             connectionString,
         });

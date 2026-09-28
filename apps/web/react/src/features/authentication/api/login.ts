@@ -7,8 +7,7 @@ const application = new Application();
 export async function login(request: LoginRequest): Promise<LoginResponse> {
     console.log('login request', JSON.stringify(request));
 
-    const apiBaseUrl = application.configurationService.getApiBaseUrl();
-    const response = await fetch(`${apiBaseUrl}/auth/login`, {
+    const response = await application.fetch(`/auth/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

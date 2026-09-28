@@ -10,7 +10,7 @@
         "connectionString": "postgresql://postgres:postgres@db:5432/app_db"
     },
     "authentication": {
-        "type": "jwt",
+        "type": "local",
         "secret": "change-this-secret"
     },
     "administration": {

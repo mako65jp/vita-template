@@ -98,12 +98,7 @@ export function createUserController(service: UserService) {
 
         await service.create(user);
 
-        return c.json(
-            {
-                message: 'created',
-            },
-            201,
-        );
+        return c.json({ message: 'created' }, 201);
     });
 
     router.put('/:id', authorize('admin'), async (c) => {
@@ -126,9 +121,7 @@ export function createUserController(service: UserService) {
 
         await service.update(user);
 
-        return c.json({
-            message: 'updated',
-        });
+        return c.json({ message: 'updated' });
     });
 
     router.put('/:id/password', authorize('admin'), async (c) => {
@@ -138,9 +131,7 @@ export function createUserController(service: UserService) {
 
         await service.changePassword(c.req.param('id')!, passwordHash);
 
-        return c.json({
-            message: 'password updated',
-        });
+        return c.json({ message: 'password updated' });
     });
 
     router.put('/:id/role', authorize('admin'), async (c) => {
@@ -150,14 +141,10 @@ export function createUserController(service: UserService) {
         try {
             await service.changeRole(principal.userId, c.req.param('id')!, body.role);
 
-            return c.json({
-                message: 'role updated',
-            });
+            return c.json({ message: 'role updated' });
         } catch (error) {
             return c.json(
-                {
-                    message: error instanceof Error ? error.message : 'Role update failed',
-                },
+                { message: error instanceof Error ? error.message : 'Role update failed' },
                 400,
             );
         }
@@ -175,9 +162,7 @@ export function createUserController(service: UserService) {
             });
         } catch (error) {
             return c.json(
-                {
-                    message: error instanceof Error ? error.message : 'Active update failed',
-                },
+                { message: error instanceof Error ? error.message : 'Active update failed' },
                 400,
             );
         }
@@ -192,9 +177,7 @@ export function createUserController(service: UserService) {
             return c.body(null, 204);
         } catch (error) {
             return c.json(
-                {
-                    message: error instanceof Error ? error.message : 'Delete failed',
-                },
+                { message: error instanceof Error ? error.message : 'Delete failed' },
                 400,
             );
         }

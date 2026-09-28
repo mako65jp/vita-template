@@ -6,13 +6,12 @@
         "apps/api",
         "apps/web",
         "apps/web/react",
-        "apps/web/vue",
         "packages/*"
     ],
     "scripts": {
         "dev": "npm run dev -w @apps/api",
         "dev:api": "npm run dev -w @apps/api",
-        "dev:web": "npm run dev -w @apps/web-react",
+        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
         "check": "tsc --noEmit",
         "build": "npm run build:api && npm run build:web",
         "build:api": "npm run build -w @apps/api",
@@ -21,9 +20,11 @@
         "format": "prettier --write ."
     },
     "devDependencies": {
-        "prettier": "^3.9.6",
+        "eslint": "^10.11.0",
+        "eslint-config-prettier": "^10.1.8",
+        "prettier": "^3.9.9",
         "tsx": "^4.20.5",
-        "typescript": "^5.9.2",
+        "typescript": "^5.9.3",
         "vitest": "^4.1.11"
     }
 }

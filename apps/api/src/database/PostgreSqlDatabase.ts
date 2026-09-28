@@ -1,21 +1,8 @@
-import { Database } from './Database';
+import { DrizzleDatabase } from './DrizzleDatabase';
 
-export class PostgreSqlDatabase implements Database {
-    constructor() {
-        console.log('PostgreSQL selected');
+export class PostgreSqlDatabase extends DrizzleDatabase {
+    constructor(type: string, connectionString: string) {
+        super(type, connectionString ?? '');
+        console.log(`PostgreSQL selected.`);
     }
-
-    async query<T>() {
-        return [] as T[];
-    }
-
-    async execute() {
-        return 0;
-    }
-
-    async beginTransaction() {}
-
-    async commit() {}
-
-    async rollback() {}
 }

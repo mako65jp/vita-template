@@ -3,9 +3,11 @@ import { Database } from './Database';
 import { User } from '../features/user/domain/User';
 
 export class InMemoryDatabase implements Database {
+    type: string;
     private readonly users = new Map<number, User>();
 
-    constructor() {
+    constructor(type: string) {
+        this.type = type;
         this.users.set(
             1,
             new User(

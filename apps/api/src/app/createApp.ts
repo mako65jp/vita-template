@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { createAuthenticationController } from '../features/authentication/controllers/AuthenticationController';
+import { createAuthenticationController } from '../features/authentication/routes';
 import { createUserController } from '../features/user/controllers/UserController';
 import { DependencyContainer } from './DependencyContainer';
 
@@ -10,8 +10,6 @@ import error from '../common/error.js';
 import logger from '../common/logger.js';
 import { jwtAuthentication } from '../features/authentication/middleware/jwtAuthentication';
 // import notFound from "./handlers/not-found.js";
-// import authApp from "./routes/auth/app.js";
-// import notesApp from "./routes/notes/app.js";
 
 export function createApp(container: DependencyContainer) {
     const apiRoot = container.config.backend.applicationRoot;
@@ -25,13 +23,9 @@ export function createApp(container: DependencyContainer) {
         .get('/', (c) => c.text('Backend running.'))
 
         .route(`${apiRoot}`, createAuthenticationController(container.authenticationService))
+
         .use(`${apiRoot}/users/*`, jwtAuthentication(container.jwtService))
         .route(`${apiRoot}/users/*`, createUserController(container.userService));
-
-    // app.get('/', (c) => c.text('Hello World'));
-    // app.route('/auth', createAuthenticationController(container.authenticationService));
-    // app.use('/users/*', jwtAuthentication('change-this-secret', container.userRepository));
-    // app.route('/users', createUserController(container.userService));
 
     return app;
 }

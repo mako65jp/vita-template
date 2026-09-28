@@ -1,9 +1,8 @@
 import { readFile } from 'node:fs/promises';
-
 import { Config } from './Config';
 
-export async function loadConfig(): Promise<Config> {
-    const json = await readFile('./config/development.json', 'utf8');
+export async function loadConfig(path: string): Promise<Config> {
+    const json = await readFile(path, 'utf8');
     const config = JSON.parse(json) as Config;
 
     if (config.backend.applicationRoot == undefined) {

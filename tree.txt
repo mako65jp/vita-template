@@ -124,37 +124,20 @@
 │       │   ├── src
 │       │   │   ├── app
 │       │   │   │   ├── App.tsx
+│       │   │   │   ├── FeatureDefinition.ts
+│       │   │   │   ├── features.ts
 │       │   │   │   ├── providers
 │       │   │   │   │   ├── AuthProvider.tsx
 │       │   │   │   │   ├── ConfigurationProvider.tsx
-│       │   │   │   │   ├── FeatureProvider.tsxxxxx
 │       │   │   │   │   └── ReactQueryProvider.tsx
 │       │   │   │   └── router.tsx
 │       │   │   ├── components
 │       │   │   │   └── Layout.tsx
 │       │   │   ├── config
 │       │   │   ├── features
-│       │   │   │   ├── administration
-│       │   │   │   │   └── routes.tsx
-│       │   │   │   ├── authentication
-│       │   │   │   │   ├── api
-│       │   │   │   │   │   └── login.ts
-│       │   │   │   │   ├── components
-│       │   │   │   │   │   └── LoginForm.tsx
-│       │   │   │   │   ├── hooks
-│       │   │   │   │   │   └── useLogin.ts
-│       │   │   │   │   ├── pages
-│       │   │   │   │   │   └── LoginPage.tsx
-│       │   │   │   │   └── routes.tsx
-│       │   │   │   ├── authorization
-│       │   │   │   ├── dashboard
-│       │   │   │   │   └── pages
-│       │   │   │   │       └── DashboardPage.tsx
-│       │   │   │   ├── settings
-│       │   │   │   │   └── pages
-│       │   │   │   │       └── SettingsPage.tsx
-│       │   │   │   └── user
-│       │   │   │       └── routes.tsx
+│       │   │   │   └── dashboard
+│       │   │   │       └── pages
+│       │   │   │           └── DashboardPage.tsx
 │       │   │   ├── index.css
 │       │   │   └── main.tsx
 │       │   ├── tsconfig.json
@@ -181,6 +164,25 @@
 │   │   │   └── HttpClient.ts
 │   │   └── user
 │   │       └── UserApi.ts
+│   ├── features
+│   │   ├── authentication
+│   │   │   ├── api
+│   │   │   │   └── login.ts
+│   │   │   ├── components
+│   │   │   │   └── LoginForm.tsx
+│   │   │   ├── Feature.tsx
+│   │   │   ├── hooks
+│   │   │   │   └── useLogin.ts
+│   │   │   ├── pages
+│   │   │   │   └── LoginPage.tsx
+│   │   │   └── routes.tsx
+│   │   ├── package.json
+│   │   ├── settings
+│   │   │   ├── Feature.tsx
+│   │   │   └── pages
+│   │   │       └── SettingsPage.tsx
+│   │   ├── tsconfig.json
+│   │   └── vitest.config.ts
 │   ├── shared
 │   │   ├── collections
 │   │   ├── constants
