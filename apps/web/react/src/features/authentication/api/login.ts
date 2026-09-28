@@ -1,4 +1,4 @@
-import { Application } from '@apps/web/Application';
+import { Application } from '@apps/web-core/Application';
 import { LoginRequest } from '@packages/types/authentication/LoginRequest';
 import { LoginResponse } from '@packages/types/authentication/LoginResponse';
 

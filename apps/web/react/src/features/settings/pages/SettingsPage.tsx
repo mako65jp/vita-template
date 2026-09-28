@@ -1,4 +1,4 @@
-import { ConfigurationApi } from '@apps/web/api-client/administration/ConfigurationApi';
+import { ConfigurationApi } from '@apps/web-core/api-client/administration/ConfigurationApi';
 import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
 import { defaultAuthenticationPolicy } from '@packages/types/authentication/defaultAuthenticationPolicy';
 import { useState } from 'react';

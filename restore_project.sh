@@ -12,14 +12,14 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1790578791_5644' > "package.json"
+cat << 'EOF_1790584054_31994' > "package.json"
 {
     "name": "generated-project",
     "private": true,
     "type": "module",
     "workspaces": [
         "apps/api",
-        "apps/web",
+        "apps/web/core",
         "apps/web/react",
         "packages/*"
     ],
@@ -43,10 +43,10 @@ cat << 'EOF_1790578791_5644' > "package.json"
         "vitest": "^4.1.11"
     }
 }
-EOF_1790578791_5644
+EOF_1790584054_31994
 
 echo "作成: cat.sh"
-cat << 'EOF_1790578791_9352' > "cat.sh"
+cat << 'EOF_1790584054_11586' > "cat.sh"
 #!/bin/bash
 
 RECURSIVE=false
@@ -167,10 +167,10 @@ for target in "$@"; do
         fi
     fi
 done
-EOF_1790578791_9352
+EOF_1790584054_11586
 
 echo "作成: .gitignore"
-cat << 'EOF_1790578791_30647' > ".gitignore"
+cat << 'EOF_1790584054_9379' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -277,10 +277,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1790578791_30647
+EOF_1790584054_9379
 
 echo "作成: WBS_1-設定駆動アーキテクチャの完成.md"
-cat << 'EOF_1790578791_7695' > "WBS_1-設定駆動アーキテクチャの完成.md"
+cat << 'EOF_1790584054_6251' > "WBS_1-設定駆動アーキテクチャの完成.md"
 # 設定駆動アーキテクチャ完成 WBS
 
 ## Epic
@@ -1804,10 +1804,10 @@ Local認証
 - Config変更のみで切替可能
 
 ---
-EOF_1790578791_7695
+EOF_1790584054_6251
 
 echo "作成: phase-9.http"
-cat << 'EOF_1790578791_4219' > "phase-9.http"
+cat << 'EOF_1790584054_21021' > "phase-9.http"
 
 @host = http://localhost:3000
 
@@ -1927,10 +1927,10 @@ Content-Type: application/json
 
 
 
-EOF_1790578791_4219
+EOF_1790584054_21021
 
 echo "作成: TASK-001.md"
-cat << 'EOF_1790578791_16599' > "TASK-001.md"
+cat << 'EOF_1790584054_1349' > "TASK-001.md"
 # TASK-001 設定構造調査
 
 ## 目的
@@ -2596,17 +2596,17 @@ Database実装切替が
 apps/api/src/database/*
 apps/api/src/app/createContainer.ts
 ```
-EOF_1790578791_16599
+EOF_1790584054_1349
 
 mkdir -p "config"
 echo "作成: config/production.json"
-cat << 'EOF_1790578791_18832' > "config/production.json"
+cat << 'EOF_1790584054_31780' > "config/production.json"
 {}
-EOF_1790578791_18832
+EOF_1790584054_31780
 
 mkdir -p "config"
 echo "作成: config/development.json"
-cat << 'EOF_1790578791_13774' > "config/development.json"
+cat << 'EOF_1790584054_3171' > "config/development.json"
 {
     "backend": {
         "protocol": "http",
@@ -2635,16 +2635,16 @@ cat << 'EOF_1790578791_13774' > "config/development.json"
         "type": "react"
     }
 }
-EOF_1790578791_13774
+EOF_1790584054_3171
 
 mkdir -p "config"
 echo "作成: config/staging.json"
-cat << 'EOF_1790578791_15963' > "config/staging.json"
+cat << 'EOF_1790584054_32292' > "config/staging.json"
 {}
-EOF_1790578791_15963
+EOF_1790584054_32292
 
 echo "作成: TASK-005.md"
-cat << 'EOF_1790578791_1799' > "TASK-005.md"
+cat << 'EOF_1790584054_10994' > "TASK-005.md"
 # TASK-005 設定駆動化ギャップ分析
 
 ## 目的
@@ -3259,22 +3259,22 @@ TASK-006 Authentication Factory化
 ```
 
 である。
-EOF_1790578791_1799
+EOF_1790584054_10994
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1790578791_31703' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1790584054_32220' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1790578791_31703
+EOF_1790584054_32220
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1790578791_4195' > ".devcontainer/Dockerfile"
+cat << 'EOF_1790584054_9797' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -3288,11 +3288,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
-EOF_1790578791_4195
+EOF_1790584054_9797
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1790578791_30292' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1790584054_23150' > ".devcontainer/devcontainer.json"
 {
     "name": "Monorepo DevContainer with DB",
     "dockerComposeFile": "docker-compose.yml",
@@ -3344,11 +3344,11 @@ cat << 'EOF_1790578791_30292' > ".devcontainer/devcontainer.json"
     "forwardPorts": [3000, 3001, 5432],
     "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1790578791_30292
+EOF_1790584054_23150
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1790578791_20493' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1790584054_11264' > ".devcontainer/docker-compose.yml"
 services:
     app:
         build:
@@ -3361,8 +3361,6 @@ services:
         ports:
             - '${VITE_PORT:-3000}:3000'
             - '${PORT:-3001}:3001'
-        env_file:
-            - ../.env
         depends_on:
             - db
 
@@ -3383,10 +3381,10 @@ services:
 
 volumes:
     postgres-data:
-EOF_1790578791_20493
+EOF_1790584054_11264
 
 echo "作成: .prettierrc.json"
-cat << 'EOF_1790578791_16545' > ".prettierrc.json"
+cat << 'EOF_1790584054_18497' > ".prettierrc.json"
 {
     "printWidth": 100,
     "tabWidth": 4,
@@ -3394,10 +3392,10 @@ cat << 'EOF_1790578791_16545' > ".prettierrc.json"
     "singleQuote": true,
     "trailingComma": "all"
 }
-EOF_1790578791_16545
+EOF_1790584054_18497
 
 echo "作成: memo.txt"
-cat << 'EOF_1790578791_21310' > "memo.txt"
+cat << 'EOF_1790584054_8020' > "memo.txt"
 ./cat.sh package.json \
 tsconfig.json \
 tsconfig.base.json \
@@ -3463,19 +3461,19 @@ packages/api-client/administration/ConfigurationApi.ts
 ./cat.sh \
 packages/features/authentication/providers/createAuthenticationProvider.ts \
 packages/features/user/repositories/UserRepositoryImpl.ts
-EOF_1790578791_21310
+EOF_1790584054_8020
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1790578791_11936' > "tsconfig.json"
+cat << 'EOF_1790584054_26981' > "tsconfig.json"
 {
     "extends": "./tsconfig.base.json",
     "include": ["apps/**/*", "config/**/*", "packages/**/*"],
     "exclude": ["node_modules", "dist", "build"]
 }
-EOF_1790578791_11936
+EOF_1790584054_26981
 
 echo "作成: TASK-004.md"
-cat << 'EOF_1790578791_13400' > "TASK-004.md"
+cat << 'EOF_1790584054_12287' > "TASK-004.md"
 # TASK-004 frontend.type 利用状況確認
 
 ## 目的
@@ -4167,10 +4165,10 @@ frontend.type
 ```
 
 である。
-EOF_1790578791_13400
+EOF_1790584054_12287
 
 echo "作成: tree2.txt"
-cat << 'EOF_1790578791_30350' > "tree2.txt"
+cat << 'EOF_1790584054_29539' > "tree2.txt"
 .
 ├── apps
 │   ├── api
@@ -4640,10 +4638,10 @@ cat << 'EOF_1790578791_30350' > "tree2.txt"
 └── チャット1.txt
 
 143 directories, 324 files
-EOF_1790578791_30350
+EOF_1790584054_29539
 
 echo "作成: tsconfig.base.json"
-cat << 'EOF_1790578791_4030' > "tsconfig.base.json"
+cat << 'EOF_1790584054_5691' > "tsconfig.base.json"
 {
     "compilerOptions": {
         "target": "ES2022", //"NodeNext",
@@ -4654,7 +4652,11 @@ cat << 'EOF_1790578791_4030' > "tsconfig.base.json"
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         // "useDefineForClassFields": true,
-        "lib": ["DOM", "DOM.Iterable", "ESNext"],
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ESNext"
+        ],
         "allowJs": false,
         // "allowSyntheticDefaultImports": true,
         // "resolveJsonModule": true,
@@ -4665,43 +4667,52 @@ cat << 'EOF_1790578791_4030' > "tsconfig.base.json"
         "outDir": "dist",
         "baseUrl": ".",
         "paths": {
-            "@apps/api/*": ["apps/api/src/*"],
-            "@apps/web/*": ["apps/web/react/src/*"],
-            "@packages/types/*": ["packages/types/*"]
+            "@apps/api/*": [
+                "apps/api/src/*"
+            ],
+            "@apps/web-core/*": [
+                "apps/web/core/src/*",
+            ],
+            "@apps/web-react/*": [
+                "apps/web/react/src/*"
+            ],
+            "@packages/types/*": [
+                "packages/types/*"
+            ]
         }
     },
-    "exclude": ["node_modules", "dist", "build"]
+    "exclude": [
+        "node_modules",
+        "dist",
+        "build"
+    ]
 }
-EOF_1790578791_4030
+EOF_1790584054_5691
 
 mkdir -p "packages/types"
 echo "作成: packages/types/package.json"
-cat << 'EOF_1790578791_12225' > "packages/types/package.json"
+cat << 'EOF_1790584054_30770' > "packages/types/package.json"
 {
     "name": "@packages/types",
     "private": true,
-    "type": "module",
-    "exports": {
-        "./authentication/*": "./authentication/*",
-        "./user/*": "./user/*"
-    }
+    "type": "module"
 }
-EOF_1790578791_12225
+EOF_1790584054_30770
 
 mkdir -p "packages/types/user"
 echo "作成: packages/types/user/UpdateUserRequest.ts"
-cat << 'EOF_1790578791_8677' > "packages/types/user/UpdateUserRequest.ts"
+cat << 'EOF_1790584054_10635' > "packages/types/user/UpdateUserRequest.ts"
 export interface UpdateUserRequest {
     name: string;
     email: string;
     role: string;
     isActive: boolean;
 }
-EOF_1790578791_8677
+EOF_1790584054_10635
 
 mkdir -p "packages/types/user"
 echo "作成: packages/types/user/UserDto.ts"
-cat << 'EOF_1790578791_30223' > "packages/types/user/UserDto.ts"
+cat << 'EOF_1790584054_7041' > "packages/types/user/UserDto.ts"
 export interface UserDto {
     id: number;
     name: string;
@@ -4710,72 +4721,72 @@ export interface UserDto {
     isActive: boolean;
     createdAt: string;
 }
-EOF_1790578791_30223
+EOF_1790584054_7041
 
 mkdir -p "packages/types/user"
 echo "作成: packages/types/user/CreateUserRequest.ts"
-cat << 'EOF_1790578791_23018' > "packages/types/user/CreateUserRequest.ts"
+cat << 'EOF_1790584054_14164' > "packages/types/user/CreateUserRequest.ts"
 export interface CreateUserRequest {
     name: string;
     email: string;
     passwordHash: string;
     role?: string;
 }
-EOF_1790578791_23018
+EOF_1790584054_14164
 
 mkdir -p "packages/types/administration"
 echo "作成: packages/types/administration/FeatureFlagDto.ts"
-cat << 'EOF_1790578791_21392' > "packages/types/administration/FeatureFlagDto.ts"
+cat << 'EOF_1790584054_31222' > "packages/types/administration/FeatureFlagDto.ts"
 export interface FeatureFlagDto {
     name: string;
 
     enabled: boolean;
 }
-EOF_1790578791_21392
+EOF_1790584054_31222
 
 mkdir -p "packages/types/administration"
 echo "作成: packages/types/administration/ConfigurationDto.ts"
-cat << 'EOF_1790578791_2431' > "packages/types/administration/ConfigurationDto.ts"
+cat << 'EOF_1790584054_6917' > "packages/types/administration/ConfigurationDto.ts"
 import { AuthenticationPolicy } from '../authentication/AuthenticationPolicy';
 
 export interface ConfigurationDto {
     authenticationPolicy: AuthenticationPolicy;
 }
-EOF_1790578791_2431
+EOF_1790584054_6917
 
 mkdir -p "packages/types"
 echo "作成: packages/types/Config.ts"
-cat << 'EOF_1790578791_7690' > "packages/types/Config.ts"
+cat << 'EOF_1790584054_17585' > "packages/types/Config.ts"
 export interface Config {}
-EOF_1790578791_7690
+EOF_1790584054_17585
 
 mkdir -p "packages/types/authorization"
 echo "作成: packages/types/authorization/PermissionDto.ts"
-cat << 'EOF_1790578791_959' > "packages/types/authorization/PermissionDto.ts"
+cat << 'EOF_1790584054_28817' > "packages/types/authorization/PermissionDto.ts"
 export interface PermissionDto {
     name: string;
 }
-EOF_1790578791_959
+EOF_1790584054_28817
 
 mkdir -p "packages/types/authorization"
 echo "作成: packages/types/authorization/RoleDto.ts"
-cat << 'EOF_1790578791_14054' > "packages/types/authorization/RoleDto.ts"
+cat << 'EOF_1790584054_16891' > "packages/types/authorization/RoleDto.ts"
 export interface RoleDto {
     name: string;
 }
-EOF_1790578791_14054
+EOF_1790584054_16891
 
 mkdir -p "packages/types/authentication"
 echo "作成: packages/types/authentication/LoginResponse.ts"
-cat << 'EOF_1790578791_23924' > "packages/types/authentication/LoginResponse.ts"
+cat << 'EOF_1790584054_10745' > "packages/types/authentication/LoginResponse.ts"
 export interface LoginResponse {
     accessToken: string;
 }
-EOF_1790578791_23924
+EOF_1790584054_10745
 
 mkdir -p "packages/types/authentication"
 echo "作成: packages/types/authentication/AuthenticationPolicy.ts"
-cat << 'EOF_1790578791_2216' > "packages/types/authentication/AuthenticationPolicy.ts"
+cat << 'EOF_1790584054_30136' > "packages/types/authentication/AuthenticationPolicy.ts"
 export interface AuthenticationPolicy {
     session: {
         reloadBehavior: 'keep-session' | 'logout';
@@ -4813,20 +4824,20 @@ export interface AuthenticationPolicy {
         afterRecovery: 'restore' | 'home';
     };
 }
-EOF_1790578791_2216
+EOF_1790584054_30136
 
 mkdir -p "packages/types/authentication"
 echo "作成: packages/types/authentication/LoginRequest.ts"
-cat << 'EOF_1790578791_9305' > "packages/types/authentication/LoginRequest.ts"
+cat << 'EOF_1790584054_8298' > "packages/types/authentication/LoginRequest.ts"
 export interface LoginRequest {
     email: string;
     password: string;
 }
-EOF_1790578791_9305
+EOF_1790584054_8298
 
 mkdir -p "packages/types/authentication"
 echo "作成: packages/types/authentication/defaultAuthenticationPolicy.ts"
-cat << 'EOF_1790578791_3852' > "packages/types/authentication/defaultAuthenticationPolicy.ts"
+cat << 'EOF_1790584054_15282' > "packages/types/authentication/defaultAuthenticationPolicy.ts"
 import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
 
 export const defaultAuthenticationPolicy: AuthenticationPolicy = {
@@ -4866,28 +4877,28 @@ export const defaultAuthenticationPolicy: AuthenticationPolicy = {
         afterRecovery: 'restore',
     },
 };
-EOF_1790578791_3852
+EOF_1790584054_15282
 
 mkdir -p "packages/validation/user"
 echo "作成: packages/validation/user/CreateUserSchema.ts"
-cat << 'EOF_1790578791_29587' > "packages/validation/user/CreateUserSchema.ts"
+cat << 'EOF_1790584054_14991' > "packages/validation/user/CreateUserSchema.ts"
 export const CreateUserSchema = {};
-EOF_1790578791_29587
+EOF_1790584054_14991
 
 mkdir -p "packages/validation/user"
 echo "作成: packages/validation/user/UpdateUserSchema.ts"
-cat << 'EOF_1790578791_18517' > "packages/validation/user/UpdateUserSchema.ts"
+cat << 'EOF_1790584054_16266' > "packages/validation/user/UpdateUserSchema.ts"
 export const UpdateUserSchema = {};
-EOF_1790578791_18517
+EOF_1790584054_16266
 
 mkdir -p "packages/validation/authentication"
 echo "作成: packages/validation/authentication/LoginSchema.ts"
-cat << 'EOF_1790578791_2014' > "packages/validation/authentication/LoginSchema.ts"
+cat << 'EOF_1790584054_9144' > "packages/validation/authentication/LoginSchema.ts"
 export const LoginSchema = {};
-EOF_1790578791_2014
+EOF_1790584054_9144
 
 echo "作成: TASK-002.md"
-cat << 'EOF_1790578791_27454' > "TASK-002.md"
+cat << 'EOF_1790584054_2484' > "TASK-002.md"
 # TASK-002 database.type 利用状況確認
 
 ## 目的
@@ -5435,10 +5446,10 @@ authentication.type
 ```
 
 であることが判明した。
-EOF_1790578791_27454
+EOF_1790584054_2484
 
 echo "作成: tree.txt"
-cat << 'EOF_1790578791_28243' > "tree.txt"
+cat << 'EOF_1790584054_16600' > "tree.txt"
 .
 ├── apps
 │   ├── api
@@ -5656,10 +5667,10 @@ cat << 'EOF_1790578791_28243' > "tree.txt"
 │           └── UpdateUserSchema.ts
 ├── tsconfig.base.json
 └── tsconfig.json
-EOF_1790578791_28243
+EOF_1790584054_16600
 
 echo "作成: TASK-003.md"
-cat << 'EOF_1790578791_18300' > "TASK-003.md"
+cat << 'EOF_1790584054_21570' > "TASK-003.md"
 # TASK-003 authentication.type 利用状況確認
 
 ## 目的
@@ -6344,11 +6355,11 @@ apps/web/*
 apps/api/src/app/*
 apps/api/src/config/*
 ```
-EOF_1790578791_18300
+EOF_1790584054_21570
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/package.json"
-cat << 'EOF_1790578791_9827' > "apps/web/react/package.json"
+cat << 'EOF_1790584054_14404' > "apps/web/react/package.json"
 {
     "name": "@apps/web-react",
     "private": true,
@@ -6373,11 +6384,11 @@ cat << 'EOF_1790578791_9827' > "apps/web/react/package.json"
         "vite": "^8.3.0"
     }
 }
-EOF_1790578791_9827
+EOF_1790584054_14404
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/index.html"
-cat << 'EOF_1790578791_9698' > "apps/web/react/index.html"
+cat << 'EOF_1790584054_14159' > "apps/web/react/index.html"
 <!doctype html>
 <html lang="ja">
     <head>
@@ -6397,11 +6408,11 @@ cat << 'EOF_1790578791_9698' > "apps/web/react/index.html"
         <script type="module" src="/src/main.tsx"></script>
     </body>
 </html>
-EOF_1790578791_9698
+EOF_1790584054_14159
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/tsconfig.json"
-cat << 'EOF_1790578791_26291' > "apps/web/react/tsconfig.json"
+cat << 'EOF_1790584054_11742' > "apps/web/react/tsconfig.json"
 {
     "extends": "../../../tsconfig.base.json",
     "include": ["src/**/*"],
@@ -6409,11 +6420,11 @@ cat << 'EOF_1790578791_26291' > "apps/web/react/tsconfig.json"
         "types": ["vite/client"]
     }
 }
-EOF_1790578791_26291
+EOF_1790584054_11742
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/vitest.config.ts"
-cat << 'EOF_1790578791_550' > "apps/web/react/vitest.config.ts"
+cat << 'EOF_1790584054_13628' > "apps/web/react/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -6426,11 +6437,11 @@ export default defineConfig({
         include: ['**/*.test.ts'],
     },
 });
-EOF_1790578791_550
+EOF_1790584054_13628
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/router.tsx"
-cat << 'EOF_1790578791_29053' > "apps/web/react/src/app/router.tsx"
+cat << 'EOF_1790584054_11710' > "apps/web/react/src/app/router.tsx"
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import { Layout } from '../components/Layout';
@@ -6500,11 +6511,11 @@ export const router = createBrowserRouter([
         element: <NotFoundRoute />,
     },
 ]);
-EOF_1790578791_29053
+EOF_1790584054_11710
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/FeatureDefinition.ts"
-cat << 'EOF_1790578791_29839' > "apps/web/react/src/app/FeatureDefinition.ts"
+cat << 'EOF_1790584054_15919' > "apps/web/react/src/app/FeatureDefinition.ts"
 // src/app/FeatureDefinition.ts
 
 import { RouteObject } from 'react-router-dom';
@@ -6520,22 +6531,22 @@ export interface FeatureDefinition {
 
     readonly routes?: RouteObject[];
 }
-EOF_1790578791_29839
+EOF_1790584054_15919
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/App.tsx"
-cat << 'EOF_1790578791_29745' > "apps/web/react/src/app/App.tsx"
+cat << 'EOF_1790584054_28088' > "apps/web/react/src/app/App.tsx"
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 
 export function App() {
     return <RouterProvider router={router} />;
 }
-EOF_1790578791_29745
+EOF_1790584054_28088
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/features.ts"
-cat << 'EOF_1790578791_49' > "apps/web/react/src/app/features.ts"
+cat << 'EOF_1790584054_611' > "apps/web/react/src/app/features.ts"
 // src/app/features.ts
 
 import { FeatureDefinition } from './FeatureDefinition';
@@ -6555,19 +6566,19 @@ export const menus = features
     .sort((a, b) => (a.menu?.order ?? 9999) - (b.menu?.order ?? 9999));
 
 export const defaultPath = menus[0]?.menu?.path ?? '/';
-EOF_1790578791_49
+EOF_1790584054_611
 
 mkdir -p "apps/web/react/src/app/providers"
 echo "作成: apps/web/react/src/app/providers/ReactQueryProvider.tsx"
-cat << 'EOF_1790578791_27564' > "apps/web/react/src/app/providers/ReactQueryProvider.tsx"
+cat << 'EOF_1790584054_23453' > "apps/web/react/src/app/providers/ReactQueryProvider.tsx"
 export function ReactQueryProvider(props: any) {
     return props.children;
 }
-EOF_1790578791_27564
+EOF_1790584054_23453
 
 mkdir -p "apps/web/react/src/app/providers"
 echo "作成: apps/web/react/src/app/providers/AuthProvider.tsx"
-cat << 'EOF_1790578791_490' > "apps/web/react/src/app/providers/AuthProvider.tsx"
+cat << 'EOF_1790584054_10720' > "apps/web/react/src/app/providers/AuthProvider.tsx"
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthContextValue {
@@ -6653,25 +6664,25 @@ export function AuthProvider(props: any) {
 export function useAuth() {
     return useContext(AuthContext);
 }
-EOF_1790578791_490
+EOF_1790584054_10720
 
 mkdir -p "apps/web/react/src/app/providers"
 echo "作成: apps/web/react/src/app/providers/ConfigurationProvider.tsx"
-cat << 'EOF_1790578791_26872' > "apps/web/react/src/app/providers/ConfigurationProvider.tsx"
+cat << 'EOF_1790584054_8200' > "apps/web/react/src/app/providers/ConfigurationProvider.tsx"
 export function ConfigurationProvider(props: any) {
     return props.children;
 }
-EOF_1790578791_26872
+EOF_1790584054_8200
 
 mkdir -p "apps/web/react/src"
 echo "作成: apps/web/react/src/index.css"
-cat << 'EOF_1790578791_2849' > "apps/web/react/src/index.css"
+cat << 'EOF_1790584054_26747' > "apps/web/react/src/index.css"
 @import 'tailwindcss';
-EOF_1790578791_2849
+EOF_1790584054_26747
 
 mkdir -p "apps/web/react/src/features/settings"
 echo "作成: apps/web/react/src/features/settings/Feature.tsx"
-cat << 'EOF_1790578791_2675' > "apps/web/react/src/features/settings/Feature.tsx"
+cat << 'EOF_1790584054_29689' > "apps/web/react/src/features/settings/Feature.tsx"
 import { SettingsPage } from './pages/SettingsPage';
 
 export default {
@@ -6690,12 +6701,12 @@ export default {
         },
     ],
 };
-EOF_1790578791_2675
+EOF_1790584054_29689
 
 mkdir -p "apps/web/react/src/features/settings/pages"
 echo "作成: apps/web/react/src/features/settings/pages/SettingsPage.tsx"
-cat << 'EOF_1790578791_9015' > "apps/web/react/src/features/settings/pages/SettingsPage.tsx"
-import { ConfigurationApi } from '@apps/web/api-client/administration/ConfigurationApi';
+cat << 'EOF_1790584054_6791' > "apps/web/react/src/features/settings/pages/SettingsPage.tsx"
+import { ConfigurationApi } from '@apps/web-core/api-client/administration/ConfigurationApi';
 import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
 import { defaultAuthenticationPolicy } from '@packages/types/authentication/defaultAuthenticationPolicy';
 import { useState } from 'react';
@@ -6916,11 +6927,11 @@ export function SettingsPage() {
         </div>
     );
 }
-EOF_1790578791_9015
+EOF_1790584054_6791
 
 mkdir -p "apps/web/react/src/features/dashboard"
 echo "作成: apps/web/react/src/features/dashboard/Feature.tsx"
-cat << 'EOF_1790578791_1612' > "apps/web/react/src/features/dashboard/Feature.tsx"
+cat << 'EOF_1790584054_29550' > "apps/web/react/src/features/dashboard/Feature.tsx"
 import { DashboardPage } from './pages/DashboardPage';
 
 export default {
@@ -6939,12 +6950,12 @@ export default {
         },
     ],
 };
-EOF_1790578791_1612
+EOF_1790584054_29550
 
 mkdir -p "apps/web/react/src/features/dashboard/pages"
 echo "作成: apps/web/react/src/features/dashboard/pages/DashboardPage.tsx"
-cat << 'EOF_1790578791_13039' > "apps/web/react/src/features/dashboard/pages/DashboardPage.tsx"
-import { useAuth } from '@apps/web/react/src/app/providers/AuthProvider';
+cat << 'EOF_1790584055_8794' > "apps/web/react/src/features/dashboard/pages/DashboardPage.tsx"
+import { useAuth } from '@apps/web-react/src/app/providers/AuthProvider';
 
 export function DashboardPage() {
     const auth = useAuth();
@@ -7007,11 +7018,11 @@ export function DashboardPage() {
         </div>
     );
 }
-EOF_1790578791_13039
+EOF_1790584055_8794
 
 mkdir -p "apps/web/react/src/features/authentication"
 echo "作成: apps/web/react/src/features/authentication/routes.tsx"
-cat << 'EOF_1790578791_32307' > "apps/web/react/src/features/authentication/routes.tsx"
+cat << 'EOF_1790584055_30686' > "apps/web/react/src/features/authentication/routes.tsx"
 import { Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage';
 
@@ -7025,11 +7036,11 @@ export const routes = [
         element: <LoginPage />,
     },
 ];
-EOF_1790578791_32307
+EOF_1790584055_30686
 
 mkdir -p "apps/web/react/src/features/authentication"
 echo "作成: apps/web/react/src/features/authentication/Feature.tsx"
-cat << 'EOF_1790578791_31896' > "apps/web/react/src/features/authentication/Feature.tsx"
+cat << 'EOF_1790584055_20376' > "apps/web/react/src/features/authentication/Feature.tsx"
 import { LoginPage } from './pages/LoginPage';
 
 export default {
@@ -7048,12 +7059,12 @@ export default {
         },
     ],
 };
-EOF_1790578791_31896
+EOF_1790584055_20376
 
 mkdir -p "apps/web/react/src/features/authentication/api"
 echo "作成: apps/web/react/src/features/authentication/api/login.ts"
-cat << 'EOF_1790578791_25447' > "apps/web/react/src/features/authentication/api/login.ts"
-import { Application } from '@apps/web/Application';
+cat << 'EOF_1790584055_32043' > "apps/web/react/src/features/authentication/api/login.ts"
+import { Application } from '@apps/web-core/Application';
 import { LoginRequest } from '@packages/types/authentication/LoginRequest';
 import { LoginResponse } from '@packages/types/authentication/LoginResponse';
 
@@ -7075,11 +7086,11 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
 
     return await response.json();
 }
-EOF_1790578791_25447
+EOF_1790584055_32043
 
 mkdir -p "apps/web/react/src/features/authentication/pages"
 echo "作成: apps/web/react/src/features/authentication/pages/LoginPage.tsx"
-cat << 'EOF_1790578791_21272' > "apps/web/react/src/features/authentication/pages/LoginPage.tsx"
+cat << 'EOF_1790584055_21165' > "apps/web/react/src/features/authentication/pages/LoginPage.tsx"
 import { LoginForm } from '../components/LoginForm';
 
 export function LoginPage() {
@@ -7089,13 +7100,13 @@ export function LoginPage() {
         </main>
     );
 }
-EOF_1790578791_21272
+EOF_1790584055_21165
 
 mkdir -p "apps/web/react/src/features/authentication/hooks"
 echo "作成: apps/web/react/src/features/authentication/hooks/useLogin.ts"
-cat << 'EOF_1790578791_28124' > "apps/web/react/src/features/authentication/hooks/useLogin.ts"
-import { defaultPath } from '@apps/web/react/src/app/features';
-import { useAuth } from '@apps/web/react/src/app/providers/AuthProvider';
+cat << 'EOF_1790584055_27630' > "apps/web/react/src/features/authentication/hooks/useLogin.ts"
+import { defaultPath } from '@apps/web-react/src/app/features';
+import { useAuth } from '@apps/web-react/src/app/providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api/login';
 
@@ -7116,11 +7127,11 @@ export function useLogin() {
         });
     };
 }
-EOF_1790578791_28124
+EOF_1790584055_27630
 
 mkdir -p "apps/web/react/src/features/authentication/components"
 echo "作成: apps/web/react/src/features/authentication/components/LoginForm.tsx"
-cat << 'EOF_1790578791_26114' > "apps/web/react/src/features/authentication/components/LoginForm.tsx"
+cat << 'EOF_1790584055_16079' > "apps/web/react/src/features/authentication/components/LoginForm.tsx"
 import { useState, type SubmitEvent } from 'react';
 import { useLogin } from '../hooks/useLogin';
 
@@ -7199,11 +7210,11 @@ export function LoginForm() {
         </div>
     );
 }
-EOF_1790578791_26114
+EOF_1790584055_16079
 
 mkdir -p "apps/web/react/src"
 echo "作成: apps/web/react/src/main.tsx"
-cat << 'EOF_1790578791_16608' > "apps/web/react/src/main.tsx"
+cat << 'EOF_1790584055_27086' > "apps/web/react/src/main.tsx"
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
@@ -7218,11 +7229,11 @@ createRoot(document.getElementById('root')!).render(
         </AuthProvider>
     </StrictMode>,
 );
-EOF_1790578791_16608
+EOF_1790584055_27086
 
 mkdir -p "apps/web/react/src/components"
 echo "作成: apps/web/react/src/components/Layout.tsx"
-cat << 'EOF_1790578791_23279' > "apps/web/react/src/components/Layout.tsx"
+cat << 'EOF_1790584055_5623' > "apps/web/react/src/components/Layout.tsx"
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { menus } from '../app/features';
 import { useAuth } from '../app/providers/AuthProvider';
@@ -7289,11 +7300,11 @@ export function Layout() {
         </div>
     );
 }
-EOF_1790578791_23279
+EOF_1790584055_5623
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/vite.config.ts"
-cat << 'EOF_1790578791_17374' > "apps/web/react/vite.config.ts"
+cat << 'EOF_1790584055_28206' > "apps/web/react/vite.config.ts"
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'node:fs';
@@ -7338,21 +7349,110 @@ export default defineConfig({
 //         },
 //     },
 // });
-EOF_1790578791_17374
+EOF_1790584055_28206
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1790578791_9789' > "apps/web/package.json"
+cat << 'EOF_1790584055_4626' > "apps/web/package.json"
 {
     "name": "@apps/web",
     "private": true,
     "type": "module"
 }
-EOF_1790578791_9789
+EOF_1790584055_4626
 
 mkdir -p "apps/web"
-echo "作成: apps/web/ApplicationConfiguration.ts"
-cat << 'EOF_1790578791_14756' > "apps/web/ApplicationConfiguration.ts"
+echo "作成: apps/web/tsconfig.json"
+cat << 'EOF_1790584055_32658' > "apps/web/tsconfig.json"
+// {
+//     "extends": "../../tsconfig.base.json",
+//     "include": [
+//         "./*"
+//     ]
+// }
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "types": ["node"]
+    },
+    "include": ["**/*.ts"],
+    "exclude": ["react"]
+}
+EOF_1790584055_32658
+
+mkdir -p "apps/web"
+echo "作成: apps/web/vitest.config.ts"
+cat << 'EOF_1790584055_24158' > "apps/web/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    resolve: {
+        tsconfigPaths: true,
+    },
+    test: {
+        globals: true,
+        include: ['**/*.test.ts'],
+    },
+});
+EOF_1790584055_24158
+
+mkdir -p "apps/web/core"
+echo "作成: apps/web/core/package.json"
+cat << 'EOF_1790584055_9266' > "apps/web/core/package.json"
+{
+    "name": "@apps/web-core",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "test": "vitest"
+    }
+}
+EOF_1790584055_9266
+
+mkdir -p "apps/web/core"
+echo "作成: apps/web/core/tsconfig.json"
+cat << 'EOF_1790584055_7241' > "apps/web/core/tsconfig.json"
+// {
+//     "extends": "../../tsconfig.base.json",
+//     "include": [
+//         "./*"
+//     ]
+// }
+{
+    "extends": "../../../tsconfig.base.json",
+    "include": [
+        "**/*.ts"
+    ]
+}
+EOF_1790584055_7241
+
+mkdir -p "apps/web/core"
+echo "作成: apps/web/core/vitest.config.ts"
+cat << 'EOF_1790584055_8167' > "apps/web/core/vitest.config.ts"
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    resolve: {
+        tsconfigPaths: true,
+    },
+    test: {
+        globals: true,
+        include: ['**/*.test.ts'],
+    },
+});
+EOF_1790584055_8167
+
+mkdir -p "apps/web/core/src"
+echo "作成: apps/web/core/src/ApplicationConfiguration.ts"
+cat << 'EOF_1790584055_10892' > "apps/web/core/src/ApplicationConfiguration.ts"
 export interface ApplicationConfiguration {
     readonly backend: {
         readonly protocol: string;
@@ -7361,29 +7461,19 @@ export interface ApplicationConfiguration {
         readonly applicationRoot: string;
     };
 }
-EOF_1790578791_14756
+EOF_1790584055_10892
 
-mkdir -p "apps/web/api-client"
-echo "作成: apps/web/api-client/package.json"
-cat << 'EOF_1790578791_17481' > "apps/web/api-client/package.json"
-{
-    "name": "@packages/api-client",
-    "private": true,
-    "type": "module"
-}
-EOF_1790578791_17481
-
-mkdir -p "apps/web/api-client/user"
-echo "作成: apps/web/api-client/user/UserApi.ts"
-cat << 'EOF_1790578791_17786' > "apps/web/api-client/user/UserApi.ts"
+mkdir -p "apps/web/core/src/api-client/user"
+echo "作成: apps/web/core/src/api-client/user/UserApi.ts"
+cat << 'EOF_1790584055_8828' > "apps/web/core/src/api-client/user/UserApi.ts"
 export class UserApi {}
-EOF_1790578791_17786
+EOF_1790584055_8828
 
-mkdir -p "apps/web/api-client/administration"
-echo "作成: apps/web/api-client/administration/ConfigurationApi.ts"
-cat << 'EOF_1790578791_3009' > "apps/web/api-client/administration/ConfigurationApi.ts"
-import { Application } from '@apps/web/Application';
+mkdir -p "apps/web/core/src/api-client/administration"
+echo "作成: apps/web/core/src/api-client/administration/ConfigurationApi.ts"
+cat << 'EOF_1790584055_17451' > "apps/web/core/src/api-client/administration/ConfigurationApi.ts"
 import { ConfigurationDto } from '@packages/types/administration/ConfigurationDto';
+import { Application } from '../../Application';
 
 const application = new Application();
 
@@ -7412,12 +7502,12 @@ export class ConfigurationApi {
         }
     }
 }
-EOF_1790578791_3009
+EOF_1790584055_17451
 
-mkdir -p "apps/web/api-client/http"
-echo "作成: apps/web/api-client/http/FetchHttpClient.ts"
-cat << 'EOF_1790578791_7449' > "apps/web/api-client/http/FetchHttpClient.ts"
-import { Application } from '@apps/web/Application';
+mkdir -p "apps/web/core/src/api-client/http"
+echo "作成: apps/web/core/src/api-client/http/FetchHttpClient.ts"
+cat << 'EOF_1790584055_25082' > "apps/web/core/src/api-client/http/FetchHttpClient.ts"
+import { Application } from '../../Application';
 import { HttpClient } from './HttpClient';
 
 const application = new Application();
@@ -7441,50 +7531,26 @@ export class FetchHttpClient implements HttpClient {
         return response.json();
     }
 }
-EOF_1790578791_7449
+EOF_1790584055_25082
 
-mkdir -p "apps/web/api-client/http"
-echo "作成: apps/web/api-client/http/HttpClient.ts"
-cat << 'EOF_1790578791_29498' > "apps/web/api-client/http/HttpClient.ts"
+mkdir -p "apps/web/core/src/api-client/http"
+echo "作成: apps/web/core/src/api-client/http/HttpClient.ts"
+cat << 'EOF_1790584055_5656' > "apps/web/core/src/api-client/http/HttpClient.ts"
 export interface HttpClient {
     get<T>(url: string): Promise<T>;
     post<T>(url: string, body: unknown): Promise<T>;
 }
-EOF_1790578791_29498
+EOF_1790584055_5656
 
-mkdir -p "apps/web/api-client/authentication"
-echo "作成: apps/web/api-client/authentication/AuthenticationApi.ts"
-cat << 'EOF_1790578791_2952' > "apps/web/api-client/authentication/AuthenticationApi.ts"
+mkdir -p "apps/web/core/src/api-client/authentication"
+echo "作成: apps/web/core/src/api-client/authentication/AuthenticationApi.ts"
+cat << 'EOF_1790584055_9794' > "apps/web/core/src/api-client/authentication/AuthenticationApi.ts"
 export class AuthenticationApi {}
-EOF_1790578791_2952
+EOF_1790584055_9794
 
-mkdir -p "apps/web"
-echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1790578791_25619' > "apps/web/tsconfig.json"
-// {
-//     "extends": "../../tsconfig.base.json",
-//     "include": [
-//         "./*"
-//     ]
-// }
-{
-    "compilerOptions": {
-        "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "types": ["node"]
-    },
-    "include": ["**/*.ts"],
-    "exclude": ["react"]
-}
-EOF_1790578791_25619
-
-mkdir -p "apps/web"
-echo "作成: apps/web/Application.ts"
-cat << 'EOF_1790578791_28616' > "apps/web/Application.ts"
+mkdir -p "apps/web/core/src"
+echo "作成: apps/web/core/src/Application.ts"
+cat << 'EOF_1790584055_3827' > "apps/web/core/src/Application.ts"
 import { FrontendConfigurationService } from './FrontendConfigurationService';
 import { RuntimeConfigurationProvider } from './RuntimeConfigurationProvider';
 
@@ -7499,46 +7565,23 @@ export class Application {
         );
     }
 
-    // public async fetch(input: string | URL | Request, init?: RequestInit): Promise<Response> {
-    //     return await fetch(input, init);
-    // }
     public async fetch(input: string, init?: RequestInit): Promise<Response> {
         console.log('Application.fetch:');
-        // console.log('  this.apiBaseUrl:', this.apiBaseUrl);
         console.log('  input:', input);
         console.log('  method', init?.method);
         console.log('  body', init?.body);
 
-        console.log(`  this.configurationService: ${this.configurationService !== null}`);
-        console.log(`  this.configurationService: ${this.configurationService !== undefined}`);
-
         const url = this.configurationService.getApiBaseUrl() + input;
-        // console.log('  url:', url);
+        console.log('  url:', url);
 
         return await fetch(url, init);
     }
 }
-EOF_1790578791_28616
+EOF_1790584055_3827
 
-mkdir -p "apps/web"
-echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1790578791_15038' > "apps/web/vitest.config.ts"
-import { defineConfig } from 'vitest/config';
-
-export default defineConfig({
-    resolve: {
-        tsconfigPaths: true,
-    },
-    test: {
-        globals: true,
-        include: ['**/*.test.ts'],
-    },
-});
-EOF_1790578791_15038
-
-mkdir -p "apps/web"
-echo "作成: apps/web/FrontendConfigurationService.ts"
-cat << 'EOF_1790578791_4395' > "apps/web/FrontendConfigurationService.ts"
+mkdir -p "apps/web/core/src"
+echo "作成: apps/web/core/src/FrontendConfigurationService.ts"
+cat << 'EOF_1790584055_31029' > "apps/web/core/src/FrontendConfigurationService.ts"
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 
 export class FrontendConfigurationService {
@@ -7557,11 +7600,11 @@ export class FrontendConfigurationService {
         );
     }
 }
-EOF_1790578791_4395
+EOF_1790584055_31029
 
-mkdir -p "apps/web"
-echo "作成: apps/web/RuntimeConfigurationProvider.ts"
-cat << 'EOF_1790578791_20293' > "apps/web/RuntimeConfigurationProvider.ts"
+mkdir -p "apps/web/core/src"
+echo "作成: apps/web/core/src/RuntimeConfigurationProvider.ts"
+cat << 'EOF_1790584055_4905' > "apps/web/core/src/RuntimeConfigurationProvider.ts"
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 
 export class RuntimeConfigurationProvider {
@@ -7581,11 +7624,11 @@ export class RuntimeConfigurationProvider {
         return JSON.parse(json) as ApplicationConfiguration;
     }
 }
-EOF_1790578791_20293
+EOF_1790584055_4905
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1790578792_1150' > "apps/api/package.json"
+cat << 'EOF_1790584055_4966' > "apps/api/package.json"
 {
     "name": "@apps/api",
     "private": true,
@@ -7611,11 +7654,11 @@ cat << 'EOF_1790578792_1150' > "apps/api/package.json"
         "drizzle-kit": "^0.31.10"
     }
 }
-EOF_1790578792_1150
+EOF_1790584055_4966
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1790578792_16382' > "apps/api/tsconfig.json"
+cat << 'EOF_1790584055_6549' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
@@ -7625,11 +7668,11 @@ cat << 'EOF_1790578792_16382' > "apps/api/tsconfig.json"
         "types": ["node"]
     }
 }
-EOF_1790578792_16382
+EOF_1790584055_6549
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1790578792_15188' > "apps/api/vitest.config.ts"
+cat << 'EOF_1790584055_2935' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7641,17 +7684,17 @@ export default defineConfig({
         include: ['**/*.test.ts'],
     },
 });
-EOF_1790578792_15188
+EOF_1790584055_2935
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/AppContext.ts"
-cat << 'EOF_1790578792_13778' > "apps/api/src/app/AppContext.ts"
+cat << 'EOF_1790584055_29984' > "apps/api/src/app/AppContext.ts"
 export interface AppContext {}
-EOF_1790578792_13778
+EOF_1790584055_29984
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/createDependencyContainer.ts"
-cat << 'EOF_1790578792_13580' > "apps/api/src/app/createDependencyContainer.ts"
+cat << 'EOF_1790584055_32682' > "apps/api/src/app/createDependencyContainer.ts"
 import { Config } from '../config/Config';
 import { createDatabase } from '../database/createDatabase';
 import { createAuthenticationProvider } from '../features/authentication/providers/createAuthenticationProvider';
@@ -7685,11 +7728,11 @@ export async function createDependencyContainer(config: Config): Promise<Depende
         authenticationService,
     );
 }
-EOF_1790578792_13580
+EOF_1790584055_32682
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/DependencyContainer.ts"
-cat << 'EOF_1790578792_16642' > "apps/api/src/app/DependencyContainer.ts"
+cat << 'EOF_1790584055_32444' > "apps/api/src/app/DependencyContainer.ts"
 import { Config } from '../config/Config';
 import { Database } from '../database/Database';
 import { AuthenticationService } from '../features/authentication/services/AuthenticationService';
@@ -7707,11 +7750,11 @@ export class DependencyContainer {
         public readonly authenticationService: AuthenticationService,
     ) {}
 }
-EOF_1790578792_16642
+EOF_1790584055_32444
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/createApp.ts"
-cat << 'EOF_1790578792_22133' > "apps/api/src/app/createApp.ts"
+cat << 'EOF_1790584055_30909' > "apps/api/src/app/createApp.ts"
 import { Hono } from 'hono';
 
 import { createAuthenticationController } from '../features/authentication/routes';
@@ -7743,19 +7786,19 @@ export function createApp(container: DependencyContainer) {
 
     return app;
 }
-EOF_1790578792_22133
+EOF_1790584055_30909
 
 mkdir -p "apps/api/src/config"
 echo "作成: apps/api/src/config/saveConfig.ts"
-cat << 'EOF_1790578792_8990' > "apps/api/src/config/saveConfig.ts"
+cat << 'EOF_1790584055_21648' > "apps/api/src/config/saveConfig.ts"
 export async function saveConfig() {
     throw new Error('Not implemented.');
 }
-EOF_1790578792_8990
+EOF_1790584055_21648
 
 mkdir -p "apps/api/src/config"
 echo "作成: apps/api/src/config/Config.ts"
-cat << 'EOF_1790578792_15888' > "apps/api/src/config/Config.ts"
+cat << 'EOF_1790584055_13658' > "apps/api/src/config/Config.ts"
 export interface BackendConfig {
     protocol?: string; //"http";
     host?: string; //"localhost";
@@ -7784,11 +7827,11 @@ export interface Config {
     authentication: AuthenticationConfig;
     frontend: FrontendConfig;
 }
-EOF_1790578792_15888
+EOF_1790584055_13658
 
 mkdir -p "apps/api/src/config"
 echo "作成: apps/api/src/config/loadConfig.ts"
-cat << 'EOF_1790578792_28370' > "apps/api/src/config/loadConfig.ts"
+cat << 'EOF_1790584055_31134' > "apps/api/src/config/loadConfig.ts"
 import { readFile } from 'node:fs/promises';
 import { Config } from './Config';
 
@@ -7819,11 +7862,11 @@ export async function loadConfig(path: string): Promise<Config> {
 
     return config;
 }
-EOF_1790578792_28370
+EOF_1790584055_31134
 
 mkdir -p "apps/api/src/database"
 echo "作成: apps/api/src/database/InMemoryDatabase.ts"
-cat << 'EOF_1790578792_29797' > "apps/api/src/database/InMemoryDatabase.ts"
+cat << 'EOF_1790584055_19634' > "apps/api/src/database/InMemoryDatabase.ts"
 import { Database } from './Database';
 
 import { User } from '../features/user/domain/User';
@@ -7886,11 +7929,11 @@ export class InMemoryDatabase implements Database {
 
     async rollback() {}
 }
-EOF_1790578792_29797
+EOF_1790584055_19634
 
 mkdir -p "apps/api/src/database"
 echo "作成: apps/api/src/database/SqlServerDatabase.ts"
-cat << 'EOF_1790578792_8787' > "apps/api/src/database/SqlServerDatabase.ts"
+cat << 'EOF_1790584055_20866' > "apps/api/src/database/SqlServerDatabase.ts"
 import { DrizzleDatabase } from './DrizzleDatabase';
 
 export class SqlServerDatabase extends DrizzleDatabase {
@@ -7899,11 +7942,11 @@ export class SqlServerDatabase extends DrizzleDatabase {
         console.log('SQL Server selected');
     }
 }
-EOF_1790578792_8787
+EOF_1790584055_20866
 
 mkdir -p "apps/api/src/database"
 echo "作成: apps/api/src/database/PostgreSqlDatabase.ts"
-cat << 'EOF_1790578792_30662' > "apps/api/src/database/PostgreSqlDatabase.ts"
+cat << 'EOF_1790584055_7913' > "apps/api/src/database/PostgreSqlDatabase.ts"
 import { DrizzleDatabase } from './DrizzleDatabase';
 
 export class PostgreSqlDatabase extends DrizzleDatabase {
@@ -7912,11 +7955,11 @@ export class PostgreSqlDatabase extends DrizzleDatabase {
         console.log(`PostgreSQL selected.`);
     }
 }
-EOF_1790578792_30662
+EOF_1790584055_7913
 
 mkdir -p "apps/api/src/database"
 echo "作成: apps/api/src/database/DrizzleDatabase.ts"
-cat << 'EOF_1790578792_29060' > "apps/api/src/database/DrizzleDatabase.ts"
+cat << 'EOF_1790584055_4486' > "apps/api/src/database/DrizzleDatabase.ts"
 import { Pool } from 'pg';
 import { Database } from './Database';
 
@@ -7955,11 +7998,11 @@ export class DrizzleDatabase implements Database {
         await this.pool.query('ROLLBACK');
     }
 }
-EOF_1790578792_29060
+EOF_1790584055_4486
 
 mkdir -p "apps/api/src/database"
 echo "作成: apps/api/src/database/createDatabase.ts"
-cat << 'EOF_1790578792_29600' > "apps/api/src/database/createDatabase.ts"
+cat << 'EOF_1790584055_5786' > "apps/api/src/database/createDatabase.ts"
 import { DatabaseConfig } from '../config/Config';
 import { Database } from './Database';
 import { InMemoryDatabase } from './InMemoryDatabase';
@@ -7983,11 +8026,11 @@ export async function createDatabase(config: DatabaseConfig): Promise<Database> 
             throw new Error(`Unknown database type: ${config.type}`);
     }
 }
-EOF_1790578792_29600
+EOF_1790584055_5786
 
 mkdir -p "apps/api/src/database"
 echo "作成: apps/api/src/database/Database.ts"
-cat << 'EOF_1790578792_21369' > "apps/api/src/database/Database.ts"
+cat << 'EOF_1790584055_13033' > "apps/api/src/database/Database.ts"
 export interface Database {
     type: string;
     query<T>(sql: string, params?: readonly unknown[]): Promise<T[]>;
@@ -7996,11 +8039,11 @@ export interface Database {
     commit(): Promise<void>;
     rollback(): Promise<void>;
 }
-EOF_1790578792_21369
+EOF_1790584055_13033
 
 mkdir -p "apps/api/src/features/user/mappers"
 echo "作成: apps/api/src/features/user/mappers/UserMapper.ts"
-cat << 'EOF_1790578792_16705' > "apps/api/src/features/user/mappers/UserMapper.ts"
+cat << 'EOF_1790584055_4104' > "apps/api/src/features/user/mappers/UserMapper.ts"
 import { User } from '../domain/User';
 
 import { UserDto } from '@packages/types/user/UserDto';
@@ -8017,19 +8060,19 @@ export class UserMapper {
         };
     }
 }
-EOF_1790578792_16705
+EOF_1790584055_4104
 
 mkdir -p "apps/api/src/features/user"
 echo "作成: apps/api/src/features/user/routes.ts"
-cat << 'EOF_1790578792_578' > "apps/api/src/features/user/routes.ts"
+cat << 'EOF_1790584055_23652' > "apps/api/src/features/user/routes.ts"
 import { Hono } from 'hono';
 
 export const routes = new Hono();
-EOF_1790578792_578
+EOF_1790584055_23652
 
 mkdir -p "apps/api/src/features/user/controllers"
 echo "作成: apps/api/src/features/user/controllers/UserController.ts"
-cat << 'EOF_1790578792_22847' > "apps/api/src/features/user/controllers/UserController.ts"
+cat << 'EOF_1790584055_18647' > "apps/api/src/features/user/controllers/UserController.ts"
 import bcrypt from 'bcrypt';
 import { Hono } from 'hono';
 import { AppVariables } from '../../authentication/AppVariables';
@@ -8217,11 +8260,11 @@ export function createUserController(service: UserService) {
 
     return router;
 }
-EOF_1790578792_22847
+EOF_1790584055_18647
 
 mkdir -p "apps/api/src/features/user/services"
 echo "作成: apps/api/src/features/user/services/UserService.ts"
-cat << 'EOF_1790578792_9404' > "apps/api/src/features/user/services/UserService.ts"
+cat << 'EOF_1790584055_3901' > "apps/api/src/features/user/services/UserService.ts"
 import { User } from '../domain/User';
 import { UserRepository } from '../repositories/UserRepository';
 
@@ -8308,11 +8351,11 @@ export class UserService {
         await this.users.remove(id);
     }
 }
-EOF_1790578792_9404
+EOF_1790584055_3901
 
 mkdir -p "apps/api/src/features/user/domain"
 echo "作成: apps/api/src/features/user/domain/User.ts"
-cat << 'EOF_1790578792_16735' > "apps/api/src/features/user/domain/User.ts"
+cat << 'EOF_1790584055_10958' > "apps/api/src/features/user/domain/User.ts"
 export class User {
     constructor(
         public readonly id: number,
@@ -8324,11 +8367,11 @@ export class User {
         public createdAt: Date,
     ) {}
 }
-EOF_1790578792_16735
+EOF_1790584055_10958
 
 mkdir -p "apps/api/src/features/user/repositories"
 echo "作成: apps/api/src/features/user/repositories/UserRepository.ts"
-cat << 'EOF_1790578792_11599' > "apps/api/src/features/user/repositories/UserRepository.ts"
+cat << 'EOF_1790584055_345' > "apps/api/src/features/user/repositories/UserRepository.ts"
 import { User } from '../domain/User';
 
 export interface UserRepository {
@@ -8343,11 +8386,11 @@ export interface UserRepository {
     updateActive(id: string, isActive: boolean): Promise<void>;
     remove(id: string): Promise<void>;
 }
-EOF_1790578792_11599
+EOF_1790584055_345
 
 mkdir -p "apps/api/src/features/user/repositories"
 echo "作成: apps/api/src/features/user/repositories/UserRepositoryImpl.ts"
-cat << 'EOF_1790578792_6293' > "apps/api/src/features/user/repositories/UserRepositoryImpl.ts"
+cat << 'EOF_1790584055_27640' > "apps/api/src/features/user/repositories/UserRepositoryImpl.ts"
 import { Database } from '@apps/api/database/Database';
 import { User } from '../domain/User';
 import { UserRepository } from './UserRepository';
@@ -8499,35 +8542,35 @@ export class UserRepositoryImpl implements UserRepository {
         );
     }
 }
-EOF_1790578792_6293
+EOF_1790584055_27640
 
 mkdir -p "apps/api/src/features/administration"
 echo "作成: apps/api/src/features/administration/routes.ts"
-cat << 'EOF_1790578792_24062' > "apps/api/src/features/administration/routes.ts"
+cat << 'EOF_1790584055_12936' > "apps/api/src/features/administration/routes.ts"
 import { Hono } from 'hono';
 
 export const routes = new Hono();
-EOF_1790578792_24062
+EOF_1790584055_12936
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/AdminUserController.ts"
-cat << 'EOF_1790578792_24956' > "apps/api/src/features/administration/controllers/AdminUserController.ts"
+cat << 'EOF_1790584055_32558' > "apps/api/src/features/administration/controllers/AdminUserController.ts"
 import { Hono } from 'hono';
 
 export const adminUserRouter = new Hono();
-EOF_1790578792_24956
+EOF_1790584055_32558
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/SystemStatusController.ts"
-cat << 'EOF_1790578792_31103' > "apps/api/src/features/administration/controllers/SystemStatusController.ts"
+cat << 'EOF_1790584055_18126' > "apps/api/src/features/administration/controllers/SystemStatusController.ts"
 import { Hono } from 'hono';
 
 export const systemStatusRouter = new Hono();
-EOF_1790578792_31103
+EOF_1790584055_18126
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/ConfigurationController.ts"
-cat << 'EOF_1790578792_14414' > "apps/api/src/features/administration/controllers/ConfigurationController.ts"
+cat << 'EOF_1790584055_17324' > "apps/api/src/features/administration/controllers/ConfigurationController.ts"
 import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
 import { defaultAuthenticationPolicy } from '@packages/types/authentication/defaultAuthenticationPolicy';
 import { Hono } from 'hono';
@@ -8549,93 +8592,93 @@ configurationRouter.put('/configuration', async (c) => {
 
     return c.json(configuration);
 });
-EOF_1790578792_14414
+EOF_1790584055_17324
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/FeatureFlagController.ts"
-cat << 'EOF_1790578792_32231' > "apps/api/src/features/administration/controllers/FeatureFlagController.ts"
+cat << 'EOF_1790584055_20749' > "apps/api/src/features/administration/controllers/FeatureFlagController.ts"
 import { Hono } from 'hono';
 
 export const featureFlagRouter = new Hono();
-EOF_1790578792_32231
+EOF_1790584055_20749
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/ConfigurationService.ts"
-cat << 'EOF_1790578792_444' > "apps/api/src/features/administration/services/ConfigurationService.ts"
+cat << 'EOF_1790584055_21568' > "apps/api/src/features/administration/services/ConfigurationService.ts"
 import { ConfigurationRepository } from '../repositories/ConfigurationRepository';
 
 export class ConfigurationService {
     constructor(private readonly repository: ConfigurationRepository) {}
 }
-EOF_1790578792_444
+EOF_1790584055_21568
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/AdminUserService.ts"
-cat << 'EOF_1790578792_27656' > "apps/api/src/features/administration/services/AdminUserService.ts"
+cat << 'EOF_1790584055_17463' > "apps/api/src/features/administration/services/AdminUserService.ts"
 import { AdminUserRepository } from '../repositories/AdminUserRepository';
 
 export class AdminUserService {
     constructor(private readonly repository: AdminUserRepository) {}
 }
-EOF_1790578792_27656
+EOF_1790584055_17463
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/SystemStatusService.ts"
-cat << 'EOF_1790578792_30088' > "apps/api/src/features/administration/services/SystemStatusService.ts"
+cat << 'EOF_1790584055_28980' > "apps/api/src/features/administration/services/SystemStatusService.ts"
 export class SystemStatusService {}
-EOF_1790578792_30088
+EOF_1790584055_28980
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/FeatureFlagService.ts"
-cat << 'EOF_1790578792_20492' > "apps/api/src/features/administration/services/FeatureFlagService.ts"
+cat << 'EOF_1790584055_18634' > "apps/api/src/features/administration/services/FeatureFlagService.ts"
 import { FeatureFlagRepository } from '../repositories/FeatureFlagRepository';
 
 export class FeatureFlagService {
     constructor(private readonly repository: FeatureFlagRepository) {}
 }
-EOF_1790578792_20492
+EOF_1790584055_18634
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/SystemStatus.ts"
-cat << 'EOF_1790578792_24105' > "apps/api/src/features/administration/domain/SystemStatus.ts"
+cat << 'EOF_1790584055_15374' > "apps/api/src/features/administration/domain/SystemStatus.ts"
 export interface SystemStatus {
     version: string;
 
     uptime: number;
 }
-EOF_1790578792_24105
+EOF_1790584055_15374
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/SystemConfiguration.ts"
-cat << 'EOF_1790578792_19748' > "apps/api/src/features/administration/domain/SystemConfiguration.ts"
+cat << 'EOF_1790584055_22747' > "apps/api/src/features/administration/domain/SystemConfiguration.ts"
 export interface SystemConfiguration {
     databaseType: 'memory' | 'postgres' | 'sqlserver';
     authenticationType: 'none' | 'local' | 'oidc' | 'ldap';
     frontendType: 'react' | 'vue';
 }
-EOF_1790578792_19748
+EOF_1790584055_22747
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/AdminUser.ts"
-cat << 'EOF_1790578792_25547' > "apps/api/src/features/administration/domain/AdminUser.ts"
+cat << 'EOF_1790584055_15783' > "apps/api/src/features/administration/domain/AdminUser.ts"
 export interface AdminUser {
     userName: string;
 }
-EOF_1790578792_25547
+EOF_1790584055_15783
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/FeatureFlag.ts"
-cat << 'EOF_1790578792_14607' > "apps/api/src/features/administration/domain/FeatureFlag.ts"
+cat << 'EOF_1790584055_19367' > "apps/api/src/features/administration/domain/FeatureFlag.ts"
 export interface FeatureFlag {
     name: string;
 
     enabled: boolean;
 }
-EOF_1790578792_14607
+EOF_1790584055_19367
 
 mkdir -p "apps/api/src/features/administration/authentication"
 echo "作成: apps/api/src/features/administration/authentication/LocalAdminAuthenticationProvider.ts"
-cat << 'EOF_1790578792_4642' > "apps/api/src/features/administration/authentication/LocalAdminAuthenticationProvider.ts"
+cat << 'EOF_1790584055_10660' > "apps/api/src/features/administration/authentication/LocalAdminAuthenticationProvider.ts"
 import { AdminAuthenticationProvider } from './AdminAuthenticationProvider';
 
 export class LocalAdminAuthenticationProvider implements AdminAuthenticationProvider {
@@ -8643,29 +8686,29 @@ export class LocalAdminAuthenticationProvider implements AdminAuthenticationProv
         return true;
     }
 }
-EOF_1790578792_4642
+EOF_1790584055_10660
 
 mkdir -p "apps/api/src/features/administration/authentication"
 echo "作成: apps/api/src/features/administration/authentication/AdminAuthenticationProvider.ts"
-cat << 'EOF_1790578792_19566' > "apps/api/src/features/administration/authentication/AdminAuthenticationProvider.ts"
+cat << 'EOF_1790584055_17909' > "apps/api/src/features/administration/authentication/AdminAuthenticationProvider.ts"
 export interface AdminAuthenticationProvider {
     authenticate(email: string, password: string): Promise<boolean>;
 }
-EOF_1790578792_19566
+EOF_1790584055_17909
 
 mkdir -p "apps/api/src/features/administration/repositories"
 echo "作成: apps/api/src/features/administration/repositories/AdminUserRepository.ts"
-cat << 'EOF_1790578792_21747' > "apps/api/src/features/administration/repositories/AdminUserRepository.ts"
+cat << 'EOF_1790584055_14811' > "apps/api/src/features/administration/repositories/AdminUserRepository.ts"
 import { AdminUser } from '../domain/AdminUser';
 
 export interface AdminUserRepository {
     findAll(): Promise<AdminUser[]>;
 }
-EOF_1790578792_21747
+EOF_1790584055_14811
 
 mkdir -p "apps/api/src/features/administration/repositories"
 echo "作成: apps/api/src/features/administration/repositories/FeatureFlagRepository.ts"
-cat << 'EOF_1790578792_19644' > "apps/api/src/features/administration/repositories/FeatureFlagRepository.ts"
+cat << 'EOF_1790584055_955' > "apps/api/src/features/administration/repositories/FeatureFlagRepository.ts"
 import { FeatureFlag } from '../domain/FeatureFlag';
 
 export interface FeatureFlagRepository {
@@ -8673,11 +8716,11 @@ export interface FeatureFlagRepository {
 
     save(feature: FeatureFlag): Promise<void>;
 }
-EOF_1790578792_19644
+EOF_1790584055_955
 
 mkdir -p "apps/api/src/features/administration/repositories"
 echo "作成: apps/api/src/features/administration/repositories/ConfigurationRepository.ts"
-cat << 'EOF_1790578792_13912' > "apps/api/src/features/administration/repositories/ConfigurationRepository.ts"
+cat << 'EOF_1790584055_22434' > "apps/api/src/features/administration/repositories/ConfigurationRepository.ts"
 import { SystemConfiguration } from '../domain/SystemConfiguration';
 
 export interface ConfigurationRepository {
@@ -8685,11 +8728,11 @@ export interface ConfigurationRepository {
 
     save(configuration: SystemConfiguration): Promise<void>;
 }
-EOF_1790578792_13912
+EOF_1790584055_22434
 
 mkdir -p "apps/api/src/features/authentication/middleware"
 echo "作成: apps/api/src/features/authentication/middleware/authorizeSelfOrAdmin.ts"
-cat << 'EOF_1790578792_23012' > "apps/api/src/features/authentication/middleware/authorizeSelfOrAdmin.ts"
+cat << 'EOF_1790584055_14049' > "apps/api/src/features/authentication/middleware/authorizeSelfOrAdmin.ts"
 import { Context, Next } from 'hono';
 
 export function authorizeSelfOrAdmin() {
@@ -8713,11 +8756,11 @@ export function authorizeSelfOrAdmin() {
         await next();
     };
 }
-EOF_1790578792_23012
+EOF_1790584055_14049
 
 mkdir -p "apps/api/src/features/authentication/middleware"
 echo "作成: apps/api/src/features/authentication/middleware/jwtAuthentication.ts"
-cat << 'EOF_1790578792_5272' > "apps/api/src/features/authentication/middleware/jwtAuthentication.ts"
+cat << 'EOF_1790584055_18592' > "apps/api/src/features/authentication/middleware/jwtAuthentication.ts"
 import { Context, Next } from 'hono';
 import { JwtService } from '../services/JwtService';
 
@@ -8741,11 +8784,11 @@ export function jwtAuthentication(jwtService: JwtService) {
         }
     };
 }
-EOF_1790578792_5272
+EOF_1790584055_18592
 
 mkdir -p "apps/api/src/features/authentication/middleware"
 echo "作成: apps/api/src/features/authentication/middleware/authorize.ts"
-cat << 'EOF_1790578792_12688' > "apps/api/src/features/authentication/middleware/authorize.ts"
+cat << 'EOF_1790584055_14682' > "apps/api/src/features/authentication/middleware/authorize.ts"
 import { Context, Next } from 'hono';
 
 export function authorize(...roles: string[]) {
@@ -8763,26 +8806,26 @@ export function authorize(...roles: string[]) {
         await next();
     };
 }
-EOF_1790578792_12688
+EOF_1790584055_14682
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/routes.ts"
-cat << 'EOF_1790578792_19850' > "apps/api/src/features/authentication/routes.ts"
+cat << 'EOF_1790584055_16102' > "apps/api/src/features/authentication/routes.ts"
 export { createAuthenticationController } from './controllers/AuthenticationController';
-EOF_1790578792_19850
+EOF_1790584055_16102
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/AuthenticationCredential.ts"
-cat << 'EOF_1790578792_30460' > "apps/api/src/features/authentication/AuthenticationCredential.ts"
+cat << 'EOF_1790584055_8324' > "apps/api/src/features/authentication/AuthenticationCredential.ts"
 export interface AuthenticationCredential {
     username: string;
     password: string;
 }
-EOF_1790578792_30460
+EOF_1790584055_8324
 
 mkdir -p "apps/api/src/features/authentication/controllers"
 echo "作成: apps/api/src/features/authentication/controllers/AuthenticationController.ts"
-cat << 'EOF_1790578792_30063' > "apps/api/src/features/authentication/controllers/AuthenticationController.ts"
+cat << 'EOF_1790584055_7165' > "apps/api/src/features/authentication/controllers/AuthenticationController.ts"
 import { LoginRequest } from '@packages/types/authentication/LoginRequest';
 import { Hono } from 'hono';
 import { AuthenticationService } from '../services/AuthenticationService';
@@ -8804,11 +8847,11 @@ export function createAuthenticationController(service: AuthenticationService) {
 
     return router;
 }
-EOF_1790578792_30063
+EOF_1790584055_7165
 
 mkdir -p "apps/api/src/features/authentication/services"
 echo "作成: apps/api/src/features/authentication/services/JwtService.ts"
-cat << 'EOF_1790578792_5655' > "apps/api/src/features/authentication/services/JwtService.ts"
+cat << 'EOF_1790584055_588' > "apps/api/src/features/authentication/services/JwtService.ts"
 import jwt from 'jsonwebtoken';
 import { AppJwtPayload } from '../AppJwtPayload';
 import { UserPrincipal } from '../domain/UserPrincipal';
@@ -8860,11 +8903,11 @@ export class JwtService {
         };
     }
 }
-EOF_1790578792_5655
+EOF_1790584055_588
 
 mkdir -p "apps/api/src/features/authentication/services"
 echo "作成: apps/api/src/features/authentication/services/AuthenticationService.ts"
-cat << 'EOF_1790578792_3521' > "apps/api/src/features/authentication/services/AuthenticationService.ts"
+cat << 'EOF_1790584055_19810' > "apps/api/src/features/authentication/services/AuthenticationService.ts"
 import { AuthenticationProvider } from '../providers/AuthenticationProvider';
 import { JwtService } from './JwtService';
 
@@ -8893,11 +8936,11 @@ export class AuthenticationService {
         };
     }
 }
-EOF_1790578792_3521
+EOF_1790584055_19810
 
 mkdir -p "apps/api/src/features/authentication/domain"
 echo "作成: apps/api/src/features/authentication/domain/SystemConfiguration.ts"
-cat << 'EOF_1790578792_15358' > "apps/api/src/features/authentication/domain/SystemConfiguration.ts"
+cat << 'EOF_1790584055_5220' > "apps/api/src/features/authentication/domain/SystemConfiguration.ts"
 import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
 
 export interface SystemConfiguration {
@@ -8906,31 +8949,31 @@ export interface SystemConfiguration {
     frontendType: 'react' | 'vue';
     authenticationPolicy: AuthenticationPolicy;
 }
-EOF_1790578792_15358
+EOF_1790584055_5220
 
 mkdir -p "apps/api/src/features/authentication/domain"
 echo "作成: apps/api/src/features/authentication/domain/UserPrincipal.ts"
-cat << 'EOF_1790578792_15031' > "apps/api/src/features/authentication/domain/UserPrincipal.ts"
+cat << 'EOF_1790584055_30419' > "apps/api/src/features/authentication/domain/UserPrincipal.ts"
 export interface UserPrincipal {
     userId: string;
     email: string;
     role: string;
 }
-EOF_1790578792_15031
+EOF_1790584055_30419
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/AppVariables.ts"
-cat << 'EOF_1790578792_7067' > "apps/api/src/features/authentication/AppVariables.ts"
+cat << 'EOF_1790584055_12966' > "apps/api/src/features/authentication/AppVariables.ts"
 import { UserPrincipal } from './domain/UserPrincipal';
 
 export interface AppVariables {
     principal: UserPrincipal;
 }
-EOF_1790578792_7067
+EOF_1790584055_12966
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/AppJwtPayload.ts"
-cat << 'EOF_1790578792_7869' > "apps/api/src/features/authentication/AppJwtPayload.ts"
+cat << 'EOF_1790584055_924' > "apps/api/src/features/authentication/AppJwtPayload.ts"
 export interface AppJwtPayload {
     /**
      * UserPrincipal.userId
@@ -8965,11 +9008,11 @@ export interface AppJwtPayload {
 //     iat?: number;
 //     exp?: number;
 // }
-EOF_1790578792_7869
+EOF_1790584055_924
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/createAuthenticationProvider.ts"
-cat << 'EOF_1790578792_7987' > "apps/api/src/features/authentication/providers/createAuthenticationProvider.ts"
+cat << 'EOF_1790584055_8930' > "apps/api/src/features/authentication/providers/createAuthenticationProvider.ts"
 import { AuthenticationConfig } from '@apps/api/config/Config';
 import { UserService } from '../../user/services/UserService';
 import { AuthenticationProvider } from './AuthenticationProvider';
@@ -9001,11 +9044,11 @@ export function createAuthenticationProvider(
             throw new Error(`Unsupported authentication type: ${config.type}`);
     }
 }
-EOF_1790578792_7987
+EOF_1790584055_8930
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/LdapAuthenticationProvider.ts"
-cat << 'EOF_1790578792_18420' > "apps/api/src/features/authentication/providers/LdapAuthenticationProvider.ts"
+cat << 'EOF_1790584055_25832' > "apps/api/src/features/authentication/providers/LdapAuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9014,11 +9057,11 @@ export class LdapAuthenticationProvider implements AuthenticationProvider {
         throw new Error('LDAP authentication not implemented.');
     }
 }
-EOF_1790578792_18420
+EOF_1790584055_25832
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/LocalAuthenticationProvider.ts"
-cat << 'EOF_1790578792_3882' > "apps/api/src/features/authentication/providers/LocalAuthenticationProvider.ts"
+cat << 'EOF_1790584055_26757' > "apps/api/src/features/authentication/providers/LocalAuthenticationProvider.ts"
 import bcrypt from 'bcrypt';
 
 import { UserService } from '../../user/services/UserService';
@@ -9056,11 +9099,11 @@ export class LocalAuthenticationProvider implements AuthenticationProvider {
         };
     }
 }
-EOF_1790578792_3882
+EOF_1790584055_26757
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/OidcAuthenticationProvider.ts"
-cat << 'EOF_1790578792_15024' > "apps/api/src/features/authentication/providers/OidcAuthenticationProvider.ts"
+cat << 'EOF_1790584055_10095' > "apps/api/src/features/authentication/providers/OidcAuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9069,21 +9112,21 @@ export class OidcAuthenticationProvider implements AuthenticationProvider {
         throw new Error('OIDC authentication not implemented.');
     }
 }
-EOF_1790578792_15024
+EOF_1790584055_10095
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/AuthenticationProvider.ts"
-cat << 'EOF_1790578792_9818' > "apps/api/src/features/authentication/providers/AuthenticationProvider.ts"
+cat << 'EOF_1790584055_19399' > "apps/api/src/features/authentication/providers/AuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 
 export interface AuthenticationProvider {
     authenticate(username: string, password: string): Promise<UserPrincipal | null>;
 }
-EOF_1790578792_9818
+EOF_1790584055_19399
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/NoAuthenticationProvider.ts"
-cat << 'EOF_1790578792_26248' > "apps/api/src/features/authentication/providers/NoAuthenticationProvider.ts"
+cat << 'EOF_1790584055_6110' > "apps/api/src/features/authentication/providers/NoAuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9096,11 +9139,11 @@ export class NoAuthenticationProvider implements AuthenticationProvider {
         };
     }
 }
-EOF_1790578792_26248
+EOF_1790584055_6110
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/main.ts"
-cat << 'EOF_1790578792_23524' > "apps/api/src/main.ts"
+cat << 'EOF_1790584055_14423' > "apps/api/src/main.ts"
 import { serve } from '@hono/node-server';
 import { createApp } from './app/createApp';
 import { createDependencyContainer } from './app/createDependencyContainer';
@@ -9131,11 +9174,11 @@ serve({
 });
 
 console.log(`Listening on :${port}`);
-EOF_1790578792_23524
+EOF_1790584055_14423
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/cors.ts"
-cat << 'EOF_1790578792_26999' > "apps/api/src/common/cors.ts"
+cat << 'EOF_1790584055_21321' > "apps/api/src/common/cors.ts"
 import { cors as honoCors } from 'hono/cors';
 import { Config } from '../config/Config';
 
@@ -9169,35 +9212,35 @@ function cors(config: Config) {
 }
 
 export default cors;
-EOF_1790578792_26999
+EOF_1790584055_21321
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/authorization.ts"
-cat << 'EOF_1790578792_22738' > "apps/api/src/common/middleware/authorization.ts"
+cat << 'EOF_1790584055_20654' > "apps/api/src/common/middleware/authorization.ts"
 export function authorization() {}
-EOF_1790578792_22738
+EOF_1790584055_20654
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/featureGuard.ts"
-cat << 'EOF_1790578792_20932' > "apps/api/src/common/middleware/featureGuard.ts"
+cat << 'EOF_1790584055_20387' > "apps/api/src/common/middleware/featureGuard.ts"
 export function featureGuard() {}
-EOF_1790578792_20932
+EOF_1790584055_20387
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/authentication.ts"
-cat << 'EOF_1790578792_6021' > "apps/api/src/common/middleware/authentication.ts"
+cat << 'EOF_1790584055_30110' > "apps/api/src/common/middleware/authentication.ts"
 export function authentication() {}
-EOF_1790578792_6021
+EOF_1790584055_30110
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/errorHandler.ts"
-cat << 'EOF_1790578792_32182' > "apps/api/src/common/middleware/errorHandler.ts"
+cat << 'EOF_1790584055_14098' > "apps/api/src/common/middleware/errorHandler.ts"
 export function errorHandler() {}
-EOF_1790578792_32182
+EOF_1790584055_14098
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/csrf.ts"
-cat << 'EOF_1790578792_18575' > "apps/api/src/common/csrf.ts"
+cat << 'EOF_1790584055_24621' > "apps/api/src/common/csrf.ts"
 import { csrf as honoCsrf } from 'hono/csrf';
 import { Config } from '../config/Config';
 
@@ -9221,11 +9264,11 @@ function csrf(config: Config) {
 }
 
 export default csrf;
-EOF_1790578792_18575
+EOF_1790584055_24621
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/error.ts"
-cat << 'EOF_1790578792_14587' > "apps/api/src/common/error.ts"
+cat << 'EOF_1790584055_17767' > "apps/api/src/common/error.ts"
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { JwtTokenInvalid } from 'hono/utils/jwt/types';
@@ -9261,11 +9304,11 @@ const error = (e: Error, c: Context) => {
 };
 
 export default error;
-EOF_1790578792_14587
+EOF_1790584055_17767
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/logger.ts"
-cat << 'EOF_1790578792_20925' > "apps/api/src/common/logger.ts"
+cat << 'EOF_1790584055_10003' > "apps/api/src/common/logger.ts"
 import { logger as honoLogger } from 'hono/logger';
 
 /*
@@ -9284,43 +9327,43 @@ export const customLogger = (message: string, ...rest: Array<string>) => {
 const logger = honoLogger(customLogger);
 
 export default logger;
-EOF_1790578792_20925
+EOF_1790584055_10003
 
 mkdir -p "apps/api/src/common/repositories"
 echo "作成: apps/api/src/common/repositories/BaseRepository.ts"
-cat << 'EOF_1790578792_20484' > "apps/api/src/common/repositories/BaseRepository.ts"
+cat << 'EOF_1790584055_9060' > "apps/api/src/common/repositories/BaseRepository.ts"
 export abstract class BaseRepository<TEntity> {}
-EOF_1790578792_20484
+EOF_1790584055_9060
 
 mkdir -p "apps/api/src/common/repositories"
 echo "作成: apps/api/src/common/repositories/Repository.ts"
-cat << 'EOF_1790578792_13587' > "apps/api/src/common/repositories/Repository.ts"
+cat << 'EOF_1790584055_19737' > "apps/api/src/common/repositories/Repository.ts"
 export interface Repository<TEntity> {}
-EOF_1790578792_13587
+EOF_1790584055_19737
 
 mkdir -p "apps/api/src/drizzle"
 echo "作成: apps/api/src/drizzle/index.ts"
-cat << 'EOF_1790578792_2906' > "apps/api/src/drizzle/index.ts"
+cat << 'EOF_1790584055_28978' > "apps/api/src/drizzle/index.ts"
 export * from './db';
 export * from './schema';
-EOF_1790578792_2906
+EOF_1790584055_28978
 
 mkdir -p "apps/api/src/drizzle"
 echo "作成: apps/api/src/drizzle/schema.ts"
-cat << 'EOF_1790578792_5960' > "apps/api/src/drizzle/schema.ts"
+cat << 'EOF_1790584055_27459' > "apps/api/src/drizzle/schema.ts"
 export const tables = {
     users: 'users',
 };
-EOF_1790578792_5960
+EOF_1790584055_27459
 
 mkdir -p "apps/api/src/drizzle"
 echo "作成: apps/api/src/drizzle/db.ts"
-cat << 'EOF_1790578792_32148' > "apps/api/src/drizzle/db.ts"
+cat << 'EOF_1790584055_20846' > "apps/api/src/drizzle/db.ts"
 export interface DrizzleConnection {}
-EOF_1790578792_32148
+EOF_1790584055_20846
 
 echo "作成: チャット1.txt"
-cat << 'EOF_1790578792_7872' > "チャット1.txt"
+cat << 'EOF_1790584055_8961' > "チャット1.txt"
 Phase 1 現状把握
 
 TASK-001 設定一覧作成
@@ -9349,10 +9392,10 @@ apps/api/src/database/*
 
 
 
-EOF_1790578792_7872
+EOF_1790584055_8961
 
 echo "作成: README.md"
-cat << 'EOF_1790578792_19317' > "README.md"
+cat << 'EOF_1790584055_988' > "README.md"
 # Webアプリケーション基盤 今後の開発計画
 
 ## 1. 現状整理
@@ -9978,10 +10021,10 @@ packages
 ```*
 
 ```
-EOF_1790578792_19317
+EOF_1790584055_988
 
 echo "作成: TASK-001_004-設定駆動化ギャップ分析.md"
-cat << 'EOF_1790578792_22459' > "TASK-001_004-設定駆動化ギャップ分析.md"
+cat << 'EOF_1790584055_14292' > "TASK-001_004-設定駆動化ギャップ分析.md"
 # TASK-005 設定駆動化ギャップ分析
 
 ## 目的
@@ -10737,6 +10780,6 @@ AuthenticationProvider
 
 という抽象化が既に存在しており、
 実装コストに対する効果が最も高いためである。
-EOF_1790578792_22459
+EOF_1790584055_14292
 
 echo -e "\n復元が完了しました！"

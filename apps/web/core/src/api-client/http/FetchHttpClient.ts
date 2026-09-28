@@ -1,4 +1,4 @@
-import { Application } from '@apps/web/Application';
+import { Application } from '../../Application';
 import { HttpClient } from './HttpClient';
 
 const application = new Application();

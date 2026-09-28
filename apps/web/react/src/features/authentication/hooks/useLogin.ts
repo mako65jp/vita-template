@@ -1,5 +1,5 @@
-import { defaultPath } from '@apps/web/react/src/app/features';
-import { useAuth } from '@apps/web/react/src/app/providers/AuthProvider';
+import { defaultPath } from '@apps/web-react/src/app/features';
+import { useAuth } from '@apps/web-react/src/app/providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api/login';
 

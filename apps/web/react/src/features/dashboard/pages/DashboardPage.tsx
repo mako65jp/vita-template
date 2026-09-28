@@ -1,4 +1,4 @@
-import { useAuth } from '@apps/web/react/src/app/providers/AuthProvider';
+import { useAuth } from '@apps/web-react/src/app/providers/AuthProvider';
 
 export function DashboardPage() {
     const auth = useAuth();

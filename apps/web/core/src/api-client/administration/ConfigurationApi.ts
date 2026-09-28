@@ -1,5 +1,5 @@
-import { Application } from '@apps/web/Application';
 import { ConfigurationDto } from '@packages/types/administration/ConfigurationDto';
+import { Application } from '../../Application';
 
 const application = new Application();
 
