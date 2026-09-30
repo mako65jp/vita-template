@@ -1,7 +1,7 @@
 import { cors as honoCors } from 'hono/cors';
-import { Config } from '../config/Config';
+import { SystemConfig } from '../systemConfig/SystemConfig';
 
-function cors(config: Config) {
+function cors(systemConfig: SystemConfig) {
     /*
      * CORS ミドルウェア・ハンドラー
      *
@@ -12,7 +12,7 @@ function cors(config: Config) {
             try {
                 const url = new URL(origin);
                 // ホスト名（ポート番号を除いた部分）が一致しているかチェック
-                if (url.hostname === config.frontend.host) {
+                if (url.hostname === systemConfig.frontend.host) {
                     return origin; // マッチしたらリクエストのoriginをそのまま返して許可
                 }
             } catch (e) {

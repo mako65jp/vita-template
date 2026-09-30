@@ -1,6 +1,6 @@
 import { ConfigurationApi } from '@apps/web-core/api-client/administration/ConfigurationApi';
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
-import { defaultAuthenticationPolicy } from '@packages/types/authentication/defaultAuthenticationPolicy';
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
+import { defaultAuthenticationPolicy } from '@packages/types/administration/defaultAuthenticationPolicy';
 import { useState } from 'react';
 
 export function SettingsPage() {

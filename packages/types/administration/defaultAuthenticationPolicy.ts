@@ -1,4 +1,4 @@
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
 
 export const defaultAuthenticationPolicy: AuthenticationPolicy = {
     session: {

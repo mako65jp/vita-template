@@ -8,6 +8,7 @@ export class InMemoryDatabase implements Database {
 
     constructor(type: string) {
         this.type = type;
+
         this.users.set(
             1,
             new User(

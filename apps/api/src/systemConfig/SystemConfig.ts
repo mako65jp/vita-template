@@ -20,7 +20,7 @@ export interface FrontendConfig {
     host?: string; //"localhost";
 }
 
-export interface Config {
+export interface SystemConfig {
     backend: BackendConfig;
     database: DatabaseConfig;
     authentication: AuthenticationConfig;

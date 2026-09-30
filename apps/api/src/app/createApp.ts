@@ -12,14 +12,14 @@ import { jwtAuthentication } from '../features/authentication/middleware/jwtAuth
 // import notFound from "./handlers/not-found.js";
 
 export function createApp(container: DependencyContainer) {
-    const apiRoot = container.config.backend.applicationRoot;
+    const apiRoot = container.systemConfig.backend.applicationRoot;
 
     const app = new Hono()
         .onError(error)
         // .notFound(notFound)
         .use(logger)
-        .use('*', cors(container.config))
-        .use('*', csrf(container.config))
+        .use('*', cors(container.systemConfig))
+        .use('*', csrf(container.systemConfig))
         .get('/', (c) => c.text('Backend running.'))
 
         .route(`${apiRoot}`, createAuthenticationController(container.authenticationService))

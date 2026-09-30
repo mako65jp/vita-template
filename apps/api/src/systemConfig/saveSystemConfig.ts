@@ -1,3 +1,3 @@
-export async function saveConfig() {
+export async function saveSystemConfig() {
     throw new Error('Not implemented.');
 }

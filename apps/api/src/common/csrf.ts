@@ -1,7 +1,7 @@
 import { csrf as honoCsrf } from 'hono/csrf';
-import { Config } from '../config/Config';
+import { SystemConfig } from '../systemConfig/SystemConfig';
 
-function csrf(config: Config) {
+function csrf(systemConfig: SystemConfig) {
     /*
      * csrf ミドルウェア・ハンドラー
      *
@@ -12,7 +12,7 @@ function csrf(config: Config) {
             try {
                 const url = new URL(origin);
                 // CORSのときと同様に、ホスト名が一致していればCSRF的にも安全とみなして許可する
-                return url.hostname === config.frontend.host;
+                return url.hostname === systemConfig.frontend.host;
             } catch {
                 return false;
             }

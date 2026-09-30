@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server';
 import { createApp } from './app/createApp';
 import { createDependencyContainer } from './app/createDependencyContainer';
-import { loadConfig } from './config/loadConfig';
+import { loadSystemConfig } from './systemConfig/loadSystemConfig';
 
 import path, { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,7 +16,7 @@ const __root: string = path.resolve(__dirname, '../../../');
 // ディレクトリ内にある設定ファイルを読み込む例
 const configPath: string = join(__root, 'config/development.json');
 
-const config = await loadConfig(configPath);
+const config = await loadSystemConfig(configPath);
 
 const dependencyContainer = await createDependencyContainer(config);
 const app = createApp(dependencyContainer);
