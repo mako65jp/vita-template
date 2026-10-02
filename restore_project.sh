@@ -12,7 +12,7 @@ if command -v base64 >/dev/null 2>&1; then
 fi
 
 echo "作成: package.json"
-cat << 'EOF_1790584054_31994' > "package.json"
+cat << 'EOF_1790920124_8175' > "package.json"
 {
     "name": "generated-project",
     "private": true,
@@ -24,17 +24,24 @@ cat << 'EOF_1790584054_31994' > "package.json"
         "packages/*"
     ],
     "scripts": {
-        "dev": "npm run dev -w @apps/api",
-        "dev:api": "npm run dev -w @apps/api",
-        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
-        "check": "tsc --noEmit",
         "build": "npm run build:api && npm run build:web",
         "build:api": "npm run build -w @apps/api",
         "build:web": "npm run build -w @apps/web-react",
-        "test": "npm run test --workspaces --if-present",
-        "format": "prettier --write ."
+        "check": "tsc --noEmit",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:push": "drizzle-kit push",
+        "dev": "npm run dev -w @apps/api",
+        "dev:api": "npm run dev -w @apps/api",
+        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
+        "format": "prettier --write .",
+        "test": "npm run test --workspaces --if-present"
+    },
+    "dependencies": {
+        "zod": "^4.6.5"
     },
     "devDependencies": {
+        "drizzle-kit": "^0.31.10",
         "eslint": "^10.11.0",
         "eslint-config-prettier": "^10.1.8",
         "prettier": "^3.9.9",
@@ -43,10 +50,10 @@ cat << 'EOF_1790584054_31994' > "package.json"
         "vitest": "^4.1.11"
     }
 }
-EOF_1790584054_31994
+EOF_1790920124_8175
 
 echo "作成: cat.sh"
-cat << 'EOF_1790584054_11586' > "cat.sh"
+cat << 'EOF_1790920124_22096' > "cat.sh"
 #!/bin/bash
 
 RECURSIVE=false
@@ -167,10 +174,10 @@ for target in "$@"; do
         fi
     fi
 done
-EOF_1790584054_11586
+EOF_1790920124_22096
 
 echo "作成: .gitignore"
-cat << 'EOF_1790584054_9379' > ".gitignore"
+cat << 'EOF_1790920124_15585' > ".gitignore"
 ### Node
 # Dependencies
 node_modules/
@@ -277,10 +284,10 @@ $RECYCLE.BIN/
 
 # Built Visual Studio Code Extensions
 *.vsix
-EOF_1790584054_9379
+EOF_1790920124_15585
 
 echo "作成: WBS_1-設定駆動アーキテクチャの完成.md"
-cat << 'EOF_1790584054_6251' > "WBS_1-設定駆動アーキテクチャの完成.md"
+cat << 'EOF_1790920124_20385' > "WBS_1-設定駆動アーキテクチャの完成.md"
 # 設定駆動アーキテクチャ完成 WBS
 
 ## Epic
@@ -1804,10 +1811,10 @@ Local認証
 - Config変更のみで切替可能
 
 ---
-EOF_1790584054_6251
+EOF_1790920124_20385
 
 echo "作成: phase-9.http"
-cat << 'EOF_1790584054_21021' > "phase-9.http"
+cat << 'EOF_1790920124_6962' > "phase-9.http"
 
 @host = http://localhost:3000
 
@@ -1927,10 +1934,10 @@ Content-Type: application/json
 
 
 
-EOF_1790584054_21021
+EOF_1790920124_6962
 
 echo "作成: TASK-001.md"
-cat << 'EOF_1790584054_1349' > "TASK-001.md"
+cat << 'EOF_1790920124_5920' > "TASK-001.md"
 # TASK-001 設定構造調査
 
 ## 目的
@@ -2596,17 +2603,17 @@ Database実装切替が
 apps/api/src/database/*
 apps/api/src/app/createContainer.ts
 ```
-EOF_1790584054_1349
+EOF_1790920124_5920
 
 mkdir -p "config"
 echo "作成: config/production.json"
-cat << 'EOF_1790584054_31780' > "config/production.json"
+cat << 'EOF_1790920124_23946' > "config/production.json"
 {}
-EOF_1790584054_31780
+EOF_1790920124_23946
 
 mkdir -p "config"
 echo "作成: config/development.json"
-cat << 'EOF_1790584054_3171' > "config/development.json"
+cat << 'EOF_1790920124_27439' > "config/development.json"
 {
     "backend": {
         "protocol": "http",
@@ -2635,16 +2642,16 @@ cat << 'EOF_1790584054_3171' > "config/development.json"
         "type": "react"
     }
 }
-EOF_1790584054_3171
+EOF_1790920124_27439
 
 mkdir -p "config"
 echo "作成: config/staging.json"
-cat << 'EOF_1790584054_32292' > "config/staging.json"
+cat << 'EOF_1790920124_8561' > "config/staging.json"
 {}
-EOF_1790584054_32292
+EOF_1790920124_8561
 
 echo "作成: TASK-005.md"
-cat << 'EOF_1790584054_10994' > "TASK-005.md"
+cat << 'EOF_1790920124_10156' > "TASK-005.md"
 # TASK-005 設定駆動化ギャップ分析
 
 ## 目的
@@ -3259,22 +3266,22 @@ TASK-006 Authentication Factory化
 ```
 
 である。
-EOF_1790584054_10994
+EOF_1790920124_10156
 
 mkdir -p ".devcontainer/scripts"
 echo "作成: .devcontainer/scripts/init-test-db.sh"
-cat << 'EOF_1790584054_32220' > ".devcontainer/scripts/init-test-db.sh"
+cat << 'EOF_1790920124_30637' > ".devcontainer/scripts/init-test-db.sh"
 #!/bin/bash
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE DATABASE $POSTGRES_DB_TEST;
 EOSQL
-EOF_1790584054_32220
+EOF_1790920124_30637
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/Dockerfile"
-cat << 'EOF_1790584054_9797' > ".devcontainer/Dockerfile"
+cat << 'EOF_1790920124_26839' > ".devcontainer/Dockerfile"
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
 
 # パッケージの追加インストールなどが必要な場合はここに記述可能
@@ -3288,11 +3295,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
-EOF_1790584054_9797
+EOF_1790920124_26839
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/devcontainer.json"
-cat << 'EOF_1790584054_23150' > ".devcontainer/devcontainer.json"
+cat << 'EOF_1790920124_18189' > ".devcontainer/devcontainer.json"
 {
     "name": "Monorepo DevContainer with DB",
     "dockerComposeFile": "docker-compose.yml",
@@ -3344,11 +3351,11 @@ cat << 'EOF_1790584054_23150' > ".devcontainer/devcontainer.json"
     "forwardPorts": [3000, 3001, 5432],
     "updateContentCommand": "sudo chown -R node:node /workspace && npm install"
 }
-EOF_1790584054_23150
+EOF_1790920124_18189
 
 mkdir -p ".devcontainer"
 echo "作成: .devcontainer/docker-compose.yml"
-cat << 'EOF_1790584054_11264' > ".devcontainer/docker-compose.yml"
+cat << 'EOF_1790920124_23723' > ".devcontainer/docker-compose.yml"
 services:
     app:
         build:
@@ -3381,10 +3388,10 @@ services:
 
 volumes:
     postgres-data:
-EOF_1790584054_11264
+EOF_1790920124_23723
 
 echo "作成: .prettierrc.json"
-cat << 'EOF_1790584054_18497' > ".prettierrc.json"
+cat << 'EOF_1790920124_14852' > ".prettierrc.json"
 {
     "printWidth": 100,
     "tabWidth": 4,
@@ -3392,10 +3399,10 @@ cat << 'EOF_1790584054_18497' > ".prettierrc.json"
     "singleQuote": true,
     "trailingComma": "all"
 }
-EOF_1790584054_18497
+EOF_1790920124_14852
 
 echo "作成: memo.txt"
-cat << 'EOF_1790584054_8020' > "memo.txt"
+cat << 'EOF_1790920124_3136' > "memo.txt"
 ./cat.sh package.json \
 tsconfig.json \
 tsconfig.base.json \
@@ -3461,19 +3468,19 @@ packages/api-client/administration/ConfigurationApi.ts
 ./cat.sh \
 packages/features/authentication/providers/createAuthenticationProvider.ts \
 packages/features/user/repositories/UserRepositoryImpl.ts
-EOF_1790584054_8020
+EOF_1790920124_3136
 
 echo "作成: tsconfig.json"
-cat << 'EOF_1790584054_26981' > "tsconfig.json"
+cat << 'EOF_1790920124_1968' > "tsconfig.json"
 {
     "extends": "./tsconfig.base.json",
     "include": ["apps/**/*", "config/**/*", "packages/**/*"],
     "exclude": ["node_modules", "dist", "build"]
 }
-EOF_1790584054_26981
+EOF_1790920124_1968
 
 echo "作成: TASK-004.md"
-cat << 'EOF_1790584054_12287' > "TASK-004.md"
+cat << 'EOF_1790920124_9392' > "TASK-004.md"
 # TASK-004 frontend.type 利用状況確認
 
 ## 目的
@@ -4165,483 +4172,71 @@ frontend.type
 ```
 
 である。
-EOF_1790584054_12287
+EOF_1790920124_9392
 
 echo "作成: tree2.txt"
-cat << 'EOF_1790584054_29539' > "tree2.txt"
+cat << 'EOF_1790920124_31570' > "tree2.txt"
 .
 ├── apps
 │   ├── api
-│   │   ├── package.json
-│   │   ├── src
-│   │   │   ├── app
-│   │   │   │   ├── AppContext.ts
-│   │   │   │   ├── createApp.ts
-│   │   │   │   ├── createContainer.ts
-│   │   │   │   └── DependencyContainer.ts
-│   │   │   ├── common
-│   │   │   │   ├── cors.ts
-│   │   │   │   ├── csrf.ts
-│   │   │   │   ├── errors
-│   │   │   │   ├── error.ts
-│   │   │   │   ├── logger.ts
-│   │   │   │   ├── middleware
-│   │   │   │   │   ├── authentication.ts
-│   │   │   │   │   ├── authorization.ts
-│   │   │   │   │   ├── errorHandler.ts
-│   │   │   │   │   └── featureGuard.ts
-│   │   │   │   └── repositories
-│   │   │   │       ├── BaseRepository.ts
-│   │   │   │       └── Repository.ts
-│   │   │   ├── config
-│   │   │   │   ├── Config.ts
-│   │   │   │   ├── loadConfig.ts
-│   │   │   │   └── saveConfig.ts
-│   │   │   ├── database
-│   │   │   │   ├── createDatabase.ts
-│   │   │   │   ├── Database.ts
-│   │   │   │   ├── DrizzleDatabase.ts
-│   │   │   │   ├── InMemoryDatabase.ts
-│   │   │   │   ├── PostgreSqlDatabase.ts
-│   │   │   │   └── SqlServerDatabase.ts
-│   │   │   ├── drizzle
-│   │   │   │   ├── db.ts
-│   │   │   │   ├── index.ts
-│   │   │   │   └── schema.ts
-│   │   │   ├── features
-│   │   │   │   ├── administration
-│   │   │   │   │   ├── authentication
-│   │   │   │   │   │   ├── AdminAuthenticationProvider.ts
-│   │   │   │   │   │   └── LocalAdminAuthenticationProvider.ts
-│   │   │   │   │   ├── controllers
-│   │   │   │   │   │   ├── AdminUserController.ts
-│   │   │   │   │   │   ├── ConfigurationController.ts
-│   │   │   │   │   │   ├── FeatureFlagController.ts
-│   │   │   │   │   │   └── SystemStatusController.ts
-│   │   │   │   │   ├── domain
-│   │   │   │   │   │   ├── AdminUser.ts
-│   │   │   │   │   │   ├── FeatureFlag.ts
-│   │   │   │   │   │   ├── SystemConfiguration.ts
-│   │   │   │   │   │   └── SystemStatus.ts
-│   │   │   │   │   ├── repositories
-│   │   │   │   │   │   ├── AdminUserRepository.ts
-│   │   │   │   │   │   ├── ConfigurationRepository.ts
-│   │   │   │   │   │   └── FeatureFlagRepository.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   └── services
-│   │   │   │   │       ├── AdminUserService.ts
-│   │   │   │   │       ├── ConfigurationService.ts
-│   │   │   │   │       ├── FeatureFlagService.ts
-│   │   │   │   │       └── SystemStatusService.ts
-│   │   │   │   ├── authentication
-│   │   │   │   │   ├── AppJwtPayload.ts
-│   │   │   │   │   ├── AppVariables.ts
-│   │   │   │   │   ├── AuthenticationCredential.ts
-│   │   │   │   │   ├── controllers
-│   │   │   │   │   │   └── AuthenticationController.ts
-│   │   │   │   │   ├── domain
-│   │   │   │   │   │   └── UserPrincipal.ts
-│   │   │   │   │   ├── middleware
-│   │   │   │   │   │   ├── authorizeSelfOrAdmin.ts
-│   │   │   │   │   │   ├── authorize.ts
-│   │   │   │   │   │   └── jwtAuthentication.ts
-│   │   │   │   │   ├── providers
-│   │   │   │   │   │   ├── AuthenticationProvider.ts
-│   │   │   │   │   │   ├── createAuthenticationProvider.ts
-│   │   │   │   │   │   ├── LdapAuthenticationProvider.ts
-│   │   │   │   │   │   ├── LocalAuthenticationProvider.ts
-│   │   │   │   │   │   ├── NoAuthenticationProvider.ts
-│   │   │   │   │   │   └── OidcAuthenticationProvider.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   └── services
-│   │   │   │   │       ├── AuthenticationService.ts
-│   │   │   │   │       └── JwtService.ts
-│   │   │   │   ├── authorization
-│   │   │   │   │   ├── controllers
-│   │   │   │   │   │   └── AuthorizationController.ts
-│   │   │   │   │   ├── domain
-│   │   │   │   │   │   ├── Permission.ts
-│   │   │   │   │   │   └── Role.ts
-│   │   │   │   │   ├── repositories
-│   │   │   │   │   │   └── RoleRepository.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   └── services
-│   │   │   │   │       └── AuthorizationService.ts
-│   │   │   │   └── user
-│   │   │   │       ├── controllers
-│   │   │   │       │   └── UserController.ts
-│   │   │   │       ├── domain
-│   │   │   │       │   └── User.ts
-│   │   │   │       ├── mappers
-│   │   │   │       │   └── UserMapper.ts
-│   │   │   │       ├── repositories
-│   │   │   │       │   ├── UserRepositoryImpl.ts
-│   │   │   │       │   └── UserRepository.ts
-│   │   │   │       ├── routes.ts
-│   │   │   │       └── services
-│   │   │   │           └── UserService.ts
-│   │   │   └── main.ts
-│   │   ├── tsconfig.json
-│   │   └── vitest.config.ts
+│   │   └── src
+│   │       ├── app
+│   │       ├── common
+│   │       │   ├── middleware
+│   │       │   └── repositories
+│   │       ├── database
+│   │       ├── features
+│   │       │   ├── administration
+│   │       │   │   ├── authentication
+│   │       │   │   ├── controllers
+│   │       │   │   ├── domain
+│   │       │   │   ├── mappers
+│   │       │   │   ├── repositories
+│   │       │   │   └── services
+│   │       │   ├── authentication
+│   │       │       ├── controllers
+│   │       │       ├── domain
+│   │       │       ├── middleware
+│   │       │       ├── providers
+│   │       │       └── services
+│   │       └── systemConfig
 │   └── web
-│       ├── ApplicationConfiguration.ts
-│       ├── Application.ts
-│       ├── FrontendConfigurationService.ts
-│       ├── package.json
-│       ├── package-lock.json
-│       ├── react
-│       │   ├── index.html
-│       │   ├── package.json
-│       │   ├── src
-│       │   │   ├── app
-│       │   │   │   ├── App.tsx
-│       │   │   │   ├── FeatureDefinition.ts
-│       │   │   │   ├── features.ts
-│       │   │   │   ├── providers
-│       │   │   │   │   ├── AuthProvider.tsx
-│       │   │   │   │   ├── ConfigurationProvider.tsx
-│       │   │   │   │   └── ReactQueryProvider.tsx
-│       │   │   │   └── router.tsx
-│       │   │   ├── components
-│       │   │   │   └── Layout.tsx
-│       │   │   ├── config
-│       │   │   ├── features
-│       │   │   │   ├── administration
-│       │   │   │   │   └── routes.tsx
-│       │   │   │   ├── authentication
-│       │   │   │   │   ├── api
-│       │   │   │   │   │   └── login.ts
-│       │   │   │   │   ├── components
-│       │   │   │   │   │   └── LoginForm.tsx
-│       │   │   │   │   ├── hooks
-│       │   │   │   │   │   └── useLogin.ts
-│       │   │   │   │   ├── pages
-│       │   │   │   │   │   └── LoginPage.tsx
-│       │   │   │   │   └── routes.tsx
-│       │   │   │   ├── authorization
-│       │   │   │   ├── dashboard
-│       │   │   │   │   └── pages
-│       │   │   │   │       └── DashboardPage.tsx
-│       │   │   │   ├── settings
-│       │   │   │   │   └── pages
-│       │   │   │   │       └── SettingsPage.tsx
-│       │   │   │   └── user
-│       │   │   │       └── routes.tsx
-│       │   │   ├── index.css
-│       │   │   └── main.tsx
-│       │   ├── tsconfig.json
-│       │   ├── vite.config.ts
-│       │   └── vitest.config.ts
-│       ├── RuntimeConfigurationProvider.ts
-│       ├── tsconfig.json
-│       ├── vitest.config.ts
-│       └── vue
+│       ├── core
+│       │   └── src
+│       │       └── api-client
+│       │           ├── administration
+│       │           ├── authentication
+│       │           ├── http
+│       │           └── user
+│       └── react
 │           └── src
 │               ├── app
-│               │   ├── App.vue
-│               │   └── router.ts
+│               │   └── providers
 │               ├── components
-│               ├── features
-│               │   ├── administration
-│               │   │   └── routes.ts
-│               │   ├── authentication
-│               │   ├── authorization
-│               │   └── user
-│               │       └── routes.ts
-│               └── main.ts
-├── cat.sh
+│               ├── config
+│               └── features
+│                   ├── authentication
+│                   │   ├── api
+│                   │   ├── components
+│                   │   ├── hooks
+│                   │   └── pages
+│                   ├── dashboard
+│                   │   └── pages
+│                   └── settings
+│                       └── pages
 ├── config
-│   ├── development.json
-│   ├── production.json
-│   └── staging.json
-├── memo.txt
-├── Old
-│   ├── apps
-│   │   ├── api
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── auto-loader
-│   │   │   │   │   ├── hono-auto-loader.test.ts
-│   │   │   │   │   └── hono-auto-loader.ts
-│   │   │   │   ├── create-app.test.ts
-│   │   │   │   ├── create-app.ts
-│   │   │   │   ├── main.test.ts
-│   │   │   │   ├── main.ts
-│   │   │   │   ├── middlewares
-│   │   │   │   │   ├── auth-middleware.test.ts
-│   │   │   │   │   ├── auth-middleware.ts
-│   │   │   │   │   ├── di.test.ts
-│   │   │   │   │   ├── di.ts
-│   │   │   │   │   ├── logger.test.ts
-│   │   │   │   │   ├── logger.ts
-│   │   │   │   │   ├── rbac-middleware.test.ts
-│   │   │   │   │   └── rbac-middleware.ts
-│   │   │   │   ├── routes
-│   │   │   │   │   ├── auth.test.ts
-│   │   │   │   │   ├── auth.ts
-│   │   │   │   │   ├── health.test.ts
-│   │   │   │   │   ├── health.ts
-│   │   │   │   │   ├── plugin.test.ts
-│   │   │   │   │   └── plugin.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── auth-service.test.ts
-│   │   │   │   │   └── auth-service.ts
-│   │   │   │   ├── types.ts
-│   │   │   │   └── utils
-│   │   │   │       └── auto-loader-helper.ts
-│   │   │   ├── tsconfig.json
-│   │   │   └── vitest.config.ts
-│   │   └── web
-│   │       ├── index.html
-│   │       ├── package.json
-│   │       ├── src
-│   │       │   ├── App.test.tsx
-│   │       │   ├── App.tsx
-│   │       │   ├── components
-│   │       │   │   ├── ForbiddenPage.test.tsx
-│   │       │   │   ├── ForbiddenPage.tsx
-│   │       │   │   ├── Header.tsx
-│   │       │   │   ├── LoginForm.test.tsx
-│   │       │   │   ├── LoginForm.tsx
-│   │       │   │   ├── ProtectedRoute.test.tsx
-│   │       │   │   └── ProtectedRoute.tsx
-│   │       │   ├── context
-│   │       │   │   ├── AuthContext.test.tsx
-│   │       │   │   └── AuthContext.tsx
-│   │       │   ├── env.test.ts
-│   │       │   ├── index.css
-│   │       │   ├── lib
-│   │       │   │   ├── apiClient.test.ts
-│   │       │   │   └── apiClient.ts
-│   │       │   └── main.tsx
-│   │       ├── tsconfig.json
-│   │       ├── vite.config.ts
-│   │       ├── vitest.config.ts
-│   │       └── vitest-setup.ts
-│   ├── create_restorer_bat.sh
-│   ├── create_restorer.sh
-│   ├── doc.md
-│   ├── features
-│   │   ├── tsconfig.json
-│   │   └── user-management
-│   │       ├── api
-│   │       │   └── user-management-api.ts
-│   │       ├── client
-│   │       │   ├── CreateUserModal.tsx
-│   │       │   ├── index.ts
-│   │       │   ├── plugin.ts
-│   │       │   ├── UserManagementTable.test.tsx
-│   │       │   └── UserManagementTable.tsx
-│   │       ├── index.ts
-│   │       ├── manifest.test.ts
-│   │       ├── manifest.ts
-│   │       ├── package.json
-│   │       ├── server
-│   │       │   ├── index.ts
-│   │       │   ├── plugin.ts
-│   │       │   ├── routes.test.ts
-│   │       │   └── routes.ts
-│   │       ├── shared
-│   │       ├── vitest.config.ts
-│   │       └── vitest-setup.ts
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── plan.md
-│   ├── plugins
-│   │   ├── auth-ad
-│   │   │   ├── index.test.ts
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   └── vitest.config.ts
-│   │   └── auth-local
-│   │       ├── index.test.ts
-│   │       ├── index.ts
-│   │       ├── package.json
-│   │       ├── src
-│   │       │   ├── auth-utils.test.ts
-│   │       │   └── auth-utils.ts
-│   │       └── vitest.config.ts
-│   ├── restore_project.bat
-│   ├── restore_project.sh
-│   ├── shared
-│   │   ├── client
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── components
-│   │   │   │   │   ├── button.test.tsx
-│   │   │   │   │   ├── button.tsx
-│   │   │   │   │   ├── layout
-│   │   │   │   │   │   ├── AppLayout.tsx
-│   │   │   │   │   │   ├── index.ts
-│   │   │   │   │   │   └── SidebarNav.tsx
-│   │   │   │   │   ├── layout.test.tsx
-│   │   │   │   │   ├── toaster.test.tsx
-│   │   │   │   │   └── toaster.tsx
-│   │   │   │   ├── env.ts
-│   │   │   │   ├── lib
-│   │   │   │   │   └── utils.ts
-│   │   │   │   └── vitest-setup.ts
-│   │   │   ├── tsconfig.json
-│   │   │   └── vitest.config.ts
-│   │   ├── config
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── app.ts
-│   │   │   │   ├── auth.ts
-│   │   │   │   ├── ports.ts
-│   │   │   │   └── routes.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── db
-│   │   │   ├── drizzle
-│   │   │   │   ├── 0000_oval_dark_phoenix.sql
-│   │   │   │   └── meta
-│   │   │   │       ├── 0000_snapshot.json
-│   │   │   │       └── _journal.json
-│   │   │   ├── drizzle.config.ts
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── seed.ts
-│   │   │   ├── src
-│   │   │   │   ├── codegen.ts
-│   │   │   │   ├── database.test.ts
-│   │   │   │   ├── database.ts
-│   │   │   │   ├── generated
-│   │   │   │   │   └── repositories.ts
-│   │   │   │   └── schema
-│   │   │   │       ├── index.ts
-│   │   │   │       ├── plugins.ts
-│   │   │   │       └── users.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── errors
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── app-error.ts
-│   │   │   │   ├── bad-request-error.ts
-│   │   │   │   ├── forbidden-error.ts
-│   │   │   │   ├── internal-server-error.ts
-│   │   │   │   ├── not-found-error.ts
-│   │   │   │   ├── types.ts
-│   │   │   │   ├── unauthorized-error.ts
-│   │   │   │   └── validation-error.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── functions
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── auth-registry.test.ts
-│   │   │   │   ├── auth-registry.ts
-│   │   │   │   ├── constants.ts
-│   │   │   │   ├── env.test.ts
-│   │   │   │   └── env.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── package.json
-│   │   ├── plugin
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── plugin-registry.ts
-│   │   │   │   └── server-plugin.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── server-utils
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── path.test.ts
-│   │   │   │   └── path.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── tsconfig.json
-│   │   └── vitest.config.ts
-│   ├── tree.txt
-│   ├── tsconfig.base.json
-│   ├── tsconfig.json
-│   ├── vitest.config.ts
-│   └── vitest-helpers.ts
-├── package.json
-├── package-lock.json
-├── packages
-│   ├── api-client
-│   │   ├── administration
-│   │   │   └── ConfigurationApi.ts
-│   │   ├── authentication
-│   │   │   └── AuthenticationApi.ts
-│   │   ├── http
-│   │   │   ├── FetchHttpClient.ts
-│   │   │   └── HttpClient.ts
-│   │   └── user
-│   │       └── UserApi.ts
-│   ├── features
-│   │   ├── authentication
-│   │   │   ├── api
-│   │   │   │   └── login.ts
-│   │   │   ├── components
-│   │   │   │   └── LoginForm.tsx
-│   │   │   ├── Feature.tsx
-│   │   │   ├── hooks
-│   │   │   │   └── useLogin.ts
-│   │   │   ├── pages
-│   │   │   │   └── LoginPage.tsx
-│   │   │   └── routes.tsx
-│   │   ├── package.json
-│   │   ├── settings
-│   │   │   ├── Feature.tsx
-│   │   │   └── pages
-│   │   │       └── SettingsPage.tsx
-│   │   ├── tsconfig.json
-│   │   └── vitest.config.ts
-│   ├── shared
-│   │   ├── collections
-│   │   ├── constants
-│   │   ├── errors
-│   │   └── utilities
-│   ├── types
-│   │   ├── administration
-│   │   │   ├── ConfigurationDto.ts
-│   │   │   └── FeatureFlagDto.ts
-│   │   ├── authentication
-│   │   │   ├── LoginRequest.ts
-│   │   │   └── LoginResponse.ts
-│   │   ├── authorization
-│   │   │   ├── PermissionDto.ts
-│   │   │   └── RoleDto.ts
-│   │   ├── common
-│   │   ├── Config.ts
-│   │   ├── package.json
-│   │   └── user
-│   │       ├── CreateUserRequest.ts
-│   │       ├── UpdateUserRequest.ts
-│   │       └── UserDto.ts
-│   └── validation
-│       ├── administration
-│       ├── authentication
-│       │   └── LoginSchema.ts
-│       ├── common
-│       └── user
-│           ├── CreateUserSchema.ts
-│           └── UpdateUserSchema.ts
-├── phase-9.http
-├── README.md
-├── TASK-001_004-設定駆動化ギャップ分析.md
-├── TASK-001.md
-├── TASK-002.md
-├── TASK-003.md
-├── TASK-004.md
-├── TASK-005.md
-├── tree2.txt
-├── tree.txt
-├── tsconfig.base.json
-├── tsconfig.json
-├── WBS_1-設定駆動アーキテクチャの完成.md
-└── チャット1.txt
-
-143 directories, 324 files
-EOF_1790584054_29539
+└── packages
+    ├── constants
+    ├── types
+        ├── administration
+        ├── authentication
+        ├── authorization
+        ├── common
+        └── user
+EOF_1790920124_31570
 
 echo "作成: tsconfig.base.json"
-cat << 'EOF_1790584054_5691' > "tsconfig.base.json"
+cat << 'EOF_1790920124_9391' > "tsconfig.base.json"
 {
     "compilerOptions": {
         "target": "ES2022", //"NodeNext",
@@ -4652,11 +4247,7 @@ cat << 'EOF_1790584054_5691' > "tsconfig.base.json"
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         // "useDefineForClassFields": true,
-        "lib": [
-            "DOM",
-            "DOM.Iterable",
-            "ESNext"
-        ],
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "allowJs": false,
         // "allowSyntheticDefaultImports": true,
         // "resolveJsonModule": true,
@@ -4667,52 +4258,108 @@ cat << 'EOF_1790584054_5691' > "tsconfig.base.json"
         "outDir": "dist",
         "baseUrl": ".",
         "paths": {
-            "@apps/api/*": [
-                "apps/api/src/*"
-            ],
-            "@apps/web-core/*": [
-                "apps/web/core/src/*",
-            ],
-            "@apps/web-react/*": [
-                "apps/web/react/src/*"
-            ],
-            "@packages/types/*": [
-                "packages/types/*"
-            ]
+            "@/*": ["*"],
+            "@apps/api/*": ["apps/api/src/*"],
+            "@apps/web-core/*": ["apps/web/core/src/*"],
+            "@apps/web-react/*": ["apps/web/react/src/*"],
+            "@packages/schemas/*": ["packages/schemas/*"],
+            "@packages/types/*": ["packages/types/*"]
         }
     },
-    "exclude": [
-        "node_modules",
-        "dist",
-        "build"
-    ]
+    "exclude": ["node_modules", "dist", "build"]
 }
-EOF_1790584054_5691
+EOF_1790920124_9391
+
+mkdir -p "packages/schemas"
+echo "作成: packages/schemas/package.json"
+cat << 'EOF_1790920124_8535' > "packages/schemas/package.json"
+{
+    "name": "@packages/schemas",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    }
+}
+EOF_1790920124_8535
+
+mkdir -p "packages/schemas/src"
+echo "作成: packages/schemas/src/index.ts"
+cat << 'EOF_1790920124_18036' > "packages/schemas/src/index.ts"
+export * from './user/create-user';
+export * from './user/user';
+export * from './user/user-detail';
+EOF_1790920124_18036
+
+mkdir -p "packages/schemas/src/user"
+echo "作成: packages/schemas/src/user/create-user.ts"
+cat << 'EOF_1790920124_13151' > "packages/schemas/src/user/create-user.ts"
+import { z } from 'zod';
+
+export const CreateUserSchema = z.object({
+    name: z.string().nonempty(),
+    email: z.email(),
+    password: z.string().nonempty(),
+});
+
+export type CreateUser = z.infer<typeof CreateUserSchema>;
+EOF_1790920124_13151
+
+mkdir -p "packages/schemas/src/user"
+echo "作成: packages/schemas/src/user/user-detail.ts"
+cat << 'EOF_1790920124_15933' > "packages/schemas/src/user/user-detail.ts"
+import { z } from 'zod';
+
+export const UserDetailSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    email: z.string(),
+    role: z.string(),
+    isActive: z.boolean(),
+    createdAt: z.date(),
+});
+
+export type UserDetail = z.infer<typeof UserDetailSchema>;
+EOF_1790920124_15933
+
+mkdir -p "packages/schemas/src/user"
+echo "作成: packages/schemas/src/user/user.ts"
+cat << 'EOF_1790920124_24920' > "packages/schemas/src/user/user.ts"
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    passwordHash: string;
+    role: string;
+    isActive: boolean;
+    createdAt: Date;
+}
+EOF_1790920124_24920
 
 mkdir -p "packages/types"
 echo "作成: packages/types/package.json"
-cat << 'EOF_1790584054_30770' > "packages/types/package.json"
+cat << 'EOF_1790920124_14313' > "packages/types/package.json"
 {
     "name": "@packages/types",
     "private": true,
     "type": "module"
 }
-EOF_1790584054_30770
+EOF_1790920124_14313
 
 mkdir -p "packages/types/user"
 echo "作成: packages/types/user/UpdateUserRequest.ts"
-cat << 'EOF_1790584054_10635' > "packages/types/user/UpdateUserRequest.ts"
+cat << 'EOF_1790920124_22621' > "packages/types/user/UpdateUserRequest.ts"
 export interface UpdateUserRequest {
     name: string;
     email: string;
     role: string;
     isActive: boolean;
 }
-EOF_1790584054_10635
+EOF_1790920124_22621
 
 mkdir -p "packages/types/user"
 echo "作成: packages/types/user/UserDto.ts"
-cat << 'EOF_1790584054_7041' > "packages/types/user/UserDto.ts"
+cat << 'EOF_1790920124_15013' > "packages/types/user/UserDto.ts"
 export interface UserDto {
     id: number;
     name: string;
@@ -4721,72 +4368,22 @@ export interface UserDto {
     isActive: boolean;
     createdAt: string;
 }
-EOF_1790584054_7041
+EOF_1790920124_15013
 
 mkdir -p "packages/types/user"
 echo "作成: packages/types/user/CreateUserRequest.ts"
-cat << 'EOF_1790584054_14164' > "packages/types/user/CreateUserRequest.ts"
+cat << 'EOF_1790920124_18558' > "packages/types/user/CreateUserRequest.ts"
 export interface CreateUserRequest {
     name: string;
     email: string;
     passwordHash: string;
     role?: string;
 }
-EOF_1790584054_14164
+EOF_1790920124_18558
 
 mkdir -p "packages/types/administration"
-echo "作成: packages/types/administration/FeatureFlagDto.ts"
-cat << 'EOF_1790584054_31222' > "packages/types/administration/FeatureFlagDto.ts"
-export interface FeatureFlagDto {
-    name: string;
-
-    enabled: boolean;
-}
-EOF_1790584054_31222
-
-mkdir -p "packages/types/administration"
-echo "作成: packages/types/administration/ConfigurationDto.ts"
-cat << 'EOF_1790584054_6917' > "packages/types/administration/ConfigurationDto.ts"
-import { AuthenticationPolicy } from '../authentication/AuthenticationPolicy';
-
-export interface ConfigurationDto {
-    authenticationPolicy: AuthenticationPolicy;
-}
-EOF_1790584054_6917
-
-mkdir -p "packages/types"
-echo "作成: packages/types/Config.ts"
-cat << 'EOF_1790584054_17585' > "packages/types/Config.ts"
-export interface Config {}
-EOF_1790584054_17585
-
-mkdir -p "packages/types/authorization"
-echo "作成: packages/types/authorization/PermissionDto.ts"
-cat << 'EOF_1790584054_28817' > "packages/types/authorization/PermissionDto.ts"
-export interface PermissionDto {
-    name: string;
-}
-EOF_1790584054_28817
-
-mkdir -p "packages/types/authorization"
-echo "作成: packages/types/authorization/RoleDto.ts"
-cat << 'EOF_1790584054_16891' > "packages/types/authorization/RoleDto.ts"
-export interface RoleDto {
-    name: string;
-}
-EOF_1790584054_16891
-
-mkdir -p "packages/types/authentication"
-echo "作成: packages/types/authentication/LoginResponse.ts"
-cat << 'EOF_1790584054_10745' > "packages/types/authentication/LoginResponse.ts"
-export interface LoginResponse {
-    accessToken: string;
-}
-EOF_1790584054_10745
-
-mkdir -p "packages/types/authentication"
-echo "作成: packages/types/authentication/AuthenticationPolicy.ts"
-cat << 'EOF_1790584054_30136' > "packages/types/authentication/AuthenticationPolicy.ts"
+echo "作成: packages/types/administration/AuthenticationPolicy.ts"
+cat << 'EOF_1790920124_23410' > "packages/types/administration/AuthenticationPolicy.ts"
 export interface AuthenticationPolicy {
     session: {
         reloadBehavior: 'keep-session' | 'logout';
@@ -4824,21 +4421,32 @@ export interface AuthenticationPolicy {
         afterRecovery: 'restore' | 'home';
     };
 }
-EOF_1790584054_30136
+EOF_1790920124_23410
 
-mkdir -p "packages/types/authentication"
-echo "作成: packages/types/authentication/LoginRequest.ts"
-cat << 'EOF_1790584054_8298' > "packages/types/authentication/LoginRequest.ts"
-export interface LoginRequest {
-    email: string;
-    password: string;
+mkdir -p "packages/types/administration"
+echo "作成: packages/types/administration/FeatureFlagDto.ts"
+cat << 'EOF_1790920124_11055' > "packages/types/administration/FeatureFlagDto.ts"
+export interface FeatureFlagDto {
+    name: string;
+
+    enabled: boolean;
 }
-EOF_1790584054_8298
+EOF_1790920124_11055
 
-mkdir -p "packages/types/authentication"
-echo "作成: packages/types/authentication/defaultAuthenticationPolicy.ts"
-cat << 'EOF_1790584054_15282' > "packages/types/authentication/defaultAuthenticationPolicy.ts"
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
+mkdir -p "packages/types/administration"
+echo "作成: packages/types/administration/ConfigurationDto.ts"
+cat << 'EOF_1790920124_24578' > "packages/types/administration/ConfigurationDto.ts"
+import { AuthenticationPolicy } from './AuthenticationPolicy';
+
+export interface ConfigurationDto {
+    authenticationPolicy: AuthenticationPolicy;
+}
+EOF_1790920124_24578
+
+mkdir -p "packages/types/administration"
+echo "作成: packages/types/administration/defaultAuthenticationPolicy.ts"
+cat << 'EOF_1790920124_21200' > "packages/types/administration/defaultAuthenticationPolicy.ts"
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
 
 export const defaultAuthenticationPolicy: AuthenticationPolicy = {
     session: {
@@ -4877,28 +4485,67 @@ export const defaultAuthenticationPolicy: AuthenticationPolicy = {
         afterRecovery: 'restore',
     },
 };
-EOF_1790584054_15282
+EOF_1790920124_21200
+
+mkdir -p "packages/types"
+echo "作成: packages/types/Config.ts"
+cat << 'EOF_1790920124_31168' > "packages/types/Config.ts"
+export interface SystemConfig {}
+EOF_1790920124_31168
+
+mkdir -p "packages/types/authorization"
+echo "作成: packages/types/authorization/PermissionDto.ts"
+cat << 'EOF_1790920124_7298' > "packages/types/authorization/PermissionDto.ts"
+export interface PermissionDto {
+    name: string;
+}
+EOF_1790920124_7298
+
+mkdir -p "packages/types/authorization"
+echo "作成: packages/types/authorization/RoleDto.ts"
+cat << 'EOF_1790920124_29275' > "packages/types/authorization/RoleDto.ts"
+export interface RoleDto {
+    name: string;
+}
+EOF_1790920124_29275
+
+mkdir -p "packages/types/authentication"
+echo "作成: packages/types/authentication/LoginResponse.ts"
+cat << 'EOF_1790920124_19068' > "packages/types/authentication/LoginResponse.ts"
+export interface LoginResponse {
+    accessToken: string;
+}
+EOF_1790920124_19068
+
+mkdir -p "packages/types/authentication"
+echo "作成: packages/types/authentication/LoginRequest.ts"
+cat << 'EOF_1790920124_29195' > "packages/types/authentication/LoginRequest.ts"
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+EOF_1790920124_29195
 
 mkdir -p "packages/validation/user"
 echo "作成: packages/validation/user/CreateUserSchema.ts"
-cat << 'EOF_1790584054_14991' > "packages/validation/user/CreateUserSchema.ts"
+cat << 'EOF_1790920124_23503' > "packages/validation/user/CreateUserSchema.ts"
 export const CreateUserSchema = {};
-EOF_1790584054_14991
+EOF_1790920124_23503
 
 mkdir -p "packages/validation/user"
 echo "作成: packages/validation/user/UpdateUserSchema.ts"
-cat << 'EOF_1790584054_16266' > "packages/validation/user/UpdateUserSchema.ts"
+cat << 'EOF_1790920124_23537' > "packages/validation/user/UpdateUserSchema.ts"
 export const UpdateUserSchema = {};
-EOF_1790584054_16266
+EOF_1790920124_23537
 
 mkdir -p "packages/validation/authentication"
 echo "作成: packages/validation/authentication/LoginSchema.ts"
-cat << 'EOF_1790584054_9144' > "packages/validation/authentication/LoginSchema.ts"
+cat << 'EOF_1790920124_3373' > "packages/validation/authentication/LoginSchema.ts"
 export const LoginSchema = {};
-EOF_1790584054_9144
+EOF_1790920124_3373
 
 echo "作成: TASK-002.md"
-cat << 'EOF_1790584054_2484' > "TASK-002.md"
+cat << 'EOF_1790920124_20711' > "TASK-002.md"
 # TASK-002 database.type 利用状況確認
 
 ## 目的
@@ -5446,10 +5093,85 @@ authentication.type
 ```
 
 であることが判明した。
-EOF_1790584054_2484
+EOF_1790920124_20711
+
+echo "作成: スキーマ、レイヤ.txt"
+cat << 'EOF_1790920124_14022' > "スキーマ、レイヤ.txt"
+                    ┌─────────────┐
+                    │  Frontend   │
+                    └──────┬──────┘
+                           │
+                           │ RequestSchema
+                           │ (Zod 必須)
+                           ▼
+                    ┌─────────────┐
+                    │ Controller  │
+                    └──────┬──────┘
+                           │
+                           │ EntityRequestSchema
+                           ▼
+                    ┌─────────────┐
+                    │  Service    │
+                    └──────┬──────┘
+                           │
+                           │ RepositoryRequestSchema
+                           ▼
+                    ┌─────────────┐
+                    │ Repository  │
+                    └──────┬──────┘
+                           │
+                           │ DBRequestSchema
+                           ▼
+
+                ┌─────────────────────┐
+                │     DbProvider      │
+                │                     │
+                │ postgres            │
+                │ sqlserver           │
+                │ memory              │
+                └─────────┬───────────┘
+                          │
+          ┌───────────────┼────────────────┐
+          ▼               ▼                ▼
+
+     PostgreSQL      SQL Server       InMemory
+
+          ▲               ▲                ▲
+          │               │                │
+          │ DBSchema      │ DBSchema       │ DBSchema
+          │               │                │
+
+          └───────────────┼────────────────┘
+                          │
+                          ▼
+
+                    ┌─────────────┐
+                    │ Repository  │
+                    └──────┬──────┘
+                           │
+                           │ RepositorySchema
+                           ▼
+                    ┌─────────────┐
+                    │  Service    │
+                    └──────┬──────┘
+                           │
+                           │ EntitySchema
+                           ▼
+                    ┌─────────────┐
+                    │ Controller  │
+                    └──────┬──────┘
+                           │
+                           │ ResponseSchema
+                           │ (Zod 必須)
+                           ▼
+                    ┌─────────────┐
+                    │  Frontend   │
+                    └─────────────┘
+`
+EOF_1790920124_14022
 
 echo "作成: tree.txt"
-cat << 'EOF_1790584054_16600' > "tree.txt"
+cat << 'EOF_1790920124_9238' > "tree.txt"
 .
 ├── apps
 │   ├── api
@@ -5667,10 +5389,10 @@ cat << 'EOF_1790584054_16600' > "tree.txt"
 │           └── UpdateUserSchema.ts
 ├── tsconfig.base.json
 └── tsconfig.json
-EOF_1790584054_16600
+EOF_1790920124_9238
 
 echo "作成: TASK-003.md"
-cat << 'EOF_1790584054_21570' > "TASK-003.md"
+cat << 'EOF_1790920124_9899' > "TASK-003.md"
 # TASK-003 authentication.type 利用状況確認
 
 ## 目的
@@ -6355,11 +6077,25 @@ apps/web/*
 apps/api/src/app/*
 apps/api/src/config/*
 ```
-EOF_1790584054_21570
+EOF_1790920124_9899
+
+echo "作成: drizzle.config.ts"
+cat << 'EOF_1790920124_27750' > "drizzle.config.ts"
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+    schema: './packages/schema/src/database/*',
+    out: './apps/api/drizzle',
+    dialect: 'postgresql',
+    dbCredentials: {
+        url: process.env.DATABASE_URL!,
+    },
+});
+EOF_1790920124_27750
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/package.json"
-cat << 'EOF_1790584054_14404' > "apps/web/react/package.json"
+cat << 'EOF_1790920124_25047' > "apps/web/react/package.json"
 {
     "name": "@apps/web-react",
     "private": true,
@@ -6384,11 +6120,11 @@ cat << 'EOF_1790584054_14404' > "apps/web/react/package.json"
         "vite": "^8.3.0"
     }
 }
-EOF_1790584054_14404
+EOF_1790920124_25047
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/index.html"
-cat << 'EOF_1790584054_14159' > "apps/web/react/index.html"
+cat << 'EOF_1790920124_26878' > "apps/web/react/index.html"
 <!doctype html>
 <html lang="ja">
     <head>
@@ -6408,23 +6144,23 @@ cat << 'EOF_1790584054_14159' > "apps/web/react/index.html"
         <script type="module" src="/src/main.tsx"></script>
     </body>
 </html>
-EOF_1790584054_14159
+EOF_1790920124_26878
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/tsconfig.json"
-cat << 'EOF_1790584054_11742' > "apps/web/react/tsconfig.json"
+cat << 'EOF_1790920124_21076' > "apps/web/react/tsconfig.json"
 {
     "extends": "../../../tsconfig.base.json",
-    "include": ["src/**/*"],
+    "include": ["**/*.ts"],
     "compilerOptions": {
         "types": ["vite/client"]
     }
 }
-EOF_1790584054_11742
+EOF_1790920124_21076
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/vitest.config.ts"
-cat << 'EOF_1790584054_13628' > "apps/web/react/vitest.config.ts"
+cat << 'EOF_1790920124_20282' > "apps/web/react/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -6437,11 +6173,11 @@ export default defineConfig({
         include: ['**/*.test.ts'],
     },
 });
-EOF_1790584054_13628
+EOF_1790920124_20282
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/router.tsx"
-cat << 'EOF_1790584054_11710' > "apps/web/react/src/app/router.tsx"
+cat << 'EOF_1790920124_14102' > "apps/web/react/src/app/router.tsx"
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import { Layout } from '../components/Layout';
@@ -6511,11 +6247,11 @@ export const router = createBrowserRouter([
         element: <NotFoundRoute />,
     },
 ]);
-EOF_1790584054_11710
+EOF_1790920124_14102
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/FeatureDefinition.ts"
-cat << 'EOF_1790584054_15919' > "apps/web/react/src/app/FeatureDefinition.ts"
+cat << 'EOF_1790920124_5977' > "apps/web/react/src/app/FeatureDefinition.ts"
 // src/app/FeatureDefinition.ts
 
 import { RouteObject } from 'react-router-dom';
@@ -6531,22 +6267,22 @@ export interface FeatureDefinition {
 
     readonly routes?: RouteObject[];
 }
-EOF_1790584054_15919
+EOF_1790920124_5977
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/App.tsx"
-cat << 'EOF_1790584054_28088' > "apps/web/react/src/app/App.tsx"
+cat << 'EOF_1790920124_820' > "apps/web/react/src/app/App.tsx"
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 
 export function App() {
     return <RouterProvider router={router} />;
 }
-EOF_1790584054_28088
+EOF_1790920124_820
 
 mkdir -p "apps/web/react/src/app"
 echo "作成: apps/web/react/src/app/features.ts"
-cat << 'EOF_1790584054_611' > "apps/web/react/src/app/features.ts"
+cat << 'EOF_1790920124_5590' > "apps/web/react/src/app/features.ts"
 // src/app/features.ts
 
 import { FeatureDefinition } from './FeatureDefinition';
@@ -6566,19 +6302,19 @@ export const menus = features
     .sort((a, b) => (a.menu?.order ?? 9999) - (b.menu?.order ?? 9999));
 
 export const defaultPath = menus[0]?.menu?.path ?? '/';
-EOF_1790584054_611
+EOF_1790920124_5590
 
 mkdir -p "apps/web/react/src/app/providers"
 echo "作成: apps/web/react/src/app/providers/ReactQueryProvider.tsx"
-cat << 'EOF_1790584054_23453' > "apps/web/react/src/app/providers/ReactQueryProvider.tsx"
+cat << 'EOF_1790920124_19269' > "apps/web/react/src/app/providers/ReactQueryProvider.tsx"
 export function ReactQueryProvider(props: any) {
     return props.children;
 }
-EOF_1790584054_23453
+EOF_1790920124_19269
 
 mkdir -p "apps/web/react/src/app/providers"
 echo "作成: apps/web/react/src/app/providers/AuthProvider.tsx"
-cat << 'EOF_1790584054_10720' > "apps/web/react/src/app/providers/AuthProvider.tsx"
+cat << 'EOF_1790920124_17024' > "apps/web/react/src/app/providers/AuthProvider.tsx"
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthContextValue {
@@ -6664,25 +6400,25 @@ export function AuthProvider(props: any) {
 export function useAuth() {
     return useContext(AuthContext);
 }
-EOF_1790584054_10720
+EOF_1790920124_17024
 
 mkdir -p "apps/web/react/src/app/providers"
 echo "作成: apps/web/react/src/app/providers/ConfigurationProvider.tsx"
-cat << 'EOF_1790584054_8200' > "apps/web/react/src/app/providers/ConfigurationProvider.tsx"
+cat << 'EOF_1790920124_11221' > "apps/web/react/src/app/providers/ConfigurationProvider.tsx"
 export function ConfigurationProvider(props: any) {
     return props.children;
 }
-EOF_1790584054_8200
+EOF_1790920124_11221
 
 mkdir -p "apps/web/react/src"
 echo "作成: apps/web/react/src/index.css"
-cat << 'EOF_1790584054_26747' > "apps/web/react/src/index.css"
+cat << 'EOF_1790920124_14144' > "apps/web/react/src/index.css"
 @import 'tailwindcss';
-EOF_1790584054_26747
+EOF_1790920124_14144
 
 mkdir -p "apps/web/react/src/features/settings"
 echo "作成: apps/web/react/src/features/settings/Feature.tsx"
-cat << 'EOF_1790584054_29689' > "apps/web/react/src/features/settings/Feature.tsx"
+cat << 'EOF_1790920124_20901' > "apps/web/react/src/features/settings/Feature.tsx"
 import { SettingsPage } from './pages/SettingsPage';
 
 export default {
@@ -6701,14 +6437,14 @@ export default {
         },
     ],
 };
-EOF_1790584054_29689
+EOF_1790920124_20901
 
 mkdir -p "apps/web/react/src/features/settings/pages"
 echo "作成: apps/web/react/src/features/settings/pages/SettingsPage.tsx"
-cat << 'EOF_1790584054_6791' > "apps/web/react/src/features/settings/pages/SettingsPage.tsx"
+cat << 'EOF_1790920124_12150' > "apps/web/react/src/features/settings/pages/SettingsPage.tsx"
 import { ConfigurationApi } from '@apps/web-core/api-client/administration/ConfigurationApi';
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
-import { defaultAuthenticationPolicy } from '@packages/types/authentication/defaultAuthenticationPolicy';
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
+import { defaultAuthenticationPolicy } from '@packages/types/administration/defaultAuthenticationPolicy';
 import { useState } from 'react';
 
 export function SettingsPage() {
@@ -6927,11 +6663,11 @@ export function SettingsPage() {
         </div>
     );
 }
-EOF_1790584054_6791
+EOF_1790920124_12150
 
 mkdir -p "apps/web/react/src/features/dashboard"
 echo "作成: apps/web/react/src/features/dashboard/Feature.tsx"
-cat << 'EOF_1790584054_29550' > "apps/web/react/src/features/dashboard/Feature.tsx"
+cat << 'EOF_1790920124_15993' > "apps/web/react/src/features/dashboard/Feature.tsx"
 import { DashboardPage } from './pages/DashboardPage';
 
 export default {
@@ -6950,11 +6686,11 @@ export default {
         },
     ],
 };
-EOF_1790584054_29550
+EOF_1790920124_15993
 
 mkdir -p "apps/web/react/src/features/dashboard/pages"
 echo "作成: apps/web/react/src/features/dashboard/pages/DashboardPage.tsx"
-cat << 'EOF_1790584055_8794' > "apps/web/react/src/features/dashboard/pages/DashboardPage.tsx"
+cat << 'EOF_1790920124_17949' > "apps/web/react/src/features/dashboard/pages/DashboardPage.tsx"
 import { useAuth } from '@apps/web-react/src/app/providers/AuthProvider';
 
 export function DashboardPage() {
@@ -7018,11 +6754,11 @@ export function DashboardPage() {
         </div>
     );
 }
-EOF_1790584055_8794
+EOF_1790920124_17949
 
 mkdir -p "apps/web/react/src/features/authentication"
 echo "作成: apps/web/react/src/features/authentication/routes.tsx"
-cat << 'EOF_1790584055_30686' > "apps/web/react/src/features/authentication/routes.tsx"
+cat << 'EOF_1790920124_27051' > "apps/web/react/src/features/authentication/routes.tsx"
 import { Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage';
 
@@ -7036,11 +6772,11 @@ export const routes = [
         element: <LoginPage />,
     },
 ];
-EOF_1790584055_30686
+EOF_1790920124_27051
 
 mkdir -p "apps/web/react/src/features/authentication"
 echo "作成: apps/web/react/src/features/authentication/Feature.tsx"
-cat << 'EOF_1790584055_20376' > "apps/web/react/src/features/authentication/Feature.tsx"
+cat << 'EOF_1790920124_6482' > "apps/web/react/src/features/authentication/Feature.tsx"
 import { LoginPage } from './pages/LoginPage';
 
 export default {
@@ -7059,11 +6795,11 @@ export default {
         },
     ],
 };
-EOF_1790584055_20376
+EOF_1790920124_6482
 
 mkdir -p "apps/web/react/src/features/authentication/api"
 echo "作成: apps/web/react/src/features/authentication/api/login.ts"
-cat << 'EOF_1790584055_32043' > "apps/web/react/src/features/authentication/api/login.ts"
+cat << 'EOF_1790920124_31410' > "apps/web/react/src/features/authentication/api/login.ts"
 import { Application } from '@apps/web-core/Application';
 import { LoginRequest } from '@packages/types/authentication/LoginRequest';
 import { LoginResponse } from '@packages/types/authentication/LoginResponse';
@@ -7086,11 +6822,11 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
 
     return await response.json();
 }
-EOF_1790584055_32043
+EOF_1790920124_31410
 
 mkdir -p "apps/web/react/src/features/authentication/pages"
 echo "作成: apps/web/react/src/features/authentication/pages/LoginPage.tsx"
-cat << 'EOF_1790584055_21165' > "apps/web/react/src/features/authentication/pages/LoginPage.tsx"
+cat << 'EOF_1790920124_26203' > "apps/web/react/src/features/authentication/pages/LoginPage.tsx"
 import { LoginForm } from '../components/LoginForm';
 
 export function LoginPage() {
@@ -7100,11 +6836,11 @@ export function LoginPage() {
         </main>
     );
 }
-EOF_1790584055_21165
+EOF_1790920124_26203
 
 mkdir -p "apps/web/react/src/features/authentication/hooks"
 echo "作成: apps/web/react/src/features/authentication/hooks/useLogin.ts"
-cat << 'EOF_1790584055_27630' > "apps/web/react/src/features/authentication/hooks/useLogin.ts"
+cat << 'EOF_1790920124_4777' > "apps/web/react/src/features/authentication/hooks/useLogin.ts"
 import { defaultPath } from '@apps/web-react/src/app/features';
 import { useAuth } from '@apps/web-react/src/app/providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
@@ -7127,11 +6863,11 @@ export function useLogin() {
         });
     };
 }
-EOF_1790584055_27630
+EOF_1790920124_4777
 
 mkdir -p "apps/web/react/src/features/authentication/components"
 echo "作成: apps/web/react/src/features/authentication/components/LoginForm.tsx"
-cat << 'EOF_1790584055_16079' > "apps/web/react/src/features/authentication/components/LoginForm.tsx"
+cat << 'EOF_1790920124_12644' > "apps/web/react/src/features/authentication/components/LoginForm.tsx"
 import { useState, type SubmitEvent } from 'react';
 import { useLogin } from '../hooks/useLogin';
 
@@ -7210,11 +6946,11 @@ export function LoginForm() {
         </div>
     );
 }
-EOF_1790584055_16079
+EOF_1790920124_12644
 
 mkdir -p "apps/web/react/src"
 echo "作成: apps/web/react/src/main.tsx"
-cat << 'EOF_1790584055_27086' > "apps/web/react/src/main.tsx"
+cat << 'EOF_1790920124_7756' > "apps/web/react/src/main.tsx"
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
@@ -7229,11 +6965,11 @@ createRoot(document.getElementById('root')!).render(
         </AuthProvider>
     </StrictMode>,
 );
-EOF_1790584055_27086
+EOF_1790920124_7756
 
 mkdir -p "apps/web/react/src/components"
 echo "作成: apps/web/react/src/components/Layout.tsx"
-cat << 'EOF_1790584055_5623' > "apps/web/react/src/components/Layout.tsx"
+cat << 'EOF_1790920124_23012' > "apps/web/react/src/components/Layout.tsx"
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { menus } from '../app/features';
 import { useAuth } from '../app/providers/AuthProvider';
@@ -7300,11 +7036,11 @@ export function Layout() {
         </div>
     );
 }
-EOF_1790584055_5623
+EOF_1790920124_23012
 
 mkdir -p "apps/web/react"
 echo "作成: apps/web/react/vite.config.ts"
-cat << 'EOF_1790584055_28206' > "apps/web/react/vite.config.ts"
+cat << 'EOF_1790920124_8249' > "apps/web/react/vite.config.ts"
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'node:fs';
@@ -7349,45 +7085,35 @@ export default defineConfig({
 //         },
 //     },
 // });
-EOF_1790584055_28206
+EOF_1790920124_8249
 
 mkdir -p "apps/web"
 echo "作成: apps/web/package.json"
-cat << 'EOF_1790584055_4626' > "apps/web/package.json"
+cat << 'EOF_1790920124_18436' > "apps/web/package.json"
 {
     "name": "@apps/web",
     "private": true,
-    "type": "module"
+    "type": "module",
+    "dependencies": {
+        "@packages/schemas": "*"
+    }
 }
-EOF_1790584055_4626
+EOF_1790920124_18436
 
 mkdir -p "apps/web"
 echo "作成: apps/web/tsconfig.json"
-cat << 'EOF_1790584055_32658' > "apps/web/tsconfig.json"
-// {
-//     "extends": "../../tsconfig.base.json",
-//     "include": [
-//         "./*"
-//     ]
-// }
+cat << 'EOF_1790920124_7610' > "apps/web/tsconfig.json"
 {
-    "compilerOptions": {
-        "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "types": ["node"]
-    },
-    "include": ["**/*.ts"],
-    "exclude": ["react"]
+    "extends": "../../tsconfig.base.json",
+    "include": [
+        "./*.ts"
+    ]
 }
-EOF_1790584055_32658
+EOF_1790920124_7610
 
 mkdir -p "apps/web"
 echo "作成: apps/web/vitest.config.ts"
-cat << 'EOF_1790584055_24158' > "apps/web/vitest.config.ts"
+cat << 'EOF_1790920124_19542' > "apps/web/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7399,11 +7125,11 @@ export default defineConfig({
         include: ['**/*.test.ts'],
     },
 });
-EOF_1790584055_24158
+EOF_1790920124_19542
 
 mkdir -p "apps/web/core"
 echo "作成: apps/web/core/package.json"
-cat << 'EOF_1790584055_9266' > "apps/web/core/package.json"
+cat << 'EOF_1790920124_18630' > "apps/web/core/package.json"
 {
     "name": "@apps/web-core",
     "private": true,
@@ -7415,28 +7141,20 @@ cat << 'EOF_1790584055_9266' > "apps/web/core/package.json"
         "test": "vitest"
     }
 }
-EOF_1790584055_9266
+EOF_1790920124_18630
 
 mkdir -p "apps/web/core"
 echo "作成: apps/web/core/tsconfig.json"
-cat << 'EOF_1790584055_7241' > "apps/web/core/tsconfig.json"
-// {
-//     "extends": "../../tsconfig.base.json",
-//     "include": [
-//         "./*"
-//     ]
-// }
+cat << 'EOF_1790920124_7378' > "apps/web/core/tsconfig.json"
 {
     "extends": "../../../tsconfig.base.json",
-    "include": [
-        "**/*.ts"
-    ]
+    "include": ["**/*.ts"]
 }
-EOF_1790584055_7241
+EOF_1790920124_7378
 
 mkdir -p "apps/web/core"
 echo "作成: apps/web/core/vitest.config.ts"
-cat << 'EOF_1790584055_8167' > "apps/web/core/vitest.config.ts"
+cat << 'EOF_1790920124_3337' > "apps/web/core/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7448,11 +7166,11 @@ export default defineConfig({
         include: ['**/*.test.ts'],
     },
 });
-EOF_1790584055_8167
+EOF_1790920124_3337
 
 mkdir -p "apps/web/core/src"
 echo "作成: apps/web/core/src/ApplicationConfiguration.ts"
-cat << 'EOF_1790584055_10892' > "apps/web/core/src/ApplicationConfiguration.ts"
+cat << 'EOF_1790920124_15642' > "apps/web/core/src/ApplicationConfiguration.ts"
 export interface ApplicationConfiguration {
     readonly backend: {
         readonly protocol: string;
@@ -7461,17 +7179,17 @@ export interface ApplicationConfiguration {
         readonly applicationRoot: string;
     };
 }
-EOF_1790584055_10892
+EOF_1790920124_15642
 
 mkdir -p "apps/web/core/src/api-client/user"
 echo "作成: apps/web/core/src/api-client/user/UserApi.ts"
-cat << 'EOF_1790584055_8828' > "apps/web/core/src/api-client/user/UserApi.ts"
+cat << 'EOF_1790920124_7755' > "apps/web/core/src/api-client/user/UserApi.ts"
 export class UserApi {}
-EOF_1790584055_8828
+EOF_1790920124_7755
 
 mkdir -p "apps/web/core/src/api-client/administration"
 echo "作成: apps/web/core/src/api-client/administration/ConfigurationApi.ts"
-cat << 'EOF_1790584055_17451' > "apps/web/core/src/api-client/administration/ConfigurationApi.ts"
+cat << 'EOF_1790920124_22344' > "apps/web/core/src/api-client/administration/ConfigurationApi.ts"
 import { ConfigurationDto } from '@packages/types/administration/ConfigurationDto';
 import { Application } from '../../Application';
 
@@ -7502,11 +7220,11 @@ export class ConfigurationApi {
         }
     }
 }
-EOF_1790584055_17451
+EOF_1790920124_22344
 
 mkdir -p "apps/web/core/src/api-client/http"
 echo "作成: apps/web/core/src/api-client/http/FetchHttpClient.ts"
-cat << 'EOF_1790584055_25082' > "apps/web/core/src/api-client/http/FetchHttpClient.ts"
+cat << 'EOF_1790920124_23973' > "apps/web/core/src/api-client/http/FetchHttpClient.ts"
 import { Application } from '../../Application';
 import { HttpClient } from './HttpClient';
 
@@ -7531,26 +7249,26 @@ export class FetchHttpClient implements HttpClient {
         return response.json();
     }
 }
-EOF_1790584055_25082
+EOF_1790920124_23973
 
 mkdir -p "apps/web/core/src/api-client/http"
 echo "作成: apps/web/core/src/api-client/http/HttpClient.ts"
-cat << 'EOF_1790584055_5656' > "apps/web/core/src/api-client/http/HttpClient.ts"
+cat << 'EOF_1790920124_27251' > "apps/web/core/src/api-client/http/HttpClient.ts"
 export interface HttpClient {
     get<T>(url: string): Promise<T>;
     post<T>(url: string, body: unknown): Promise<T>;
 }
-EOF_1790584055_5656
+EOF_1790920124_27251
 
 mkdir -p "apps/web/core/src/api-client/authentication"
 echo "作成: apps/web/core/src/api-client/authentication/AuthenticationApi.ts"
-cat << 'EOF_1790584055_9794' > "apps/web/core/src/api-client/authentication/AuthenticationApi.ts"
+cat << 'EOF_1790920124_17636' > "apps/web/core/src/api-client/authentication/AuthenticationApi.ts"
 export class AuthenticationApi {}
-EOF_1790584055_9794
+EOF_1790920124_17636
 
 mkdir -p "apps/web/core/src"
 echo "作成: apps/web/core/src/Application.ts"
-cat << 'EOF_1790584055_3827' > "apps/web/core/src/Application.ts"
+cat << 'EOF_1790920124_12064' > "apps/web/core/src/Application.ts"
 import { FrontendConfigurationService } from './FrontendConfigurationService';
 import { RuntimeConfigurationProvider } from './RuntimeConfigurationProvider';
 
@@ -7577,11 +7295,11 @@ export class Application {
         return await fetch(url, init);
     }
 }
-EOF_1790584055_3827
+EOF_1790920124_12064
 
 mkdir -p "apps/web/core/src"
 echo "作成: apps/web/core/src/FrontendConfigurationService.ts"
-cat << 'EOF_1790584055_31029' > "apps/web/core/src/FrontendConfigurationService.ts"
+cat << 'EOF_1790920125_16859' > "apps/web/core/src/FrontendConfigurationService.ts"
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 
 export class FrontendConfigurationService {
@@ -7600,11 +7318,11 @@ export class FrontendConfigurationService {
         );
     }
 }
-EOF_1790584055_31029
+EOF_1790920125_16859
 
 mkdir -p "apps/web/core/src"
 echo "作成: apps/web/core/src/RuntimeConfigurationProvider.ts"
-cat << 'EOF_1790584055_4905' > "apps/web/core/src/RuntimeConfigurationProvider.ts"
+cat << 'EOF_1790920125_10640' > "apps/web/core/src/RuntimeConfigurationProvider.ts"
 import { ApplicationConfiguration } from './ApplicationConfiguration';
 
 export class RuntimeConfigurationProvider {
@@ -7624,11 +7342,11 @@ export class RuntimeConfigurationProvider {
         return JSON.parse(json) as ApplicationConfiguration;
     }
 }
-EOF_1790584055_4905
+EOF_1790920125_10640
 
 mkdir -p "apps/api"
 echo "作成: apps/api/package.json"
-cat << 'EOF_1790584055_4966' > "apps/api/package.json"
+cat << 'EOF_1790920125_14867' > "apps/api/package.json"
 {
     "name": "@apps/api",
     "private": true,
@@ -7640,25 +7358,28 @@ cat << 'EOF_1790584055_4966' > "apps/api/package.json"
     },
     "dependencies": {
         "@hono/node-server": "^1.19.0",
+        "@packages/schemas": "*",
         "bcrypt": "^6.0.0",
-        "drizzle-orm": "^0.45.2",
+        "drizzle-orm": "^0.45.3",
+        "drizzle-zod": "^0.8.3",
         "hono": "^4.9.6",
         "jsonwebtoken": "^9.0.3",
+        "mssql": "^12.7.2",
         "pg": "^8.23.0"
     },
     "devDependencies": {
         "@types/bcrypt": "^6.0.0",
         "@types/jsonwebtoken": "^9.0.10",
+        "@types/mssql": "^12.3.0",
         "@types/node": "^24.4.0",
-        "@types/pg": "^8.23.1",
-        "drizzle-kit": "^0.31.10"
+        "@types/pg": "^8.23.1"
     }
 }
-EOF_1790584055_4966
+EOF_1790920125_14867
 
 mkdir -p "apps/api"
 echo "作成: apps/api/tsconfig.json"
-cat << 'EOF_1790584055_6549' > "apps/api/tsconfig.json"
+cat << 'EOF_1790920125_24304' > "apps/api/tsconfig.json"
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
@@ -7668,11 +7389,11 @@ cat << 'EOF_1790584055_6549' > "apps/api/tsconfig.json"
         "types": ["node"]
     }
 }
-EOF_1790584055_6549
+EOF_1790920125_24304
 
 mkdir -p "apps/api"
 echo "作成: apps/api/vitest.config.ts"
-cat << 'EOF_1790584055_2935' > "apps/api/vitest.config.ts"
+cat << 'EOF_1790920125_27485' > "apps/api/vitest.config.ts"
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7684,81 +7405,74 @@ export default defineConfig({
         include: ['**/*.test.ts'],
     },
 });
-EOF_1790584055_2935
+EOF_1790920125_27485
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/AppContext.ts"
-cat << 'EOF_1790584055_29984' > "apps/api/src/app/AppContext.ts"
+cat << 'EOF_1790920125_11618' > "apps/api/src/app/AppContext.ts"
 export interface AppContext {}
-EOF_1790584055_29984
+EOF_1790920125_11618
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/createDependencyContainer.ts"
-cat << 'EOF_1790584055_32682' > "apps/api/src/app/createDependencyContainer.ts"
-import { Config } from '../config/Config';
-import { createDatabase } from '../database/createDatabase';
+cat << 'EOF_1790920125_23129' > "apps/api/src/app/createDependencyContainer.ts"
 import { createAuthenticationProvider } from '../features/authentication/providers/createAuthenticationProvider';
 import { AuthenticationService } from '../features/authentication/services/AuthenticationService';
 import { JwtService } from '../features/authentication/services/JwtService';
-import { UserRepositoryImpl } from '../features/user/repositories/UserRepositoryImpl';
-import { UserService } from '../features/user/services/UserService';
+import { UserService } from '../features/user/service';
+import { createRepositories } from '../repositories/createRepositories';
+import { SystemConfig } from '../systemConfig/SystemConfig';
 import { DependencyContainer } from './DependencyContainer';
 
-export async function createDependencyContainer(config: Config): Promise<DependencyContainer> {
-    const database = await createDatabase(config.database);
-    const userRepository = new UserRepositoryImpl(database);
-    const userService = new UserService(userRepository);
-    const jwtService = new JwtService(config.authentication.secret!);
-    const authenticationProvider = createAuthenticationProvider(config.authentication, {
+export async function createDependencyContainer(
+    systemConfig: SystemConfig,
+): Promise<DependencyContainer> {
+    const repositories = await createRepositories(systemConfig.database);
+    const userService = new UserService(repositories.userRepository);
+    const jwtService = new JwtService(systemConfig.authentication.secret!);
+    const authenticationProvider = createAuthenticationProvider(systemConfig.authentication, {
         userService,
     });
+
     const authenticationService = new AuthenticationService(authenticationProvider, jwtService);
 
-    console.log(`createDependencyContainer:`);
-    console.log(`  database.type:${database.type}`);
-    console.log(`  database.connectionString:${config.database.connectionString}`);
-    console.log(`  authentication.type:${config.authentication.type}`);
-
     return new DependencyContainer(
-        config,
-        database,
-        userRepository,
+        systemConfig,
+        repositories,
         userService,
         jwtService,
         authenticationService,
     );
 }
-EOF_1790584055_32682
+EOF_1790920125_23129
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/DependencyContainer.ts"
-cat << 'EOF_1790584055_32444' > "apps/api/src/app/DependencyContainer.ts"
-import { Config } from '../config/Config';
-import { Database } from '../database/Database';
+cat << 'EOF_1790920125_4905' > "apps/api/src/app/DependencyContainer.ts"
 import { AuthenticationService } from '../features/authentication/services/AuthenticationService';
 import { JwtService } from '../features/authentication/services/JwtService';
-import { UserRepository } from '../features/user/repositories/UserRepository';
-import { UserService } from '../features/user/services/UserService';
+import { UserService } from '../features/user/service';
+import type { Repositories } from '../repositories/Repositories';
+import type { SystemConfig } from '../systemConfig/SystemConfig';
 
 export class DependencyContainer {
     constructor(
-        public readonly config: Config,
-        public readonly database: Database,
-        public readonly userRepository: UserRepository,
+        public readonly systemConfig: SystemConfig,
+        public readonly repositories: Repositories,
         public readonly userService: UserService,
         public readonly jwtService: JwtService,
         public readonly authenticationService: AuthenticationService,
     ) {}
 }
-EOF_1790584055_32444
+EOF_1790920125_4905
 
 mkdir -p "apps/api/src/app"
 echo "作成: apps/api/src/app/createApp.ts"
-cat << 'EOF_1790584055_30909' > "apps/api/src/app/createApp.ts"
+cat << 'EOF_1790920125_22775' > "apps/api/src/app/createApp.ts"
 import { Hono } from 'hono';
 
 import { createAuthenticationController } from '../features/authentication/routes';
-import { createUserController } from '../features/user/controllers/UserController';
+import { createUserController } from '../features/user/controller';
 import { DependencyContainer } from './DependencyContainer';
 
 import cors from '../common/cors.js';
@@ -7769,14 +7483,14 @@ import { jwtAuthentication } from '../features/authentication/middleware/jwtAuth
 // import notFound from "./handlers/not-found.js";
 
 export function createApp(container: DependencyContainer) {
-    const apiRoot = container.config.backend.applicationRoot;
+    const apiRoot = container.systemConfig.backend.applicationRoot;
 
     const app = new Hono()
         .onError(error)
         // .notFound(notFound)
         .use(logger)
-        .use('*', cors(container.config))
-        .use('*', csrf(container.config))
+        .use('*', cors(container.systemConfig))
+        .use('*', csrf(container.systemConfig))
         .get('/', (c) => c.text('Backend running.'))
 
         .route(`${apiRoot}`, createAuthenticationController(container.authenticationService))
@@ -7786,305 +7500,817 @@ export function createApp(container: DependencyContainer) {
 
     return app;
 }
-EOF_1790584055_30909
+EOF_1790920125_22775
 
-mkdir -p "apps/api/src/config"
-echo "作成: apps/api/src/config/saveConfig.ts"
-cat << 'EOF_1790584055_21648' > "apps/api/src/config/saveConfig.ts"
-export async function saveConfig() {
-    throw new Error('Not implemented.');
-}
-EOF_1790584055_21648
+mkdir -p "apps/api/src/infrastructure/memory"
+echo "作成: apps/api/src/infrastructure/memory/user-repository.ts"
+cat << 'EOF_1790920125_18096' > "apps/api/src/infrastructure/memory/user-repository.ts"
+import type { CreateUser, User } from '@packages/schemas';
+import { hashPassword } from '../../features/user/auth-utils';
+import type { UserRepository } from '../../repositories/user-repository';
 
-mkdir -p "apps/api/src/config"
-echo "作成: apps/api/src/config/Config.ts"
-cat << 'EOF_1790584055_13658' > "apps/api/src/config/Config.ts"
-export interface BackendConfig {
-    protocol?: string; //"http";
-    host?: string; //"localhost";
-    port?: string; //3000;
-    applicationRoot?: string; //"/api";
-}
+export class MemoryUserRepository implements UserRepository {
+    private sequence = 1;
 
-export interface DatabaseConfig {
-    type: 'memory' | 'postgres' | 'sqlserver';
-    connectionString?: string;
-}
-
-export interface AuthenticationConfig {
-    type: 'none' | 'local' | 'oidc' | 'ldap';
-    secret?: string;
-}
-
-export interface FrontendConfig {
-    type: 'react' | 'vue';
-    host?: string; //"localhost";
-}
-
-export interface Config {
-    backend: BackendConfig;
-    database: DatabaseConfig;
-    authentication: AuthenticationConfig;
-    frontend: FrontendConfig;
-}
-EOF_1790584055_13658
-
-mkdir -p "apps/api/src/config"
-echo "作成: apps/api/src/config/loadConfig.ts"
-cat << 'EOF_1790584055_31134' > "apps/api/src/config/loadConfig.ts"
-import { readFile } from 'node:fs/promises';
-import { Config } from './Config';
-
-export async function loadConfig(path: string): Promise<Config> {
-    const json = await readFile(path, 'utf8');
-    const config = JSON.parse(json) as Config;
-
-    if (config.backend.applicationRoot == undefined) {
-        config.backend.applicationRoot = '/api';
-    }
-    if (config.backend.host == undefined) {
-        config.backend.host = 'localhost';
-    }
-    if (config.backend.port == undefined) {
-        config.backend.port = '3000';
-    }
-    if (config.backend.protocol == undefined) {
-        config.backend.protocol = 'http';
-    }
-
-    if (config.authentication.secret == undefined) {
-        config.authentication.secret = 'change-this-secret';
-    }
-
-    if (config.frontend.host == undefined) {
-        config.frontend.host = 'localhost';
-    }
-
-    return config;
-}
-EOF_1790584055_31134
-
-mkdir -p "apps/api/src/database"
-echo "作成: apps/api/src/database/InMemoryDatabase.ts"
-cat << 'EOF_1790584055_19634' > "apps/api/src/database/InMemoryDatabase.ts"
-import { Database } from './Database';
-
-import { User } from '../features/user/domain/User';
-
-export class InMemoryDatabase implements Database {
-    type: string;
     private readonly users = new Map<number, User>();
 
-    constructor(type: string) {
-        this.type = type;
-        this.users.set(
-            1,
-            new User(
-                1,
-                '管理者ユーザー',
-                'admin@example.com',
-                '$2b$10$ua0BmFk7UYjnOn4E4nUGnOMfg5EnEpZElCZVh7AvbmbFimC2pmbs2',
-                'admin',
-                true,
-                new Date('2026-08-25T08:35:15.972'),
-            ),
-        );
-
-        this.users.set(
-            7,
-            new User(
-                7,
-                '一般ユーザー',
-                'user1@example.com',
-                '$2b$10$IAwpKAPfwW0mEBU6.g.dmO5aP9SfAeUIeKENok6Wk2AGua4f0pOZO',
-                'user',
-                true,
-                new Date('2026-08-27T04:36:46.357'),
-            ),
-        );
+    async findById(id: number): Promise<User | null> {
+        return this.users.get(id) ?? null;
     }
 
-    async query<T>(sql: string, params: readonly unknown[] = []): Promise<T[]> {
-        switch (sql) {
-            case 'users': {
-                const id = Number(params[0]);
-
-                const user = this.users.get(id);
-
-                return user ? [user as T] : [];
+    async findByEmail(email: string): Promise<User | null> {
+        let result = null;
+        for (const user of this.users.values()) {
+            if (user.email === email) {
+                result = user;
+                break;
             }
-
-            default:
-                return [];
         }
+        return result;
     }
 
-    async execute(_sql: string, _params: readonly unknown[] = []): Promise<number> {
-        return 0;
+    async findAll(): Promise<User[]> {
+        throw new Error('not implemented');
+    }
+    async countAdmins(): Promise<number> {
+        throw new Error('not implemented');
     }
 
-    async beginTransaction() {}
-
-    async commit() {}
-
-    async rollback() {}
-}
-EOF_1790584055_19634
-
-mkdir -p "apps/api/src/database"
-echo "作成: apps/api/src/database/SqlServerDatabase.ts"
-cat << 'EOF_1790584055_20866' > "apps/api/src/database/SqlServerDatabase.ts"
-import { DrizzleDatabase } from './DrizzleDatabase';
-
-export class SqlServerDatabase extends DrizzleDatabase {
-    constructor(type: string, connectionString: string) {
-        super(type, connectionString ?? '');
-        console.log('SQL Server selected');
-    }
-}
-EOF_1790584055_20866
-
-mkdir -p "apps/api/src/database"
-echo "作成: apps/api/src/database/PostgreSqlDatabase.ts"
-cat << 'EOF_1790584055_7913' > "apps/api/src/database/PostgreSqlDatabase.ts"
-import { DrizzleDatabase } from './DrizzleDatabase';
-
-export class PostgreSqlDatabase extends DrizzleDatabase {
-    constructor(type: string, connectionString: string) {
-        super(type, connectionString ?? '');
-        console.log(`PostgreSQL selected.`);
-    }
-}
-EOF_1790584055_7913
-
-mkdir -p "apps/api/src/database"
-echo "作成: apps/api/src/database/DrizzleDatabase.ts"
-cat << 'EOF_1790584055_4486' > "apps/api/src/database/DrizzleDatabase.ts"
-import { Pool } from 'pg';
-import { Database } from './Database';
-
-export class DrizzleDatabase implements Database {
-    type: string;
-    private readonly pool: Pool;
-
-    constructor(type: string, connectionString: string) {
-        this.type = type;
-        this.pool = new Pool({
-            connectionString,
-        });
+    async create(request: CreateUser): Promise<User> {
+        const passwordHash = await hashPassword(request.password);
+        const user: User = {
+            id: this.sequence++,
+            name: request.name,
+            email: request.email,
+            passwordHash: passwordHash,
+            role: 'user',
+            isActive: true,
+            createdAt: new Date(),
+        };
+        this.users.set(user.id, user);
+        return user;
     }
 
-    async query<T>(sql: string, params: readonly unknown[] = []): Promise<T[]> {
-        const result = await this.pool.query(sql, [...params]);
-
-        return result.rows as T[];
+    async save(user: User): Promise<User> {
+        throw new Error('not implemented');
     }
-
-    async execute(sql: string, params: readonly unknown[] = []): Promise<number> {
-        const result = await this.pool.query(sql, [...params]);
-
-        return result.rowCount ?? 0;
+    async updatePassword(id: number, passwordHash: string): Promise<User> {
+        throw new Error('not implemented');
     }
-
-    async beginTransaction() {
-        await this.pool.query('BEGIN');
+    async updateRole(id: number, role: string): Promise<User> {
+        throw new Error('not implemented');
     }
-
-    async commit() {
-        await this.pool.query('COMMIT');
+    async updateActive(id: number, isActive: boolean): Promise<User> {
+        throw new Error('not implemented');
     }
-
-    async rollback() {
-        await this.pool.query('ROLLBACK');
+    async remove(id: number): Promise<void> {
+        throw new Error('not implemented');
     }
 }
-EOF_1790584055_4486
+EOF_1790920125_18096
 
-mkdir -p "apps/api/src/database"
-echo "作成: apps/api/src/database/createDatabase.ts"
-cat << 'EOF_1790584055_5786' > "apps/api/src/database/createDatabase.ts"
-import { DatabaseConfig } from '../config/Config';
-import { Database } from './Database';
-import { InMemoryDatabase } from './InMemoryDatabase';
-import { PostgreSqlDatabase } from './PostgreSqlDatabase';
-import { SqlServerDatabase } from './SqlServerDatabase';
+mkdir -p "apps/api/src/infrastructure/memory"
+echo "作成: apps/api/src/infrastructure/memory/README.md"
+cat << 'EOF_1790920125_20486' > "apps/api/src/infrastructure/memory/README.md"
+Memory Provider
 
-export async function createDatabase(config: DatabaseConfig): Promise<Database> {
-    switch (config.type) {
-        case 'memory':
-            return new InMemoryDatabase(config.type);
+This provider stores data in memory using a Map.
 
-        case 'postgres':
-            return new PostgreSqlDatabase(config.type, config.connectionString ?? '');
-        // return new DrizzleDatabase(config.connectionString ?? '');
+It is intended for:
 
-        case 'sqlserver':
-            return new SqlServerDatabase(config.type, config.connectionString ?? '');
-        // throw new Error('SQL Server not implemented');
+- local development
+- unit testing
+- integration testing
 
-        default:
-            throw new Error(`Unknown database type: ${config.type}`);
-    }
-}
-EOF_1790584055_5786
+Data is lost when the process exits.
+EOF_1790920125_20486
 
-mkdir -p "apps/api/src/database"
-echo "作成: apps/api/src/database/Database.ts"
-cat << 'EOF_1790584055_13033' > "apps/api/src/database/Database.ts"
-export interface Database {
-    type: string;
-    query<T>(sql: string, params?: readonly unknown[]): Promise<T[]>;
-    execute(sql: string, params?: readonly unknown[]): Promise<number>;
-    beginTransaction(): Promise<void>;
-    commit(): Promise<void>;
-    rollback(): Promise<void>;
-}
-EOF_1790584055_13033
+mkdir -p "apps/api/src/infrastructure/sqlserver"
+echo "作成: apps/api/src/infrastructure/sqlserver/user-repository.ts"
+cat << 'EOF_1790920125_16882' > "apps/api/src/infrastructure/sqlserver/user-repository.ts"
+import sql from 'mssql';
 
-mkdir -p "apps/api/src/features/user/mappers"
-echo "作成: apps/api/src/features/user/mappers/UserMapper.ts"
-cat << 'EOF_1790584055_4104' > "apps/api/src/features/user/mappers/UserMapper.ts"
-import { User } from '../domain/User';
+import type { CreateUser, User } from '@packages/schemas';
+import { hashPassword } from '../../features/user/auth-utils';
+import type { UserRepository } from '../../repositories/user-repository';
+import { users } from './schema';
 
-import { UserDto } from '@packages/types/user/UserDto';
+export class SqlServerUserRepository implements UserRepository {
+    constructor(private readonly db: sql.ConnectionPool) {}
 
-export class UserMapper {
-    static toDto(user: User): UserDto {
+    async findById(id: number): Promise<User | null> {
+        const result = await this.db.request().input('id', sql.UniqueIdentifier, id).query(`
+                SELECT
+                    ${users.id.select},
+                    ${users.name.select},
+                    ${users.email.select},
+                    $(users.passwordHash.select),
+                    ${users.role.select},
+                    ${users.isActive.select},
+                    $(users.createdAt.select())
+                FROM ${users.tableName}
+                WHERE ${users.id} = @id
+            `);
+
+        if (result.recordset.length === 0) {
+            return null;
+        }
+
+        const row = result.recordset[0];
+
         return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            isActive: user.isActive,
-            createdAt: user.createdAt.toISOString(),
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            passwordHash: row.passwordHash,
+            role: row.role,
+            isActive: row.isActive,
+            createdAt: row.createdAt,
         };
     }
+
+    async findByEmail(email: string): Promise<User | null> {
+        const result = await this.db.request().input('email', sql.NVarChar(255), email).query(`
+                SELECT
+                    ${users.id.select},
+                    ${users.name.select},
+                    ${users.email.select},
+                    $(users.passwordHash.select),
+                    ${users.role.select},
+                    ${users.isActive.select},
+                    $(users.createdAt.select)
+                FROM ${users.tableName}
+                WHERE ${users.email} = @email
+            `);
+
+        if (result.recordset.length === 0) {
+            return null;
+        }
+
+        const row = result.recordset[0];
+
+        return {
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            passwordHash: row.password_hash,
+            role: row.role,
+            isActive: row.isActive,
+            createdAt: row.createdAt,
+        };
+    }
+
+    findAll(): Promise<User[]> {
+        throw new Error('Method not implemented.');
+    }
+    countAdmins(): Promise<number> {
+        throw new Error('Method not implemented.');
+    }
+
+    async create(request: CreateUser): Promise<User> {
+        const passwordHash = await hashPassword(request.password);
+        const result = await this.db
+            .request()
+            .input('name', sql.NVarChar(255), request.name)
+            .input('email', sql.NVarChar(255), request.email)
+            .input('passwordHash', sql.NVarChar(255), passwordHash).query(`
+                INSERT INTO ${users.tableName} (
+                    ${users.name},
+                    ${users.email},
+                    ${users.passwordHash}
+                )
+                OUTPUT
+                    ${users.id.inserted},
+                    ${users.name.inserted},
+                    ${users.email.inserted},
+                    ${users.passwordHash.inserted}
+                    ${users.role.inserted},
+                    ${users.isActive.inserted},
+                    ${users.createdAt.inserted}
+                VALUES (
+                    @name,
+                    @email,
+                    @passwordHash
+                )
+            `);
+
+        const row = result.recordset[0];
+
+        return {
+            id: row.id,
+            name: row.name,
+            email: row.email,
+            passwordHash: row.passwordHash,
+            role: row.role,
+            isActive: row.isActive,
+            createdAt: row.createdAt,
+        };
+    }
+
+    save(user: User): Promise<User> {
+        throw new Error('Method not implemented.');
+    }
+    updatePassword(id: number, passwordHash: string): Promise<User> {
+        throw new Error('Method not implemented.');
+    }
+    updateRole(id: number, role: string): Promise<User> {
+        throw new Error('Method not implemented.');
+    }
+    updateActive(id: number, isActive: boolean): Promise<User> {
+        throw new Error('Method not implemented.');
+    }
+    remove(id: number): Promise<void> {
+        throw new Error('Method not implemented.');
+    }
 }
-EOF_1790584055_4104
+
+// import { eq } from 'drizzle-orm';
+
+// import { type CreateUser, type User } from '@packages/schemas';
+// import { hashPassword } from '../../features/user/auth-utils';
+// import type { UserRepository } from '../../repositories/user-repository';
+// import { createSqlServerDb } from './db';
+// import { users } from './schema';
+
+// export class SqlServerUserRepository implements UserRepository {
+//     constructor(private readonly db: ReturnType<typeof createSqlServerDb>) {}
+
+//     async findById(id: number): Promise<User | null> {
+//         const result = await this.db.select().from(users).where(eq(users.id, id)).limit(1);
+
+//         if (result.length === 0) {
+//             return null;
+//         }
+
+//         return {
+//             id: result[0].id,
+//             name: result[0].name,
+//             email: result[0].email,
+//             passwordHash: result[0].passwordHash,
+//             role: result[0].role,
+//             isActive: result[0].isActive,
+//             createdAt: result[0].createdAt,
+//         };
+//     }
+
+//     async findByEmail(email: string): Promise<User | null> {
+//         const result = await this.db.select().from(users).where(eq(users.email, email)).limit(1);
+
+//         if (result.length === 0) {
+//             return null;
+//         }
+
+//         return result[0];
+//     }
+
+//     async findAll(): Promise<User[]> {
+//         const result = await this.db.select().from(users);
+//         return result;
+//     }
+
+//     async countAdmins(): Promise<number> {
+//         const result = await this.db.select().from(users);
+//         return result.length;
+//     }
+
+//     async create(request: CreateUser): Promise<User> {
+//         const passwordHash = await hashPassword(request.password);
+//         const result = await this.db
+//             .insert(users)
+//             .values({
+//                 name: request.name,
+//                 email: request.email,
+//                 passwordHash: passwordHash,
+//                 role: 'user',
+//             })
+//             .returning();
+
+//         return {
+//             id: result[0].id,
+//             name: result[0].name,
+//             email: result[0].email,
+//             passwordHash: result[0].passwordHash,
+//             role: result[0].role,
+//             isActive: result[0].isActive,
+//             createdAt: result[0].createdAt,
+//         };
+//     }
+
+//     async save(user: User): Promise<User> {
+//         const result = await this.db
+//             .update(users)
+//             .set({
+//                 name: user.name,
+//                 email: user.email,
+//                 role: user.role,
+//                 isActive: user.isActive,
+//             })
+//             .where(eq(users.id, user.id))
+//             .returning();
+
+//         return {
+//             id: result[0].id,
+//             name: result[0].name,
+//             email: result[0].email,
+//             passwordHash: result[0].passwordHash,
+//             role: result[0].role,
+//             isActive: result[0].isActive,
+//             createdAt: result[0].createdAt,
+//         };
+//     }
+
+//     async updatePassword(id: number, passwordHash: string): Promise<User> {
+//         const result = await this.db
+//             .update(users)
+//             .set({
+//                 passwordHash: passwordHash,
+//             })
+//             .where(eq(users.id, id))
+//             .returning();
+
+//         return {
+//             id: result[0].id,
+//             name: result[0].name,
+//             email: result[0].email,
+//             passwordHash: result[0].passwordHash,
+//             role: result[0].role,
+//             isActive: result[0].isActive,
+//             createdAt: result[0].createdAt,
+//         };
+//     }
+
+//     async updateRole(id: number, role: string): Promise<User> {
+//         const result = await this.db
+//             .update(users)
+//             .set({
+//                 role: role,
+//             })
+//             .where(eq(users.id, id))
+//             .returning();
+
+//         return {
+//             id: result[0].id,
+//             name: result[0].name,
+//             email: result[0].email,
+//             passwordHash: result[0].passwordHash,
+//             role: result[0].role,
+//             isActive: result[0].isActive,
+//             createdAt: result[0].createdAt,
+//         };
+//     }
+
+//     async updateActive(id: number, isActive: boolean): Promise<User> {
+//         const result = await this.db
+//             .update(users)
+//             .set({
+//                 isActive: isActive,
+//             })
+//             .where(eq(users.id, id))
+//             .returning();
+
+//         return {
+//             id: result[0].id,
+//             name: result[0].name,
+//             email: result[0].email,
+//             passwordHash: result[0].passwordHash,
+//             role: result[0].role,
+//             isActive: result[0].isActive,
+//             createdAt: result[0].createdAt,
+//         };
+//     }
+
+//     async remove(id: number): Promise<void> {
+//         const result = await this.db.delete(users).where(eq(users.id, id)).returning();
+//     }
+// }
+EOF_1790920125_16882
+
+mkdir -p "apps/api/src/infrastructure/sqlserver"
+echo "作成: apps/api/src/infrastructure/sqlserver/schema.ts"
+cat << 'EOF_1790920125_27623' > "apps/api/src/infrastructure/sqlserver/schema.ts"
+import { Column } from './db';
+
+export const users = {
+    tableName: 'users',
+
+    id: new Column('id', 'id'),
+    name: new Column('name', 'name'),
+    email: new Column('email', 'email'),
+    passwordHash: new Column('passwordHash', 'password_hash'),
+    role: new Column('role', 'emroleail'),
+    isActive: new Column('isActive', 'isActive'),
+    createdAt: new Column('createdAt', 'created_at'),
+} as const;
+EOF_1790920125_27623
+
+mkdir -p "apps/api/src/infrastructure/sqlserver"
+echo "作成: apps/api/src/infrastructure/sqlserver/db.ts"
+cat << 'EOF_1790920125_29188' > "apps/api/src/infrastructure/sqlserver/db.ts"
+import sql from 'mssql';
+
+export type SqlServerDb = sql.ConnectionPool;
+
+export async function createSqlServerDb(connectionString: string): Promise<SqlServerDb> {
+    const pool = new sql.ConnectionPool(connectionString);
+
+    await pool.connect();
+
+    return pool;
+}
+
+export class Column {
+    constructor(
+        public readonly property: string,
+        public readonly columnName: string,
+    ) {}
+
+    get column(): string {
+        return this.columnName;
+    }
+
+    get select(): string {
+        return `${this.columnName} AS ${this.property}`;
+    }
+    get inserted(): string {
+        return `inserted.${this.select}`;
+    }
+    get deleted(): string {
+        return `deleted.${this.select}`;
+    }
+
+    toString(): string {
+        return this.columnName;
+    }
+}
+EOF_1790920125_29188
+
+mkdir -p "apps/api/src/infrastructure/postgres"
+echo "作成: apps/api/src/infrastructure/postgres/user-repository.ts"
+cat << 'EOF_1790920125_4678' > "apps/api/src/infrastructure/postgres/user-repository.ts"
+import { eq } from 'drizzle-orm';
+
+import { type CreateUser, type User } from '@packages/schemas';
+import { hashPassword } from '../../features/user/auth-utils';
+import type { UserRepository } from '../../repositories/user-repository';
+import { createPostgresDb } from './db';
+import { users } from './schema';
+
+export class PostgresUserRepository implements UserRepository {
+    constructor(private readonly db: ReturnType<typeof createPostgresDb>) {}
+
+    async findById(id: number): Promise<User | null> {
+        const result = await this.db.select().from(users).where(eq(users.id, id)).limit(1);
+
+        if (result.length === 0) {
+            return null;
+        }
+
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            passwordHash: result[0].passwordHash,
+            role: result[0].role,
+            isActive: result[0].isActive,
+            createdAt: result[0].createdAt,
+        };
+    }
+
+    async findByEmail(email: string): Promise<User | null> {
+        const result = await this.db.select().from(users).where(eq(users.email, email)).limit(1);
+
+        if (result.length === 0) {
+            return null;
+        }
+
+        return result[0];
+    }
+
+    async findAll(): Promise<User[]> {
+        const result = await this.db.select().from(users);
+        return result;
+    }
+
+    async countAdmins(): Promise<number> {
+        const result = await this.db.select().from(users);
+        return result.length;
+    }
+
+    async create(request: CreateUser): Promise<User> {
+        const passwordHash = await hashPassword(request.password);
+        const result = await this.db
+            .insert(users)
+            .values({
+                name: request.name,
+                email: request.email,
+                passwordHash: passwordHash,
+                role: 'user',
+            })
+            .returning();
+
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            passwordHash: result[0].passwordHash,
+            role: result[0].role,
+            isActive: result[0].isActive,
+            createdAt: result[0].createdAt,
+        };
+    }
+
+    async save(user: User): Promise<User> {
+        const result = await this.db
+            .update(users)
+            .set({
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isActive: user.isActive,
+            })
+            .where(eq(users.id, user.id))
+            .returning();
+
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            passwordHash: result[0].passwordHash,
+            role: result[0].role,
+            isActive: result[0].isActive,
+            createdAt: result[0].createdAt,
+        };
+    }
+
+    async updatePassword(id: number, passwordHash: string): Promise<User> {
+        const result = await this.db
+            .update(users)
+            .set({
+                passwordHash: passwordHash,
+            })
+            .where(eq(users.id, id))
+            .returning();
+
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            passwordHash: result[0].passwordHash,
+            role: result[0].role,
+            isActive: result[0].isActive,
+            createdAt: result[0].createdAt,
+        };
+    }
+
+    async updateRole(id: number, role: string): Promise<User> {
+        const result = await this.db
+            .update(users)
+            .set({
+                role: role,
+            })
+            .where(eq(users.id, id))
+            .returning();
+
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            passwordHash: result[0].passwordHash,
+            role: result[0].role,
+            isActive: result[0].isActive,
+            createdAt: result[0].createdAt,
+        };
+    }
+
+    async updateActive(id: number, isActive: boolean): Promise<User> {
+        const result = await this.db
+            .update(users)
+            .set({
+                isActive: isActive,
+            })
+            .where(eq(users.id, id))
+            .returning();
+
+        return {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            passwordHash: result[0].passwordHash,
+            role: result[0].role,
+            isActive: result[0].isActive,
+            createdAt: result[0].createdAt,
+        };
+    }
+
+    async remove(id: number): Promise<void> {
+        const result = await this.db.delete(users).where(eq(users.id, id)).returning();
+    }
+}
+EOF_1790920125_4678
+
+mkdir -p "apps/api/src/infrastructure/postgres"
+echo "作成: apps/api/src/infrastructure/postgres/schema.ts"
+cat << 'EOF_1790920125_20756' > "apps/api/src/infrastructure/postgres/schema.ts"
+import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+
+export const users = pgTable('users', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull().unique(),
+    passwordHash: text('password_hash').notNull(),
+    role: text('role').notNull().default('user'),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const UserSelectSchema = createSelectSchema(users);
+export const UserInsertSchema = createInsertSchema(users);
+EOF_1790920125_20756
+
+mkdir -p "apps/api/src/infrastructure/postgres"
+echo "作成: apps/api/src/infrastructure/postgres/db.ts"
+cat << 'EOF_1790920125_28836' > "apps/api/src/infrastructure/postgres/db.ts"
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+
+export function createPostgresDb(connectionString: string) {
+    const pool = new Pool({
+        connectionString,
+    });
+
+    return drizzle(pool);
+}
+EOF_1790920125_28836
 
 mkdir -p "apps/api/src/features/user"
-echo "作成: apps/api/src/features/user/routes.ts"
-cat << 'EOF_1790584055_23652' > "apps/api/src/features/user/routes.ts"
-import { Hono } from 'hono';
-
-export const routes = new Hono();
-EOF_1790584055_23652
-
-mkdir -p "apps/api/src/features/user/controllers"
-echo "作成: apps/api/src/features/user/controllers/UserController.ts"
-cat << 'EOF_1790584055_18647' > "apps/api/src/features/user/controllers/UserController.ts"
+echo "作成: apps/api/src/features/user/auth-utils.ts"
+cat << 'EOF_1790920125_9351' > "apps/api/src/features/user/auth-utils.ts"
 import bcrypt from 'bcrypt';
+
+// ----------------------------------------------------
+// 1. パスワードハッシュ化 & 照合処理
+// ----------------------------------------------------
+
+/**
+ * 平文パスワードをハッシュ化します
+ */
+export async function hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return await bcrypt.hash(password, saltRounds);
+}
+
+/**
+ * 平文パスワードとハッシュ値を照合します
+ */
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
+}
+
+// // ----------------------------------------------------
+// // 2. JWT 発行 & 検証処理
+// // ----------------------------------------------------
+
+// import { SignJWT, jwtVerify } from 'jose';
+
+// /**
+//  * Payload を受け取り、署名済み JWT を生成します
+//  */
+// export async function signJwt(
+//     payload: Record<string, unknown>,
+//     secret: string,
+//     expiresIn: string = '2h',
+// ): Promise<string> {
+//     const secretKey = new TextEncoder().encode(secret);
+
+//     return await new SignJWT(payload)
+//         .setProtectedHeader({ alg: 'HS256' })
+//         .setIssuedAt()
+//         .setExpirationTime(expiresIn)
+//         .sign(secretKey);
+// }
+
+// /**
+//  * JWT を検証し、デコードされた Payload を返します。
+//  * 不正または改ざんされたトークンの場合は null を返します。
+//  */
+// export async function verifyJwt<T = Record<string, unknown>>(
+//     token: string,
+//     secret: string,
+// ): Promise<T | null> {
+//     try {
+//         const secretKey = new TextEncoder().encode(secret);
+//         const { payload } = await jwtVerify(token, secretKey);
+//         return payload as T;
+//     } catch {
+//         // トークンが不正、改ざんされている、または有効期限切れの場合
+//         return null;
+//     }
+// }
+EOF_1790920125_9351
+
+mkdir -p "apps/api/src/features/user"
+echo "作成: apps/api/src/features/user/service.ts"
+cat << 'EOF_1790920125_28089' > "apps/api/src/features/user/service.ts"
+import type { CreateUser, User } from '@packages/schemas';
+import type { UserRepository } from '../../repositories/user-repository';
+
+export class UserService {
+    constructor(private readonly repository: UserRepository) {}
+
+    async findById(id: number) {
+        return this.repository.findById(id);
+    }
+
+    async findByEmail(email: string) {
+        return this.repository.findByEmail(email);
+    }
+
+    async findAll() {
+        return this.repository.findAll();
+    }
+
+    async create(user: CreateUser) {
+        await this.repository.create(user);
+    }
+
+    async update(user: User) {
+        await this.repository.save(user);
+    }
+
+    async changePassword(id: number, passwordHash: string) {
+        await this.repository.updatePassword(id, passwordHash);
+    }
+
+    async changeRole(currentUserId: number, targetUserId: number, role: string) {
+        if (currentUserId === targetUserId) {
+            throw new Error('Cannot change your own role');
+        }
+
+        const target = await this.repository.findById(targetUserId);
+
+        if (target?.role === 'admin' && role !== 'admin') {
+            const adminCount = await this.repository.countAdmins();
+
+            if (adminCount <= 1) {
+                throw new Error('Cannot demote last admin');
+            }
+        }
+
+        await this.repository.updateRole(targetUserId, role);
+    }
+
+    async changeActive(currentUserId: number, targetUserId: number, isActive: boolean) {
+        if (currentUserId === targetUserId) {
+            throw new Error('Cannot disable yourself');
+        }
+
+        const target = await this.repository.findById(targetUserId);
+
+        if (target?.role === 'admin' && !isActive) {
+            const adminCount = await this.repository.countAdmins();
+
+            if (adminCount <= 1) {
+                throw new Error('Cannot disable last admin');
+            }
+        }
+
+        await this.repository.updateActive(targetUserId, isActive);
+    }
+
+    async delete(currentUserId: number, targetUserId?: number) {
+        const id = targetUserId ?? currentUserId;
+
+        if (currentUserId === id) {
+            throw new Error('Cannot delete yourself');
+        }
+
+        const target = await this.repository.findById(id);
+
+        if (target?.role === 'admin') {
+            const adminCount = await this.repository.countAdmins();
+
+            if (adminCount <= 1) {
+                throw new Error('Cannot delete last admin');
+            }
+        }
+
+        await this.repository.remove(id);
+    }
+}
+EOF_1790920125_28089
+
+mkdir -p "apps/api/src/features/user"
+echo "作成: apps/api/src/features/user/controller.ts"
+cat << 'EOF_1790920125_8068' > "apps/api/src/features/user/controller.ts"
+import { CreateUserSchema, UserDetailSchema } from '@packages/schemas';
 import { Hono } from 'hono';
-import { AppVariables } from '../../authentication/AppVariables';
+import { AppVariables } from '../authentication/AppVariables';
+import { authorize } from '../authentication/middleware/authorize';
+import { hashPassword } from './auth-utils';
+import type { UserService } from './service';
 
-import { User } from '../domain/User';
-import { UserMapper } from '../mappers/UserMapper';
-import { UserService } from '../services/UserService';
-
-import { authorize } from '../../authentication/middleware/authorize';
-import { authorizeSelfOrAdmin } from '../../authentication/middleware/authorizeSelfOrAdmin';
-
-export function createUserController(service: UserService) {
+export function createUserController(userService: UserService) {
     const router = new Hono<{
         Variables: AppVariables;
     }>();
@@ -8092,35 +8318,35 @@ export function createUserController(service: UserService) {
     router.get('/me', authorize('admin', 'user'), async (c) => {
         const principal = c.get('principal');
 
-        const user = await service.findById(principal.userId);
+        const user = await userService.findById(Number(principal.userId));
         if (!user) {
             return c.notFound();
         }
 
-        return c.json(UserMapper.toDto(user));
+        return c.json(UserDetailSchema.parse(user));
     });
 
     router.put('/me', authorize('admin', 'user'), async (c) => {
         const principal = c.get('principal');
 
-        const current = await service.findById(principal.userId);
+        const current = await userService.findById(Number(principal.userId));
         if (!current) {
             return c.notFound();
         }
 
         const body = await c.req.json();
 
-        const user = new User(
-            current.id,
-            body.name,
-            body.email,
-            current.passwordHash,
-            current.role,
-            current.isActive,
-            current.createdAt,
-        );
+        const user = {
+            id: current.id,
+            name: body.name,
+            email: body.email,
+            passwordHash: current.passwordHash,
+            role: current.role,
+            isActive: current.isActive,
+            createdAt: current.createdAt,
+        };
 
-        await service.update(user);
+        await userService.update(user);
 
         return c.json({
             message: 'updated',
@@ -8131,554 +8357,248 @@ export function createUserController(service: UserService) {
         const principal = c.get('principal');
         const body = await c.req.json();
 
-        const passwordHash = await bcrypt.hash(body.password, 10);
+        const passwordHash = await hashPassword(body.password);
 
-        await service.changePassword(principal.userId, passwordHash);
+        await userService.changePassword(Number(principal.userId), passwordHash);
 
         return c.json({
             message: 'password updated',
         });
     });
 
-    router.get('/', authorize('admin'), async (c) => {
-        const users = await service.findAll();
-
-        return c.json(users.map((user) => UserMapper.toDto(user)));
-    });
-
-    router.get('/:id', authorizeSelfOrAdmin(), async (c) => {
-        const user = await service.findById(c.req.param('id')!);
-
+    router.get('/:id', async (c) => {
+        const id = Number(c.req.param('id'));
+        if (Number.isNaN(id)) {
+            return c.json(
+                {
+                    message: 'invalid id',
+                },
+                400,
+            );
+        }
+        const user = await userService.findById(id);
         if (!user) {
-            return c.notFound();
+            return c.json({ message: 'user not found' }, 404);
         }
 
-        return c.json(UserMapper.toDto(user));
+        return c.json(UserDetailSchema.parse(user));
     });
 
-    router.post('/', authorize('admin'), async (c) => {
+    router.post('/', async (c) => {
         const body = await c.req.json();
+        const request = CreateUserSchema.parse(body);
 
-        const passwordHash = await bcrypt.hash(body.password, 10);
+        const user = await userService.create(request);
 
-        const user = new User(
-            0,
-            body.name,
-            body.email,
-            passwordHash,
-            body.role ?? 'user',
-            true,
-            new Date(),
-        );
-
-        await service.create(user);
-
-        return c.json({ message: 'created' }, 201);
-    });
-
-    router.put('/:id', authorize('admin'), async (c) => {
-        const current = await service.findById(c.req.param('id')!);
-        if (!current) {
-            return c.notFound();
-        }
-
-        const body = await c.req.json();
-
-        const user = new User(
-            current.id,
-            body.name,
-            body.email,
-            current.passwordHash,
-            body.role,
-            body.isActive,
-            current.createdAt,
-        );
-
-        await service.update(user);
-
-        return c.json({ message: 'updated' });
-    });
-
-    router.put('/:id/password', authorize('admin'), async (c) => {
-        const body = await c.req.json();
-
-        const passwordHash = await bcrypt.hash(body.password, 10);
-
-        await service.changePassword(c.req.param('id')!, passwordHash);
-
-        return c.json({ message: 'password updated' });
-    });
-
-    router.put('/:id/role', authorize('admin'), async (c) => {
-        const principal = c.get('principal');
-        const body = await c.req.json();
-
-        try {
-            await service.changeRole(principal.userId, c.req.param('id')!, body.role);
-
-            return c.json({ message: 'role updated' });
-        } catch (error) {
-            return c.json(
-                { message: error instanceof Error ? error.message : 'Role update failed' },
-                400,
-            );
-        }
-    });
-
-    router.put('/:id/active', authorize('admin'), async (c) => {
-        const principal = c.get('principal');
-        const body = await c.req.json();
-
-        try {
-            await service.changeActive(principal.userId, c.req.param('id')!, body.isActive);
-
-            return c.json({
-                message: 'active updated',
-            });
-        } catch (error) {
-            return c.json(
-                { message: error instanceof Error ? error.message : 'Active update failed' },
-                400,
-            );
-        }
-    });
-
-    router.delete('/:id', authorize('admin'), async (c) => {
-        const principal = c.get('principal');
-
-        try {
-            await service.delete(principal.userId, c.req.param('id'));
-
-            return c.body(null, 204);
-        } catch (error) {
-            return c.json(
-                { message: error instanceof Error ? error.message : 'Delete failed' },
-                400,
-            );
-        }
+        return c.json(UserDetailSchema.parse(user), 201);
     });
 
     return router;
 }
-EOF_1790584055_18647
+EOF_1790920125_8068
 
-mkdir -p "apps/api/src/features/user/services"
-echo "作成: apps/api/src/features/user/services/UserService.ts"
-cat << 'EOF_1790584055_3901' > "apps/api/src/features/user/services/UserService.ts"
-import { User } from '../domain/User';
-import { UserRepository } from '../repositories/UserRepository';
+mkdir -p "apps/api/src/features/administration/mappers"
+echo "作成: apps/api/src/features/administration/mappers/ConfigurationMapper.ts"
+cat << 'EOF_1790920125_30734' > "apps/api/src/features/administration/mappers/ConfigurationMapper.ts"
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
+import { ConfigurationDto } from '@packages/types/administration/ConfigurationDto';
+import { Configuration } from '../domain/Configuration';
 
-export class UserService {
-    constructor(private readonly users: UserRepository) {}
+export class ConfigurationMapper {
+    static toDto(configuration: Configuration): ConfigurationDto {
+        const authenticationPolicy: AuthenticationPolicy = {
+            session: {
+                reloadBehavior: 'keep-session',
+                idleTimeoutMinutes: 30,
+                absoluteTimeoutMinutes: 480,
+            },
 
-    async findById(id: string) {
-        return this.users.findById(id);
-    }
+            token: {
+                accessTokenLifetimeMinutes: 60,
+                autoRefreshEnabled: true,
+                refreshThresholdMinutes: 5,
+            },
 
-    async findByEmail(email: string) {
-        return this.users.findByEmail(email);
-    }
+            deepLink: {
+                enabled: true,
+                afterLogin: 'restore',
+            },
 
-    async findAll() {
-        return this.users.findAll();
-    }
+            reAuthentication: {
+                enabled: true,
+                validMinutes: 15,
+                requireForSystemSettings: true,
+                requireForUserDelete: true,
+                requireForRoleChange: true,
+            },
 
-    async create(user: User) {
-        await this.users.create(user);
-    }
+            navigation: {
+                loginPageWhileAuthenticated: 'back',
+                forbiddenPage: 'back',
+                notFoundPage: '404',
+            },
 
-    async update(user: User) {
-        await this.users.save(user);
-    }
+            expiredToken: {
+                behavior: 're-authenticate',
+                afterRecovery: 'restore',
+            },
+        };
 
-    async changePassword(id: string, passwordHash: string) {
-        await this.users.updatePassword(id, passwordHash);
-    }
-
-    async changeRole(currentUserId: string, targetUserId: string, role: string) {
-        if (currentUserId === targetUserId) {
-            throw new Error('Cannot change your own role');
-        }
-
-        const target = await this.users.findById(targetUserId);
-
-        if (target?.role === 'admin' && role !== 'admin') {
-            const adminCount = await this.users.countAdmins();
-
-            if (adminCount <= 1) {
-                throw new Error('Cannot demote last admin');
-            }
-        }
-
-        await this.users.updateRole(targetUserId, role);
-    }
-
-    async changeActive(currentUserId: string, targetUserId: string, isActive: boolean) {
-        if (currentUserId === targetUserId) {
-            throw new Error('Cannot disable yourself');
-        }
-
-        const target = await this.users.findById(targetUserId);
-
-        if (target?.role === 'admin' && !isActive) {
-            const adminCount = await this.users.countAdmins();
-
-            if (adminCount <= 1) {
-                throw new Error('Cannot disable last admin');
-            }
-        }
-
-        await this.users.updateActive(targetUserId, isActive);
-    }
-
-    async delete(currentUserId: string, targetUserId?: string) {
-        const id = targetUserId ?? currentUserId;
-
-        if (currentUserId === id) {
-            throw new Error('Cannot delete yourself');
-        }
-
-        const target = await this.users.findById(id);
-
-        if (target?.role === 'admin') {
-            const adminCount = await this.users.countAdmins();
-
-            if (adminCount <= 1) {
-                throw new Error('Cannot delete last admin');
-            }
-        }
-
-        await this.users.remove(id);
+        return {
+            authenticationPolicy: authenticationPolicy,
+        };
     }
 }
-EOF_1790584055_3901
-
-mkdir -p "apps/api/src/features/user/domain"
-echo "作成: apps/api/src/features/user/domain/User.ts"
-cat << 'EOF_1790584055_10958' > "apps/api/src/features/user/domain/User.ts"
-export class User {
-    constructor(
-        public readonly id: number,
-        public name: string,
-        public email: string,
-        public passwordHash: string,
-        public role: string,
-        public isActive: boolean,
-        public createdAt: Date,
-    ) {}
-}
-EOF_1790584055_10958
-
-mkdir -p "apps/api/src/features/user/repositories"
-echo "作成: apps/api/src/features/user/repositories/UserRepository.ts"
-cat << 'EOF_1790584055_345' > "apps/api/src/features/user/repositories/UserRepository.ts"
-import { User } from '../domain/User';
-
-export interface UserRepository {
-    findById(id: string): Promise<User | undefined>;
-    findByEmail(email: string): Promise<User | undefined>;
-    findAll(): Promise<User[]>;
-    countAdmins(): Promise<number>;
-    create(user: User): Promise<void>;
-    save(user: User): Promise<void>;
-    updatePassword(id: string, passwordHash: string): Promise<void>;
-    updateRole(id: string, role: string): Promise<void>;
-    updateActive(id: string, isActive: boolean): Promise<void>;
-    remove(id: string): Promise<void>;
-}
-EOF_1790584055_345
-
-mkdir -p "apps/api/src/features/user/repositories"
-echo "作成: apps/api/src/features/user/repositories/UserRepositoryImpl.ts"
-cat << 'EOF_1790584055_27640' > "apps/api/src/features/user/repositories/UserRepositoryImpl.ts"
-import { Database } from '@apps/api/database/Database';
-import { User } from '../domain/User';
-import { UserRepository } from './UserRepository';
-
-export class UserRepositoryImpl implements UserRepository {
-    constructor(private readonly db: Database) {}
-
-    async findById(id: string) {
-        const rows = await this.db.query<User>(
-            `
-      select
-        id,
-        name,
-        email,
-        password_hash as "passwordHash",
-        role,
-        is_active as "isActive",
-        created_at as "createdAt"
-      from public.users
-      where id = $1
-      `,
-            [Number(id)],
-        );
-
-        return rows[0];
-    }
-
-    async findByEmail(email: string) {
-        const rows = await this.db.query<User>(
-            `
-      select
-        id,
-        name,
-        email,
-        password_hash as "passwordHash",
-        role,
-        is_active as "isActive",
-        created_at as "createdAt"
-      from public.users
-      where email = $1
-      `,
-            [email],
-        );
-
-        return rows[0];
-    }
-
-    async findAll() {
-        return this.db.query<User>(
-            `
-      select
-        id,
-        name,
-        email,
-        password_hash as "passwordHash",
-        role,
-        is_active as "isActive",
-        created_at as "createdAt"
-      from public.users
-      order by id
-      `,
-        );
-    }
-
-    async countAdmins() {
-        const rows = await this.db.query<{ count: string }>(
-            `
-      select count(*)::text as count
-      from public.users
-      where role = 'admin'
-      and is_active = true
-      `,
-        );
-
-        return Number(rows[0]?.count ?? 0);
-    }
-
-    async create(user: User) {
-        await this.db.execute(
-            `
-      insert into public.users (
-        name,
-        email,
-        password_hash,
-        role
-      )
-      values ($1,$2,$3,$4)
-      `,
-            [user.name, user.email, user.passwordHash, user.role],
-        );
-    }
-
-    async save(user: User) {
-        await this.db.execute(
-            `
-      update public.users
-      set
-        name = $2,
-        email = $3,
-        role = $4,
-        is_active = $5
-      where id = $1
-      `,
-            [user.id, user.name, user.email, user.role, user.isActive],
-        );
-    }
-
-    async updatePassword(id: string, passwordHash: string) {
-        await this.db.execute(
-            `
-      update public.users
-      set password_hash = $2
-      where id = $1
-      `,
-            [Number(id), passwordHash],
-        );
-    }
-
-    async updateRole(id: string, role: string) {
-        await this.db.execute(
-            `
-      update public.users
-      set role = $2
-      where id = $1
-      `,
-            [Number(id), role],
-        );
-    }
-
-    async updateActive(id: string, isActive: boolean) {
-        await this.db.execute(
-            `
-      update public.users
-      set is_active = $2
-      where id = $1
-      `,
-            [Number(id), isActive],
-        );
-    }
-
-    async remove(id: string) {
-        await this.db.execute(
-            `
-      delete
-      from public.users
-      where id = $1
-      `,
-            [Number(id)],
-        );
-    }
-}
-EOF_1790584055_27640
+EOF_1790920125_30734
 
 mkdir -p "apps/api/src/features/administration"
 echo "作成: apps/api/src/features/administration/routes.ts"
-cat << 'EOF_1790584055_12936' > "apps/api/src/features/administration/routes.ts"
-import { Hono } from 'hono';
-
-export const routes = new Hono();
-EOF_1790584055_12936
+cat << 'EOF_1790920125_83' > "apps/api/src/features/administration/routes.ts"
+export { createConfigurationController } from './controllers/ConfigurationController';
+EOF_1790920125_83
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/AdminUserController.ts"
-cat << 'EOF_1790584055_32558' > "apps/api/src/features/administration/controllers/AdminUserController.ts"
+cat << 'EOF_1790920125_24969' > "apps/api/src/features/administration/controllers/AdminUserController.ts"
 import { Hono } from 'hono';
 
 export const adminUserRouter = new Hono();
-EOF_1790584055_32558
+EOF_1790920125_24969
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/SystemStatusController.ts"
-cat << 'EOF_1790584055_18126' > "apps/api/src/features/administration/controllers/SystemStatusController.ts"
+cat << 'EOF_1790920125_9704' > "apps/api/src/features/administration/controllers/SystemStatusController.ts"
 import { Hono } from 'hono';
 
 export const systemStatusRouter = new Hono();
-EOF_1790584055_18126
+EOF_1790920125_9704
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/ConfigurationController.ts"
-cat << 'EOF_1790584055_17324' > "apps/api/src/features/administration/controllers/ConfigurationController.ts"
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
-import { defaultAuthenticationPolicy } from '@packages/types/authentication/defaultAuthenticationPolicy';
+cat << 'EOF_1790920125_28410' > "apps/api/src/features/administration/controllers/ConfigurationController.ts"
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
+import { defaultAuthenticationPolicy } from '@packages/types/administration/defaultAuthenticationPolicy';
 import { Hono } from 'hono';
+import { ConfigurationService } from '../services/ConfigurationService';
 
 const configuration = {
     authenticationPolicy: defaultAuthenticationPolicy,
 };
 
-export const configurationRouter = new Hono();
+export function createConfigurationController(service: ConfigurationService) {
+    const router = new Hono();
 
-configurationRouter.get('/configuration', (c) => {
-    return c.json(configuration);
-});
+    router.get('/configuration', (c) => {
+        return c.json(configuration);
+    });
 
-configurationRouter.put('/configuration', async (c) => {
-    const body = await c.req.json();
+    router.put('/configuration', async (c) => {
+        const body = await c.req.json();
 
-    configuration.authenticationPolicy = body.authenticationPolicy as AuthenticationPolicy;
+        configuration.authenticationPolicy = body.authenticationPolicy as AuthenticationPolicy;
 
-    return c.json(configuration);
-});
-EOF_1790584055_17324
+        return c.json(configuration);
+    });
+
+    return router;
+}
+EOF_1790920125_28410
 
 mkdir -p "apps/api/src/features/administration/controllers"
 echo "作成: apps/api/src/features/administration/controllers/FeatureFlagController.ts"
-cat << 'EOF_1790584055_20749' > "apps/api/src/features/administration/controllers/FeatureFlagController.ts"
+cat << 'EOF_1790920125_24553' > "apps/api/src/features/administration/controllers/FeatureFlagController.ts"
 import { Hono } from 'hono';
 
 export const featureFlagRouter = new Hono();
-EOF_1790584055_20749
+EOF_1790920125_24553
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/ConfigurationService.ts"
-cat << 'EOF_1790584055_21568' > "apps/api/src/features/administration/services/ConfigurationService.ts"
+cat << 'EOF_1790920125_1451' > "apps/api/src/features/administration/services/ConfigurationService.ts"
 import { ConfigurationRepository } from '../repositories/ConfigurationRepository';
 
 export class ConfigurationService {
     constructor(private readonly repository: ConfigurationRepository) {}
 }
-EOF_1790584055_21568
+EOF_1790920125_1451
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/AdminUserService.ts"
-cat << 'EOF_1790584055_17463' > "apps/api/src/features/administration/services/AdminUserService.ts"
+cat << 'EOF_1790920125_4425' > "apps/api/src/features/administration/services/AdminUserService.ts"
 import { AdminUserRepository } from '../repositories/AdminUserRepository';
 
 export class AdminUserService {
     constructor(private readonly repository: AdminUserRepository) {}
 }
-EOF_1790584055_17463
+EOF_1790920125_4425
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/SystemStatusService.ts"
-cat << 'EOF_1790584055_28980' > "apps/api/src/features/administration/services/SystemStatusService.ts"
+cat << 'EOF_1790920125_20088' > "apps/api/src/features/administration/services/SystemStatusService.ts"
 export class SystemStatusService {}
-EOF_1790584055_28980
+EOF_1790920125_20088
 
 mkdir -p "apps/api/src/features/administration/services"
 echo "作成: apps/api/src/features/administration/services/FeatureFlagService.ts"
-cat << 'EOF_1790584055_18634' > "apps/api/src/features/administration/services/FeatureFlagService.ts"
+cat << 'EOF_1790920125_29406' > "apps/api/src/features/administration/services/FeatureFlagService.ts"
 import { FeatureFlagRepository } from '../repositories/FeatureFlagRepository';
 
 export class FeatureFlagService {
     constructor(private readonly repository: FeatureFlagRepository) {}
 }
-EOF_1790584055_18634
+EOF_1790920125_29406
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/SystemStatus.ts"
-cat << 'EOF_1790584055_15374' > "apps/api/src/features/administration/domain/SystemStatus.ts"
+cat << 'EOF_1790920125_25994' > "apps/api/src/features/administration/domain/SystemStatus.ts"
 export interface SystemStatus {
     version: string;
 
     uptime: number;
 }
-EOF_1790584055_15374
+EOF_1790920125_25994
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/SystemConfiguration.ts"
-cat << 'EOF_1790584055_22747' > "apps/api/src/features/administration/domain/SystemConfiguration.ts"
+cat << 'EOF_1790920125_23329' > "apps/api/src/features/administration/domain/SystemConfiguration.ts"
 export interface SystemConfiguration {
     databaseType: 'memory' | 'postgres' | 'sqlserver';
     authenticationType: 'none' | 'local' | 'oidc' | 'ldap';
     frontendType: 'react' | 'vue';
 }
-EOF_1790584055_22747
+EOF_1790920125_23329
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/AdminUser.ts"
-cat << 'EOF_1790584055_15783' > "apps/api/src/features/administration/domain/AdminUser.ts"
+cat << 'EOF_1790920125_24446' > "apps/api/src/features/administration/domain/AdminUser.ts"
 export interface AdminUser {
     userName: string;
 }
-EOF_1790584055_15783
+EOF_1790920125_24446
 
 mkdir -p "apps/api/src/features/administration/domain"
 echo "作成: apps/api/src/features/administration/domain/FeatureFlag.ts"
-cat << 'EOF_1790584055_19367' > "apps/api/src/features/administration/domain/FeatureFlag.ts"
+cat << 'EOF_1790920125_24483' > "apps/api/src/features/administration/domain/FeatureFlag.ts"
 export interface FeatureFlag {
     name: string;
 
     enabled: boolean;
 }
-EOF_1790584055_19367
+EOF_1790920125_24483
+
+mkdir -p "apps/api/src/features/administration/domain"
+echo "作成: apps/api/src/features/administration/domain/Configuration.ts"
+cat << 'EOF_1790920125_9493' > "apps/api/src/features/administration/domain/Configuration.ts"
+export interface Configuration {
+    databaseType: 'memory' | 'postgres' | 'sqlserver';
+    authenticationType: 'none' | 'local' | 'oidc' | 'ldap';
+    frontendType: 'react' | 'vue';
+}
+EOF_1790920125_9493
 
 mkdir -p "apps/api/src/features/administration/authentication"
 echo "作成: apps/api/src/features/administration/authentication/LocalAdminAuthenticationProvider.ts"
-cat << 'EOF_1790584055_10660' > "apps/api/src/features/administration/authentication/LocalAdminAuthenticationProvider.ts"
+cat << 'EOF_1790920125_2046' > "apps/api/src/features/administration/authentication/LocalAdminAuthenticationProvider.ts"
 import { AdminAuthenticationProvider } from './AdminAuthenticationProvider';
 
 export class LocalAdminAuthenticationProvider implements AdminAuthenticationProvider {
@@ -8686,29 +8606,29 @@ export class LocalAdminAuthenticationProvider implements AdminAuthenticationProv
         return true;
     }
 }
-EOF_1790584055_10660
+EOF_1790920125_2046
 
 mkdir -p "apps/api/src/features/administration/authentication"
 echo "作成: apps/api/src/features/administration/authentication/AdminAuthenticationProvider.ts"
-cat << 'EOF_1790584055_17909' > "apps/api/src/features/administration/authentication/AdminAuthenticationProvider.ts"
+cat << 'EOF_1790920125_28636' > "apps/api/src/features/administration/authentication/AdminAuthenticationProvider.ts"
 export interface AdminAuthenticationProvider {
     authenticate(email: string, password: string): Promise<boolean>;
 }
-EOF_1790584055_17909
+EOF_1790920125_28636
 
 mkdir -p "apps/api/src/features/administration/repositories"
 echo "作成: apps/api/src/features/administration/repositories/AdminUserRepository.ts"
-cat << 'EOF_1790584055_14811' > "apps/api/src/features/administration/repositories/AdminUserRepository.ts"
+cat << 'EOF_1790920125_11933' > "apps/api/src/features/administration/repositories/AdminUserRepository.ts"
 import { AdminUser } from '../domain/AdminUser';
 
 export interface AdminUserRepository {
     findAll(): Promise<AdminUser[]>;
 }
-EOF_1790584055_14811
+EOF_1790920125_11933
 
 mkdir -p "apps/api/src/features/administration/repositories"
 echo "作成: apps/api/src/features/administration/repositories/FeatureFlagRepository.ts"
-cat << 'EOF_1790584055_955' > "apps/api/src/features/administration/repositories/FeatureFlagRepository.ts"
+cat << 'EOF_1790920125_29393' > "apps/api/src/features/administration/repositories/FeatureFlagRepository.ts"
 import { FeatureFlag } from '../domain/FeatureFlag';
 
 export interface FeatureFlagRepository {
@@ -8716,23 +8636,23 @@ export interface FeatureFlagRepository {
 
     save(feature: FeatureFlag): Promise<void>;
 }
-EOF_1790584055_955
+EOF_1790920125_29393
 
 mkdir -p "apps/api/src/features/administration/repositories"
 echo "作成: apps/api/src/features/administration/repositories/ConfigurationRepository.ts"
-cat << 'EOF_1790584055_22434' > "apps/api/src/features/administration/repositories/ConfigurationRepository.ts"
-import { SystemConfiguration } from '../domain/SystemConfiguration';
+cat << 'EOF_1790920125_17298' > "apps/api/src/features/administration/repositories/ConfigurationRepository.ts"
+import { Configuration } from '../domain/Configuration';
 
 export interface ConfigurationRepository {
-    load(): Promise<SystemConfiguration>;
+    load(): Promise<Configuration>;
 
-    save(configuration: SystemConfiguration): Promise<void>;
+    save(configuration: Configuration): Promise<void>;
 }
-EOF_1790584055_22434
+EOF_1790920125_17298
 
 mkdir -p "apps/api/src/features/authentication/middleware"
 echo "作成: apps/api/src/features/authentication/middleware/authorizeSelfOrAdmin.ts"
-cat << 'EOF_1790584055_14049' > "apps/api/src/features/authentication/middleware/authorizeSelfOrAdmin.ts"
+cat << 'EOF_1790920125_13417' > "apps/api/src/features/authentication/middleware/authorizeSelfOrAdmin.ts"
 import { Context, Next } from 'hono';
 
 export function authorizeSelfOrAdmin() {
@@ -8756,11 +8676,11 @@ export function authorizeSelfOrAdmin() {
         await next();
     };
 }
-EOF_1790584055_14049
+EOF_1790920125_13417
 
 mkdir -p "apps/api/src/features/authentication/middleware"
 echo "作成: apps/api/src/features/authentication/middleware/jwtAuthentication.ts"
-cat << 'EOF_1790584055_18592' > "apps/api/src/features/authentication/middleware/jwtAuthentication.ts"
+cat << 'EOF_1790920125_9422' > "apps/api/src/features/authentication/middleware/jwtAuthentication.ts"
 import { Context, Next } from 'hono';
 import { JwtService } from '../services/JwtService';
 
@@ -8784,11 +8704,11 @@ export function jwtAuthentication(jwtService: JwtService) {
         }
     };
 }
-EOF_1790584055_18592
+EOF_1790920125_9422
 
 mkdir -p "apps/api/src/features/authentication/middleware"
 echo "作成: apps/api/src/features/authentication/middleware/authorize.ts"
-cat << 'EOF_1790584055_14682' > "apps/api/src/features/authentication/middleware/authorize.ts"
+cat << 'EOF_1790920125_24333' > "apps/api/src/features/authentication/middleware/authorize.ts"
 import { Context, Next } from 'hono';
 
 export function authorize(...roles: string[]) {
@@ -8806,26 +8726,26 @@ export function authorize(...roles: string[]) {
         await next();
     };
 }
-EOF_1790584055_14682
+EOF_1790920125_24333
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/routes.ts"
-cat << 'EOF_1790584055_16102' > "apps/api/src/features/authentication/routes.ts"
+cat << 'EOF_1790920125_18001' > "apps/api/src/features/authentication/routes.ts"
 export { createAuthenticationController } from './controllers/AuthenticationController';
-EOF_1790584055_16102
+EOF_1790920125_18001
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/AuthenticationCredential.ts"
-cat << 'EOF_1790584055_8324' > "apps/api/src/features/authentication/AuthenticationCredential.ts"
+cat << 'EOF_1790920125_3066' > "apps/api/src/features/authentication/AuthenticationCredential.ts"
 export interface AuthenticationCredential {
     username: string;
     password: string;
 }
-EOF_1790584055_8324
+EOF_1790920125_3066
 
 mkdir -p "apps/api/src/features/authentication/controllers"
 echo "作成: apps/api/src/features/authentication/controllers/AuthenticationController.ts"
-cat << 'EOF_1790584055_7165' > "apps/api/src/features/authentication/controllers/AuthenticationController.ts"
+cat << 'EOF_1790920125_28347' > "apps/api/src/features/authentication/controllers/AuthenticationController.ts"
 import { LoginRequest } from '@packages/types/authentication/LoginRequest';
 import { Hono } from 'hono';
 import { AuthenticationService } from '../services/AuthenticationService';
@@ -8847,11 +8767,11 @@ export function createAuthenticationController(service: AuthenticationService) {
 
     return router;
 }
-EOF_1790584055_7165
+EOF_1790920125_28347
 
 mkdir -p "apps/api/src/features/authentication/services"
 echo "作成: apps/api/src/features/authentication/services/JwtService.ts"
-cat << 'EOF_1790584055_588' > "apps/api/src/features/authentication/services/JwtService.ts"
+cat << 'EOF_1790920125_9681' > "apps/api/src/features/authentication/services/JwtService.ts"
 import jwt from 'jsonwebtoken';
 import { AppJwtPayload } from '../AppJwtPayload';
 import { UserPrincipal } from '../domain/UserPrincipal';
@@ -8903,11 +8823,11 @@ export class JwtService {
         };
     }
 }
-EOF_1790584055_588
+EOF_1790920125_9681
 
 mkdir -p "apps/api/src/features/authentication/services"
 echo "作成: apps/api/src/features/authentication/services/AuthenticationService.ts"
-cat << 'EOF_1790584055_19810' > "apps/api/src/features/authentication/services/AuthenticationService.ts"
+cat << 'EOF_1790920125_7443' > "apps/api/src/features/authentication/services/AuthenticationService.ts"
 import { AuthenticationProvider } from '../providers/AuthenticationProvider';
 import { JwtService } from './JwtService';
 
@@ -8936,12 +8856,12 @@ export class AuthenticationService {
         };
     }
 }
-EOF_1790584055_19810
+EOF_1790920125_7443
 
 mkdir -p "apps/api/src/features/authentication/domain"
 echo "作成: apps/api/src/features/authentication/domain/SystemConfiguration.ts"
-cat << 'EOF_1790584055_5220' > "apps/api/src/features/authentication/domain/SystemConfiguration.ts"
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
+cat << 'EOF_1790920125_15771' > "apps/api/src/features/authentication/domain/SystemConfiguration.ts"
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
 
 export interface SystemConfiguration {
     databaseType: 'memory' | 'postgres' | 'sqlserver';
@@ -8949,31 +8869,31 @@ export interface SystemConfiguration {
     frontendType: 'react' | 'vue';
     authenticationPolicy: AuthenticationPolicy;
 }
-EOF_1790584055_5220
+EOF_1790920125_15771
 
 mkdir -p "apps/api/src/features/authentication/domain"
 echo "作成: apps/api/src/features/authentication/domain/UserPrincipal.ts"
-cat << 'EOF_1790584055_30419' > "apps/api/src/features/authentication/domain/UserPrincipal.ts"
+cat << 'EOF_1790920125_18308' > "apps/api/src/features/authentication/domain/UserPrincipal.ts"
 export interface UserPrincipal {
     userId: string;
     email: string;
     role: string;
 }
-EOF_1790584055_30419
+EOF_1790920125_18308
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/AppVariables.ts"
-cat << 'EOF_1790584055_12966' > "apps/api/src/features/authentication/AppVariables.ts"
+cat << 'EOF_1790920125_24796' > "apps/api/src/features/authentication/AppVariables.ts"
 import { UserPrincipal } from './domain/UserPrincipal';
 
 export interface AppVariables {
     principal: UserPrincipal;
 }
-EOF_1790584055_12966
+EOF_1790920125_24796
 
 mkdir -p "apps/api/src/features/authentication"
 echo "作成: apps/api/src/features/authentication/AppJwtPayload.ts"
-cat << 'EOF_1790584055_924' > "apps/api/src/features/authentication/AppJwtPayload.ts"
+cat << 'EOF_1790920125_20630' > "apps/api/src/features/authentication/AppJwtPayload.ts"
 export interface AppJwtPayload {
     /**
      * UserPrincipal.userId
@@ -9008,13 +8928,13 @@ export interface AppJwtPayload {
 //     iat?: number;
 //     exp?: number;
 // }
-EOF_1790584055_924
+EOF_1790920125_20630
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/createAuthenticationProvider.ts"
-cat << 'EOF_1790584055_8930' > "apps/api/src/features/authentication/providers/createAuthenticationProvider.ts"
-import { AuthenticationConfig } from '@apps/api/config/Config';
-import { UserService } from '../../user/services/UserService';
+cat << 'EOF_1790920125_17531' > "apps/api/src/features/authentication/providers/createAuthenticationProvider.ts"
+import { AuthenticationConfig } from '@apps/api/systemConfig/SystemConfig';
+import { UserService } from '../../user/service';
 import { AuthenticationProvider } from './AuthenticationProvider';
 import { LdapAuthenticationProvider } from './LdapAuthenticationProvider';
 import { LocalAuthenticationProvider } from './LocalAuthenticationProvider';
@@ -9044,11 +8964,11 @@ export function createAuthenticationProvider(
             throw new Error(`Unsupported authentication type: ${config.type}`);
     }
 }
-EOF_1790584055_8930
+EOF_1790920125_17531
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/LdapAuthenticationProvider.ts"
-cat << 'EOF_1790584055_25832' > "apps/api/src/features/authentication/providers/LdapAuthenticationProvider.ts"
+cat << 'EOF_1790920125_31651' > "apps/api/src/features/authentication/providers/LdapAuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9057,14 +8977,14 @@ export class LdapAuthenticationProvider implements AuthenticationProvider {
         throw new Error('LDAP authentication not implemented.');
     }
 }
-EOF_1790584055_25832
+EOF_1790920125_31651
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/LocalAuthenticationProvider.ts"
-cat << 'EOF_1790584055_26757' > "apps/api/src/features/authentication/providers/LocalAuthenticationProvider.ts"
+cat << 'EOF_1790920125_21664' > "apps/api/src/features/authentication/providers/LocalAuthenticationProvider.ts"
 import bcrypt from 'bcrypt';
 
-import { UserService } from '../../user/services/UserService';
+import { UserService } from '../../user/service';
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9099,11 +9019,11 @@ export class LocalAuthenticationProvider implements AuthenticationProvider {
         };
     }
 }
-EOF_1790584055_26757
+EOF_1790920125_21664
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/OidcAuthenticationProvider.ts"
-cat << 'EOF_1790584055_10095' > "apps/api/src/features/authentication/providers/OidcAuthenticationProvider.ts"
+cat << 'EOF_1790920125_12010' > "apps/api/src/features/authentication/providers/OidcAuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9112,21 +9032,21 @@ export class OidcAuthenticationProvider implements AuthenticationProvider {
         throw new Error('OIDC authentication not implemented.');
     }
 }
-EOF_1790584055_10095
+EOF_1790920125_12010
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/AuthenticationProvider.ts"
-cat << 'EOF_1790584055_19399' > "apps/api/src/features/authentication/providers/AuthenticationProvider.ts"
+cat << 'EOF_1790920125_21921' > "apps/api/src/features/authentication/providers/AuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 
 export interface AuthenticationProvider {
     authenticate(username: string, password: string): Promise<UserPrincipal | null>;
 }
-EOF_1790584055_19399
+EOF_1790920125_21921
 
 mkdir -p "apps/api/src/features/authentication/providers"
 echo "作成: apps/api/src/features/authentication/providers/NoAuthenticationProvider.ts"
-cat << 'EOF_1790584055_6110' > "apps/api/src/features/authentication/providers/NoAuthenticationProvider.ts"
+cat << 'EOF_1790920125_28445' > "apps/api/src/features/authentication/providers/NoAuthenticationProvider.ts"
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 
@@ -9139,15 +9059,15 @@ export class NoAuthenticationProvider implements AuthenticationProvider {
         };
     }
 }
-EOF_1790584055_6110
+EOF_1790920125_28445
 
 mkdir -p "apps/api/src"
 echo "作成: apps/api/src/main.ts"
-cat << 'EOF_1790584055_14423' > "apps/api/src/main.ts"
+cat << 'EOF_1790920125_130' > "apps/api/src/main.ts"
 import { serve } from '@hono/node-server';
 import { createApp } from './app/createApp';
 import { createDependencyContainer } from './app/createDependencyContainer';
-import { loadConfig } from './config/loadConfig';
+import { loadSystemConfig } from './systemConfig/loadSystemConfig';
 
 import path, { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -9162,7 +9082,7 @@ const __root: string = path.resolve(__dirname, '../../../');
 // ディレクトリ内にある設定ファイルを読み込む例
 const configPath: string = join(__root, 'config/development.json');
 
-const config = await loadConfig(configPath);
+const config = await loadSystemConfig(configPath);
 
 const dependencyContainer = await createDependencyContainer(config);
 const app = createApp(dependencyContainer);
@@ -9174,15 +9094,15 @@ serve({
 });
 
 console.log(`Listening on :${port}`);
-EOF_1790584055_14423
+EOF_1790920125_130
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/cors.ts"
-cat << 'EOF_1790584055_21321' > "apps/api/src/common/cors.ts"
+cat << 'EOF_1790920125_18897' > "apps/api/src/common/cors.ts"
 import { cors as honoCors } from 'hono/cors';
-import { Config } from '../config/Config';
+import { SystemConfig } from '../systemConfig/SystemConfig';
 
-function cors(config: Config) {
+function cors(systemConfig: SystemConfig) {
     /*
      * CORS ミドルウェア・ハンドラー
      *
@@ -9193,7 +9113,7 @@ function cors(config: Config) {
             try {
                 const url = new URL(origin);
                 // ホスト名（ポート番号を除いた部分）が一致しているかチェック
-                if (url.hostname === config.frontend.host) {
+                if (url.hostname === systemConfig.frontend.host) {
                     return origin; // マッチしたらリクエストのoriginをそのまま返して許可
                 }
             } catch (e) {
@@ -9212,39 +9132,39 @@ function cors(config: Config) {
 }
 
 export default cors;
-EOF_1790584055_21321
+EOF_1790920125_18897
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/authorization.ts"
-cat << 'EOF_1790584055_20654' > "apps/api/src/common/middleware/authorization.ts"
+cat << 'EOF_1790920125_28704' > "apps/api/src/common/middleware/authorization.ts"
 export function authorization() {}
-EOF_1790584055_20654
+EOF_1790920125_28704
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/featureGuard.ts"
-cat << 'EOF_1790584055_20387' > "apps/api/src/common/middleware/featureGuard.ts"
+cat << 'EOF_1790920125_9638' > "apps/api/src/common/middleware/featureGuard.ts"
 export function featureGuard() {}
-EOF_1790584055_20387
+EOF_1790920125_9638
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/authentication.ts"
-cat << 'EOF_1790584055_30110' > "apps/api/src/common/middleware/authentication.ts"
+cat << 'EOF_1790920125_29418' > "apps/api/src/common/middleware/authentication.ts"
 export function authentication() {}
-EOF_1790584055_30110
+EOF_1790920125_29418
 
 mkdir -p "apps/api/src/common/middleware"
 echo "作成: apps/api/src/common/middleware/errorHandler.ts"
-cat << 'EOF_1790584055_14098' > "apps/api/src/common/middleware/errorHandler.ts"
+cat << 'EOF_1790920125_3094' > "apps/api/src/common/middleware/errorHandler.ts"
 export function errorHandler() {}
-EOF_1790584055_14098
+EOF_1790920125_3094
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/csrf.ts"
-cat << 'EOF_1790584055_24621' > "apps/api/src/common/csrf.ts"
+cat << 'EOF_1790920125_17066' > "apps/api/src/common/csrf.ts"
 import { csrf as honoCsrf } from 'hono/csrf';
-import { Config } from '../config/Config';
+import { SystemConfig } from '../systemConfig/SystemConfig';
 
-function csrf(config: Config) {
+function csrf(systemConfig: SystemConfig) {
     /*
      * csrf ミドルウェア・ハンドラー
      *
@@ -9255,7 +9175,7 @@ function csrf(config: Config) {
             try {
                 const url = new URL(origin);
                 // CORSのときと同様に、ホスト名が一致していればCSRF的にも安全とみなして許可する
-                return url.hostname === config.frontend.host;
+                return url.hostname === systemConfig.frontend.host;
             } catch {
                 return false;
             }
@@ -9264,11 +9184,11 @@ function csrf(config: Config) {
 }
 
 export default csrf;
-EOF_1790584055_24621
+EOF_1790920125_17066
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/error.ts"
-cat << 'EOF_1790584055_17767' > "apps/api/src/common/error.ts"
+cat << 'EOF_1790920125_26873' > "apps/api/src/common/error.ts"
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { JwtTokenInvalid } from 'hono/utils/jwt/types';
@@ -9304,11 +9224,11 @@ const error = (e: Error, c: Context) => {
 };
 
 export default error;
-EOF_1790584055_17767
+EOF_1790920125_26873
 
 mkdir -p "apps/api/src/common"
 echo "作成: apps/api/src/common/logger.ts"
-cat << 'EOF_1790584055_10003' > "apps/api/src/common/logger.ts"
+cat << 'EOF_1790920125_28505' > "apps/api/src/common/logger.ts"
 import { logger as honoLogger } from 'hono/logger';
 
 /*
@@ -9327,43 +9247,192 @@ export const customLogger = (message: string, ...rest: Array<string>) => {
 const logger = honoLogger(customLogger);
 
 export default logger;
-EOF_1790584055_10003
+EOF_1790920125_28505
 
 mkdir -p "apps/api/src/common/repositories"
 echo "作成: apps/api/src/common/repositories/BaseRepository.ts"
-cat << 'EOF_1790584055_9060' > "apps/api/src/common/repositories/BaseRepository.ts"
+cat << 'EOF_1790920125_32635' > "apps/api/src/common/repositories/BaseRepository.ts"
 export abstract class BaseRepository<TEntity> {}
-EOF_1790584055_9060
+EOF_1790920125_32635
 
 mkdir -p "apps/api/src/common/repositories"
 echo "作成: apps/api/src/common/repositories/Repository.ts"
-cat << 'EOF_1790584055_19737' > "apps/api/src/common/repositories/Repository.ts"
+cat << 'EOF_1790920125_21213' > "apps/api/src/common/repositories/Repository.ts"
 export interface Repository<TEntity> {}
-EOF_1790584055_19737
+EOF_1790920125_21213
 
 mkdir -p "apps/api/src/drizzle"
 echo "作成: apps/api/src/drizzle/index.ts"
-cat << 'EOF_1790584055_28978' > "apps/api/src/drizzle/index.ts"
+cat << 'EOF_1790920125_1667' > "apps/api/src/drizzle/index.ts"
 export * from './db';
 export * from './schema';
-EOF_1790584055_28978
+EOF_1790920125_1667
 
 mkdir -p "apps/api/src/drizzle"
 echo "作成: apps/api/src/drizzle/schema.ts"
-cat << 'EOF_1790584055_27459' > "apps/api/src/drizzle/schema.ts"
+cat << 'EOF_1790920125_31806' > "apps/api/src/drizzle/schema.ts"
 export const tables = {
     users: 'users',
 };
-EOF_1790584055_27459
+EOF_1790920125_31806
 
 mkdir -p "apps/api/src/drizzle"
 echo "作成: apps/api/src/drizzle/db.ts"
-cat << 'EOF_1790584055_20846' > "apps/api/src/drizzle/db.ts"
+cat << 'EOF_1790920125_23543' > "apps/api/src/drizzle/db.ts"
 export interface DrizzleConnection {}
-EOF_1790584055_20846
+EOF_1790920125_23543
+
+mkdir -p "apps/api/src/systemConfig"
+echo "作成: apps/api/src/systemConfig/saveSystemConfig.ts"
+cat << 'EOF_1790920125_13473' > "apps/api/src/systemConfig/saveSystemConfig.ts"
+export async function saveSystemConfig() {
+    throw new Error('Not implemented.');
+}
+EOF_1790920125_13473
+
+mkdir -p "apps/api/src/systemConfig"
+echo "作成: apps/api/src/systemConfig/loadSystemConfig.ts"
+cat << 'EOF_1790920125_30425' > "apps/api/src/systemConfig/loadSystemConfig.ts"
+import { readFile } from 'node:fs/promises';
+import { SystemConfig } from './SystemConfig';
+
+export async function loadSystemConfig(path: string): Promise<SystemConfig> {
+    const json = await readFile(path, 'utf8');
+    const systemConfig = JSON.parse(json) as SystemConfig;
+
+    if (systemConfig.backend.applicationRoot == undefined) {
+        systemConfig.backend.applicationRoot = '/api';
+    }
+    if (systemConfig.backend.host == undefined) {
+        systemConfig.backend.host = 'localhost';
+    }
+    if (systemConfig.backend.port == undefined) {
+        systemConfig.backend.port = '3000';
+    }
+    if (systemConfig.backend.protocol == undefined) {
+        systemConfig.backend.protocol = 'http';
+    }
+
+    if (systemConfig.authentication.secret == undefined) {
+        systemConfig.authentication.secret = 'change-this-secret';
+    }
+
+    if (systemConfig.frontend.host == undefined) {
+        systemConfig.frontend.host = 'localhost';
+    }
+
+    return systemConfig;
+}
+EOF_1790920125_30425
+
+mkdir -p "apps/api/src/systemConfig"
+echo "作成: apps/api/src/systemConfig/SystemConfig.ts"
+cat << 'EOF_1790920125_18482' > "apps/api/src/systemConfig/SystemConfig.ts"
+export interface BackendConfig {
+    protocol?: string; //"http";
+    host?: string; //"localhost";
+    port?: string; //3000;
+    applicationRoot?: string; //"/api";
+}
+
+export interface DatabaseConfig {
+    type: 'memory' | 'postgres' | 'sqlserver';
+    connectionString?: string;
+}
+
+export interface AuthenticationConfig {
+    type: 'none' | 'local' | 'oidc' | 'ldap';
+    secret?: string;
+}
+
+export interface FrontendConfig {
+    type: 'react' | 'vue';
+    host?: string; //"localhost";
+}
+
+export interface SystemConfig {
+    backend: BackendConfig;
+    database: DatabaseConfig;
+    authentication: AuthenticationConfig;
+    frontend: FrontendConfig;
+}
+EOF_1790920125_18482
+
+mkdir -p "apps/api/src/repositories"
+echo "作成: apps/api/src/repositories/Repositories.ts"
+cat << 'EOF_1790920125_322' > "apps/api/src/repositories/Repositories.ts"
+import type { UserRepository } from './user-repository';
+
+export interface Repositories {
+    userRepository: UserRepository;
+}
+EOF_1790920125_322
+
+mkdir -p "apps/api/src/repositories"
+echo "作成: apps/api/src/repositories/user-repository.ts"
+cat << 'EOF_1790920125_16877' > "apps/api/src/repositories/user-repository.ts"
+import type { CreateUser, User } from '@packages/schemas';
+
+export interface UserRepository {
+    findById(id: number): Promise<User | null>;
+    findByEmail(email: string): Promise<User | null>;
+    findAll(): Promise<User[]>;
+    countAdmins(): Promise<number>;
+
+    create(user: CreateUser): Promise<User>;
+    save(user: User): Promise<User>;
+
+    updatePassword(id: number, passwordHash: string): Promise<User>;
+    updateRole(id: number, role: string): Promise<User>;
+    updateActive(id: number, isActive: boolean): Promise<User>;
+    remove(id: number): Promise<void>;
+}
+EOF_1790920125_16877
+
+mkdir -p "apps/api/src/repositories"
+echo "作成: apps/api/src/repositories/createRepositories.ts"
+cat << 'EOF_1790920125_9155' > "apps/api/src/repositories/createRepositories.ts"
+import { MemoryUserRepository } from '../infrastructure/memory/user-repository';
+import { createPostgresDb } from '../infrastructure/postgres/db';
+import { PostgresUserRepository } from '../infrastructure/postgres/user-repository';
+import { createSqlServerDb } from '../infrastructure/sqlserver/db';
+import { SqlServerUserRepository } from '../infrastructure/sqlserver/user-repository';
+import type { DatabaseConfig } from '../systemConfig/SystemConfig';
+import type { Repositories } from './Repositories';
+
+export async function createRepositories(config: DatabaseConfig): Promise<Repositories> {
+    switch (config.type) {
+        case 'memory': {
+            return {
+                userRepository: new MemoryUserRepository(),
+            };
+        }
+
+        case 'postgres': {
+            const db = createPostgresDb(config.connectionString!);
+
+            return {
+                userRepository: new PostgresUserRepository(db),
+            };
+        }
+
+        case 'sqlserver': {
+            const db = await createSqlServerDb(config.connectionString!);
+
+            return {
+                userRepository: new SqlServerUserRepository(db),
+            };
+        }
+
+        default: {
+            throw new Error(`Unsupported database type: ${config.type}`);
+        }
+    }
+}
+EOF_1790920125_9155
 
 echo "作成: チャット1.txt"
-cat << 'EOF_1790584055_8961' > "チャット1.txt"
+cat << 'EOF_1790920125_10176' > "チャット1.txt"
 Phase 1 現状把握
 
 TASK-001 設定一覧作成
@@ -9392,10 +9461,10 @@ apps/api/src/database/*
 
 
 
-EOF_1790584055_8961
+EOF_1790920125_10176
 
 echo "作成: README.md"
-cat << 'EOF_1790584055_988' > "README.md"
+cat << 'EOF_1790920125_17345' > "README.md"
 # Webアプリケーション基盤 今後の開発計画
 
 ## 1. 現状整理
@@ -10021,10 +10090,1256 @@ packages
 ```*
 
 ```
-EOF_1790584055_988
+EOF_1790920125_17345
+
+mkdir -p "temp"
+echo "作成: temp/package.json"
+cat << 'EOF_1790920125_16185' > "temp/package.json"
+{
+    "name": "workspace",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "dev": "npm run dev -w apps/api",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:push": "drizzle-kit push"
+    },
+    "devDependencies": {
+        "drizzle-kit": "^0.31.4",
+        "typescript": "^5.9.2"
+    }
+}
+EOF_1790920125_16185
+
+mkdir -p "temp/packages/schemas"
+echo "作成: temp/packages/schemas/package.json"
+cat << 'EOF_1790920125_31290' > "temp/packages/schemas/package.json"
+{
+    "name": "@packages/schemas",
+    "version": "1.0.0",
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "dependencies": {
+        "zod": "^4.1.11"
+    }
+}
+EOF_1790920125_31290
+
+mkdir -p "temp/packages/schemas/src"
+echo "作成: temp/packages/schemas/src/index.ts"
+cat << 'EOF_1790920125_7917' > "temp/packages/schemas/src/index.ts"
+export * from './user/create-user';
+export * from './user/user';
+export * from './user/user-detail';
+EOF_1790920125_7917
+
+mkdir -p "temp/packages/schemas/src/user"
+echo "作成: temp/packages/schemas/src/user/create-user.ts"
+cat << 'EOF_1790920125_11632' > "temp/packages/schemas/src/user/create-user.ts"
+import { z } from 'zod';
+
+export const CreateUserSchema = z.object({
+    name: z.string().min(1).max(100),
+
+    email: z.email(),
+});
+
+export type CreateUser = z.infer<typeof CreateUserSchema>;
+EOF_1790920125_11632
+
+mkdir -p "temp/packages/schemas/src/user"
+echo "作成: temp/packages/schemas/src/user/user-detail.ts"
+cat << 'EOF_1790920125_13461' > "temp/packages/schemas/src/user/user-detail.ts"
+import { z } from 'zod';
+
+export const UserDetailSchema = z.object({
+    id: z.number(),
+
+    name: z.string(),
+
+    email: z.string(),
+});
+
+export type UserDetail = z.infer<typeof UserDetailSchema>;
+EOF_1790920125_13461
+
+mkdir -p "temp/packages/schemas/src/user"
+echo "作成: temp/packages/schemas/src/user/user.ts"
+cat << 'EOF_1790920125_13689' > "temp/packages/schemas/src/user/user.ts"
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+}
+EOF_1790920125_13689
+
+mkdir -p "temp"
+echo "作成: temp/drizzle.config.ts"
+cat << 'EOF_1790920125_27961' > "temp/drizzle.config.ts"
+import type { Config } from 'drizzle-kit';
+
+export default {
+    schema: './apps/api/src/infrastructure/postgres/schema.ts',
+
+    out: './migrations',
+
+    dialect: 'postgresql',
+
+    dbCredentials: {
+        url: process.env.DATABASE_URL!,
+    },
+} satisfies Config;
+EOF_1790920125_27961
+
+mkdir -p "temp/apps/api"
+echo "作成: temp/apps/api/package.json"
+cat << 'EOF_1790920125_27997' > "temp/apps/api/package.json"
+{
+    "name": "api",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "tsx watch src/main.ts"
+    },
+    "dependencies": {
+        "@packages/schemas": "*",
+        "drizzle-orm": "^0.44.5",
+        "drizzle-zod": "^0.8.3",
+        "hono": "^4.9.9",
+        "pg": "^8.16.3",
+        "zod": "^4.1.11"
+    },
+    "devDependencies": {
+        "@types/node": "^24.5.2",
+        "tsx": "^4.20.5",
+        "typescript": "^5.9.2"
+    }
+}
+EOF_1790920125_27997
+
+mkdir -p "temp/apps/api"
+echo "作成: temp/apps/api/tsconfig.json"
+cat << 'EOF_1790920125_20898' > "temp/apps/api/tsconfig.json"
+{
+    "compilerOptions": {
+        "target": "ES2022",
+
+        "module": "ESNext",
+
+        "moduleResolution": "Bundler",
+
+        "strict": true,
+
+        "skipLibCheck": true,
+
+        "esModuleInterop": true,
+
+        "allowSyntheticDefaultImports": true,
+
+        "baseUrl": "./src",
+
+        "paths": {
+            "@/*": ["*"]
+        }
+    },
+
+    "include": ["src"]
+}
+EOF_1790920125_20898
+
+mkdir -p "temp/apps/api/src/infrastructure/memory"
+echo "作成: temp/apps/api/src/infrastructure/memory/user-repository.ts"
+cat << 'EOF_1790920125_15931' > "temp/apps/api/src/infrastructure/memory/user-repository.ts"
+import type { UserRepository } from '@/repositories/user-repository';
+
+import type { CreateUser, User } from '@packages/schemas';
+
+export class MemoryUserRepository implements UserRepository {
+    private sequence = 1;
+
+    private readonly users = new Map<number, User>();
+
+    async findById(id: number): Promise<User | null> {
+        return this.users.get(id) ?? null;
+    }
+
+    async create(request: CreateUser): Promise<User> {
+        const user: User = {
+            id: this.sequence++,
+
+            name: request.name,
+
+            email: request.email,
+        };
+
+        this.users.set(user.id, user);
+
+        return user;
+    }
+}
+EOF_1790920125_15931
+
+mkdir -p "temp/apps/api/src/infrastructure/memory"
+echo "作成: temp/apps/api/src/infrastructure/memory/README.md"
+cat << 'EOF_1790920125_11252' > "temp/apps/api/src/infrastructure/memory/README.md"
+Memory Provider
+
+This provider stores data in memory using a Map.
+
+It is intended for:
+
+- local development
+- unit testing
+- integration testing
+
+Data is lost when the process exits.
+EOF_1790920125_11252
+
+mkdir -p "temp/apps/api/src/infrastructure/postgres"
+echo "作成: temp/apps/api/src/infrastructure/postgres/user-repository.ts"
+cat << 'EOF_1790920125_29844' > "temp/apps/api/src/infrastructure/postgres/user-repository.ts"
+import { eq } from 'drizzle-orm';
+
+import type { CreateUser, User } from '@packages/schemas';
+
+import type { UserRepository } from '@/repositories/user-repository';
+
+import { db } from './db';
+
+import { users } from './schema';
+
+export class PostgresUserRepository implements UserRepository {
+    async findById(id: number): Promise<User | null> {
+        const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+
+        if (result.length === 0) {
+            return null;
+        }
+
+        return {
+            id: result[0].id,
+
+            name: result[0].name,
+
+            email: result[0].email,
+        };
+    }
+
+    async create(request: CreateUser): Promise<User> {
+        const result = await db
+            .insert(users)
+            .values({
+                name: request.name,
+
+                email: request.email,
+            })
+            .returning();
+
+        return {
+            id: result[0].id,
+
+            name: result[0].name,
+
+            email: result[0].email,
+        };
+    }
+}
+EOF_1790920125_29844
+
+mkdir -p "temp/apps/api/src/infrastructure/postgres"
+echo "作成: temp/apps/api/src/infrastructure/postgres/schema.ts"
+cat << 'EOF_1790920125_18581' > "temp/apps/api/src/infrastructure/postgres/schema.ts"
+import { pgTable, serial, varchar } from 'drizzle-orm/pg-core';
+
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+
+export const users = pgTable('users', {
+    id: serial('id').primaryKey(),
+
+    name: varchar('name', {
+        length: 100,
+    }).notNull(),
+
+    email: varchar('email', {
+        length: 255,
+    }).notNull(),
+});
+
+export const UserSelectSchema = createSelectSchema(users);
+
+export const UserInsertSchema = createInsertSchema(users);
+EOF_1790920125_18581
+
+mkdir -p "temp/apps/api/src/infrastructure/postgres"
+echo "作成: temp/apps/api/src/infrastructure/postgres/db.ts"
+cat << 'EOF_1790920125_28831' > "temp/apps/api/src/infrastructure/postgres/db.ts"
+import { Pool } from 'pg';
+
+import { drizzle } from 'drizzle-orm/node-postgres';
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
+
+export const db = drizzle(pool);
+EOF_1790920125_28831
+
+mkdir -p "temp/apps/api/src/provider"
+echo "作成: temp/apps/api/src/provider/db-provider.ts"
+cat << 'EOF_1790920125_13099' > "temp/apps/api/src/provider/db-provider.ts"
+import type { UserRepository } from '@/repositories/user-repository';
+
+import { UserService } from '@/features/user/service';
+
+import { PostgresUserRepository } from '@/infrastructure/postgres/user-repository';
+
+import { MemoryUserRepository } from '@/infrastructure/memory/user-repository';
+
+export type DbProvider = 'postgres' | 'memory';
+
+function createUserRepository(): UserRepository {
+    const provider = (process.env.DB_PROVIDER ?? 'memory') as DbProvider;
+
+    switch (provider) {
+        case 'postgres':
+            return new PostgresUserRepository();
+
+        case 'memory':
+            return new MemoryUserRepository();
+
+        default:
+            throw new Error(`Unsupported provider: ${provider}`);
+    }
+}
+
+export const userRepository = createUserRepository();
+
+export const userService = new UserService(userRepository);
+EOF_1790920125_13099
+
+mkdir -p "temp/apps/api/src/features/user"
+echo "作成: temp/apps/api/src/features/user/service.ts"
+cat << 'EOF_1790920125_16238' > "temp/apps/api/src/features/user/service.ts"
+import type { UserRepository } from '@/repositories/user-repository';
+
+import type { CreateUser } from '@packages/schemas';
+
+export class UserService {
+    constructor(private readonly repository: UserRepository) {}
+
+    async getUser(id: number) {
+        return await this.repository.findById(id);
+    }
+
+    async createUser(request: CreateUser) {
+        return await this.repository.create(request);
+    }
+}
+EOF_1790920125_16238
+
+mkdir -p "temp/apps/api/src/features/user"
+echo "作成: temp/apps/api/src/features/user/controller.ts"
+cat << 'EOF_1790920125_23481' > "temp/apps/api/src/features/user/controller.ts"
+import { Hono } from 'hono';
+
+import { CreateUserSchema, UserDetailSchema } from '@packages/schemas';
+
+import { userService } from '@/provider/db-provider';
+
+export const userController = new Hono();
+
+userController.get('/:id', async (c) => {
+    const id = Number(c.req.param('id'));
+
+    if (Number.isNaN(id)) {
+        return c.json(
+            {
+                message: 'invalid id',
+            },
+            400,
+        );
+    }
+
+    const user = await userService.getUser(id);
+
+    if (!user) {
+        return c.json(
+            {
+                message: 'user not found',
+            },
+            404,
+        );
+    }
+
+    return c.json(UserDetailSchema.parse(user));
+});
+
+userController.post('/', async (c) => {
+    const body = await c.req.json();
+
+    const request = CreateUserSchema.parse(body);
+
+    const user = await userService.createUser(request);
+
+    return c.json(UserDetailSchema.parse(user), 201);
+});
+EOF_1790920125_23481
+
+mkdir -p "temp/apps/api/src"
+echo "作成: temp/apps/api/src/main.ts"
+cat << 'EOF_1790920125_18157' > "temp/apps/api/src/main.ts"
+import { serve } from '@hono/node-server';
+
+import { Hono } from 'hono';
+
+import { userController } from './features/user/controller';
+
+const app = new Hono();
+
+app.get('/health', (c) =>
+    c.json({
+        status: 'ok',
+    }),
+);
+
+app.route('/users', userController);
+
+const port = Number(process.env.PORT ?? 3000);
+
+serve(
+    {
+        fetch: app.fetch,
+        port,
+    },
+    (info) => {
+        console.log(`server started : ${info.port}`);
+    },
+);
+EOF_1790920125_18157
+
+mkdir -p "temp/apps/api/src/repositories"
+echo "作成: temp/apps/api/src/repositories/user-repository.ts"
+cat << 'EOF_1790920125_1794' > "temp/apps/api/src/repositories/user-repository.ts"
+import type { CreateUser, User } from '@packages/schemas';
+
+export interface UserRepository {
+    findById(id: number): Promise<User | null>;
+
+    create(request: CreateUser): Promise<User>;
+}
+EOF_1790920125_1794
+
+mkdir -p "temp/apps/api"
+echo "作成: temp/apps/api/.env.example"
+cat << 'EOF_1790920125_1390' > "temp/apps/api/.env.example"
+#
+# memory
+#
+DB_PROVIDER=memory
+
+#
+# postgres
+#
+# DB_PROVIDER=postgres
+# DATABASE_URL=postgres://postgres:postgres@localhost:5432/app
+
+PORT=3000
+EOF_1790920125_1390
+
+mkdir -p "temp/apps/api"
+echo "作成: temp/apps/api/.env"
+cat << 'EOF_1790920125_19613' > "temp/apps/api/.env"
+DB_PROVIDER=memory
+
+PORT=3000
+EOF_1790920125_19613
+
+mkdir -p "temp"
+echo "作成: temp/generate.sh"
+cat << 'EOF_1790920125_26254' > "temp/generate.sh"
+#!/usr/bin/env bash
+
+set -eu
+
+###############################################################################
+# directories
+###############################################################################
+
+mkdir -p apps/api/src/features/user
+mkdir -p apps/api/src/repositories
+mkdir -p apps/api/src/provider
+
+mkdir -p apps/api/src/infrastructure/postgres/schema
+mkdir -p apps/api/src/infrastructure/postgres
+
+mkdir -p apps/api/src/infrastructure/memory
+
+mkdir -p packages/schemas/src/user
+
+mkdir -p migrations
+
+###############################################################################
+# root package.json
+###############################################################################
+
+cat > package.json <<'EOF'
+{
+  "name": "workspace",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/api",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.4",
+    "typescript": "^5.9.2"
+  }
+}
+EOF
+
+###############################################################################
+# drizzle.config.ts
+###############################################################################
+
+cat > drizzle.config.ts <<'EOF'
+import type { Config }
+from "drizzle-kit";
+
+export default {
+  schema:
+    "./apps/api/src/infrastructure/postgres/schema.ts",
+
+  out:
+    "./migrations",
+
+  dialect:
+    "postgresql",
+
+  dbCredentials: {
+    url:
+      process.env.DATABASE_URL!,
+  },
+} satisfies Config;
+EOF
+
+###############################################################################
+# packages/schemas/package.json
+###############################################################################
+
+cat > packages/schemas/package.json <<'EOF'
+{
+  "name": "@packages/schemas",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.11"
+  }
+}
+EOF
+
+###############################################################################
+# packages/schemas/src/index.ts
+###############################################################################
+
+cat > packages/schemas/src/index.ts <<'EOF'
+export * from "./user/create-user";
+export * from "./user/user";
+export * from "./user/user-detail";
+EOF
+
+###############################################################################
+# packages/schemas/src/user/create-user.ts
+###############################################################################
+
+cat > packages/schemas/src/user/create-user.ts <<'EOF'
+import { z } from "zod";
+
+export const CreateUserSchema =
+  z.object({
+    name:
+      z.string()
+        .min(1)
+        .max(100),
+
+    email:
+      z.email(),
+  });
+
+export type CreateUser =
+  z.infer<
+    typeof CreateUserSchema
+  >;
+EOF
+
+###############################################################################
+# packages/schemas/src/user/user.ts
+###############################################################################
+
+cat > packages/schemas/src/user/user.ts <<'EOF'
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+EOF
+
+###############################################################################
+# packages/schemas/src/user/user-detail.ts
+###############################################################################
+
+cat > packages/schemas/src/user/user-detail.ts <<'EOF'
+import { z } from "zod";
+
+export const UserDetailSchema =
+  z.object({
+    id:
+      z.number(),
+
+    name:
+      z.string(),
+
+    email:
+      z.string(),
+  });
+
+export type UserDetail =
+  z.infer<
+    typeof UserDetailSchema
+  >;
+EOF
+
+###############################################################################
+# apps/api/package.json
+###############################################################################
+
+cat > apps/api/package.json <<'EOF'
+{
+  "name": "api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts"
+  },
+  "dependencies": {
+    "@packages/schemas": "*",
+    "drizzle-orm": "^0.44.5",
+    "drizzle-zod": "^0.8.3",
+    "hono": "^4.9.9",
+    "pg": "^8.16.3",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
+EOF
+
+###############################################################################
+# apps/api/tsconfig.json
+###############################################################################
+
+cat > apps/api/tsconfig.json <<'EOF'
+{
+  "compilerOptions": {
+
+    "target": "ES2022",
+
+    "module": "ESNext",
+
+    "moduleResolution": "Bundler",
+
+    "strict": true,
+
+    "skipLibCheck": true,
+
+    "esModuleInterop": true,
+
+    "allowSyntheticDefaultImports": true,
+
+    "baseUrl": "./src",
+
+    "paths": {
+      "@/*": [
+        "*"
+      ]
+    }
+  },
+
+  "include": [
+    "src"
+  ]
+}
+EOF
+
+###############################################################################
+# Repository Interface
+###############################################################################
+
+cat > apps/api/src/repositories/user-repository.ts <<'EOF'
+import type {
+  User,
+  CreateUser,
+} from "@packages/schemas";
+
+export interface UserRepository {
+
+  findById(
+    id: number,
+  ): Promise<User | null>;
+
+  create(
+    request: CreateUser,
+  ): Promise<User>;
+}
+EOF
+
+###############################################################################
+# User Service
+###############################################################################
+
+cat > apps/api/src/features/user/service.ts <<'EOF'
+import type {
+  UserRepository,
+} from "@/repositories/user-repository";
+
+import type {
+  CreateUser,
+} from "@packages/schemas";
+
+export class UserService {
+
+  constructor(
+    private readonly repository:
+      UserRepository,
+  ) {}
+
+  async getUser(
+    id: number,
+  ) {
+
+    return await this.repository
+      .findById(id);
+  }
+
+  async createUser(
+    request: CreateUser,
+  ) {
+
+    return await this.repository
+      .create(request);
+  }
+}
+EOF
+
+###############################################################################
+# DbProvider
+###############################################################################
+
+cat > apps/api/src/provider/db-provider.ts <<'EOF'
+import type {
+  UserRepository,
+} from "@/repositories/user-repository";
+
+import {
+  UserService,
+} from "@/features/user/service";
+
+import {
+  PostgresUserRepository,
+} from "@/infrastructure/postgres/user-repository";
+
+import {
+  MemoryUserRepository,
+} from "@/infrastructure/memory/user-repository";
+
+export type DbProvider =
+  | "postgres"
+  | "memory";
+
+function createUserRepository():
+  UserRepository {
+
+  const provider =
+    (
+      process.env.DB_PROVIDER
+      ?? "memory"
+    ) as DbProvider;
+
+  switch (provider) {
+
+    case "postgres":
+      return new PostgresUserRepository();
+
+    case "memory":
+      return new MemoryUserRepository();
+
+    default:
+      throw new Error(
+        `Unsupported provider: ${provider}`,
+      );
+  }
+}
+
+export const userRepository =
+  createUserRepository();
+
+export const userService =
+  new UserService(
+    userRepository,
+  );
+EOF
+
+###############################################################################
+# PostgreSQL db.ts
+###############################################################################
+
+cat > apps/api/src/infrastructure/postgres/db.ts <<'EOF'
+import { Pool } from "pg";
+
+import { drizzle }
+  from "drizzle-orm/node-postgres";
+
+const pool =
+  new Pool({
+    connectionString:
+      process.env.DATABASE_URL,
+  });
+
+export const db =
+  drizzle(pool);
+EOF
+
+###############################################################################
+# PostgreSQL schema.ts
+###############################################################################
+
+cat > apps/api/src/infrastructure/postgres/schema.ts <<'EOF'
+import {
+  pgTable,
+  serial,
+  varchar,
+} from "drizzle-orm/pg-core";
+
+import {
+  createInsertSchema,
+  createSelectSchema,
+} from "drizzle-zod";
+
+export const users =
+  pgTable(
+    "users",
+    {
+      id:
+        serial("id")
+          .primaryKey(),
+
+      name:
+        varchar(
+          "name",
+          {
+            length: 100,
+          },
+        ).notNull(),
+
+      email:
+        varchar(
+          "email",
+          {
+            length: 255,
+          },
+        ).notNull(),
+    },
+  );
+
+export const UserSelectSchema =
+  createSelectSchema(users);
+
+export const UserInsertSchema =
+  createInsertSchema(users);
+EOF
+
+###############################################################################
+# PostgreSQL user-repository.ts
+###############################################################################
+
+cat > apps/api/src/infrastructure/postgres/user-repository.ts <<'EOF'
+import { eq }
+  from "drizzle-orm";
+
+import type {
+  User,
+  CreateUser,
+} from "@packages/schemas";
+
+import type {
+  UserRepository,
+} from "@/repositories/user-repository";
+
+import {
+  db,
+} from "./db";
+
+import {
+  users,
+} from "./schema";
+
+export class PostgresUserRepository
+  implements UserRepository {
+
+  async findById(
+    id: number,
+  ): Promise<User | null> {
+
+    const result =
+      await db
+        .select()
+        .from(users)
+        .where(
+          eq(
+            users.id,
+            id,
+          ),
+        )
+        .limit(1);
+
+    if (
+      result.length === 0
+    ) {
+      return null;
+    }
+
+    return {
+      id:
+        result[0].id,
+
+      name:
+        result[0].name,
+
+      email:
+        result[0].email,
+    };
+  }
+
+  async create(
+    request: CreateUser,
+  ): Promise<User> {
+
+    const result =
+      await db
+        .insert(users)
+        .values({
+          name:
+            request.name,
+
+          email:
+            request.email,
+        })
+        .returning();
+
+    return {
+      id:
+        result[0].id,
+
+      name:
+        result[0].name,
+
+      email:
+        result[0].email,
+    };
+  }
+}
+EOF
+
+
+###############################################################################
+# Memory user-repository.ts
+###############################################################################
+
+cat > apps/api/src/infrastructure/memory/user-repository.ts <<'EOF'
+import type {
+  UserRepository,
+} from "@/repositories/user-repository";
+
+import type {
+  User,
+  CreateUser,
+} from "@packages/schemas";
+
+export class MemoryUserRepository
+  implements UserRepository {
+
+  private sequence = 1;
+
+  private readonly users =
+    new Map<
+      number,
+      User
+    >();
+
+  async findById(
+    id: number,
+  ): Promise<User | null> {
+
+    return (
+      this.users.get(id)
+      ?? null
+    );
+  }
+
+  async create(
+    request: CreateUser,
+  ): Promise<User> {
+
+    const user: User = {
+      id:
+        this.sequence++,
+
+      name:
+        request.name,
+
+      email:
+        request.email,
+    };
+
+    this.users.set(
+      user.id,
+      user,
+    );
+
+    return user;
+  }
+}
+EOF
+
+###############################################################################
+# Memory README (optional)
+###############################################################################
+
+cat > apps/api/src/infrastructure/memory/README.md <<'EOF'
+Memory Provider
+
+This provider stores data in memory using a Map.
+
+It is intended for:
+- local development
+- unit testing
+- integration testing
+
+Data is lost when the process exits.
+EOF
+
+
+###############################################################################
+# User Controller
+###############################################################################
+
+cat > apps/api/src/features/user/controller.ts <<'EOF'
+import { Hono }
+  from "hono";
+
+import {
+  CreateUserSchema,
+  UserDetailSchema,
+} from "@packages/schemas";
+
+import {
+  userService,
+} from "@/provider/db-provider";
+
+export const userController =
+  new Hono();
+
+userController.get(
+  "/:id",
+  async (c) => {
+
+    const id =
+      Number(
+        c.req.param("id"),
+      );
+
+    if (
+      Number.isNaN(id)
+    ) {
+
+      return c.json(
+        {
+          message:
+            "invalid id",
+        },
+        400,
+      );
+    }
+
+    const user =
+      await userService
+        .getUser(id);
+
+    if (!user) {
+
+      return c.json(
+        {
+          message:
+            "user not found",
+        },
+        404,
+      );
+    }
+
+    return c.json(
+      UserDetailSchema.parse(
+        user,
+      ),
+    );
+  },
+);
+
+userController.post(
+  "/",
+  async (c) => {
+
+    const body =
+      await c.req.json();
+
+    const request =
+      CreateUserSchema.parse(
+        body,
+      );
+
+    const user =
+      await userService
+        .createUser(
+          request,
+        );
+
+    return c.json(
+      UserDetailSchema.parse(
+        user,
+      ),
+      201,
+    );
+  },
+);
+EOF
+
+###############################################################################
+# Main
+###############################################################################
+
+cat > apps/api/src/main.ts <<'EOF'
+import { serve }
+  from "@hono/node-server";
+
+import { Hono }
+  from "hono";
+
+import {
+  userController,
+} from "./features/user/controller";
+
+const app =
+  new Hono();
+
+app.get(
+  "/health",
+  (c) =>
+    c.json({
+      status: "ok",
+    }),
+);
+
+app.route(
+  "/users",
+  userController,
+);
+
+const port =
+  Number(
+    process.env.PORT
+    ?? 3000,
+  );
+
+serve(
+  {
+    fetch: app.fetch,
+    port,
+  },
+  (info) => {
+
+    console.log(
+      `server started : ${info.port}`,
+    );
+  },
+);
+EOF
+
+###############################################################################
+# .env.example
+###############################################################################
+
+cat > apps/api/.env.example <<'EOF'
+#
+# memory
+#
+DB_PROVIDER=memory
+
+#
+# postgres
+#
+# DB_PROVIDER=postgres
+# DATABASE_URL=postgres://postgres:postgres@localhost:5432/app
+
+PORT=3000
+EOF
+
+###############################################################################
+# .env
+###############################################################################
+
+cat > apps/api/.env <<'EOF'
+DB_PROVIDER=memory
+
+PORT=3000
+EOF
+
+###############################################################################
+# done
+###############################################################################
+
+echo ""
+echo "========================================"
+echo "Project generated."
+echo "========================================"
+echo ""
+echo "Install:"
+echo "npm install"
+echo ""
+echo "Run:"
+echo "npm run dev -w apps/api"
+echo ""
+EOF_1790920125_26254
 
 echo "作成: TASK-001_004-設定駆動化ギャップ分析.md"
-cat << 'EOF_1790584055_14292' > "TASK-001_004-設定駆動化ギャップ分析.md"
+cat << 'EOF_1790920125_17070' > "TASK-001_004-設定駆動化ギャップ分析.md"
 # TASK-005 設定駆動化ギャップ分析
 
 ## 目的
@@ -10780,6 +12095,6 @@ AuthenticationProvider
 
 という抽象化が既に存在しており、
 実装コストに対する効果が最も高いためである。
-EOF_1790584055_14292
+EOF_1790920125_17070
 
 echo -e "\n復元が完了しました！"
