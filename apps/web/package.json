@@ -1,5 +1,8 @@
 {
     "name": "@apps/web",
     "private": true,
-    "type": "module"
+    "type": "module",
+    "dependencies": {
+        "@packages/schemas": "*"
+    }
 }

@@ -1,5 +1,5 @@
-import { AuthenticationConfig } from '@apps/api/config/Config';
-import { UserService } from '../../user/services/UserService';
+import { AuthenticationConfig } from '@apps/api/systemConfig/SystemConfig';
+import { UserService } from '../../user/service';
 import { AuthenticationProvider } from './AuthenticationProvider';
 import { LdapAuthenticationProvider } from './LdapAuthenticationProvider';
 import { LocalAuthenticationProvider } from './LocalAuthenticationProvider';

@@ -1,4 +1,4 @@
-import { AuthenticationPolicy } from '@packages/types/authentication/AuthenticationPolicy';
+import { AuthenticationPolicy } from '@packages/types/administration/AuthenticationPolicy';
 
 export interface SystemConfiguration {
     databaseType: 'memory' | 'postgres' | 'sqlserver';

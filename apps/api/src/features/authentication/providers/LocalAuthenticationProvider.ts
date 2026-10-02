@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-import { UserService } from '../../user/services/UserService';
+import { UserService } from '../../user/service';
 import { UserPrincipal } from '../domain/UserPrincipal';
 import { AuthenticationProvider } from './AuthenticationProvider';
 

@@ -9,17 +9,24 @@
         "packages/*"
     ],
     "scripts": {
-        "dev": "npm run dev -w @apps/api",
-        "dev:api": "npm run dev -w @apps/api",
-        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
-        "check": "tsc --noEmit",
         "build": "npm run build:api && npm run build:web",
         "build:api": "npm run build -w @apps/api",
         "build:web": "npm run build -w @apps/web-react",
-        "test": "npm run test --workspaces --if-present",
-        "format": "prettier --write ."
+        "check": "tsc --noEmit",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:push": "drizzle-kit push",
+        "dev": "npm run dev -w @apps/api",
+        "dev:api": "npm run dev -w @apps/api",
+        "dev:web": "cd apps/web/react && vite --host 0.0.0.0",
+        "format": "prettier --write .",
+        "test": "npm run test --workspaces --if-present"
+    },
+    "dependencies": {
+        "zod": "^4.6.5"
     },
     "devDependencies": {
+        "drizzle-kit": "^0.31.10",
         "eslint": "^10.11.0",
         "eslint-config-prettier": "^10.1.8",
         "prettier": "^3.9.9",

@@ -1,0 +1,71 @@
+                    ┌─────────────┐
+                    │  Frontend   │
+                    └──────┬──────┘
+                           │
+                           │ RequestSchema
+                           │ (Zod 必須)
+                           ▼
+                    ┌─────────────┐
+                    │ Controller  │
+                    └──────┬──────┘
+                           │
+                           │ EntityRequestSchema
+                           ▼
+                    ┌─────────────┐
+                    │  Service    │
+                    └──────┬──────┘
+                           │
+                           │ RepositoryRequestSchema
+                           ▼
+                    ┌─────────────┐
+                    │ Repository  │
+                    └──────┬──────┘
+                           │
+                           │ DBRequestSchema
+                           ▼
+
+                ┌─────────────────────┐
+                │     DbProvider      │
+                │                     │
+                │ postgres            │
+                │ sqlserver           │
+                │ memory              │
+                └─────────┬───────────┘
+                          │
+          ┌───────────────┼────────────────┐
+          ▼               ▼                ▼
+
+     PostgreSQL      SQL Server       InMemory
+
+          ▲               ▲                ▲
+          │               │                │
+          │ DBSchema      │ DBSchema       │ DBSchema
+          │               │                │
+
+          └───────────────┼────────────────┘
+                          │
+                          ▼
+
+                    ┌─────────────┐
+                    │ Repository  │
+                    └──────┬──────┘
+                           │
+                           │ RepositorySchema
+                           ▼
+                    ┌─────────────┐
+                    │  Service    │
+                    └──────┬──────┘
+                           │
+                           │ EntitySchema
+                           ▼
+                    ┌─────────────┐
+                    │ Controller  │
+                    └──────┬──────┘
+                           │
+                           │ ResponseSchema
+                           │ (Zod 必須)
+                           ▼
+                    ┌─────────────┐
+                    │  Frontend   │
+                    └─────────────┘
+`

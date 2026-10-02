@@ -1,7 +1,7 @@
-import { SystemConfiguration } from '../domain/SystemConfiguration';
+import { Configuration } from '../domain/Configuration';
 
 export interface ConfigurationRepository {
-    load(): Promise<SystemConfiguration>;
+    load(): Promise<Configuration>;
 
-    save(configuration: SystemConfiguration): Promise<void>;
+    save(configuration: Configuration): Promise<void>;
 }

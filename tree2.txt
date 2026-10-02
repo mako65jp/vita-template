@@ -1,469 +1,57 @@
 .
 ├── apps
 │   ├── api
-│   │   ├── package.json
-│   │   ├── src
-│   │   │   ├── app
-│   │   │   │   ├── AppContext.ts
-│   │   │   │   ├── createApp.ts
-│   │   │   │   ├── createContainer.ts
-│   │   │   │   └── DependencyContainer.ts
-│   │   │   ├── common
-│   │   │   │   ├── cors.ts
-│   │   │   │   ├── csrf.ts
-│   │   │   │   ├── errors
-│   │   │   │   ├── error.ts
-│   │   │   │   ├── logger.ts
-│   │   │   │   ├── middleware
-│   │   │   │   │   ├── authentication.ts
-│   │   │   │   │   ├── authorization.ts
-│   │   │   │   │   ├── errorHandler.ts
-│   │   │   │   │   └── featureGuard.ts
-│   │   │   │   └── repositories
-│   │   │   │       ├── BaseRepository.ts
-│   │   │   │       └── Repository.ts
-│   │   │   ├── config
-│   │   │   │   ├── Config.ts
-│   │   │   │   ├── loadConfig.ts
-│   │   │   │   └── saveConfig.ts
-│   │   │   ├── database
-│   │   │   │   ├── createDatabase.ts
-│   │   │   │   ├── Database.ts
-│   │   │   │   ├── DrizzleDatabase.ts
-│   │   │   │   ├── InMemoryDatabase.ts
-│   │   │   │   ├── PostgreSqlDatabase.ts
-│   │   │   │   └── SqlServerDatabase.ts
-│   │   │   ├── drizzle
-│   │   │   │   ├── db.ts
-│   │   │   │   ├── index.ts
-│   │   │   │   └── schema.ts
-│   │   │   ├── features
-│   │   │   │   ├── administration
-│   │   │   │   │   ├── authentication
-│   │   │   │   │   │   ├── AdminAuthenticationProvider.ts
-│   │   │   │   │   │   └── LocalAdminAuthenticationProvider.ts
-│   │   │   │   │   ├── controllers
-│   │   │   │   │   │   ├── AdminUserController.ts
-│   │   │   │   │   │   ├── ConfigurationController.ts
-│   │   │   │   │   │   ├── FeatureFlagController.ts
-│   │   │   │   │   │   └── SystemStatusController.ts
-│   │   │   │   │   ├── domain
-│   │   │   │   │   │   ├── AdminUser.ts
-│   │   │   │   │   │   ├── FeatureFlag.ts
-│   │   │   │   │   │   ├── SystemConfiguration.ts
-│   │   │   │   │   │   └── SystemStatus.ts
-│   │   │   │   │   ├── repositories
-│   │   │   │   │   │   ├── AdminUserRepository.ts
-│   │   │   │   │   │   ├── ConfigurationRepository.ts
-│   │   │   │   │   │   └── FeatureFlagRepository.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   └── services
-│   │   │   │   │       ├── AdminUserService.ts
-│   │   │   │   │       ├── ConfigurationService.ts
-│   │   │   │   │       ├── FeatureFlagService.ts
-│   │   │   │   │       └── SystemStatusService.ts
-│   │   │   │   ├── authentication
-│   │   │   │   │   ├── AppJwtPayload.ts
-│   │   │   │   │   ├── AppVariables.ts
-│   │   │   │   │   ├── AuthenticationCredential.ts
-│   │   │   │   │   ├── controllers
-│   │   │   │   │   │   └── AuthenticationController.ts
-│   │   │   │   │   ├── domain
-│   │   │   │   │   │   └── UserPrincipal.ts
-│   │   │   │   │   ├── middleware
-│   │   │   │   │   │   ├── authorizeSelfOrAdmin.ts
-│   │   │   │   │   │   ├── authorize.ts
-│   │   │   │   │   │   └── jwtAuthentication.ts
-│   │   │   │   │   ├── providers
-│   │   │   │   │   │   ├── AuthenticationProvider.ts
-│   │   │   │   │   │   ├── createAuthenticationProvider.ts
-│   │   │   │   │   │   ├── LdapAuthenticationProvider.ts
-│   │   │   │   │   │   ├── LocalAuthenticationProvider.ts
-│   │   │   │   │   │   ├── NoAuthenticationProvider.ts
-│   │   │   │   │   │   └── OidcAuthenticationProvider.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   └── services
-│   │   │   │   │       ├── AuthenticationService.ts
-│   │   │   │   │       └── JwtService.ts
-│   │   │   │   ├── authorization
-│   │   │   │   │   ├── controllers
-│   │   │   │   │   │   └── AuthorizationController.ts
-│   │   │   │   │   ├── domain
-│   │   │   │   │   │   ├── Permission.ts
-│   │   │   │   │   │   └── Role.ts
-│   │   │   │   │   ├── repositories
-│   │   │   │   │   │   └── RoleRepository.ts
-│   │   │   │   │   ├── routes.ts
-│   │   │   │   │   └── services
-│   │   │   │   │       └── AuthorizationService.ts
-│   │   │   │   └── user
-│   │   │   │       ├── controllers
-│   │   │   │       │   └── UserController.ts
-│   │   │   │       ├── domain
-│   │   │   │       │   └── User.ts
-│   │   │   │       ├── mappers
-│   │   │   │       │   └── UserMapper.ts
-│   │   │   │       ├── repositories
-│   │   │   │       │   ├── UserRepositoryImpl.ts
-│   │   │   │       │   └── UserRepository.ts
-│   │   │   │       ├── routes.ts
-│   │   │   │       └── services
-│   │   │   │           └── UserService.ts
-│   │   │   └── main.ts
-│   │   ├── tsconfig.json
-│   │   └── vitest.config.ts
+│   │   └── src
+│   │       ├── app
+│   │       ├── common
+│   │       │   ├── middleware
+│   │       │   └── repositories
+│   │       ├── database
+│   │       ├── features
+│   │       │   ├── administration
+│   │       │   │   ├── authentication
+│   │       │   │   ├── controllers
+│   │       │   │   ├── domain
+│   │       │   │   ├── mappers
+│   │       │   │   ├── repositories
+│   │       │   │   └── services
+│   │       │   ├── authentication
+│   │       │       ├── controllers
+│   │       │       ├── domain
+│   │       │       ├── middleware
+│   │       │       ├── providers
+│   │       │       └── services
+│   │       └── systemConfig
 │   └── web
-│       ├── ApplicationConfiguration.ts
-│       ├── Application.ts
-│       ├── FrontendConfigurationService.ts
-│       ├── package.json
-│       ├── package-lock.json
-│       ├── react
-│       │   ├── index.html
-│       │   ├── package.json
-│       │   ├── src
-│       │   │   ├── app
-│       │   │   │   ├── App.tsx
-│       │   │   │   ├── FeatureDefinition.ts
-│       │   │   │   ├── features.ts
-│       │   │   │   ├── providers
-│       │   │   │   │   ├── AuthProvider.tsx
-│       │   │   │   │   ├── ConfigurationProvider.tsx
-│       │   │   │   │   └── ReactQueryProvider.tsx
-│       │   │   │   └── router.tsx
-│       │   │   ├── components
-│       │   │   │   └── Layout.tsx
-│       │   │   ├── config
-│       │   │   ├── features
-│       │   │   │   ├── administration
-│       │   │   │   │   └── routes.tsx
-│       │   │   │   ├── authentication
-│       │   │   │   │   ├── api
-│       │   │   │   │   │   └── login.ts
-│       │   │   │   │   ├── components
-│       │   │   │   │   │   └── LoginForm.tsx
-│       │   │   │   │   ├── hooks
-│       │   │   │   │   │   └── useLogin.ts
-│       │   │   │   │   ├── pages
-│       │   │   │   │   │   └── LoginPage.tsx
-│       │   │   │   │   └── routes.tsx
-│       │   │   │   ├── authorization
-│       │   │   │   ├── dashboard
-│       │   │   │   │   └── pages
-│       │   │   │   │       └── DashboardPage.tsx
-│       │   │   │   ├── settings
-│       │   │   │   │   └── pages
-│       │   │   │   │       └── SettingsPage.tsx
-│       │   │   │   └── user
-│       │   │   │       └── routes.tsx
-│       │   │   ├── index.css
-│       │   │   └── main.tsx
-│       │   ├── tsconfig.json
-│       │   ├── vite.config.ts
-│       │   └── vitest.config.ts
-│       ├── RuntimeConfigurationProvider.ts
-│       ├── tsconfig.json
-│       ├── vitest.config.ts
-│       └── vue
+│       ├── core
+│       │   └── src
+│       │       └── api-client
+│       │           ├── administration
+│       │           ├── authentication
+│       │           ├── http
+│       │           └── user
+│       └── react
 │           └── src
 │               ├── app
-│               │   ├── App.vue
-│               │   └── router.ts
+│               │   └── providers
 │               ├── components
-│               ├── features
-│               │   ├── administration
-│               │   │   └── routes.ts
-│               │   ├── authentication
-│               │   ├── authorization
-│               │   └── user
-│               │       └── routes.ts
-│               └── main.ts
-├── cat.sh
+│               ├── config
+│               └── features
+│                   ├── authentication
+│                   │   ├── api
+│                   │   ├── components
+│                   │   ├── hooks
+│                   │   └── pages
+│                   ├── dashboard
+│                   │   └── pages
+│                   └── settings
+│                       └── pages
 ├── config
-│   ├── development.json
-│   ├── production.json
-│   └── staging.json
-├── memo.txt
-├── Old
-│   ├── apps
-│   │   ├── api
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── auto-loader
-│   │   │   │   │   ├── hono-auto-loader.test.ts
-│   │   │   │   │   └── hono-auto-loader.ts
-│   │   │   │   ├── create-app.test.ts
-│   │   │   │   ├── create-app.ts
-│   │   │   │   ├── main.test.ts
-│   │   │   │   ├── main.ts
-│   │   │   │   ├── middlewares
-│   │   │   │   │   ├── auth-middleware.test.ts
-│   │   │   │   │   ├── auth-middleware.ts
-│   │   │   │   │   ├── di.test.ts
-│   │   │   │   │   ├── di.ts
-│   │   │   │   │   ├── logger.test.ts
-│   │   │   │   │   ├── logger.ts
-│   │   │   │   │   ├── rbac-middleware.test.ts
-│   │   │   │   │   └── rbac-middleware.ts
-│   │   │   │   ├── routes
-│   │   │   │   │   ├── auth.test.ts
-│   │   │   │   │   ├── auth.ts
-│   │   │   │   │   ├── health.test.ts
-│   │   │   │   │   ├── health.ts
-│   │   │   │   │   ├── plugin.test.ts
-│   │   │   │   │   └── plugin.ts
-│   │   │   │   ├── services
-│   │   │   │   │   ├── auth-service.test.ts
-│   │   │   │   │   └── auth-service.ts
-│   │   │   │   ├── types.ts
-│   │   │   │   └── utils
-│   │   │   │       └── auto-loader-helper.ts
-│   │   │   ├── tsconfig.json
-│   │   │   └── vitest.config.ts
-│   │   └── web
-│   │       ├── index.html
-│   │       ├── package.json
-│   │       ├── src
-│   │       │   ├── App.test.tsx
-│   │       │   ├── App.tsx
-│   │       │   ├── components
-│   │       │   │   ├── ForbiddenPage.test.tsx
-│   │       │   │   ├── ForbiddenPage.tsx
-│   │       │   │   ├── Header.tsx
-│   │       │   │   ├── LoginForm.test.tsx
-│   │       │   │   ├── LoginForm.tsx
-│   │       │   │   ├── ProtectedRoute.test.tsx
-│   │       │   │   └── ProtectedRoute.tsx
-│   │       │   ├── context
-│   │       │   │   ├── AuthContext.test.tsx
-│   │       │   │   └── AuthContext.tsx
-│   │       │   ├── env.test.ts
-│   │       │   ├── index.css
-│   │       │   ├── lib
-│   │       │   │   ├── apiClient.test.ts
-│   │       │   │   └── apiClient.ts
-│   │       │   └── main.tsx
-│   │       ├── tsconfig.json
-│   │       ├── vite.config.ts
-│   │       ├── vitest.config.ts
-│   │       └── vitest-setup.ts
-│   ├── create_restorer_bat.sh
-│   ├── create_restorer.sh
-│   ├── doc.md
-│   ├── features
-│   │   ├── tsconfig.json
-│   │   └── user-management
-│   │       ├── api
-│   │       │   └── user-management-api.ts
-│   │       ├── client
-│   │       │   ├── CreateUserModal.tsx
-│   │       │   ├── index.ts
-│   │       │   ├── plugin.ts
-│   │       │   ├── UserManagementTable.test.tsx
-│   │       │   └── UserManagementTable.tsx
-│   │       ├── index.ts
-│   │       ├── manifest.test.ts
-│   │       ├── manifest.ts
-│   │       ├── package.json
-│   │       ├── server
-│   │       │   ├── index.ts
-│   │       │   ├── plugin.ts
-│   │       │   ├── routes.test.ts
-│   │       │   └── routes.ts
-│   │       ├── shared
-│   │       ├── vitest.config.ts
-│   │       └── vitest-setup.ts
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── plan.md
-│   ├── plugins
-│   │   ├── auth-ad
-│   │   │   ├── index.test.ts
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   └── vitest.config.ts
-│   │   └── auth-local
-│   │       ├── index.test.ts
-│   │       ├── index.ts
-│   │       ├── package.json
-│   │       ├── src
-│   │       │   ├── auth-utils.test.ts
-│   │       │   └── auth-utils.ts
-│   │       └── vitest.config.ts
-│   ├── restore_project.bat
-│   ├── restore_project.sh
-│   ├── shared
-│   │   ├── client
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── components
-│   │   │   │   │   ├── button.test.tsx
-│   │   │   │   │   ├── button.tsx
-│   │   │   │   │   ├── layout
-│   │   │   │   │   │   ├── AppLayout.tsx
-│   │   │   │   │   │   ├── index.ts
-│   │   │   │   │   │   └── SidebarNav.tsx
-│   │   │   │   │   ├── layout.test.tsx
-│   │   │   │   │   ├── toaster.test.tsx
-│   │   │   │   │   └── toaster.tsx
-│   │   │   │   ├── env.ts
-│   │   │   │   ├── lib
-│   │   │   │   │   └── utils.ts
-│   │   │   │   └── vitest-setup.ts
-│   │   │   ├── tsconfig.json
-│   │   │   └── vitest.config.ts
-│   │   ├── config
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── app.ts
-│   │   │   │   ├── auth.ts
-│   │   │   │   ├── ports.ts
-│   │   │   │   └── routes.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── db
-│   │   │   ├── drizzle
-│   │   │   │   ├── 0000_oval_dark_phoenix.sql
-│   │   │   │   └── meta
-│   │   │   │       ├── 0000_snapshot.json
-│   │   │   │       └── _journal.json
-│   │   │   ├── drizzle.config.ts
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── seed.ts
-│   │   │   ├── src
-│   │   │   │   ├── codegen.ts
-│   │   │   │   ├── database.test.ts
-│   │   │   │   ├── database.ts
-│   │   │   │   ├── generated
-│   │   │   │   │   └── repositories.ts
-│   │   │   │   └── schema
-│   │   │   │       ├── index.ts
-│   │   │   │       ├── plugins.ts
-│   │   │   │       └── users.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── errors
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── app-error.ts
-│   │   │   │   ├── bad-request-error.ts
-│   │   │   │   ├── forbidden-error.ts
-│   │   │   │   ├── internal-server-error.ts
-│   │   │   │   ├── not-found-error.ts
-│   │   │   │   ├── types.ts
-│   │   │   │   ├── unauthorized-error.ts
-│   │   │   │   └── validation-error.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── functions
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── auth-registry.test.ts
-│   │   │   │   ├── auth-registry.ts
-│   │   │   │   ├── constants.ts
-│   │   │   │   ├── env.test.ts
-│   │   │   │   └── env.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── package.json
-│   │   ├── plugin
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── plugin-registry.ts
-│   │   │   │   └── server-plugin.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── server-utils
-│   │   │   ├── index.ts
-│   │   │   ├── package.json
-│   │   │   ├── src
-│   │   │   │   ├── path.test.ts
-│   │   │   │   └── path.ts
-│   │   │   └── vitest.config.ts
-│   │   ├── tsconfig.json
-│   │   └── vitest.config.ts
-│   ├── tree.txt
-│   ├── tsconfig.base.json
-│   ├── tsconfig.json
-│   ├── vitest.config.ts
-│   └── vitest-helpers.ts
-├── package.json
-├── package-lock.json
-├── packages
-│   ├── api-client
-│   │   ├── administration
-│   │   │   └── ConfigurationApi.ts
-│   │   ├── authentication
-│   │   │   └── AuthenticationApi.ts
-│   │   ├── http
-│   │   │   ├── FetchHttpClient.ts
-│   │   │   └── HttpClient.ts
-│   │   └── user
-│   │       └── UserApi.ts
-│   ├── features
-│   │   ├── authentication
-│   │   │   ├── api
-│   │   │   │   └── login.ts
-│   │   │   ├── components
-│   │   │   │   └── LoginForm.tsx
-│   │   │   ├── Feature.tsx
-│   │   │   ├── hooks
-│   │   │   │   └── useLogin.ts
-│   │   │   ├── pages
-│   │   │   │   └── LoginPage.tsx
-│   │   │   └── routes.tsx
-│   │   ├── package.json
-│   │   ├── settings
-│   │   │   ├── Feature.tsx
-│   │   │   └── pages
-│   │   │       └── SettingsPage.tsx
-│   │   ├── tsconfig.json
-│   │   └── vitest.config.ts
-│   ├── shared
-│   │   ├── collections
-│   │   ├── constants
-│   │   ├── errors
-│   │   └── utilities
-│   ├── types
-│   │   ├── administration
-│   │   │   ├── ConfigurationDto.ts
-│   │   │   └── FeatureFlagDto.ts
-│   │   ├── authentication
-│   │   │   ├── LoginRequest.ts
-│   │   │   └── LoginResponse.ts
-│   │   ├── authorization
-│   │   │   ├── PermissionDto.ts
-│   │   │   └── RoleDto.ts
-│   │   ├── common
-│   │   ├── Config.ts
-│   │   ├── package.json
-│   │   └── user
-│   │       ├── CreateUserRequest.ts
-│   │       ├── UpdateUserRequest.ts
-│   │       └── UserDto.ts
-│   └── validation
-│       ├── administration
-│       ├── authentication
-│       │   └── LoginSchema.ts
-│       ├── common
-│       └── user
-│           ├── CreateUserSchema.ts
-│           └── UpdateUserSchema.ts
-├── phase-9.http
-├── README.md
-├── TASK-001_004-設定駆動化ギャップ分析.md
-├── TASK-001.md
-├── TASK-002.md
-├── TASK-003.md
-├── TASK-004.md
-├── TASK-005.md
-├── tree2.txt
-├── tree.txt
-├── tsconfig.base.json
-├── tsconfig.json
-├── WBS_1-設定駆動アーキテクチャの完成.md
-└── チャット1.txt
-
-143 directories, 324 files
+└── packages
+    ├── constants
+    ├── types
+        ├── administration
+        ├── authentication
+        ├── authorization
+        ├── common
+        └── user

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import { createAuthenticationController } from '../features/authentication/routes';
-import { createUserController } from '../features/user/controllers/UserController';
+import { createUserController } from '../features/user/controller';
 import { DependencyContainer } from './DependencyContainer';
 
 import cors from '../common/cors.js';
