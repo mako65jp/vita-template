@@ -15,17 +15,57 @@ export function createApp(container: DependencyContainer) {
     const apiRoot = container.systemConfig.backend.applicationRoot;
 
     const app = new Hono()
+        //
+        // Route registration policy
+        //
+        // Hono は Middleware を登録順に適用する。
+        //
+        // このセクションはアプリケーション全体の
+        // 認証境界および Route 構成を定義する。
+
+        //
+        // Global middleware
+        //
+        // 必ず実行する Middleware（システム共通処理）
+        //
         .onError(error)
         // .notFound(notFound)
         .use(logger)
         .use('*', cors(container.systemConfig))
         .use('*', csrf(container.systemConfig))
+
+        //
+        // Health check
+        //
         .get('/', (c) => c.text('Backend running.'))
 
-        .route(`${apiRoot}`, createAuthenticationController(container.authenticationService))
+        //
+        // Routes Not Requiring Authentication
+        //
+        // 認証不要な Route を登録する
+        //
 
-        .use(`${apiRoot}/users/*`, jwtAuthentication(container.jwtService))
-        .route(`${apiRoot}/users/*`, createUserController(container.userService));
+        .route(
+            `${apiRoot}`,
+            createAuthenticationController(container.services.authenticationService),
+        )
 
+        //
+        // Authentication boundary
+        //
+        // この Middleware が
+        // 認証不要な Route
+        // と
+        // 認証が必要な Route
+        // の境界となる。
+        //
+        .use(`${apiRoot}/*`, jwtAuthentication(container.services.jwtService))
+
+        //
+        // Routes Requiring Authentication
+        //
+        // 認証が必要な Route を登録する
+        //
+        .route(`${apiRoot}/users/*`, createUserController(container.services.userService));
     return app;
 }
