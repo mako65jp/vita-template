@@ -1,30 +1,38 @@
 import { serve } from '@hono/node-server';
+
 import { createApp } from './app/createApp';
 import { createDependencyContainer } from './app/createDependencyContainer';
 import { loadSystemConfig } from './systemConfig/loadSystemConfig';
+import { resolveConfigPath } from './systemConfig/resolveConfigPath';
 
-import path, { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+/**
+ * アプリケーションを起動する。
+ *
+ * 起動手順:
+ *   1. 設定ファイルを読み込む
+ *   2. DI Container を構築する
+ *   3. Hono Application を生成する
+ *   4. HTTP Server を起動する
+ */
+async function bootstrap(): Promise<void> {
+    // 実行環境に応じた設定ファイルを読み込む。
+    const config = await loadSystemConfig(resolveConfigPath());
 
-// 現在のファイルのパスを取得
-const __filename: string = fileURLToPath(import.meta.url);
-// 現在のファイルが存在するディレクトリのパスを取得
-const __dirname: string = dirname(__filename);
-// このアプリケーションのRoot
-const __root: string = path.resolve(__dirname, '../../../');
+    // Repository / Service などの依存オブジェクトを構築する。
+    const dependencyContainer = await createDependencyContainer(config);
 
-// ディレクトリ内にある設定ファイルを読み込む例
-const configPath: string = join(__root, 'config/development.json');
+    // Hono Application を生成する。
+    const app = createApp(dependencyContainer);
 
-const config = await loadSystemConfig(configPath);
+    // HTTP Server を起動する。
+    const port = Number(config.backend.port);
+    serve({
+        fetch: app.fetch,
+        port,
+    });
 
-const dependencyContainer = await createDependencyContainer(config);
-const app = createApp(dependencyContainer);
-const port = Number(config.backend.port);
+    console.log(`Listening on :${port}`);
+}
 
-serve({
-    fetch: app.fetch,
-    port: port,
-});
-
-console.log(`Listening on :${port}`);
+// アプリケーションを起動する。
+await bootstrap();

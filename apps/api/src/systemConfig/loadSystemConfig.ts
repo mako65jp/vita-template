@@ -1,8 +1,13 @@
+import fs from 'fs';
 import { readFile } from 'node:fs/promises';
 import { SystemConfig } from './SystemConfig';
 
-export async function loadSystemConfig(path: string): Promise<SystemConfig> {
-    const json = await readFile(path, 'utf8');
+export async function loadSystemConfig(configPath: string): Promise<SystemConfig> {
+    if (!fs.existsSync(configPath)) {
+        throw new Error(`Config file not found: ${configPath}`);
+    }
+
+    const json = await readFile(configPath, 'utf8');
     const systemConfig = JSON.parse(json) as SystemConfig;
 
     if (systemConfig.backend.applicationRoot == undefined) {
